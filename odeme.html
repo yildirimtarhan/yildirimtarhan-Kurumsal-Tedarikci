@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ödeme - Kurumsal Tedarikçi</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7ff; }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .logo { font-size: 24px; font-weight: bold; }
+        
+        .odeme-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+        }
+        
+        .odeme-form {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .form-grup {
+            margin-bottom: 24px;
+        }
+        
+        .form-grup label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .form-grup input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .form-grup input:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+        
+        .odeme-ozet {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .ozet-baslik {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .ozet-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            color: #6b7280;
+        }
+        
+        .ozet-toplam {
+            display: flex;
+            justify-content: space-between;
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e5e7eb;
+        }
+        
+        .btn-odeme {
+            width: 100%;
+            padding: 16px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .btn-odeme:hover { background: #4f46e5; }
+        
+        @media (max-width: 968px) {
+            .odeme-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Kurumsal<span style="color:#6366f1;">Tedarikçi</span></div>
+        <a href="index.html" style="color:#6366f1;text-decoration:none;font-weight:600;">← Sepete Dön</a>
+    </nav>
+
+    <div class="odeme-container">
+        <div class="odeme-form">
+            <h2 style="margin-bottom:30px;">Fatura ve Ödeme Bilgileri</h2>
+            
+            <form onsubmit="odemeYap(event)">
+                <h3 style="margin-bottom:20px;color:#6366f1;">Firma Bilgileri</h3>
+                
+                <div class="form-grup">
+                    <label>Firma Adı / Ad Soyad *</label>
+                    <input type="text" required id="firmaAdi">
+                </div>
+                
+                <div class="form-grup">
+                    <label>E-Posta *</label>
+                    <input type="email" required id="email">
+                </div>
+
+                <h3 style="margin:30px 0 20px 0;color:#6366f1;">Ödeme Bilgileri</h3>
+                
+                <div class="form-grup">
+                    <label>Kart Numarası</label>
+                    <input type="text" placeholder="0000 0000 0000 0000">
+                </div>
+                
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+                    <div class="form-grup">
+                        <label>Son Kullanma</label>
+                        <input type="text" placeholder="MM/YY">
+                    </div>
+                    <div class="form-grup">
+                        <label>CVC</label>
+                        <input type="text" placeholder="123">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-odeme">Ödemeyi Tamamla</button>
+            </form>
+        </div>
+        
+        <div class="odeme-ozet">
+            <div class="ozet-baslik">Sipariş Özeti</div>
+            <div id="ozetListe"></div>
+            <div class="ozet-toplam">
+                <span>Toplam</span>
+                <span id="odemeToplam">₺0</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/sepet.js"></script>
+    <script>
+        function odemeSayfasiniGuncelle() {
+            const ozetListe = document.getElementById('ozetListe');
+            const odemeToplam = document.getElementById('odemeToplam');
+            
+            if (sepet.length === 0) {
+                ozetListe.innerHTML = '<p>Sepetiniz boş.</p>';
+                odemeToplam.textContent = '₺0';
+                return;
+            }
+            
+            let html = '';
+            let toplam = 0;
+            
+            sepet.forEach(item => {
+                const itemToplam = item.fiyat * item.adet;
+                toplam += itemToplam;
+                html += `<div class="ozet-item"><span>${item.ad} x ${item.adet}</span><span>₺${itemToplam}</span></div>`;
+            });
+            
+            ozetListe.innerHTML = html;
+            odemeToplam.textContent = `₺${toplam.toLocaleString('tr-TR')}`;
+        }
+        
+        function odemeYap(e) {
+            e.preventDefault();
+            const firma = document.getElementById('firmaAdi').value;
+            
+            // Sepeti temizle
+            sepet = [];
+            localStorage.removeItem('kurumsalSepet');
+            
+            alert(`Teşekkürler ${firma}! Siparişiniz alındı.`);
+            window.location.href = 'index.html';
+        }
+        
+        odemeSayfasiniGuncelle();
+    </script>
+</body>
+</html>
