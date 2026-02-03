@@ -11,6 +11,167 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// ADMIN MIDDLEWARE - Token doğrulama
+const jwt = require('jsonwebtoken');
+
+const adminAuth = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Token gerekli' });
+  
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'gizli-anahtar');
+    if (!decoded.isAdmin) return res.status(403).json({ error: 'Yetkisiz erişim' });
+    req.user = decoded;
+    next();
+  } catch (err) {
+    res.status(401).json({ error: 'Geçersiz token' });
+  }
+};
+
+// ADMIN GİRİŞ (İlk admin için MongoDB'ye elle ekleme yapmalısın)
+app.post('/api/admin/login', async (req, res) => {
+  const { username, password } = req.body;
+  
+  // İlk admin kullanıcısı (MongoDB'ye migration ile ekleyebilirsin)
+  // Collection: admins
+  const admin = await db.collection('admins').findOne({ username });
+  
+  if (!admin || !await bcrypt.compare(password, admin.password)) {
+    return res.status(401).json({ error: 'Kullanıcı adı veya şifre hatalı' });
+  }
+  
+  const token = jwt.sign(
+    { id: admin._id, username: admin.username, isAdmin: true },
+    process.env.JWT_SECRET || 'gizli-anahtar',
+    { expiresIn: '24h' }
+  );
+  
+  res.json({ token, user: { username: admin.username } });
+});
+
+// DASHBOARD İSTATİSTİKLERİ
+app.get('/api/admin/dashboard', adminAuth, async (req, res) => {
+  try {
+    const totalUsers = await db.collection('users').countDocuments();
+    const todayOrders = await db.collection('orders').countDocuments({
+      createdAt: { $gte: new Date(Date.now() - 24*60*60*1000) }
+    });
+    const pendingOrders = await db.collection('orders').countDocuments({ status: 'pending' });
+    
+    res.json({
+      stats: {
+        totalUsers,
+        todayOrders,
+        pendingOrders,
+        totalRevenue: 0 // Sonra hesaplanacak
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// KULLANICI LİSTESİ (ERP'ye aktarılmamışlar)
+app.get('/api/admin/users', adminAuth, async (req, res) => {
+  try {
+    const users = await db.collection('users').find().toArray();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ERP ENTEGRASYONU - Cari Hesap Oluşturma
+app.post('/api/admin/sync-cari', adminAuth, async (req, res) => {
+  const { userId } = req.body;
+  
+  try {
+    const user = await db.collection('users').findOne({ _id: new ObjectId(userId) });
+    if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı' });
+    
+    // ERP'nize istek at
+    const erpResponse = await fetch('http://localhost:3001/api/cari/create', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ERP_API_KEY // Environment variable olarak tanımla
+      },
+      body: JSON.stringify({
+        ad: user.firmaAdi || user.ad,
+        email: user.email,
+        telefon: user.telefon,
+        kaynak: 'web'
+      })
+    });
+    
+    if (erpResponse.ok) {
+      await db.collection('users').updateOne(
+        { _id: new ObjectId(userId) },
+        { $set: { erpSynced: true, erpSyncDate: new Date() } }
+      );
+      res.json({ success: true, message: 'ERP\'ye aktarıldı' });
+    } else {
+      throw new Error('ERP API hatası');
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ÜRÜN LİSTESİ (ERP'den çek)
+app.get('/api/admin/erp-products', adminAuth, async (req, res) => {
+  try {
+    const response = await fetch('http://localhost:3001/pages/api/sales', {
+      headers: { 'x-api-key': process.env.ERP_API_KEY }
+    });
+    const products = await response.json();
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: 'ERP bağlantı hatası' });
+  }
+});
+
+// SİPARİŞ OLUŞTURMA ve ERP'ye Gönderme
+app.post('/api/admin/create-order', adminAuth, async (req, res) => {
+  const { userId, items, total } = req.body;
+  
+  try {
+    // 1. MongoDB'ye kaydet
+    const order = await db.collection('orders').insertOne({
+      userId: new ObjectId(userId),
+      items,
+      total,
+      status: 'pending',
+      createdAt: new Date()
+    });
+    
+    // 2. ERP'ye gönder
+    const erpResponse = await fetch('http://localhost:3001/pages/api/satis/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ERP_API_KEY
+      },
+      body: JSON.stringify({
+        cariId: userId, // Veya ERP cari kodu
+        items,
+        total,
+        kaynak: 'web-sitesi'
+      })
+    });
+    
+    if (erpResponse.ok) {
+      await db.collection('orders').updateOne(
+        { _id: order.insertedId },
+        { $set: { erpOrderId: (await erpResponse.json()).id, status: 'completed' } }
+      );
+    }
+    
+    res.json({ success: true, orderId: order.insertedId });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // CORS AYARLARI (Render + Vercel için)
 const corsOptions = {

@@ -1402,3 +1402,101 @@ body {
     border-color: #6366f1;
     color: #6366f1;
 }
+
+/* MOBİL UYUMLULUK - Media Queries */
+
+/* Tablet ve altı */
+@media (max-width: 768px) {
+  /* Genel düzen */
+  .container { padding: 0 15px; }
+  
+  /* Navigasyon - Hamburger menü */
+  .navbar {
+    flex-direction: column;
+    padding: 1rem;
+  }
+  
+  .nav-links {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    background: #2c3e50;
+    position: absolute;
+    top: 60px;
+    left: 0;
+  }
+  
+  .nav-links.active { display: flex; }
+  
+  .nav-links a {
+    padding: 1rem;
+    border-bottom: 1px solid #34495e;
+  }
+  
+  /* Form elemanları */
+  input, button, select {
+    font-size: 16px !important; /* Zoom önlemi */
+    padding: 12px;
+  }
+  
+  /* Grid düzeni */
+  .grid { grid-template-columns: 1fr !important; }
+  
+  /* Tablolar yatay kaydırma */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Kartlar */
+  .card {
+    margin: 10px 0;
+    padding: 15px;
+  }
+  
+  /* Butonlar */
+  .btn {
+    width: 100%;
+    margin: 5px 0;
+    padding: 12px;
+    min-height: 44px; /* Touch hedefi */
+  }
+}
+
+/* Telefon dikey */
+@media (max-width: 480px) {
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.2rem; }
+  
+  .hero-section { padding: 2rem 1rem; }
+  
+  .form-container {
+    padding: 1rem;
+    margin: 10px;
+  }
+}
+
+/* Dokunmatik cihaz optimizasyonları */
+@media (hover: none) and (pointer: coarse) {
+  .btn, a, input, select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Hover efektlerini kaldır */
+  .btn:hover { transform: none; }
+}
+
+/* Hamburger menü butonu (mobil için) */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .hamburger { display: block; }
+}
