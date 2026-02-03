@@ -3,23 +3,65 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const SibApiV3Sdk = require('sib-api-v3-sdk'); // Brevo API
+const SibApiV3Sdk = require('sib-api-v3-sdk');
 const path = require('path');
+const mongoose = require('mongoose');
+const { ObjectId } = require('mongodb');
 
 const app = express();
 
-// Middleware
+// MongoDB Bağlantısı
+const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/kurumsal-tedarikci';
+
+mongoose.connect(mongoUri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('✅ MongoDB bağlandı'))
+.catch(err => console.error('❌ MongoDB bağlantı hatası:', err));
+
+const db = mongoose.connection;
+
+// CORS AYARLARI (Render + Vercel için)
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:5500',
+    'https://kurumsal-final.vercel.app',
+    'https://kurumsal-tedarikci.onrender.com',
+    'https://www.tedarikci.org.tr',
+    'https://tedarikci.org.tr',
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// ADMIN MIDDLEWARE - Token doğrulama
-const jwt = require('jsonwebtoken');
 
+// STATIC DOSYALAR
+app.use(express.static(path.join(__dirname, '..', 'public')));
+
+// BREVO API YAPILANDIRMASI
+const defaultClient = SibApiV3Sdk.ApiClient.instance;
+const apiKey = defaultClient.authentications['api-key'];
+apiKey.apiKey = process.env.BREVO_API_KEY;
+
+// Geçici kod saklama
+const resetCodes = new Map();
+
+// JWT Secret
+const JWT_SECRET = process.env.JWT_SECRET || 'kurumsal-tedarikci-secret-key-2024';
+
+// ADMIN MIDDLEWARE - Token doğrulama
 const adminAuth = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ error: 'Token gerekli' });
   
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'gizli-anahtar');
+    const decoded = jwt.verify(token, JWT_SECRET);
     if (!decoded.isAdmin) return res.status(403).json({ error: 'Yetkisiz erişim' });
     req.user = decoded;
     next();
@@ -28,25 +70,80 @@ const adminAuth = (req, res, next) => {
   }
 };
 
-// ADMIN GİRİŞ (İlk admin için MongoDB'ye elle ekleme yapmalısın)
+// MAIL GÖNDERİM FONKSİYONU (Brevo API)
+async function sendResetEmail(toEmail, kod, userName) {
+    try {
+        const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+        const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+        
+        sendSmtpEmail.subject = "Şifre Sıfırlama Kodunuz - Kurumsal Tedarikçi";
+        sendSmtpEmail.htmlContent = `
+            <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; background: #f9fafb; border-radius: 10px;">
+                <div style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h1 style="color: #6366f1; margin: 0; font-size: 28px;">Kurumsal Tedarikçi</h1>
+                    </div>
+                    <h2 style="color: #1f2937; font-size: 20px; margin-bottom: 20px;">Şifre Sıfırlama İsteği</h2>
+                    <p style="color: #4b5563; font-size: 16px;">Merhaba <strong>${userName}</strong>,</p>
+                    <p style="color: #4b5563; font-size: 16px;">Şifre sıfırlama kodunuz:</p>
+                    <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 25px; text-align: center; border-radius: 10px; margin: 30px 0;">
+                        <span style="font-size: 36px; font-weight: bold; color: white; letter-spacing: 8px;">${kod}</span>
+                    </div>
+                    <p style="color: #6b7280; font-size: 14px;">Bu kod 15 dakika içinde geçerlidir.</p>
+                </div>
+            </div>
+        `;
+        sendSmtpEmail.sender = { 
+            name: 'Kurumsal Tedarikci', 
+            email: process.env.SMTP_FROM_EMAIL || 'yildirimtarhan@tedarikci.org.tr'
+        };
+        sendSmtpEmail.to = [{ email: toEmail }];
+        
+        const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
+        console.log(`✅ Mail gönderildi: ${toEmail}`);
+        return true;
+    } catch (error) {
+        console.error('❌ Mail gönderim hatası:', error.message);
+        return false;
+    }
+}
+
+// Basit veritabanı (Mevcut kullanıcılar - Geçiş aşamasında)
+const users = [
+    {
+        id: '1',
+        ad: 'Test Kullanıcı',
+        email: 'test@tedarikci.org.tr',
+        password: '$2a$10$YourHashedPasswordHere',
+        firma: 'Test Firması',
+        telefon: '05551234567',
+        kayitTarihi: new Date().toLocaleDateString()
+    }
+];
+
+// ================= ADMIN ROUTES =================
+
+// ADMIN GİRİŞ
 app.post('/api/admin/login', async (req, res) => {
-  const { username, password } = req.body;
-  
-  // İlk admin kullanıcısı (MongoDB'ye migration ile ekleyebilirsin)
-  // Collection: admins
-  const admin = await db.collection('admins').findOne({ username });
-  
-  if (!admin || !await bcrypt.compare(password, admin.password)) {
-    return res.status(401).json({ error: 'Kullanıcı adı veya şifre hatalı' });
+  try {
+    const { username, password } = req.body;
+    
+    const admin = await db.collection('admins').findOne({ username });
+    
+    if (!admin || !await bcrypt.compare(password, admin.password)) {
+      return res.status(401).json({ error: 'Kullanıcı adı veya şifre hatalı' });
+    }
+    
+    const token = jwt.sign(
+      { id: admin._id, username: admin.username, isAdmin: true },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+    
+    res.json({ token, user: { username: admin.username } });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-  
-  const token = jwt.sign(
-    { id: admin._id, username: admin.username, isAdmin: true },
-    process.env.JWT_SECRET || 'gizli-anahtar',
-    { expiresIn: '24h' }
-  );
-  
-  res.json({ token, user: { username: admin.username } });
 });
 
 // DASHBOARD İSTATİSTİKLERİ
@@ -63,7 +160,7 @@ app.get('/api/admin/dashboard', adminAuth, async (req, res) => {
         totalUsers,
         todayOrders,
         pendingOrders,
-        totalRevenue: 0 // Sonra hesaplanacak
+        totalRevenue: 0
       }
     });
   } catch (err) {
@@ -71,7 +168,7 @@ app.get('/api/admin/dashboard', adminAuth, async (req, res) => {
   }
 });
 
-// KULLANICI LİSTESİ (ERP'ye aktarılmamışlar)
+// KULLANICI LİSTESİ
 app.get('/api/admin/users', adminAuth, async (req, res) => {
   try {
     const users = await db.collection('users').find().toArray();
@@ -83,18 +180,17 @@ app.get('/api/admin/users', adminAuth, async (req, res) => {
 
 // ERP ENTEGRASYONU - Cari Hesap Oluşturma
 app.post('/api/admin/sync-cari', adminAuth, async (req, res) => {
-  const { userId } = req.body;
-  
   try {
+    const { userId } = req.body;
     const user = await db.collection('users').findOne({ _id: new ObjectId(userId) });
+    
     if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı' });
     
-    // ERP'nize istek at
-    const erpResponse = await fetch('http://localhost:3001/api/cari/create', {
+    const erpResponse = await fetch(process.env.ERP_BASE_URL + '/api/cari/create', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ERP_API_KEY // Environment variable olarak tanımla
+        'x-api-key': process.env.ERP_API_KEY
       },
       body: JSON.stringify({
         ad: user.firmaAdi || user.ad,
@@ -121,7 +217,7 @@ app.post('/api/admin/sync-cari', adminAuth, async (req, res) => {
 // ÜRÜN LİSTESİ (ERP'den çek)
 app.get('/api/admin/erp-products', adminAuth, async (req, res) => {
   try {
-    const response = await fetch('http://localhost:3001/pages/api/sales', {
+    const response = await fetch(process.env.ERP_BASE_URL + '/pages/api/sales', {
       headers: { 'x-api-key': process.env.ERP_API_KEY }
     });
     const products = await response.json();
@@ -133,10 +229,9 @@ app.get('/api/admin/erp-products', adminAuth, async (req, res) => {
 
 // SİPARİŞ OLUŞTURMA ve ERP'ye Gönderme
 app.post('/api/admin/create-order', adminAuth, async (req, res) => {
-  const { userId, items, total } = req.body;
-  
   try {
-    // 1. MongoDB'ye kaydet
+    const { userId, items, total } = req.body;
+    
     const order = await db.collection('orders').insertOne({
       userId: new ObjectId(userId),
       items,
@@ -145,15 +240,14 @@ app.post('/api/admin/create-order', adminAuth, async (req, res) => {
       createdAt: new Date()
     });
     
-    // 2. ERP'ye gönder
-    const erpResponse = await fetch('http://localhost:3001/pages/api/satis/create', {
+    const erpResponse = await fetch(process.env.ERP_BASE_URL + '/pages/api/satis/create', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': process.env.ERP_API_KEY
       },
       body: JSON.stringify({
-        cariId: userId, // Veya ERP cari kodu
+        cariId: userId,
         items,
         total,
         kaynak: 'web-sitesi'
@@ -173,110 +267,9 @@ app.post('/api/admin/create-order', adminAuth, async (req, res) => {
   }
 });
 
-// CORS AYARLARI (Render + Vercel için)
-const corsOptions = {
-  origin: [
-  'http://localhost:3000',
-  'http://localhost:5500',
-  'https://kurumsal-final.vercel.app',
-  'https://kurumsal-tedarikci.onrender.com',
-  'https://www.tedarikci.org.tr',      // BUNU EKLE
-  'https://tedarikci.org.tr',          // BUNU DA EKLE (www'siz)
-  // '*' // Tüm domainlere izin ver (geçici olarak)
-],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-};
-app.use(cors(corsOptions));
+// ================= AUTH ROUTES =================
 
-// STATIC DOSYALAR
-app.use(express.static(path.join(__dirname, '..', 'public')));
-
-// BREVO API YAPILANDIRMASI (SMTP yerine API kullanıyoruz)
-const defaultClient = SibApiV3Sdk.ApiClient.instance;
-const apiKey = defaultClient.authentications['api-key'];
-apiKey.apiKey = process.env.BREVO_API_KEY; // Environment'dan al
-
-// Geçici kod saklama
-const resetCodes = new Map();
-
-// Basit veritabanı
-const users = [
-    {
-        id: '1',
-        ad: 'Test Kullanıcı',
-        email: 'test@tedarikci.org.tr',
-        password: '$2a$10$YourHashedPasswordHere',
-        firma: 'Test Firması',
-        telefon: '05551234567',
-        kayitTarihi: new Date().toLocaleDateString()
-    }
-];
-
-// JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || 'kurumsal-tedarikci-secret-key-2024';
-
-// MAIL GÖNDERİM FONKSİYONU (Brevo API ile - SMTP yerine)
-async function sendResetEmail(toEmail, kod, userName) {
-    try {
-        const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-        const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-        
-        sendSmtpEmail.subject = "Şifre Sıfırlama Kodunuz - Kurumsal Tedarikçi";
-        sendSmtpEmail.htmlContent = `
-            <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; background: #f9fafb; border-radius: 10px;">
-                <div style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <div style="text-align: center; margin-bottom: 30px;">
-                        <h1 style="color: #6366f1; margin: 0; font-size: 28px;">Kurumsal Tedarikçi</h1>
-                        <div style="width: 50px; height: 4px; background: #6366f1; margin: 10px auto; border-radius: 2px;"></div>
-                    </div>
-                    
-                    <h2 style="color: #1f2937; font-size: 20px; margin-bottom: 20px;">Şifre Sıfırlama İsteği</h2>
-                    <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">Merhaba <strong>${userName}</strong>,</p>
-                    <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">Hesabınız için şifre sıfırlama talebinde bulundunuz. Aşağıdaki 6 haneli kodu kullanarak şifrenizi sıfırlayabilirsiniz:</p>
-                    
-                    <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 25px; text-align: center; border-radius: 10px; margin: 30px 0;">
-                        <span style="font-size: 36px; font-weight: bold; color: white; letter-spacing: 8px; font-family: monospace;">${kod}</span>
-                    </div>
-                    
-                    <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 5px;">
-                        <p style="color: #92400e; font-size: 14px; margin: 0;"><i style="margin-right: 8px;">⏱️</i> Bu kod <strong>15 dakika</strong> içinde geçerlidir.</p>
-                    </div>
-                    
-                    <p style="color: #6b7280; font-size: 14px; line-height: 1.5;">Eğer bu talebi siz yapmadıysanız, lütfen bu e-postayı dikkate almayın. Hesabınız güvende olmaya devam edecektir.</p>
-                    
-                    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
-                    <p style="font-size: 12px; color: #9ca3af; text-align: center; margin: 0;">
-                        Kurumsal Tedarikçi | ${process.env.SMTP_FROM_EMAIL || 'yildirimtarhan@tedarikci.org.tr'}<br>
-                        Bu e-posta otomatik olarak gönderilmiştir, lütfen yanıtlamayınız.
-                    </p>
-                </div>
-            </div>
-        `;
-        sendSmtpEmail.textContent = `Şifre sıfırlama kodunuz: ${kod}. Bu kod 15 dakika içinde geçerlidir.`;
-        sendSmtpEmail.sender = { 
-            name: process.env.SMTP_FROM_NAME || 'Kurumsal Tedarikci', 
-            email: process.env.SMTP_FROM_EMAIL || 'yildirimtarhan@tedarikci.org.tr'
-        };
-        sendSmtpEmail.to = [{ email: toEmail }];
-        sendSmtpEmail.replyTo = { email: process.env.NOTIFY_EMAIL || 'iletisim@tedarikci.org.tr' };
-        
-        const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
-        console.log(`✅ Mail gönderildi: ${toEmail} (Message ID: ${data.messageId})`);
-        return true;
-    } catch (error) {
-        console.error('❌ Mail gönderim hatası:', error.message);
-        if (error.response && error.response.text) {
-            console.error('Brevo API Hatası:', error.response.text);
-        }
-        return false;
-    }
-}
-
-// API ROUTES
-
-// 1. Kayıt Ol
+// Kayıt Ol
 app.post('/api/auth/register', async (req, res) => {
     try {
         const { ad, email, password, firma, telefon } = req.body;
@@ -297,7 +290,13 @@ app.post('/api/auth/register', async (req, res) => {
         };
         
         users.push(newUser);
-        console.log('Yeni kullanıcı:', email);
+        
+        // Ayrıca MongoDB'ye de kaydet (Admin panelinde görmek için)
+        await db.collection('users').insertOne({
+            ...newUser,
+            _id: newUser.id,
+            createdAt: new Date()
+        });
         
         res.json({ success: true, message: 'Kayıt başarılı' });
     } catch (error) {
@@ -305,7 +304,7 @@ app.post('/api/auth/register', async (req, res) => {
     }
 });
 
-// 2. Giriş Yap
+// Giriş Yap
 app.post('/api/auth/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -342,42 +341,37 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
-// 3. Şifre Sıfırlama - Kod Gönder
+// Şifre Sıfırlama - Kod Gönder
 app.post('/api/auth/forgot-password', async (req, res) => {
     try {
         const { email } = req.body;
         const user = users.find(u => u.email === email);
         
-        // Güvenlik için kullanıcı yoksa bile başarılı dön
         if (!user) {
             return res.json({ success: true, message: 'Eğer bu e-posta kayıtlıysa kod gönderildi' });
         }
         
-        // 6 haneli kod oluştur
         const kod = Math.floor(100000 + Math.random() * 900000).toString();
         
-        // Kodu sakla (15 dakika)
         resetCodes.set(email, { 
             kod, 
             userId: user.id,
             expiry: Date.now() + 900000
         });
         
-        // Brevo API ile mail gönder
         const sent = await sendResetEmail(email, kod, user.ad);
         
         if (sent) {
             res.json({ success: true, message: 'Doğrulama kodu e-posta adresinize gönderildi' });
         } else {
-            res.status(500).json({ success: false, message: 'E-posta gönderilemedi, lütfen tekrar deneyin' });
+            res.status(500).json({ success: false, message: 'E-posta gönderilemedi' });
         }
     } catch (error) {
-        console.error('Forgot password error:', error);
         res.status(500).json({ success: false, message: 'Sunucu hatası' });
     }
 });
 
-// 4. Kod Doğrulama
+// Kod Doğrulama
 app.post('/api/auth/verify-code', (req, res) => {
     try {
         const { email, code } = req.body;
@@ -389,10 +383,9 @@ app.post('/api/auth/verify-code', (req, res) => {
         
         if (Date.now() > data.expiry) {
             resetCodes.delete(email);
-            return res.status(400).json({ success: false, message: 'Kod süresi dolmuş, lütfen yeni kod talep edin' });
+            return res.status(400).json({ success: false, message: 'Kod süresi dolmuş' });
         }
         
-        // Geçici reset token oluştur
         const resetToken = jwt.sign(
             { email, userId: data.userId, type: 'password-reset' }, 
             JWT_SECRET, 
@@ -405,41 +398,34 @@ app.post('/api/auth/verify-code', (req, res) => {
     }
 });
 
-// 5. Yeni Şifre Kaydetme
+// Yeni Şifre Kaydetme
 app.post('/api/auth/reset-password', async (req, res) => {
     try {
         const { email, resetToken, newPassword } = req.body;
         
-        // Token doğrula
         const decoded = jwt.verify(resetToken, JWT_SECRET);
         
         if (decoded.email !== email || decoded.type !== 'password-reset') {
-            return res.status(400).json({ success: false, message: 'Geçersiz veya süresi dolmuş token' });
+            return res.status(400).json({ success: false, message: 'Geçersiz token' });
         }
         
-        // Şifreyi hash'le
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         
-        // Kullanıcıyı bul ve güncelle
         const userIndex = users.findIndex(u => u.email === email);
         if (userIndex === -1) {
             return res.status(404).json({ success: false, message: 'Kullanıcı bulunamadı' });
         }
         
         users[userIndex].password = hashedPassword;
-        resetCodes.delete(email); // Kodu temizle
+        resetCodes.delete(email);
         
-        console.log(`Şifre sıfırlandı: ${email}`);
         res.json({ success: true, message: 'Şifreniz başarıyla güncellendi' });
     } catch (error) {
-        if (error.name === 'TokenExpiredError') {
-            return res.status(400).json({ success: false, message: 'İşlem süresi dolmuş, lütfen tekrar deneyin' });
-        }
         res.status(500).json({ success: false, message: 'Sunucu hatası' });
     }
 });
 
-// 6. Profil Şifre Değiştirme
+// Profil Şifre Değiştirme
 app.post('/api/auth/change-password', async (req, res) => {
     try {
         const authHeader = req.headers.authorization;
@@ -457,25 +443,20 @@ app.post('/api/auth/change-password', async (req, res) => {
             return res.status(404).json({ success: false, message: 'Kullanıcı bulunamadı' });
         }
         
-        // Mevcut şifreyi kontrol et
         const isMatch = await bcrypt.compare(currentPassword, user.password);
         if (!isMatch) {
             return res.status(400).json({ success: false, message: 'Mevcut şifreniz hatalı' });
         }
         
-        // Yeni şifreyi kaydet
         user.password = await bcrypt.hash(newPassword, 10);
         
         res.json({ success: true, message: 'Şifreniz başarıyla güncellendi' });
     } catch (error) {
-        if (error.name === 'TokenExpiredError') {
-            return res.status(401).json({ success: false, message: 'Oturum süresi dolmuş, lütfen tekrar giriş yapın' });
-        }
         res.status(500).json({ success: false, message: 'Sunucu hatası' });
     }
 });
 
-// 7. Token Doğrulama
+// Token Doğrulama
 app.get('/api/auth/verify', (req, res) => {
     try {
         const authHeader = req.headers.authorization;
@@ -520,5 +501,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Server çalışıyor: http://localhost:${PORT}`);
     console.log(`📧 Brevo API: ${process.env.BREVO_API_KEY ? 'Aktif' : 'Eksik!'}`);
-    console.log(`🔒 CORS: Çoklu domain desteği aktif`);
+    console.log(`🗄️  MongoDB: ${process.env.MONGODB_URI ? 'Bağlandı' : 'Local mod'}`);
 });
