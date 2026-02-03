@@ -15,12 +15,14 @@ app.use(express.urlencoded({ extended: true }));
 // CORS AYARLARI (Render + Vercel için)
 const corsOptions = {
   origin: [
-    'http://localhost:3000', 
-    'http://localhost:5500',
-    'https://kurumsal-final.vercel.app',
-    'https://kurumsal-tedarikci.onrender.com',
-    '*' // Tüm domainlere izin ver (geçici olarak)
-  ],
+  'http://localhost:3000',
+  'http://localhost:5500',
+  'https://kurumsal-final.vercel.app',
+  'https://kurumsal-tedarikci.onrender.com',
+  'https://www.tedarikci.org.tr',      // BUNU EKLE
+  'https://tedarikci.org.tr',          // BUNU DA EKLE (www'siz)
+  // '*' // Tüm domainlere izin ver (geçici olarak)
+],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
