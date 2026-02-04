@@ -59,7 +59,6 @@
             gap: 15px; 
         }
         
-        /* Giriş butonu */
         .login-btn {
             text-decoration: none;
             color: #6366f1;
@@ -111,7 +110,6 @@
             border: 2px solid white;
         }
         
-        /* Mobile Menu Button */
         .mobile-menu-btn { 
             display: none; 
             background: none;
@@ -123,7 +121,6 @@
             z-index: 1001;
         }
         
-        /* Hero Section */
         .hero {
             min-height: calc(100vh - 70px);
             display: flex;
@@ -243,7 +240,6 @@
             transform: translateY(-2px);
         }
         
-        /* Hero Visual */
         .hero-visual {
             position: relative;
             height: 500px;
@@ -302,7 +298,6 @@
             z-index: 2;
         }
         
-        /* Stats */
         .hero-stats {
             display: flex;
             gap: 40px;
@@ -319,7 +314,6 @@
         }
         .stat-label { font-size: 14px; color: #6b7280; font-weight: 600; }
         
-        /* Quick Access Cards */
         .quick-access {
             padding: 80px 5%;
             background: white;
@@ -384,7 +378,6 @@
             line-height: 1.6;
         }
         
-        /* Footer */
         footer {
             background: #1f2937;
             color: white;
@@ -457,16 +450,25 @@
                 margin: 0;
                 padding: 80px 20px 40px;
                 overflow-y: auto;
+                transition: opacity 0.3s ease;
+                opacity: 0;
             }
             
             .nav-links.active { 
-                display: flex !important; 
+                display: flex !important;
+                opacity: 1;
             }
             
             .nav-links li {
                 width: 100%;
                 text-align: center;
                 border-bottom: 1px solid #e5e7eb;
+                transform: translateY(-20px);
+                transition: transform 0.3s ease;
+            }
+            
+            .nav-links.active li {
+                transform: translateY(0);
             }
             
             .nav-links li:last-child {
@@ -481,6 +483,10 @@
                 height: auto;
                 color: #374151;
                 display: block;
+                /* Tıklanabilir alanı artır */
+                min-height: 60px;
+                line-height: 60px;
+                padding: 0;
             }
             
             .nav-links a:hover, .nav-links a.active {
@@ -488,7 +494,6 @@
                 color: #6366f1;
             }
             
-            /* Kapatma butonu */
             .close-menu {
                 position: absolute;
                 top: 15px;
@@ -509,7 +514,6 @@
             
             .close-menu:hover { background: #e5e7eb; }
             
-            /* Nav sağ kısım gizle (mobilde sadece menü butonu) */
             .nav-right {
                 margin-right: 50px;
                 gap: 10px;
@@ -552,16 +556,8 @@
             .quick-access { padding: 50px 15px; }
             .section-title { font-size: 1.5rem; }
             .cards-grid { grid-template-columns: 1fr; gap: 20px; }
-            
-            /* TEKLİF AL menüsü sabit kalma sorunu düzeltme */
-            .nav-links a[href="teklif.html"] {
-                position: relative;
-                color: #f59e0b !important;
-                font-weight: 700;
-            }
         }
         
-        /* Overlay */
         .menu-overlay {
             display: none;
             position: fixed;
@@ -572,8 +568,13 @@
             background: rgba(0,0,0,0.5);
             z-index: 9998;
             backdrop-filter: blur(3px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
-        .menu-overlay.active { display: block; }
+        .menu-overlay.active { 
+            display: block;
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -581,21 +582,22 @@
     <nav class="navbar">
         <a href="index.html" class="logo">Kurumsal<span>Tedarikçi</span></a>
         
-        <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Menüyü Aç">
+        <button class="mobile-menu-btn" id="menuBtn" aria-label="Menüyü Aç">
             <i class="fas fa-bars"></i>
         </button>
         
         <ul class="nav-links" id="navLinks">
-            <button class="close-menu" onclick="toggleMenu()" aria-label="Menüyü Kapat">
+            <button class="close-menu" id="closeMenuBtn" aria-label="Menüyü Kapat">
                 <i class="fas fa-times"></i>
             </button>
-            <li><a href="index.html" onclick="closeMenu()">Anasayfa</a></li>
-            <li><a href="hizmetler.html" onclick="closeMenu()">Hizmetler</a></li>
-            <li><a href="paketler.html" onclick="closeMenu()">Paketler</a></li>
-            <li><a href="urunler.html" onclick="closeMenu()">Ürünler</a></li>
-            <li><a href="referanslar.html" onclick="closeMenu()">Referanslar</a></li>
-            <li><a href="teklif.html" onclick="closeMenu()" style="color: #f59e0b;">Teklif Al</a></li>
-            <li><a href="iletisim.html" onclick="closeMenu()">İletişim</a></li>
+            <!-- onclick kaldırıldı, JavaScript halledecek -->
+            <li><a href="index.html">Anasayfa</a></li>
+            <li><a href="hizmetler.html">Hizmetler</a></li>
+            <li><a href="paketler.html">Paketler</a></li>
+            <li><a href="urunler.html">Ürünler</a></li>
+            <li><a href="referanslar.html">Referanslar</a></li>
+            <li><a href="teklif.html" style="color: #f59e0b;">Teklif Al</a></li>
+            <li><a href="iletisim.html">İletişim</a></li>
         </ul>
         
         <div class="nav-right">
@@ -607,10 +609,8 @@
         </div>
     </nav>
     
-    <!-- Overlay -->
-    <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+    <div class="menu-overlay" id="menuOverlay"></div>
 
-    <!-- Hero Section -->
     <section class="hero">
         <div class="hero-bg"></div>
         <div class="hero-container">
@@ -672,7 +672,6 @@
         </div>
     </section>
 
-    <!-- Quick Access Cards -->
     <section class="quick-access">
         <h2 class="section-title">Hızlı Erişim</h2>
         <div class="cards-grid">
@@ -710,7 +709,6 @@
         </div>
     </section>
 
-    <!-- Footer -->
     <footer>
         <div class="social-links">
             <a href="https://wa.me/905059112749" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
@@ -726,7 +724,7 @@
         </p>
     </footer>
 
-       <script src="js/sepet.js"></script>
+    <script src="js/sepet.js"></script>
     <script>
         // Sepet sayısını güncelle
         function updateCartCount() {
@@ -738,67 +736,96 @@
         }
         updateCartCount();
         
-        // Mobil Menü Kontrolü
-        function toggleMenu() {
+        // PROFESYONEL MOBİL MENÜ YÖNETİMİ
+        (function() {
             const navLinks = document.getElementById('navLinks');
-            const overlay = document.getElementById('menuOverlay');
+            const menuOverlay = document.getElementById('menuOverlay');
+            const menuBtn = document.getElementById('menuBtn');
+            const closeMenuBtn = document.getElementById('closeMenuBtn');
             const body = document.body;
             
-            const isOpen = navLinks.classList.contains('active');
-            
-            if (isOpen) {
-                closeMenu();
-            } else {
-                navLinks.classList.add('active');
-                overlay.classList.add('active');
-                body.style.overflow = 'hidden';
+            // Menü aç/kapat
+            function toggleMenu() {
+                const isOpen = navLinks.classList.contains('active');
+                if (isOpen) {
+                    closeMenu();
+                } else {
+                    openMenu();
+                }
             }
-        }
-        
-        // Menüyü kapat
-        function closeMenu() {
-            const navLinks = document.getElementById('navLinks');
-            const overlay = document.getElementById('menuOverlay');
-            const body = document.body;
             
-            navLinks.classList.remove('active');
-            overlay.classList.remove('active');
-            body.style.overflow = '';
-        }
-        
-        // LİNK TIKLAMALARINI DÜZELT - BUNU EKLE
-        document.addEventListener('DOMContentLoaded', function() {
-            // Menüdeki tüm linkleri seç (kapatma butonu hariç)
-            document.querySelectorAll('.nav-links li a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    // Eğer bu kapatma butonu değilse
-                    if(!this.classList.contains('close-menu')) {
-                        e.preventDefault(); // Normal davranışı engelle
-                        const url = this.getAttribute('href');
+            function openMenu() {
+                navLinks.classList.add('active');
+                menuOverlay.classList.add('active');
+                body.style.overflow = 'hidden';
+                // Menü buton ikonunu değiştir
+                if(menuBtn) menuBtn.innerHTML = '<i class="fas fa-times"></i>';
+            }
+            
+            function closeMenu() {
+                navLinks.classList.remove('active');
+                menuOverlay.classList.remove('active');
+                body.style.overflow = '';
+                // Menü buton ikonunu geri al
+                if(menuBtn) menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            }
+            
+            // Menü butonlarına tıklama
+            if(menuBtn) menuBtn.addEventListener('click', toggleMenu);
+            if(closeMenuBtn) closeMenuBtn.addEventListener('click', closeMenu);
+            if(menuOverlay) menuOverlay.addEventListener('click', closeMenu);
+            
+            // MENÜ LİNKLERİNE TIKLAMA - BURASI KRİTİK
+            const menuLinks = document.querySelectorAll('.nav-links li a');
+            menuLinks.forEach(function(link) {
+                // Sadece kapatma butonu değilse ve hash değilse
+                if(!link.classList.contains('close-menu') && link.getAttribute('href') !== '#') {
+                    
+                    // Tıklama olayı
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault(); // Varsayılan davranışı engelle
+                        e.stopPropagation(); // Event bubbling'i durdur
+                        
+                        const href = this.getAttribute('href');
                         
                         // Menüyü kapat
                         closeMenu();
                         
-                        // Yönlendirme yap (300ms sonra - animasyon bitsin)
+                        // Yönlendirme (kısa gecikme ile menü kapanma animasyonu için)
                         setTimeout(function() {
-                            window.location.href = url;
-                        }, 300);
-                    }
-                });
+                            window.location.href = href;
+                        }, 100);
+                    });
+                    
+                    // Mobil için touch event (daha hızlı tepki)
+                    link.addEventListener('touchend', function(e) {
+                        e.preventDefault();
+                        const href = this.getAttribute('href');
+                        closeMenu();
+                        setTimeout(function() {
+                            window.location.href = href;
+                        }, 50);
+                    });
+                }
             });
-        });
-        
-        // Sayfa yüklendiğinde menüyü kapat
-        window.addEventListener('load', function() {
-            closeMenu();
-        });
-        
-        // ESC tuşu ile menüyü kapat
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeMenu();
-            }
-        });
+            
+            // ESC tuşu ile kapatma
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeMenu();
+            });
+            
+            // Sayfa yüklendiğinde menüyü kapat (güvenlik)
+            window.addEventListener('load', closeMenu);
+            
+            // Sayfa dışına tıklanınca kapat
+            document.addEventListener('click', function(e) {
+                if (navLinks.classList.contains('active') && 
+                    !navLinks.contains(e.target) && 
+                    !menuBtn.contains(e.target)) {
+                    closeMenu();
+                }
+            });
+        })();
     </script>
-    </body>
+</body>
 </html>
