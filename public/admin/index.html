@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="css/mobile.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; }
@@ -140,5 +142,11 @@
     
     loadDashboard();
   </script>
+  
+    <script>
+    function toggleMenu() {
+        document.querySelector('.nav-links').classList.toggle('active');
+    }
+    </script>
 </body>
 </html>

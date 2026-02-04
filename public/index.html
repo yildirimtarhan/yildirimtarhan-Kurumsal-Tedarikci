@@ -2,12 +2,13 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>Kurumsal Tedarikçi - Dijital Dönüşümde Güvenilir Çözüm Ortağınız</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/mobile.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; line-height: 1.6; color: #333; }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; line-height: 1.6; color: #333; padding-top: 70px; }
         
         /* Navbar */
         .navbar {
@@ -27,17 +28,30 @@
         .logo { font-size: 24px; font-weight: 800; color: #1f2937; text-decoration: none; }
         .logo span { color: #6366f1; }
         
-        .nav-links { display: flex; list-style: none; gap: 30px; }
+        .nav-links { 
+            display: flex; 
+            list-style: none; 
+            gap: 30px; 
+            margin: 0;
+            align-items: center;
+        }
         .nav-links a { 
             text-decoration: none; 
             color: #4b5563; 
             font-weight: 600; 
             transition: color 0.3s;
             font-size: 15px;
+            display: flex;
+            align-items: center;
+            height: 44px;
         }
         .nav-links a:hover, .nav-links a.active { color: #6366f1; }
         
-        .nav-right { display: flex; align-items: center; gap: 20px; }
+        .nav-right { 
+            display: flex; 
+            align-items: center; 
+            gap: 20px; 
+        }
         
         .cart-btn {
             background: #6366f1;
@@ -51,7 +65,9 @@
             text-decoration: none;
             position: relative;
             box-shadow: 0 4px 15px rgba(99,102,241,0.3);
+            transition: transform 0.3s;
         }
+        .cart-btn:hover { transform: scale(1.1); }
         
         .cart-count {
             position: absolute;
@@ -68,11 +84,38 @@
             align-items: center;
             justify-content: center;
             border: 2px solid white;
+            animation: bounce 0.3s;
         }
+        
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        /* Giriş butonu */
+        .login-btn {
+            text-decoration: none;
+            color: #6366f1;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 10px 20px;
+            border: 2px solid #6366f1;
+            border-radius: 25px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            height: 44px;
+        }
+        .login-btn:hover {
+            background: #6366f1;
+            color: white;
+        }
+        
+        /* Mobile Menu Button - Default hidden */
+        .mobile-menu-btn { display: none; }
         
         /* Hero Section */
         .hero {
-            margin-top: 70px;
             min-height: calc(100vh - 70px);
             display: flex;
             align-items: center;
@@ -108,6 +151,7 @@
             align-items: center;
             position: relative;
             z-index: 1;
+            width: 100%;
         }
         
         .badge {
@@ -154,6 +198,7 @@
         .btn {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 10px;
             padding: 16px 32px;
             border-radius: 50px;
@@ -163,6 +208,7 @@
             transition: all 0.3s;
             border: none;
             cursor: pointer;
+            min-height: 44px;
         }
         
         .btn-primary {
@@ -186,17 +232,6 @@
         .btn-whatsapp:hover {
             background: #128c7e;
             transform: translateY(-2px);
-        }
-        
-        .btn-outline {
-            background: white;
-            color: #374151;
-            border: 2px solid #e5e7eb;
-        }
-        
-        .btn-outline:hover {
-            border-color: #6366f1;
-            color: #6366f1;
         }
         
         /* Hero Visual */
@@ -373,51 +408,55 @@
             transform: translateY(-3px);
         }
         
-        /* Mobile Menu */
-        .mobile-menu-btn {
+        /* Overlay for mobile menu */
+        .menu-overlay {
             display: none;
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #374151;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            backdrop-filter: blur(3px);
         }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .nav-links { display: none; }
-            .mobile-menu-btn { display: block; }
-            .hero-container { grid-template-columns: 1fr; text-align: center; }
-            .hero h1 { font-size: 2.5rem; }
-            .hero-visual { display: none; }
-            .hero-buttons { justify-content: center; }
-            .hero-stats { justify-content: center; }
-        }
+        .menu-overlay.active { display: block; }
     </style>
 </head>
 <body>
 
-   <nav class="navbar" style="position: fixed; top: 0; left: 0; width: 100%; background: white; z-index: 9999; box-shadow: 0 2px 20px rgba(0,0,0,0.1); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center;">
-    <a href="index.html" class="logo" style="font-size: 24px; font-weight: 800; color: #1f2937; text-decoration: none;">Kurumsal<span style="color: #6366f1;">Tedarikçi</span></a>
+    <nav class="navbar">
+        <a href="index.html" class="logo">Kurumsal<span>Tedarikçi</span></a>
+        
+        <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Menüyü Aç/Kapat">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <ul class="nav-links" id="navLinks">
+            <button class="close-menu" onclick="toggleMenu()" aria-label="Menüyü Kapat">
+                <i class="fas fa-times"></i>
+            </button>
+            <li><a href="index.html" class="active">Anasayfa</a></li>
+            <li><a href="hizmetler.html">Hizmetler</a></li>
+            <li><a href="paketler.html">Paketler</a></li>
+            <li><a href="urunler.html">Ürünler</a></li>
+            <li><a href="referanslar.html">Referanslar</a></li>
+            <li><a href="teklif.html" style="color: #f59e0b;">Teklif Al</a></li>
+            <li><a href="iletisim.html">İletişim</a></li>
+        </ul>
+        
+        <div class="nav-right">
+            <a href="giris.html" class="login-btn">Giriş Yap</a>
+            <a href="odeme.html" class="cart-btn" aria-label="Sepet">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count" id="cart-count">0</span>
+            </a>
+        </div>
+    </nav>
     
-    <ul class="nav-links" style="display: flex; list-style: none; gap: 25px; margin: 0;">
-        <li><a href="index.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Anasayfa</a></li>
-        <li><a href="hizmetler.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Hizmetler</a></li>
-        <li><a href="paketler.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Paketler</a></li>
-        <li><a href="urunler.html" style="text-decoration: none; color: #6366f1; font-weight: 700; font-size: 15px;">Ürünler</a></li>
-        <li><a href="referanslar.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Referanslar</a></li>
-        <li><a href="teklif.html" style="text-decoration: none; color: #f59e0b; font-weight: 600; font-size: 15px;">Teklif Al</a></li>
-        <li><a href="iletisim.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">İletişim</a></li>
-    </ul>
-    
-    <div style="display: flex; align-items: center; gap: 15px;">
-        <a href="giris.html" style="text-decoration: none; color: #6366f1; font-weight: 600; font-size: 14px; padding: 8px 16px; border: 2px solid #6366f1; border-radius: 20px;">Giriş Yap</a>
-        <a href="odeme.html" style="background: #6366f1; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; position: relative;">
-            <i class="fas fa-shopping-cart" style="font-size: 16px;"></i>
-            <span id="cart-count" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; border: 2px solid white;">0</span>
-        </a>
-    </div>
-</nav>
+    <!-- Overlay for mobile menu -->
+    <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-bg"></div>
@@ -521,10 +560,10 @@
     <!-- Footer -->
     <footer>
         <div class="social-links">
-            <a href="#"><i class="fab fa-whatsapp"></i></a>
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fab fa-linkedin"></i></a>
-            <a href="mailto:iletisim@tedarikci.org.tr"><i class="fas fa-envelope"></i></a>
+            <a href="https://wa.me/905059112749" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+            <a href="mailto:iletisim@tedarikci.org.tr" aria-label="Email"><i class="fas fa-envelope"></i></a>
         </div>
         <p>&copy; 2025 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
         <p style="margin-top: 10px; font-size: 14px; opacity: 0.8;">
@@ -534,15 +573,52 @@
         </p>
     </footer>
 
-    <!-- Sepet JS -->
+    <!-- Scripts -->
     <script src="js/sepet.js"></script>
     <script>
         // Sepet sayısını güncelle
         function updateCartCount() {
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            document.getElementById('cart-count').innerText = cart.length;
+            const countElement = document.getElementById('cart-count');
+            if(countElement) {
+                countElement.innerText = cart.length;
+                // Animasyon için
+                countElement.style.animation = 'none';
+                setTimeout(() => countElement.style.animation = 'bounce 0.3s', 10);
+            }
         }
         updateCartCount();
+        
+        // Mobil Menü Toggle
+        function toggleMenu() {
+            const navLinks = document.getElementById('navLinks');
+            const overlay = document.getElementById('menuOverlay');
+            const body = document.body;
+            
+            navLinks.classList.toggle('active');
+            overlay.classList.toggle('active');
+            
+            // Menü açıkken scroll'u engelle
+            if(navLinks.classList.contains('active')) {
+                body.style.overflow = 'hidden';
+            } else {
+                body.style.overflow = '';
+            }
+        }
+        
+        // Sayfa scroll olduğunda navbar'ı gizle/göster (opsiyonel)
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            const currentScroll = window.pageYOffset;
+            
+            if(currentScroll > lastScroll && currentScroll > 100) {
+                navbar.style.transform = 'translateY(-100%)';
+            } else {
+                navbar.style.transform = 'translateY(0)';
+            }
+            lastScroll = currentScroll;
+        });
     </script>
 
 </body>
