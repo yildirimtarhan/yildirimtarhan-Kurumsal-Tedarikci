@@ -726,7 +726,7 @@
         </p>
     </footer>
 
-    <script src="js/sepet.js"></script>
+       <script src="js/sepet.js"></script>
     <script>
         // Sepet sayısını güncelle
         function updateCartCount() {
@@ -738,7 +738,7 @@
         }
         updateCartCount();
         
-        // Mobil Menü Kontrolü - DÜZELTİLMİŞ
+        // Mobil Menü Kontrolü
         function toggleMenu() {
             const navLinks = document.getElementById('navLinks');
             const overlay = document.getElementById('menuOverlay');
@@ -747,19 +747,15 @@
             const isOpen = navLinks.classList.contains('active');
             
             if (isOpen) {
-                // Menüyü kapat
-                navLinks.classList.remove('active');
-                overlay.classList.remove('active');
-                body.style.overflow = '';
+                closeMenu();
             } else {
-                // Menüyü aç
                 navLinks.classList.add('active');
                 overlay.classList.add('active');
-                body.style.overflow = 'hidden'; // Scroll'u engelle
+                body.style.overflow = 'hidden';
             }
         }
         
-        // Menüyü kapat (link tıklamaları için)
+        // Menüyü kapat
         function closeMenu() {
             const navLinks = document.getElementById('navLinks');
             const overlay = document.getElementById('menuOverlay');
@@ -770,7 +766,29 @@
             body.style.overflow = '';
         }
         
-        // Sayfa yüklendiğinde menüyü kapat (güvenlik için)
+        // LİNK TIKLAMALARINI DÜZELT - BUNU EKLE
+        document.addEventListener('DOMContentLoaded', function() {
+            // Menüdeki tüm linkleri seç (kapatma butonu hariç)
+            document.querySelectorAll('.nav-links li a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Eğer bu kapatma butonu değilse
+                    if(!this.classList.contains('close-menu')) {
+                        e.preventDefault(); // Normal davranışı engelle
+                        const url = this.getAttribute('href');
+                        
+                        // Menüyü kapat
+                        closeMenu();
+                        
+                        // Yönlendirme yap (300ms sonra - animasyon bitsin)
+                        setTimeout(function() {
+                            window.location.href = url;
+                        }, 300);
+                    }
+                });
+            });
+        });
+        
+        // Sayfa yüklendiğinde menüyü kapat
         window.addEventListener('load', function() {
             closeMenu();
         });
@@ -782,6 +800,5 @@
             }
         });
     </script>
-
-</body>
+    </body>
 </html>
