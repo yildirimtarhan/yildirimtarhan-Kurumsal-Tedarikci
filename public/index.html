@@ -464,141 +464,77 @@
     </footer>
 
     <script>
-        // ===== MOBİL MENÜ - KRİTİK DÜZELTME =====
-        (function() {
-            const menuBtn = document.getElementById('menuBtn');
-            const closeMenuBtn = document.getElementById('closeMenuBtn');
-            const mobileMenuContainer = document.getElementById('mobileMenuContainer');
-            const menuOverlay = document.getElementById('menuOverlay');
-            const mobileNavLinks = document.getElementById('mobileNavLinks');
-            const body = document.body;
-            
-            let isOpen = false;
-            let isTransitioning = false;
-            
-            // Menü Aç
-            function openMenu(e) {
-                if(e) e.preventDefault();
-                if(isTransitioning) return;
-                
-                isOpen = true;
-                isTransitioning = true;
-                
+    // ===== MOBİL MENÜ - KESİN ÇÖZÜM (v2) =====
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuBtn = document.getElementById('menuBtn');
+        const closeMenuBtn = document.getElementById('closeMenuBtn');
+        const mobileMenuContainer = document.getElementById('mobileMenuContainer');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const body = document.body;
+        
+        let isOpen = false;
+        
+        // Menü Aç/Kapat
+        function toggleMenu() {
+            isOpen = !isOpen;
+            if(isOpen) {
                 mobileMenuContainer.style.display = 'block';
-                // Force reflow
-                void mobileMenuContainer.offsetWidth;
-                mobileMenuContainer.classList.add('active');
+                setTimeout(() => mobileMenuContainer.classList.add('active'), 10);
                 body.style.overflow = 'hidden';
-                
-                setTimeout(() => {
-                    isTransitioning = false;
-                }, 300);
-                
-                console.log('Menu opened'); // Debug
-            }
-            
-            // Menü Kapat
-            function closeMenu(callback) {
-                if(isTransitioning) return;
-                isTransitioning = true;
-                
-                isOpen = false;
+                if(menuBtn) menuBtn.innerHTML = '<i class="fas fa-times"></i>';
+            } else {
                 mobileMenuContainer.classList.remove('active');
-                
                 setTimeout(() => {
                     mobileMenuContainer.style.display = 'none';
                     body.style.overflow = '';
-                    isTransitioning = false;
-                    if(callback && typeof callback === 'function') callback();
                 }, 300);
-                
-                console.log('Menu closed'); // Debug
+                if(menuBtn) menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
             }
-            
-            // Buton Eventleri
-            if(menuBtn) {
-                menuBtn.addEventListener('click', openMenu);
-                menuBtn.addEventListener('touchend', function(e) {
-                    e.preventDefault();
-                    openMenu(e);
-                });
-            }
-            
-            if(closeMenuBtn) {
-                closeMenuBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    closeMenu();
-                });
-            }
-            
-            if(menuOverlay) {
-                menuOverlay.addEventListener('click', function() {
-                    closeMenu();
-                });
-            }
-            
-            // LİNK TIKLAMA - EVENT DELEGATION (En güvenli yöntem)
-            if(mobileNavLinks) {
-                mobileNavLinks.addEventListener('click', function(e) {
-                    const link = e.target.closest('a');
-                    if(!link) return;
-                    
-                    const href = link.getAttribute('href');
-                    console.log('Link clicked:', href); // Debug
-                    
-                    if(href && href !== '#') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        // Menüyü kapat ve yönlendir
-                        closeMenu(function() {
-                            console.log('Navigating to:', href); // Debug
-                            window.location.href = href;
-                        });
-                    }
-                });
-                
-                // Touch için ayrı handling (Android Chrome için kritik)
-                mobileNavLinks.addEventListener('touchend', function(e) {
-                    const link = e.target.closest('a');
-                    if(!link) return;
-                    
-                    const href = link.getAttribute('href');
-                    if(href && href !== '#') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        closeMenu(function() {
-                            window.location.href = href;
-                        });
-                    }
-                });
-            }
-            
-            // ESC ile kapatma
-            document.addEventListener('keydown', function(e) {
-                if(e.key === 'Escape' && isOpen) {
-                    closeMenu();
-                }
-            });
-            
-            // Sayfa yüklendiğinde kapat
-            window.addEventListener('load', function() {
-                if(mobileMenuContainer) {
-                    mobileMenuContainer.style.display = 'none';
-                    mobileMenuContainer.classList.remove('active');
-                }
-            });
-        })();
-        
-        // Sepet Sayısı
-        function updateCartCount() {
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const countElement = document.getElementById('cart-count');
-            if(countElement) countElement.innerText = cart.length;
         }
-        updateCartCount();
-    </script>
+        
+        // Butonlar
+        if(menuBtn) menuBtn.addEventListener('click', toggleMenu);
+        if(closeMenuBtn) closeMenuBtn.addEventListener('click', toggleMenu);
+        if(menuOverlay) menuOverlay.addEventListener('click', toggleMenu);
+        
+        // LİNKLER - Ayrı ayrı seç (Delegation değil, daha güvenli)
+        const links = document.querySelectorAll('#mobileNavLinks a');
+        
+        links.forEach(function(link) {
+            // SADECE CLICK (touchend yok - çift tetikleme riskini engeller)
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                console.log('Tıklanan link:', href); // Debug
+                
+                if(!href || href === '#') return;
+                
+                // Menüyü kapat
+                toggleMenu();
+                
+                // Yönlendirme (kısa gecikme ile menünün kapanma animasyonu için)
+                setTimeout(function() {
+                    console.log('Yönlendiriliyor:', href);
+                    window.location.assign(href); // location.href yerine assign (daha güvenli)
+                }, 350);
+                
+                // Normal link davranışını engelle (çünkü manuel yönlendiriyoruz)
+                e.preventDefault();
+            });
+        });
+        
+        // ESC ile kapat
+        document.addEventListener('keydown', function(e) {
+            if(e.key === 'Escape' && isOpen) toggleMenu();
+        });
+    });
+    
+    // Sepet Sayısı
+    function updateCartCount() {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const countElement = document.getElementById('cart-count');
+        if(countElement) countElement.innerText = cart.length;
+    }
+    updateCartCount();
+</script>
 </body>
 </html>
