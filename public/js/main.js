@@ -1,17 +1,11 @@
 // Loading Animation
 window.addEventListener('load', () => {
     const loader = document.querySelector('.loader');
-    loader.classList.add('hidden');
+    if(loader) loader.classList.add('hidden');
     
     // Start counter animation
     animateCounters();
 });
-
-// Mobile Menu Toggle
-function toggleMenu() {
-    const navMenu = document.querySelector('.nav-menu');
-    navMenu.classList.toggle('active');
-}
 
 // Header Scroll Effect
 window.addEventListener('scroll', () => {
@@ -19,15 +13,15 @@ window.addEventListener('scroll', () => {
     const backToTop = document.querySelector('.back-to-top');
     
     if (window.scrollY > 100) {
-        header.style.boxShadow = '0 2px 30px rgba(0,0,0,0.1)';
-        backToTop.classList.add('visible');
+        if(header) header.style.boxShadow = '0 2px 30px rgba(0,0,0,0.1)';
+        if(backToTop) backToTop.classList.add('visible');
     } else {
-        header.style.boxShadow = '0 2px 20px rgba(0,0,0,0.05)';
-        backToTop.classList.remove('visible');
+        if(header) header.style.boxShadow = '0 2px 20px rgba(0,0,0,0.05)';
+        if(backToTop) backToTop.classList.remove('visible');
     }
 });
 
-// Smooth Scroll
+// Smooth Scroll (Sadece # ile başlayan linkler için)
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -44,6 +38,8 @@ function animateCounters() {
     
     counters.forEach(counter => {
         const target = +counter.getAttribute('data-count');
+        if(!target) return;
+        
         const increment = target / 50;
         let current = 0;
         
@@ -89,7 +85,15 @@ document.querySelectorAll('.feature-card, .why-item').forEach(el => {
     observer.observe(el);
 });
 
-// Logo error handling
-document.getElementById('logo-img').addEventListener('error', function() {
-    this.src = 'https://via.placeholder.com/50x50/2563eb/ffffff?text=KT';
+// Logo error handling (Eğer logo-img varsa)
+document.addEventListener('DOMContentLoaded', () => {
+    const logoImg = document.getElementById('logo-img');
+    if(logoImg) {
+        logoImg.addEventListener('error', function() {
+            this.src = 'https://via.placeholder.com/50x50/2563eb/ffffff?text=KT';
+        });
+    }
 });
+
+// NOT: Mobil menü kodu artık index.html içinde inline olarak var!
+// Eski toggleMenu() fonksiyonu kaldırıldı çünkü index.html içindeki kodla çakışıyordu.
