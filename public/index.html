@@ -5,10 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>Kurumsal Tedarikçi - Dijital Dönüşümde Güvenilir Çözüm Ortağınız</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/mobile.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; line-height: 1.6; color: #333; padding-top: 70px; }
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            line-height: 1.6; 
+            color: #333; 
+            padding-top: 70px;
+            overflow-x: hidden;
+        }
         
         /* Navbar */
         .navbar {
@@ -23,6 +28,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            height: 70px;
         }
         
         .logo { font-size: 24px; font-weight: 800; color: #1f2937; text-decoration: none; }
@@ -50,7 +56,26 @@
         .nav-right { 
             display: flex; 
             align-items: center; 
-            gap: 20px; 
+            gap: 15px; 
+        }
+        
+        /* Giriş butonu */
+        .login-btn {
+            text-decoration: none;
+            color: #6366f1;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 10px 20px;
+            border: 2px solid #6366f1;
+            border-radius: 25px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            height: 44px;
+        }
+        .login-btn:hover {
+            background: #6366f1;
+            color: white;
         }
         
         .cart-btn {
@@ -84,35 +109,19 @@
             align-items: center;
             justify-content: center;
             border: 2px solid white;
-            animation: bounce 0.3s;
         }
         
-        @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
+        /* Mobile Menu Button */
+        .mobile-menu-btn { 
+            display: none; 
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #374151;
+            padding: 8px;
+            z-index: 1001;
         }
-        
-        /* Giriş butonu */
-        .login-btn {
-            text-decoration: none;
-            color: #6366f1;
-            font-weight: 600;
-            font-size: 14px;
-            padding: 10px 20px;
-            border: 2px solid #6366f1;
-            border-radius: 25px;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            height: 44px;
-        }
-        .login-btn:hover {
-            background: #6366f1;
-            color: white;
-        }
-        
-        /* Mobile Menu Button - Default hidden */
-        .mobile-menu-btn { display: none; }
         
         /* Hero Section */
         .hero {
@@ -408,7 +417,151 @@
             transform: translateY(-3px);
         }
         
-        /* Overlay for mobile menu */
+        /* MOBİL DÜZENLEMELER - DÜZELTİLMİŞ */
+        @media (max-width: 768px) {
+            body { padding-top: 60px; }
+            
+            .navbar {
+                height: 60px;
+                padding: 10px 15px;
+            }
+            
+            .logo { font-size: 20px; }
+            
+            .mobile-menu-btn { 
+                display: flex !important; 
+                align-items: center;
+                justify-content: center;
+                position: absolute;
+                right: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 44px;
+                height: 44px;
+            }
+            
+            .nav-links { 
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100vh;
+                background: rgba(255,255,255,0.98);
+                backdrop-filter: blur(10px);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 0 !important;
+                z-index: 9999;
+                margin: 0;
+                padding: 80px 20px 40px;
+                overflow-y: auto;
+            }
+            
+            .nav-links.active { 
+                display: flex !important; 
+            }
+            
+            .nav-links li {
+                width: 100%;
+                text-align: center;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            
+            .nav-links li:last-child {
+                border-bottom: none;
+            }
+            
+            .nav-links a {
+                font-size: 18px !important;
+                padding: 20px;
+                width: 100%;
+                justify-content: center;
+                height: auto;
+                color: #374151;
+                display: block;
+            }
+            
+            .nav-links a:hover, .nav-links a.active {
+                background: rgba(99,102,241,0.1);
+                color: #6366f1;
+            }
+            
+            /* Kapatma butonu */
+            .close-menu {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                background: #f3f4f6;
+                border: none;
+                font-size: 24px;
+                color: #374151;
+                cursor: pointer;
+                width: 44px;
+                height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                z-index: 10000;
+            }
+            
+            .close-menu:hover { background: #e5e7eb; }
+            
+            /* Nav sağ kısım gizle (mobilde sadece menü butonu) */
+            .nav-right {
+                margin-right: 50px;
+                gap: 10px;
+            }
+            
+            .login-btn {
+                padding: 8px 16px;
+                font-size: 13px;
+                height: 38px;
+            }
+            
+            .cart-btn {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .hero {
+                padding: 40px 15px;
+                min-height: auto;
+            }
+            
+            .hero-container {
+                grid-template-columns: 1fr !important;
+                gap: 30px !important;
+                text-align: center;
+            }
+            
+            .hero h1 { font-size: 2rem !important; }
+            .hero p { font-size: 1rem !important; }
+            .hero-buttons { justify-content: center; }
+            .btn { width: 100%; }
+            .hero-visual { display: none !important; }
+            
+            .hero-stats {
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+            
+            .quick-access { padding: 50px 15px; }
+            .section-title { font-size: 1.5rem; }
+            .cards-grid { grid-template-columns: 1fr; gap: 20px; }
+            
+            /* TEKLİF AL menüsü sabit kalma sorunu düzeltme */
+            .nav-links a[href="teklif.html"] {
+                position: relative;
+                color: #f59e0b !important;
+                font-weight: 700;
+            }
+        }
+        
+        /* Overlay */
         .menu-overlay {
             display: none;
             position: fixed;
@@ -417,7 +570,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.5);
-            z-index: 999;
+            z-index: 9998;
             backdrop-filter: blur(3px);
         }
         .menu-overlay.active { display: block; }
@@ -428,7 +581,7 @@
     <nav class="navbar">
         <a href="index.html" class="logo">Kurumsal<span>Tedarikçi</span></a>
         
-        <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Menüyü Aç/Kapat">
+        <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Menüyü Aç">
             <i class="fas fa-bars"></i>
         </button>
         
@@ -436,13 +589,13 @@
             <button class="close-menu" onclick="toggleMenu()" aria-label="Menüyü Kapat">
                 <i class="fas fa-times"></i>
             </button>
-            <li><a href="index.html" class="active">Anasayfa</a></li>
-            <li><a href="hizmetler.html">Hizmetler</a></li>
-            <li><a href="paketler.html">Paketler</a></li>
-            <li><a href="urunler.html">Ürünler</a></li>
-            <li><a href="referanslar.html">Referanslar</a></li>
-            <li><a href="teklif.html" style="color: #f59e0b;">Teklif Al</a></li>
-            <li><a href="iletisim.html">İletişim</a></li>
+            <li><a href="index.html" onclick="closeMenu()">Anasayfa</a></li>
+            <li><a href="hizmetler.html" onclick="closeMenu()">Hizmetler</a></li>
+            <li><a href="paketler.html" onclick="closeMenu()">Paketler</a></li>
+            <li><a href="urunler.html" onclick="closeMenu()">Ürünler</a></li>
+            <li><a href="referanslar.html" onclick="closeMenu()">Referanslar</a></li>
+            <li><a href="teklif.html" onclick="closeMenu()" style="color: #f59e0b;">Teklif Al</a></li>
+            <li><a href="iletisim.html" onclick="closeMenu()">İletişim</a></li>
         </ul>
         
         <div class="nav-right">
@@ -454,7 +607,7 @@
         </div>
     </nav>
     
-    <!-- Overlay for mobile menu -->
+    <!-- Overlay -->
     <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
 
     <!-- Hero Section -->
@@ -573,7 +726,6 @@
         </p>
     </footer>
 
-    <!-- Scripts -->
     <script src="js/sepet.js"></script>
     <script>
         // Sepet sayısını güncelle
@@ -582,42 +734,52 @@
             const countElement = document.getElementById('cart-count');
             if(countElement) {
                 countElement.innerText = cart.length;
-                // Animasyon için
-                countElement.style.animation = 'none';
-                setTimeout(() => countElement.style.animation = 'bounce 0.3s', 10);
             }
         }
         updateCartCount();
         
-        // Mobil Menü Toggle
+        // Mobil Menü Kontrolü - DÜZELTİLMİŞ
         function toggleMenu() {
             const navLinks = document.getElementById('navLinks');
             const overlay = document.getElementById('menuOverlay');
             const body = document.body;
             
-            navLinks.classList.toggle('active');
-            overlay.classList.toggle('active');
+            const isOpen = navLinks.classList.contains('active');
             
-            // Menü açıkken scroll'u engelle
-            if(navLinks.classList.contains('active')) {
-                body.style.overflow = 'hidden';
-            } else {
+            if (isOpen) {
+                // Menüyü kapat
+                navLinks.classList.remove('active');
+                overlay.classList.remove('active');
                 body.style.overflow = '';
+            } else {
+                // Menüyü aç
+                navLinks.classList.add('active');
+                overlay.classList.add('active');
+                body.style.overflow = 'hidden'; // Scroll'u engelle
             }
         }
         
-        // Sayfa scroll olduğunda navbar'ı gizle/göster (opsiyonel)
-        let lastScroll = 0;
-        window.addEventListener('scroll', () => {
-            const navbar = document.querySelector('.navbar');
-            const currentScroll = window.pageYOffset;
+        // Menüyü kapat (link tıklamaları için)
+        function closeMenu() {
+            const navLinks = document.getElementById('navLinks');
+            const overlay = document.getElementById('menuOverlay');
+            const body = document.body;
             
-            if(currentScroll > lastScroll && currentScroll > 100) {
-                navbar.style.transform = 'translateY(-100%)';
-            } else {
-                navbar.style.transform = 'translateY(0)';
+            navLinks.classList.remove('active');
+            overlay.classList.remove('active');
+            body.style.overflow = '';
+        }
+        
+        // Sayfa yüklendiğinde menüyü kapat (güvenlik için)
+        window.addEventListener('load', function() {
+            closeMenu();
+        });
+        
+        // ESC tuşu ile menüyü kapat
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMenu();
             }
-            lastScroll = currentScroll;
         });
     </script>
 
