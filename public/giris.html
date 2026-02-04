@@ -271,6 +271,9 @@
 
             <!-- Giriş Formu -->
             <form id="girisForm" onsubmit="event.preventDefault(); girisYap();">
+                <!-- HATA MESAJI ALANI EKLENDI -->
+                <div id="girisAlert" class="alert"></div>
+                
                 <div class="form-group">
                     <label>E-Posta</label>
                     <input type="email" id="girisEmail" placeholder="ornek@firma.com" required>
@@ -300,100 +303,104 @@
             </form>
 
             <!-- Kayıt Formu -->
-<form id="kayitForm" class="hidden" onsubmit="event.preventDefault(); kayitOl();">
-    
-    <!-- Kurumsal/Bireysel Seçimi -->
-    <div class="form-group" style="margin-bottom: 25px;">
-        <label style="display: block; margin-bottom: 12px; color: #374151; font-weight: 600; font-size: 14px;">Üyelik Tipi</label>
-        <div class="membership-toggle" style="display: flex; gap: 10px; background: #f3f4f6; padding: 4px; border-radius: 12px;">
-            <button type="button" class="membership-btn active" onclick="setMembershipType('bireysel')" id="btnBireysel" 
-                style="flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; background: white; color: #6366f1; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                <i class="fas fa-user" style="margin-right: 8px;"></i> Bireysel
-            </button>
-            <button type="button" class="membership-btn" onclick="setMembershipType('kurumsal')" id="btnKurumsal"
-                style="flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; background: transparent; color: #6b7280;">
-                <i class="fas fa-building" style="margin-right: 8px;"></i> Kurumsal
-            </button>
-        </div>
-        <input type="hidden" id="uyelikTipi" value="bireysel">
-    </div>
+            <form id="kayitForm" class="hidden" onsubmit="event.preventDefault(); kayitOl();">
+                <!-- HATA MESAJI ALANI EKLENDI -->
+                <div id="kayitAlert" class="alert"></div>
+                
+                <!-- Kurumsal/Bireysel Seçimi -->
+                <div class="form-group" style="margin-bottom: 25px;">
+                    <label style="display: block; margin-bottom: 12px; color: #374151; font-weight: 600; font-size: 14px;">Üyelik Tipi</label>
+                    <div class="membership-toggle" style="display: flex; gap: 10px; background: #f3f4f6; padding: 4px; border-radius: 12px;">
+                        <button type="button" class="membership-btn active" onclick="setMembershipType('bireysel')" id="btnBireysel" 
+                            style="flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; background: white; color: #6366f1; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <i class="fas fa-user" style="margin-right: 8px;"></i> Bireysel
+                        </button>
+                        <button type="button" class="membership-btn" onclick="setMembershipType('kurumsal')" id="btnKurumsal"
+                            style="flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; background: transparent; color: #6b7280;">
+                            <i class="fas fa-building" style="margin-right: 8px;"></i> Kurumsal
+                        </button>
+                    </div>
+                    <input type="hidden" id="uyelikTipi" value="bireysel">
+                </div>
 
-    <div class="form-group">
-        <label>Ad Soyad</label>
-        <input type="text" id="kayitAd" placeholder="Adınız Soyadınız" required>
-    </div>
-    
-    <!-- Kurumsal Özel Alanlar -->
-    <div id="kurumsalAlanlar" class="hidden" style="animation: slideDown 0.3s ease;">
-        <div class="form-group">
-            <label>Firma Adı <span style="color: #ef4444;">*</span></label>
-            <input type="text" id="kayitFirma" placeholder="Firma Ünvanı">
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div class="form-group">
-                <label>Vergi No <span style="color: #ef4444;">*</span></label>
-                <input type="text" id="vergiNo" placeholder="1234567890" maxlength="11">
-            </div>
-            <div class="form-group">
-                <label>Vergi Dairesi <span style="color: #ef4444;">*</span></label>
-                <input type="text" id="vergiDairesi" placeholder="İstanbul">
-            </div>
-        </div>
-    </div>
-    
-    <!-- Bireysel Özel Alan -->
-    <div id="bireyselAlanlar">
-        <div class="form-group">
-            <label>TC Kimlik No</label>
-            <input type="text" id="tcNo" placeholder="12345678901" maxlength="11">
-        </div>
-    </div>
+                <div class="form-group">
+                    <label>Ad Soyad</label>
+                    <input type="text" id="kayitAd" placeholder="Adınız Soyadınız" required>
+                </div>
+                
+                <!-- Kurumsal Özel Alanlar -->
+                <div id="kurumsalAlanlar" class="hidden" style="animation: slideDown 0.3s ease;">
+                    <div class="form-group">
+                        <label>Firma Adı <span style="color: #ef4444;">*</span></label>
+                        <input type="text" id="kayitFirma" placeholder="Firma Ünvanı">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Vergi No <span style="color: #ef4444;">*</span></label>
+                            <input type="text" id="vergiNo" placeholder="1234567890" maxlength="11">
+                        </div>
+                        <div class="form-group">
+                            <label>Vergi Dairesi <span style="color: #ef4444;">*</span></label>
+                            <input type="text" id="vergiDairesi" placeholder="İstanbul">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bireysel Özel Alan -->
+                <div id="bireyselAlanlar">
+                    <div class="form-group">
+                        <label>TC Kimlik No</label>
+                        <input type="text" id="tcNo" placeholder="12345678901" maxlength="11">
+                    </div>
+                </div>
 
-    <div class="form-group">
-        <label>E-Posta</label>
-        <input type="email" id="kayitEmail" placeholder="ornek@firma.com" required>
-    </div>
-    <div class="form-group">
-        <label>Telefon</label>
-        <input type="tel" id="kayitTelefon" placeholder="05XX XXX XX XX" required>
-    </div>
-    
-    <!-- Fatura Adresi -->
-    <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <label style="font-weight: 700; color: #1f2937; font-size: 16px;">Fatura Adresi</label>
-            <label style="display: flex; align-items: center; gap: 5px; font-size: 13px; color: #6b7280; cursor: pointer;">
-                <input type="checkbox" id="teslimatAyni" checked onchange="toggleTeslimatAdresi()" style="width: auto;">
-                Teslimat adresiyle aynı
-            </label>
+                <div class="form-group">
+                    <label>E-Posta</label>
+                    <input type="email" id="kayitEmail" placeholder="ornek@firma.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Telefon</label>
+                    <input type="tel" id="kayitTelefon" placeholder="05XX XXX XX XX" required>
+                </div>
+                
+                <!-- Fatura Adresi -->
+                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <label style="font-weight: 700; color: #1f2937; font-size: 16px;">Fatura Adresi</label>
+                        <label style="display: flex; align-items: center; gap: 5px; font-size: 13px; color: #6b7280; cursor: pointer;">
+                            <input type="checkbox" id="teslimatAyni" checked onchange="toggleTeslimatAdresi()" style="width: auto;">
+                            Teslimat adresiyle aynı
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <textarea id="faturaAdresi" placeholder="Mahalle, Sokak, No, İlçe/İl" rows="3" style="width: 100%; padding: 14px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px; resize: vertical; font-family: inherit;" required></textarea>
+                    </div>
+                </div>
+                
+                <!-- Teslimat Adresi (Opsiyonel) -->
+                <div id="teslimatAdresiAlani" class="hidden" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                    <label style="font-weight: 700; color: #1f2937; font-size: 16px; margin-bottom: 15px; display: block;">Teslimat Adresi</label>
+                    <div class="form-group">
+                        <textarea id="teslimatAdresi" placeholder="Mahalle, Sokak, No, İlçe/İl" rows="3" style="width: 100%; padding: 14px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px; resize: vertical; font-family: inherit;"></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>Şifre</label>
+                    <input type="password" id="kayitSifre" placeholder="En az 6 karakter" required minlength="6">
+                </div>
+                
+                <button type="submit" class="btn-auth" id="kayitBtn">
+                    <span id="kayitBtnText">Üye Ol</span>
+                </button>
+                
+                <p style="margin-top: 20px; font-size: 13px; color: #6b7280; text-align: center;">
+                    Üye olarak <a href="#" style="color: #6366f1;">Kullanım Koşulları</a>'nı kabul etmiş olursunuz.
+                </p>
+            </form>
         </div>
-        
-        <div class="form-group">
-            <textarea id="faturaAdresi" placeholder="Mahalle, Sokak, No, İlçe/İl" rows="3" style="width: 100%; padding: 14px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px; resize: vertical; font-family: inherit;" required></textarea>
-        </div>
     </div>
-    
-    <!-- Teslimat Adresi (Opsiyonel) -->
-    <div id="teslimatAdresiAlani" class="hidden" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-        <label style="font-weight: 700; color: #1f2937; font-size: 16px; margin-bottom: 15px; display: block;">Teslimat Adresi</label>
-        <div class="form-group">
-            <textarea id="teslimatAdresi" placeholder="Mahalle, Sokak, No, İlçe/İl" rows="3" style="width: 100%; padding: 14px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px; resize: vertical; font-family: inherit;"></textarea>
-        </div>
-    </div>
-    
-    <div class="form-group" style="margin-top: 20px;">
-        <label>Şifre</label>
-        <input type="password" id="kayitSifre" placeholder="En az 6 karakter" required minlength="6">
-    </div>
-    
-    <button type="submit" class="btn-auth" id="kayitBtn">
-        <span id="kayitBtnText">Üye Ol</span>
-    </button>
-    
-    <p style="margin-top: 20px; font-size: 13px; color: #6b7280; text-align: center;">
-        Üye olarak <a href="#" style="color: #6366f1;">Kullanım Koşulları</a>'nı kabul etmiş olursunuz.
-    </p>
-</form>
 
     <!-- ŞİFRE SIFIRLAMA MODALI -->
     <div class="modal-overlay" id="sifreModal">
@@ -562,120 +569,69 @@
 
     <script>
         // API BASE URL - BURAYI KENDİ SERVERINIZA GÖRE DEĞİŞTİRİN
-const API_URL ='https://backend-api-7s13.onrender.com/api';
-// Yayına alırken: const API_URL ='https://www.tedarikci.org.tr/api';
+        const API_URL ='https://backend-api-7s13.onrender.com/api';
+        // Yayına alırken: const API_URL ='https://www.tedarikci.org.tr/api';
+        
         let sifirlamaEmail = '';
         let resetToken = '';
         let countdownInterval;
 
         // Üyelik tipi değiştirme
-function setMembershipType(type) {
-    document.getElementById('uyelikTipi').value = type;
-    const btnBireysel = document.getElementById('btnBireysel');
-    const btnKurumsal = document.getElementById('btnKurumsal');
-    const kurumsalAlanlar = document.getElementById('kurumsalAlanlar');
-    const bireyselAlanlar = document.getElementById('bireyselAlanlar');
-    
-    if(type === 'kurumsal') {
-        btnKurumsal.style.background = 'white';
-        btnKurumsal.style.color = '#6366f1';
-        btnKurumsal.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-        btnBireysel.style.background = 'transparent';
-        btnBireysel.style.color = '#6b7280';
-        btnBireysel.style.boxShadow = 'none';
-        
-        kurumsalAlanlar.classList.remove('hidden');
-        bireyselAlanlar.classList.add('hidden');
-        
-        // Kurumsal alanları required yap
-        document.getElementById('kayitFirma').required = true;
-        document.getElementById('vergiNo').required = true;
-        document.getElementById('vergiDairesi').required = true;
-        document.getElementById('tcNo').required = false;
-    } else {
-        btnBireysel.style.background = 'white';
-        btnBireysel.style.color = '#6366f1';
-        btnBireysel.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-        btnKurumsal.style.background = 'transparent';
-        btnKurumsal.style.color = '#6b7280';
-        btnKurumsal.style.boxShadow = 'none';
-        
-        kurumsalAlanlar.classList.add('hidden');
-        bireyselAlanlar.classList.remove('hidden');
-        
-        // Bireysel alanları required yap
-        document.getElementById('kayitFirma').required = false;
-        document.getElementById('vergiNo').required = false;
-        document.getElementById('vergiDairesi').required = false;
-        document.getElementById('tcNo').required = true;
-    }
-}
-
-// Teslimat adresi toggle
-function toggleTeslimatAdresi() {
-    const checkbox = document.getElementById('teslimatAyni');
-    const teslimatAlani = document.getElementById('teslimatAdresiAlani');
-    
-    if(checkbox.checked) {
-        teslimatAlani.classList.add('hidden');
-        document.getElementById('teslimatAdresi').required = false;
-    } else {
-        teslimatAlani.classList.remove('hidden');
-        document.getElementById('teslimatAdresi').required = true;
-    }
-}
-
-// Kayıt fonksiyonunu güncelle
-async function kayitOl() {
-    const uyelikTipi = document.getElementById('uyelikTipi').value;
-    
-    const userData = {
-        ad: document.getElementById('kayitAd').value,
-        email: document.getElementById('kayitEmail').value,
-        telefon: document.getElementById('kayitTelefon').value,
-        password: document.getElementById('kayitSifre').value,
-        uyelikTipi: uyelikTipi,
-        faturaAdresi: document.getElementById('faturaAdresi').value,
-        teslimatAdresi: document.getElementById('teslimatAyni').checked ? 
-            document.getElementById('faturaAdresi').value : 
-            document.getElementById('teslimatAdresi').value
-    };
-    
-    // Kurumsal/Bireysel özel alanlar
-    if(uyelikTipi === 'kurumsal') {
-        userData.firma = document.getElementById('kayitFirma').value;
-        userData.vergiNo = document.getElementById('vergiNo').value;
-        userData.vergiDairesi = document.getElementById('vergiDairesi').value;
-        userData.faturaTipi = 'kurumsal';
-    } else {
-        userData.tcNo = document.getElementById('tcNo').value;
-        userData.faturaTipi = 'bireysel';
-    }
-    
-    showLoading('kayitBtn');
-    
-    try {
-        const response = await fetch(`${API_URL}/auth/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData)
-        });
-        
-        const data = await response.json();
-        
-        if(response.ok) {
-            alert('Kayıt başarılı! Giriş yapabilirsiniz.');
-            showTab('giris');
-            document.getElementById('kayitForm').reset();
-        } else {
-            alert(data.message || 'Kayıt başarısız!');
+        function setMembershipType(type) {
+            document.getElementById('uyelikTipi').value = type;
+            const btnBireysel = document.getElementById('btnBireysel');
+            const btnKurumsal = document.getElementById('btnKurumsal');
+            const kurumsalAlanlar = document.getElementById('kurumsalAlanlar');
+            const bireyselAlanlar = document.getElementById('bireyselAlanlar');
+            
+            if(type === 'kurumsal') {
+                btnKurumsal.style.background = 'white';
+                btnKurumsal.style.color = '#6366f1';
+                btnKurumsal.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                btnBireysel.style.background = 'transparent';
+                btnBireysel.style.color = '#6b7280';
+                btnBireysel.style.boxShadow = 'none';
+                
+                kurumsalAlanlar.classList.remove('hidden');
+                bireyselAlanlar.classList.add('hidden');
+                
+                // Kurumsal alanları required yap
+                document.getElementById('kayitFirma').required = true;
+                document.getElementById('vergiNo').required = true;
+                document.getElementById('vergiDairesi').required = true;
+                document.getElementById('tcNo').required = false;
+            } else {
+                btnBireysel.style.background = 'white';
+                btnBireysel.style.color = '#6366f1';
+                btnBireysel.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                btnKurumsal.style.background = 'transparent';
+                btnKurumsal.style.color = '#6b7280';
+                btnKurumsal.style.boxShadow = 'none';
+                
+                kurumsalAlanlar.classList.add('hidden');
+                bireyselAlanlar.classList.remove('hidden');
+                
+                // Bireysel alanları required yap
+                document.getElementById('kayitFirma').required = false;
+                document.getElementById('vergiNo').required = false;
+                document.getElementById('vergiDairesi').required = false;
+                document.getElementById('tcNo').required = true;
+            }
         }
-    } catch(error) {
-        alert('Bağlantı hatası!');
-    } finally {
-        showLoading('kayitBtn', false);
-    }
-}
+
+        // Teslimat adresi toggle
+        function toggleTeslimatAdresi() {
+            const checkbox = document.getElementById('teslimatAyni');
+            const teslimatAlani = document.getElementById('teslimatAdresiAlani');
+            
+            if(checkbox.checked) {
+                teslimatAlani.classList.add('hidden');
+                document.getElementById('teslimatAdresi').required = false;
+            } else {
+                teslimatAlani.classList.remove('hidden');
+                document.getElementById('teslimatAdresi').required = true;
+            }
+        }
 
         // Yardımcı fonksiyonlar
         function showLoading(btnId, show = true) {
@@ -689,11 +645,19 @@ async function kayitOl() {
             }
         }
 
+        // DÜZELTİLMİŞ showAlert Fonksiyonu - NULL KONTROLÜ EKLENDİ
         function showAlert(elementId, message, type = 'error') {
             const alert = document.getElementById(elementId);
+            if (!alert) {
+                console.error(`Alert elementi bulunamadı: ${elementId}`);
+                alert(message); // Fallback olarak browser alert
+                return;
+            }
             alert.textContent = message;
             alert.className = `alert ${type}`;
-            setTimeout(() => alert.className = 'alert', 5000);
+            setTimeout(() => {
+                if(alert) alert.className = 'alert';
+            }, 5000);
         }
 
         // Tab değiştirme
@@ -711,13 +675,17 @@ async function kayitOl() {
             }
         }
         
-        // API İSTEKLERİ
-        
-        // 1. Giriş Yap
+        // 1. Giriş Yap - DÜZELTİLMİŞ (Boş kontrolü eklendi)
         async function girisYap() {
             const email = document.getElementById('girisEmail').value;
             const sifre = document.getElementById('girisSifre').value;
             const hatirla = document.getElementById('beniHatirla').checked;
+            
+            // BOŞ DEĞER KONTROLÜ EKLENDİ
+            if(!email || !sifre) {
+                showAlert('girisAlert', 'E-posta ve şifre boş bırakılamaz!');
+                return;
+            }
             
             showLoading('girisBtn');
             
@@ -736,24 +704,48 @@ async function kayitOl() {
                     if(hatirla) localStorage.setItem('rememberEmail', email);
                     profilGoster(data.user);
                 } else {
-                    showAlert('girisAlert', data.message || 'Giriş başarısız!');
+                    showAlert('girisAlert', data.message || 'Giriş başarısız! Bilgilerinizi kontrol edin.');
                 }
             } catch(error) {
-                showAlert('girisAlert', 'Bağlantı hatası. Lütfen tekrar deneyin.');
+                console.error('Giriş hatası:', error);
+                showAlert('girisAlert', 'Sunucuya bağlanılamıyor. Lütfen internet bağlantınızı kontrol edin.');
             } finally {
                 showLoading('girisBtn', false);
             }
         }
         
-        // 2. Kayıt Ol
+        // 2. Kayıt Ol - DÜZELTİLMİŞ (showAlert kullanımı düzeltildi)
         async function kayitOl() {
+            const uyelikTipi = document.getElementById('uyelikTipi').value;
+            
             const userData = {
                 ad: document.getElementById('kayitAd').value,
                 email: document.getElementById('kayitEmail').value,
-                firma: document.getElementById('kayitFirma').value,
                 telefon: document.getElementById('kayitTelefon').value,
-                password: document.getElementById('kayitSifre').value
+                password: document.getElementById('kayitSifre').value,
+                uyelikTipi: uyelikTipi,
+                faturaAdresi: document.getElementById('faturaAdresi').value,
+                teslimatAdresi: document.getElementById('teslimatAyni').checked ? 
+                    document.getElementById('faturaAdresi').value : 
+                    document.getElementById('teslimatAdresi').value
             };
+            
+            // Kurumsal/Bireysel özel alanlar
+            if(uyelikTipi === 'kurumsal') {
+                userData.firma = document.getElementById('kayitFirma').value;
+                userData.vergiNo = document.getElementById('vergiNo').value;
+                userData.vergiDairesi = document.getElementById('vergiDairesi').value;
+                userData.faturaTipi = 'kurumsal';
+                
+                // Kurumsal validasyon
+                if(!userData.firma || !userData.vergiNo || !userData.vergiDairesi) {
+                    showAlert('kayitAlert', 'Lütfen tüm kurumsal bilgileri doldurun!');
+                    return;
+                }
+            } else {
+                userData.tcNo = document.getElementById('tcNo').value;
+                userData.faturaTipi = 'bireysel';
+            }
             
             showLoading('kayitBtn');
             
@@ -767,14 +759,17 @@ async function kayitOl() {
                 const data = await response.json();
                 
                 if(response.ok) {
-                    alert('Kayıt başarılı! Giriş yapabilirsiniz.');
-                    showTab('giris');
-                    document.getElementById('kayitForm').reset();
+                    showAlert('kayitAlert', 'Kayıt başarılı! Giriş yapabilirsiniz.', 'success');
+                    setTimeout(() => {
+                        showTab('giris');
+                        document.getElementById('kayitForm').reset();
+                    }, 2000);
                 } else {
-                    alert(data.message || 'Kayıt başarısız!');
+                    showAlert('kayitAlert', data.message || 'Kayıt başarısız!');
                 }
             } catch(error) {
-                alert('Bağlantı hatası!');
+                console.error('Kayıt hatası:', error);
+                showAlert('kayitAlert', 'Bağlantı hatası! Lütfen tekrar deneyin.');
             } finally {
                 showLoading('kayitBtn', false);
             }
@@ -783,6 +778,12 @@ async function kayitOl() {
         // 3. Şifre Sıfırlama - Adım 1: Kod Gönder
         async function sifreSifirlaStep1() {
             const email = document.getElementById('sifreEmail').value;
+            
+            if(!email) {
+                showAlert('step1Alert', 'Lütfen e-posta adresinizi girin!');
+                return;
+            }
+            
             sifirlamaEmail = email;
             
             showLoading('step1Btn');
@@ -834,7 +835,7 @@ async function kayitOl() {
                 const data = await response.json();
                 
                 if(response.ok) {
-                    resetToken = data.resetToken; // Backend'den geçici token al
+                    resetToken = data.resetToken;
                     document.getElementById('sifreStep2').classList.add('hidden');
                     document.getElementById('sifreStep3').classList.remove('hidden');
                     clearInterval(countdownInterval);
@@ -895,7 +896,7 @@ async function kayitOl() {
             }
         }
         
-        // 6. Profil Şifre Değiştirme (Giriş yapmış kullanıcı)
+        // 6. Profil Şifre Değiştirme
         async function changePassword() {
             const mevcut = document.getElementById('mevcutSifre').value;
             const yeni = document.getElementById('profilYeniSifre').value;
@@ -1037,7 +1038,6 @@ async function kayitOl() {
             
             if(token && user) {
                 profilGoster(JSON.parse(user));
-                // Token geçerliliğini kontrol et (opsiyonel)
                 fetch(`${API_URL}/auth/verify`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 }).catch(() => cikisYap());
