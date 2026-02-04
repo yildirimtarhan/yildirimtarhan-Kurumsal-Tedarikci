@@ -350,3 +350,48 @@
     .hero-visual { display: none !important; }
     .nav-links { padding-top: 60px !important; }
 }
+
+/* =========================================
+   MOBİL MENÜ JAVASCRIPT DESTEĞİ
+   Bu kodları mobile.css SONUNA ekleyin
+========================================= */
+
+/* Menü açıkken body scroll engelleme */
+body.menu-open {
+    overflow: hidden !important;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+/* Mobil menü içerik düzeltmesi */
+@media (max-width: 768px) {
+    .nav-links li {
+        transform: translateY(-20px);
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-links.active li {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    
+    /* Link tıklama alanını genişlet */
+    .nav-links a {
+        padding: 20px !important;
+        margin: 0 !important;
+        display: block !important;
+        width: 100% !important;
+        text-align: center !important;
+        touch-action: manipulation !important;
+        -webkit-touch-callout: none !important;
+        -webkit-user-select: none !important;
+        user-select: none !important;
+    }
+    
+    /* Aktif link görünümü */
+    .nav-links a:active {
+        background: rgba(99,102,241,0.2) !important;
+    }
+}

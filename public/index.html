@@ -2,11 +2,11 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Kurumsal Tedarikçi - Dijital Dönüşümde Güvenilir Çözüm Ortağınız</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
             line-height: 1.6; 
@@ -345,6 +345,7 @@
             transition: all 0.3s;
             text-decoration: none;
             color: inherit;
+            display: block;
         }
         
         .feature-card:hover {
@@ -433,6 +434,7 @@
                 height: 44px;
             }
             
+            /* MOBİL MENÜ - Z-INDEX DÜZELTMESİ */
             .nav-links { 
                 display: none;
                 position: fixed;
@@ -442,21 +444,24 @@
                 height: 100vh;
                 background: rgba(255,255,255,0.98);
                 backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
                 flex-direction: column;
-                justify-content: center;
+                justify-content: flex-start;
                 align-items: center;
-                gap: 0 !important;
+                gap: 0;
                 z-index: 9999;
                 margin: 0;
                 padding: 80px 20px 40px;
                 overflow-y: auto;
-                transition: opacity 0.3s ease;
                 opacity: 0;
+                transition: opacity 0.3s ease;
+                pointer-events: none; /* Önemli: Menü kapalıyken tıklanamaz */
             }
             
             .nav-links.active { 
                 display: flex !important;
                 opacity: 1;
+                pointer-events: auto; /* Menü açıkken tıklanabilir */
             }
             
             .nav-links li {
@@ -465,28 +470,38 @@
                 border-bottom: 1px solid #e5e7eb;
                 transform: translateY(-20px);
                 transition: transform 0.3s ease;
+                opacity: 0;
             }
             
             .nav-links.active li {
                 transform: translateY(0);
+                opacity: 1;
             }
+            
+            /* Staggered animasyon */
+            .nav-links.active li:nth-child(1) { transition-delay: 0.05s; }
+            .nav-links.active li:nth-child(2) { transition-delay: 0.1s; }
+            .nav-links.active li:nth-child(3) { transition-delay: 0.15s; }
+            .nav-links.active li:nth-child(4) { transition-delay: 0.2s; }
+            .nav-links.active li:nth-child(5) { transition-delay: 0.25s; }
+            .nav-links.active li:nth-child(6) { transition-delay: 0.3s; }
+            .nav-links.active li:nth-child(7) { transition-delay: 0.35s; }
             
             .nav-links li:last-child {
                 border-bottom: none;
             }
             
             .nav-links a {
-                font-size: 18px !important;
+                font-size: 18px;
                 padding: 20px;
                 width: 100%;
                 justify-content: center;
                 height: auto;
                 color: #374151;
                 display: block;
-                /* Tıklanabilir alanı artır */
                 min-height: 60px;
-                line-height: 60px;
-                padding: 0;
+                line-height: 20px;
+                touch-action: manipulation; /* Mobil dokunma iyileştirmesi */
             }
             
             .nav-links a:hover, .nav-links a.active {
@@ -510,6 +525,7 @@
                 justify-content: center;
                 border-radius: 50%;
                 z-index: 10000;
+                touch-action: manipulation;
             }
             
             .close-menu:hover { background: #e5e7eb; }
@@ -558,6 +574,7 @@
             .cards-grid { grid-template-columns: 1fr; gap: 20px; }
         }
         
+        /* OVERLAY - Z-INDEX DÜZELTMESİ */
         .menu-overlay {
             display: none;
             position: fixed;
@@ -567,13 +584,21 @@
             height: 100%;
             background: rgba(0,0,0,0.5);
             z-index: 9998;
-            backdrop-filter: blur(3px);
             opacity: 0;
             transition: opacity 0.3s ease;
+            touch-action: none; /* Overlay açıkken arka plan scroll'u engelle */
         }
+        
         .menu-overlay.active { 
             display: block;
             opacity: 1;
+        }
+        
+        /* Linklerin tıklanabilirliğini garantiye al */
+        .nav-links a {
+            position: relative;
+            z-index: 10000;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -590,14 +615,13 @@
             <button class="close-menu" id="closeMenuBtn" aria-label="Menüyü Kapat">
                 <i class="fas fa-times"></i>
             </button>
-            <!-- onclick kaldırıldı, JavaScript halledecek -->
-            <li><a href="index.html">Anasayfa</a></li>
-            <li><a href="hizmetler.html">Hizmetler</a></li>
-            <li><a href="paketler.html">Paketler</a></li>
-            <li><a href="urunler.html">Ürünler</a></li>
-            <li><a href="referanslar.html">Referanslar</a></li>
-            <li><a href="teklif.html" style="color: #f59e0b;">Teklif Al</a></li>
-            <li><a href="iletisim.html">İletişim</a></li>
+            <li><a href="index.html" data-nav="index">Anasayfa</a></li>
+            <li><a href="hizmetler.html" data-nav="hizmetler">Hizmetler</a></li>
+            <li><a href="paketler.html" data-nav="paketler">Paketler</a></li>
+            <li><a href="urunler.html" data-nav="urunler">Ürünler</a></li>
+            <li><a href="referanslar.html" data-nav="referanslar">Referanslar</a></li>
+            <li><a href="teklif.html" data-nav="teklif" style="color: #f59e0b;">Teklif Al</a></li>
+            <li><a href="iletisim.html" data-nav="iletisim">İletişim</a></li>
         </ul>
         
         <div class="nav-right">
@@ -736,90 +760,117 @@
         }
         updateCartCount();
         
-        // PROFESYONEL MOBİL MENÜ YÖNETİMİ
+        // MOBİL MENÜ - DÜZELTİLMİŞ VERSİYON
         (function() {
             const navLinks = document.getElementById('navLinks');
             const menuOverlay = document.getElementById('menuOverlay');
             const menuBtn = document.getElementById('menuBtn');
             const closeMenuBtn = document.getElementById('closeMenuBtn');
             const body = document.body;
+            let isMenuOpen = false;
             
-            // Menü aç/kapat
-            function toggleMenu() {
-                const isOpen = navLinks.classList.contains('active');
-                if (isOpen) {
-                    closeMenu();
-                } else {
-                    openMenu();
-                }
-            }
-            
-            function openMenu() {
+            // Menü aç
+            function openMenu(e) {
+                if(e) e.stopPropagation();
+                isMenuOpen = true;
                 navLinks.classList.add('active');
                 menuOverlay.classList.add('active');
                 body.style.overflow = 'hidden';
-                // Menü buton ikonunu değiştir
                 if(menuBtn) menuBtn.innerHTML = '<i class="fas fa-times"></i>';
             }
             
+            // Menü kapat
             function closeMenu() {
+                isMenuOpen = false;
                 navLinks.classList.remove('active');
                 menuOverlay.classList.remove('active');
                 body.style.overflow = '';
-                // Menü buton ikonunu geri al
                 if(menuBtn) menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
             }
             
-            // Menü butonlarına tıklama
-            if(menuBtn) menuBtn.addEventListener('click', toggleMenu);
-            if(closeMenuBtn) closeMenuBtn.addEventListener('click', closeMenu);
-            if(menuOverlay) menuOverlay.addEventListener('click', closeMenu);
+            // Toggle menü
+            function toggleMenu(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (isMenuOpen) {
+                    closeMenu();
+                } else {
+                    openMenu(e);
+                }
+            }
             
-            // MENÜ LİNKLERİNE TIKLAMA - BURASI KRİTİK
+            // Event listener'ları ekle
+            if(menuBtn) {
+                menuBtn.addEventListener('click', toggleMenu);
+                menuBtn.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    toggleMenu(e);
+                });
+            }
+            
+            if(closeMenuBtn) {
+                closeMenuBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeMenu();
+                });
+            }
+            
+            if(menuOverlay) {
+                menuOverlay.addEventListener('click', closeMenu);
+                menuOverlay.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    closeMenu();
+                });
+            }
+            
+            // MENÜ LİNKLERİ - KRİTİK DÜZELTME
             const menuLinks = document.querySelectorAll('.nav-links li a');
+            
             menuLinks.forEach(function(link) {
-                // Sadece kapatma butonu değilse ve hash değilse
-                if(!link.classList.contains('close-menu') && link.getAttribute('href') !== '#') {
+                // Sadece gerçek linkler (kapatma butonu hariç)
+                if(!link.classList.contains('close-menu') && link.getAttribute('href') && link.getAttribute('href') !== '#') {
                     
-                    // Tıklama olayı
+                    // CLICK event - Masaüstü
                     link.addEventListener('click', function(e) {
-                        e.preventDefault(); // Varsayılan davranışı engelle
-                        e.stopPropagation(); // Event bubbling'i durdur
-                        
+                        // Link çalışsın, menü kapansın
                         const href = this.getAttribute('href');
                         
-                        // Menüyü kapat
-                        closeMenu();
-                        
-                        // Yönlendirme (kısa gecikme ile menü kapanma animasyonu için)
-                        setTimeout(function() {
-                            window.location.href = href;
-                        }, 100);
+                        // Eğer hash değilse (sayfa içi link değilse)
+                        if(!href.startsWith('#')) {
+                            closeMenu();
+                            // Link normal davranışına devam etsin (yönlendirme)
+                            // preventDefault YOK!
+                        }
                     });
                     
-                    // Mobil için touch event (daha hızlı tepki)
+                    // TOUCHEND event - Mobil için optimize
                     link.addEventListener('touchend', function(e) {
-                        e.preventDefault();
+                        e.preventDefault(); // Mobil click'i engelle (çift tetiklemeyi önle)
                         const href = this.getAttribute('href');
-                        closeMenu();
-                        setTimeout(function() {
-                            window.location.href = href;
-                        }, 50);
+                        
+                        if(href && !href.startsWith('#')) {
+                            closeMenu();
+                            // Kısa gecikme ile yönlendir (menü kapanma animasyonu için)
+                            setTimeout(function() {
+                                window.location.href = href;
+                            }, 100);
+                        }
                     });
                 }
             });
             
             // ESC tuşu ile kapatma
             document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') closeMenu();
+                if (e.key === 'Escape' && isMenuOpen) closeMenu();
             });
             
-            // Sayfa yüklendiğinde menüyü kapat (güvenlik)
+            // Sayfa yüklendiğinde menüyü kapat
             window.addEventListener('load', closeMenu);
             
-            // Sayfa dışına tıklanınca kapat
+            // Sayfa dışına tıklayınca kapat
             document.addEventListener('click', function(e) {
-                if (navLinks.classList.contains('active') && 
+                if (isMenuOpen && 
                     !navLinks.contains(e.target) && 
                     !menuBtn.contains(e.target)) {
                     closeMenu();

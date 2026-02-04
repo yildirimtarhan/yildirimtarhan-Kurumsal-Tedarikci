@@ -1500,3 +1500,70 @@ body {
 @media (max-width: 768px) {
   .hamburger { display: block; }
 }
+/* =========================================
+   MOBİL MENÜ KRİTİK DÜZELTMELER
+   Bu kodları style.css SONUNA ekleyin
+========================================= */
+
+/* Mobil menü z-index düzeltmesi */
+@media (max-width: 768px) {
+    .nav-links {
+        z-index: 9999 !important;
+    }
+    
+    .nav-links * {
+        pointer-events: auto !important;
+    }
+    
+    .close-menu {
+        z-index: 10000 !important;
+        cursor: pointer !important;
+        pointer-events: auto !important;
+    }
+    
+    /* Linklerin tıklanabilirliği */
+    .nav-links a {
+        cursor: pointer !important;
+        position: relative !important;
+        z-index: 10001 !important;
+        display: block !important;
+        width: 100% !important;
+    }
+    
+    /* Overlay düzeltmesi */
+    .menu-overlay {
+        z-index: 9998 !important;
+        cursor: pointer !important;
+    }
+    
+    /* Navbar üzerindeki elementler */
+    .navbar {
+        z-index: 1000 !important;
+    }
+    
+    .mobile-menu-btn {
+        z-index: 1001 !important;
+        cursor: pointer !important;
+    }
+    
+    /* Linklerin altındaki elementleri devre dışı bırak */
+    .nav-links a::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10002;
+    }
+}
+
+/* Touch cihazlar için iyileştirme */
+@media (hover: none) and (pointer: coarse) {
+    .nav-links a {
+        min-height: 44px;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+}
