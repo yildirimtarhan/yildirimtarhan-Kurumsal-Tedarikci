@@ -485,56 +485,52 @@ app.post('/api/auth/verify-code', async (req, res) => {
   }
 });
 
-// 5. Yeni Şifre Kaydetme
-app.post('/api/auth/reset-password', async (req, res) => {
+app.post("/api/auth/reset-password", async (req, res) => {
   try {
     if (!ensureDbReady(res)) return;
 
     const email = normalizeEmail(req.body?.email);
-    const resetToken = String(req.body?.resetToken || '');
-    const newPassword = String(req.body?.newPassword || '');
+    const code = String(req.body?.code || "");
+    const newPassword = String(req.body?.newPassword || "");
 
     if (newPassword.length < 8) {
-      return res.status(400).json({ success: false, message: 'Şifre en az 8 karakter olmalı' });
+      return res.status(400).json({
+        success: false,
+        message: "Şifre en az 8 karakter olmalı"
+      });
     }
 
-    const decoded = jwt.verify(resetToken, JWT_SECRET);
-    if (decoded.email !== email || decoded.type !== 'password-reset') {
-      return res.status(400).json({ success: false, message: 'Geçersiz veya süresi dolmuş token' });
+    // Kullanıcıyı kod ile bul
+    const user = await usersCol().findOne({
+      email: email,
+      resetCode: code,
+      resetExpires: { $gt: new Date() }
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Kod geçersiz veya süresi dolmuş"
+      });
     }
 
-    const user = await usersCol().findOne({ _id: new ObjectId(decoded.userId) });
-    if (!user) return res.status(404).json({ success: false, message: 'Kullanıcı bulunamadı' });
-
-    // Nonce kontrolü: verify-code adımı tamamlanmış olmalı
-    if (!user.resetNonce || user.resetNonce !== decoded.nonce) {
-      return res.status(400).json({ success: false, message: 'Doğrulama adımı eksik veya süresi dolmuş' });
-    }
-
-    // expiry kontrolü
-    if (!user.resetExpires || new Date() > new Date(user.resetExpires)) {
-      await usersCol().updateOne({ _id: user._id }, { $unset: { resetCode: "", resetExpires: "", resetNonce: "", resetVerifiedAt: "" } });
-      return res.status(400).json({ success: false, message: 'Kod süresi dolmuş, lütfen tekrar deneyin' });
-    }
-
+    // Şifreyi güncelle
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     await usersCol().updateOne(
       { _id: user._id },
       {
         $set: { password: hashedPassword, updatedAt: new Date() },
-        $unset: { resetCode: "", resetExpires: "", resetNonce: "", resetVerifiedAt: "" }
+        $unset: { resetCode: "", resetExpires: "" }
       }
     );
 
     console.log(`✅ Şifre sıfırlandı: ${email}`);
-    res.json({ success: true, message: 'Şifreniz başarıyla güncellendi' });
+    res.json({ success: true, message: "Şifreniz başarıyla güncellendi" });
+
   } catch (error) {
-    if (error?.name === 'TokenExpiredError') {
-      return res.status(400).json({ success: false, message: 'İşlem süresi dolmuş, lütfen tekrar deneyin' });
-    }
-    console.error('Reset password error:', error);
-    res.status(500).json({ success: false, message: 'Sunucu hatası' });
+    console.error("Reset password error:", error);
+    res.status(500).json({ success: false, message: "Sunucu hatası" });
   }
 });
 
