@@ -403,45 +403,70 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 // 3. Şifre Sıfırlama - Kod Gönder
-app.post('/api/auth/forgot-password', async (req, res) => {
+app.post("/api/auth/forgot-password", async (req, res) => {
   try {
     if (!ensureDbReady(res)) return;
 
     const email = normalizeEmail(req.body?.email);
 
-    // Güvenlik için kullanıcı yoksa bile başarılı dön
-    const user = await usersCol().findOne({ email });
-    if (!user) {
-      return res.json({ success: true, message: `Eğer bu e-posta kayıtlıysa kod gönderildi: ${maskEmail(email)}` });
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "E-posta gerekli"
+      });
     }
 
-    const kod = random6DigitCode();
-    const expiry = new Date(Date.now() + 15 * 60 * 1000);
+    // Kullanıcı MongoDB’den bulunur
+    const user = await usersCol().findOne({ email });
 
-    // Kodu DB'de sakla (restart olunca kaybolmasın)
+    // Güvenlik için kullanıcı yoksa bile başarılı dön
+    if (!user) {
+      return res.json({
+        success: true,
+        message: "Eğer bu e-posta kayıtlıysa kod gönderildi"
+      });
+    }
+
+    // ✅ 6 haneli kod üret
+    const kod = String(Math.floor(100000 + Math.random() * 900000));
+
+    // ✅ MongoDB’ye resetCode + resetExpires yaz
     await usersCol().updateOne(
-      { _id: user._id },
+      { email },
       {
         $set: {
           resetCode: kod,
-          resetExpires: expiry,
-          resetNonce: null,
-          resetVerifiedAt: null,
+          resetExpires: new Date(Date.now() + 15 * 60 * 1000) // 15 dk
         }
       }
     );
 
-    const sent = await sendResetEmail(email, kod, user.ad);
-    if (sent) {
-      return res.json({ success: true, message: 'Doğrulama kodu e-posta adresinize gönderildi' });
+    console.log("✅ Reset kodu DB’ye yazıldı:", email, kod);
+
+    // ✅ Mail gönder
+    const mailSent = await sendResetEmail(email, kod, user.ad);
+
+    if (!mailSent) {
+      return res.status(500).json({
+        success: false,
+        message: "Mail gönderilemedi"
+      });
     }
 
-    res.status(500).json({ success: false, message: 'E-posta gönderilemedi, lütfen tekrar deneyin' });
-  } catch (error) {
-    console.error('Forgot password error:', error);
-    res.status(500).json({ success: false, message: 'Sunucu hatası' });
+    res.json({
+      success: true,
+      message: "Şifre sıfırlama kodu e-posta adresinize gönderildi"
+    });
+
+  } catch (err) {
+    console.error("Forgot password error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Sunucu hatası"
+    });
   }
 });
+
 
 // 4. Kod Doğrulama
 app.post('/api/auth/verify-code', async (req, res) => {
@@ -485,6 +510,7 @@ app.post('/api/auth/verify-code', async (req, res) => {
   }
 });
 
+// 5. Yeni Şifre Kaydetme (Kod ile)
 app.post("/api/auth/reset-password", async (req, res) => {
   try {
     if (!ensureDbReady(res)) return;
@@ -493,6 +519,13 @@ app.post("/api/auth/reset-password", async (req, res) => {
     const code = String(req.body?.code || "");
     const newPassword = String(req.body?.newPassword || "");
 
+    if (!email || !code || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Email, kod ve yeni şifre zorunludur"
+      });
+    }
+
     if (newPassword.length < 8) {
       return res.status(400).json({
         success: false,
@@ -500,9 +533,9 @@ app.post("/api/auth/reset-password", async (req, res) => {
       });
     }
 
-    // Kullanıcıyı kod ile bul
+    // ✅ Kullanıcı kod ile bulunur
     const user = await usersCol().findOne({
-      email: email,
+      email,
       resetCode: code,
       resetExpires: { $gt: new Date() }
     });
@@ -514,25 +547,40 @@ app.post("/api/auth/reset-password", async (req, res) => {
       });
     }
 
-    // Şifreyi güncelle
+    // Şifre hashle
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
+    // Şifreyi güncelle + reset alanlarını temizle
     await usersCol().updateOne(
       { _id: user._id },
       {
-        $set: { password: hashedPassword, updatedAt: new Date() },
-        $unset: { resetCode: "", resetExpires: "" }
+        $set: {
+          password: hashedPassword,
+          updatedAt: new Date()
+        },
+        $unset: {
+          resetCode: "",
+          resetExpires: ""
+        }
       }
     );
 
-    console.log(`✅ Şifre sıfırlandı: ${email}`);
-    res.json({ success: true, message: "Şifreniz başarıyla güncellendi" });
+    console.log("✅ Şifre sıfırlandı:", email);
 
-  } catch (error) {
-    console.error("Reset password error:", error);
-    res.status(500).json({ success: false, message: "Sunucu hatası" });
+    res.json({
+      success: true,
+      message: "Şifreniz başarıyla güncellendi"
+    });
+
+  } catch (err) {
+    console.error("Reset password error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Sunucu hatası"
+    });
   }
 });
+
 
 // 6. Profil Şifre Değiştirme
 app.post('/api/auth/change-password', async (req, res) => {
