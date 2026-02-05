@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teklif Al - Kurumsal Tedarikçi</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Teklif Al - Kurumsal Tedarikçi</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/><link href="css/style.css" rel="stylesheet"/>
+<style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f9fafb; padding-top: 70px; }
         
@@ -128,190 +129,160 @@
     </style>
 </head>
 <body>
-
-    <nav class="navbar">
-        <a href="index.html" class="logo">Kurumsal<span>Tedarikçi</span></a>
-        
-        <!-- Mobil Menü Butonu -->
-        <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Menüyü Aç">
-            <i class="fas fa-bars" id="menuIcon"></i>
-        </button>
-        
-        <!-- Masaüstü Menü -->
-        <ul class="nav-links">
-            <li><a href="index.html">Anasayfa</a></li>
-            <li><a href="hizmetler.html">Hizmetler</a></li>
-            <li><a href="paketler.html">Paketler</a></li>
-            <li><a href="urunler.html">Ürünler</a></li>
-            <li><a href="referanslar.html">Referanslar</a></li>
-            <li><a href="teklif.html" class="active">Teklif Al</a></li>
-            <li><a href="iletisim.html">İletişim</a></li>
-        </ul>
-        
-        <div class="nav-right" style="display: flex; align-items: center; gap: 15px;">
-            <a href="giris.html" style="text-decoration: none; color: #6366f1; font-weight: 600; font-size: 14px; padding: 8px 16px; border: 2px solid #6366f1; border-radius: 20px;">Giriş Yap</a>
-            <a href="odeme.html" style="background: #6366f1; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none;">
-                <i class="fas fa-shopping-cart" style="font-size: 16px;"></i>
-            </a>
-        </div>
-    </nav>
-
-    <!-- MOBİL MENÜ -->
-    <div class="mobile-menu" id="mobileMenu">
-        <div class="mobile-menu-panel">
-            <button class="mobile-close-btn" onclick="toggleMenu()">
-                <i class="fas fa-times"></i>
+<nav class="navbar">
+<a class="logo" href="index.html">Kurumsal<span>Tedarikçi</span></a>
+<!-- Mobil Menü Butonu -->
+<button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()">
+<i class="fas fa-bars" id="menuIcon"></i>
+</button>
+<!-- Masaüstü Menü -->
+<ul class="nav-links">
+<li><a href="index.html">Anasayfa</a></li>
+<li><a href="hizmetler.html">Hizmetler</a></li>
+<li><a href="paketler.html">Paketler</a></li>
+<li><a href="urunler.html">Ürünler</a></li>
+<li><a href="referanslar.html">Referanslar</a></li>
+<li><a class="active" href="teklif.html">Teklif Al</a></li>
+<li><a href="iletisim.html">İletişim</a></li>
+</ul>
+<div class="nav-right" style="display: flex; align-items: center; gap: 15px;">
+<a href="giris.html" style="text-decoration: none; color: #6366f1; font-weight: 600; font-size: 14px; padding: 8px 16px; border: 2px solid #6366f1; border-radius: 20px;">Giriş Yap</a>
+<a href="odeme.html" style="background: #6366f1; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none;">
+<i class="fas fa-shopping-cart" style="font-size: 16px;"></i>
+</a>
+</div>
+</nav>
+<!-- MOBİL MENÜ -->
+<div class="mobile-menu" id="mobileMenu">
+<div class="mobile-menu-panel">
+<button class="mobile-close-btn" onclick="toggleMenu()">
+<i class="fas fa-times"></i>
+</button>
+<ul class="mobile-nav-links">
+<li><a href="index.html">Anasayfa</a></li>
+<li><a href="hizmetler.html">Hizmetler</a></li>
+<li><a href="paketler.html">Paketler</a></li>
+<li><a href="urunler.html">Ürünler</a></li>
+<li><a href="referanslar.html">Referanslar</a></li>
+<li><a class="active" href="teklif.html">Teklif Al</a></li>
+<li><a href="iletisim.html">İletişim</a></li>
+</ul>
+</div>
+</div>
+<section class="teklif-hero">
+<h1>Ücretsiz Teklif Alın</h1>
+<p>İhtiyaçlarınıza özel çözüm ve fiyatlandırma için formu doldurun.</p>
+</section>
+<div class="form-container">
+<form id="teklifForm" onsubmit="event.preventDefault(); gonderTeklif();">
+<div class="form-grid">
+<div class="form-group">
+<label>Ad Soyad *</label>
+<input id="ad" placeholder="Adınız Soyadınız" required="" type="text"/>
+</div>
+<div class="form-group">
+<label>Firma Adı</label>
+<input id="firma" placeholder="Firma Ünvanı" type="text"/>
+</div>
+</div>
+<div class="form-grid">
+<div class="form-group">
+<label>E-Posta *</label>
+<input id="email" placeholder="ornek@firma.com" required="" type="email"/>
+</div>
+<div class="form-group">
+<label>Telefon *</label>
+<input id="telefon" placeholder="05XX XXX XX XX" required="" type="tel"/>
+</div>
+</div>
+<div class="form-group">
+<label>Hangi Hizmetler İçin Teklif Almak İstiyorsunuz? *</label>
+<div class="hizmet-secimi">
+<label class="hizmet-checkbox">
+<input name="hizmet" type="checkbox" value="E-Fatura"/> E-Fatura Sistemi
+                    </label>
+<label class="hizmet-checkbox">
+<input name="hizmet" type="checkbox" value="E-İmza/Mali Mühür"/> E-İmza / Mali Mühür
+                    </label>
+<label class="hizmet-checkbox">
+<input name="hizmet" type="checkbox" value="Kurumsal IT"/> Kurumsal IT Hizmetleri
+                    </label>
+<label class="hizmet-checkbox">
+<input name="hizmet" type="checkbox" value="Donanım"/> Donanım Tedarik
+                    </label>
+<label class="hizmet-checkbox">
+<input name="hizmet" type="checkbox" value="Web Yazılım"/> Web &amp; Yazılım
+                    </label>
+<label class="hizmet-checkbox">
+<input name="hizmet" type="checkbox" value="E-Ticaret"/> E-Ticaret Entegrasyonu
+                    </label>
+</div>
+</div>
+<div class="form-group">
+<label>Tahmini Kullanıcı/Çalışan Sayısı</label>
+<select id="kullaniciSayisi">
+<option value="">Seçiniz...</option>
+<option value="1-10">1-10 Kişi</option>
+<option value="11-50">11-50 Kişi</option>
+<option value="51-200">51-200 Kişi</option>
+<option value="200+">200+ Kişi</option>
+</select>
+</div>
+<div class="form-group">
+<label>Proje Detayları / Notlarınız</label>
+<textarea id="mesaj" placeholder="Özel ihtiyaçlarınızı buraya yazabilirsiniz..."></textarea>
+</div>
+<button class="btn-gonder" type="submit">
+<i class="fas fa-paper-plane"></i> Teklif İste
             </button>
-            <ul class="mobile-nav-links">
-                <li><a href="index.html">Anasayfa</a></li>
-                <li><a href="hizmetler.html">Hizmetler</a></li>
-                <li><a href="paketler.html">Paketler</a></li>
-                <li><a href="urunler.html">Ürünler</a></li>
-                <li><a href="referanslar.html">Referanslar</a></li>
-                <li><a href="teklif.html" class="active">Teklif Al</a></li>
-                <li><a href="iletisim.html">İletişim</a></li>
-            </ul>
-        </div>
-    </div>
-
-    <section class="teklif-hero">
-        <h1>Ücretsiz Teklif Alın</h1>
-        <p>İhtiyaçlarınıza özel çözüm ve fiyatlandırma için formu doldurun.</p>
-    </section>
-
-    <div class="form-container">
-        <form id="teklifForm" onsubmit="event.preventDefault(); gonderTeklif();">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Ad Soyad *</label>
-                    <input type="text" id="ad" required placeholder="Adınız Soyadınız">
-                </div>
-                <div class="form-group">
-                    <label>Firma Adı</label>
-                    <input type="text" id="firma" placeholder="Firma Ünvanı">
-                </div>
-            </div>
-
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>E-Posta *</label>
-                    <input type="email" id="email" required placeholder="ornek@firma.com">
-                </div>
-                <div class="form-group">
-                    <label>Telefon *</label>
-                    <input type="tel" id="telefon" required placeholder="05XX XXX XX XX">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Hangi Hizmetler İçin Teklif Almak İstiyorsunuz? *</label>
-                <div class="hizmet-secimi">
-                    <label class="hizmet-checkbox">
-                        <input type="checkbox" name="hizmet" value="E-Fatura"> E-Fatura Sistemi
-                    </label>
-                    <label class="hizmet-checkbox">
-                        <input type="checkbox" name="hizmet" value="E-İmza/Mali Mühür"> E-İmza / Mali Mühür
-                    </label>
-                    <label class="hizmet-checkbox">
-                        <input type="checkbox" name="hizmet" value="Kurumsal IT"> Kurumsal IT Hizmetleri
-                    </label>
-                    <label class="hizmet-checkbox">
-                        <input type="checkbox" name="hizmet" value="Donanım"> Donanım Tedarik
-                    </label>
-                    <label class="hizmet-checkbox">
-                        <input type="checkbox" name="hizmet" value="Web Yazılım"> Web & Yazılım
-                    </label>
-                    <label class="hizmet-checkbox">
-                        <input type="checkbox" name="hizmet" value="E-Ticaret"> E-Ticaret Entegrasyonu
-                    </label>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Tahmini Kullanıcı/Çalışan Sayısı</label>
-                <select id="kullaniciSayisi">
-                    <option value="">Seçiniz...</option>
-                    <option value="1-10">1-10 Kişi</option>
-                    <option value="11-50">11-50 Kişi</option>
-                    <option value="51-200">51-200 Kişi</option>
-                    <option value="200+">200+ Kişi</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Proje Detayları / Notlarınız</label>
-                <textarea id="mesaj" placeholder="Özel ihtiyaçlarınızı buraya yazabilirsiniz..."></textarea>
-            </div>
-
-            <button type="submit" class="btn-gonder">
-                <i class="fas fa-paper-plane"></i> Teklif İste
-            </button>
-            
-            <p style="text-align: center; margin-top: 20px; color: #6b7280; font-size: 14px;">
-                <i class="fas fa-lock" style="color: #10b981;"></i> Bilgileriniz güvenle saklanır.
+<p style="text-align: center; margin-top: 20px; color: #6b7280; font-size: 14px;">
+<i class="fas fa-lock" style="color: #10b981;"></i> Bilgileriniz güvenle saklanır.
             </p>
-        </form>
-    </div>
+</form>
+</div>
+<footer>
+<p>© 2025 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
+</footer>
+<!-- INLINE JAVASCRIPT -->
 
-    <footer>
-        <p>&copy; 2025 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
-    </footer>
 
-    <!-- INLINE JAVASCRIPT -->
-    <script>
-        // Menü Aç/Kapat
-        function toggleMenu() {
-            const menu = document.getElementById('mobileMenu');
-            const body = document.body;
-            const icon = document.getElementById('menuIcon');
-            
-            if (menu.classList.contains('active')) {
-                menu.classList.remove('active');
-                body.classList.remove('menu-open');
-                if(icon) icon.className = 'fas fa-bars';
-            } else {
-                menu.classList.add('active');
-                body.classList.add('menu-open');
-                if(icon) icon.className = 'fas fa-times';
-            }
-        }
-        
-        // Form Gönderme
-        function gonderTeklif() {
-            const ad = document.getElementById('ad').value;
-            const hizmetler = Array.from(document.querySelectorAll('input[name="hizmet"]:checked')).map(cb => cb.value);
-            
-            if(hizmetler.length === 0) {
-                alert('Lütfen en az bir hizmet seçiniz.');
-                return;
-            }
-            
-            const teklif = {
-                ad: ad,
-                firma: document.getElementById('firma').value,
-                email: document.getElementById('email').value,
-                telefon: document.getElementById('telefon').value,
-                hizmetler: hizmetler,
-                tarih: new Date().toLocaleString()
-            };
-            
-            let teklifler = JSON.parse(localStorage.getItem('teklifler') || '[]');
-            teklifler.push(teklif);
-            localStorage.setItem('teklifler', JSON.stringify(teklifler));
-            
-            alert('Teklif talebiniz alındı! En kısa sürede size dönüş yapacağız.');
-            document.getElementById('teklifForm').reset();
-        }
-        
-        // ESC ile kapatma
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                const menu = document.getElementById('mobileMenu');
-                if (menu.classList.contains('active')) {
-                    toggleMenu();
-                }
-            }
-        });
-    </script>
+<script>
+(function() {
+  function setOpen(next) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu) return;
+    menu.classList.toggle('active', next);
+    document.body.classList.toggle('menu-open', next);
+    const icon = document.getElementById('menuIcon');
+    if (icon) icon.className = next ? 'fas fa-times' : 'fas fa-bars';
+  }
+
+  window.toggleMenu = function(forceClose) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu) return;
+    const isOpen = menu.classList.contains('active');
+    const next = forceClose === true ? false : !isOpen;
+    setOpen(next);
+  };
+
+  // Overlay click closes menu
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu || !menu.classList.contains('active')) return;
+    if (e.target === menu) toggleMenu(true);
+  });
+
+  // Close after clicking any link in mobile menu
+  document.addEventListener('click', function(e) {
+    const a = e.target.closest && e.target.closest('#mobileMenu a');
+    if (a) toggleMenu(true);
+  });
+
+  // ESC closes
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') toggleMenu(true);
+  });
+})();
+</script>
 </body>
 </html>

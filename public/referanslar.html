@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Referanslarımız - Kurumsal Tedarikçi</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Referanslarımız - Kurumsal Tedarikçi</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/><link href="css/style.css" rel="stylesheet"/>
+<style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f9fafb; }
         
@@ -118,142 +119,169 @@
     </style>
 </head>
 <body>
+<!-- Navbar -->
+<nav class="navbar">
+<a class="logo" href="index.html">Kurumsal<span>Tedarikçi</span></a><button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()"><i class="fas fa-bars" id="menuIcon"></i></button>
+<ul class="nav-links">
+<li><a href="index.html">Anasayfa</a></li>
+<li><a href="hizmetler.html">Hizmetler</a></li>
+<li><a href="paketler.html">Paketler</a></li>
+<li><a href="urunler.html">Ürünler</a></li>
+<li><a class="active" href="referanslar.html">Referanslar</a></li>
+<li><a href="teklif.html" style="color: #f59e0b; font-weight: 600;">Teklif Al</a></li>
+<li><a href="iletisim.html">İletişim</a></li>
+</ul>
+<div style="display: flex; align-items: center; gap: 15px;">
+<a href="giris.html" style="text-decoration: none; color: #6366f1; font-weight: 600; font-size: 14px; padding: 8px 16px; border: 2px solid #6366f1; border-radius: 20px;">Giriş Yap</a>
+<a href="odeme.html" style="background: #6366f1; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none;">
+<i class="fas fa-shopping-cart" style="font-size: 16px;"></i>
+</a>
+</div>
+</nav><div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a href="urunler.html">Ürünler</a></li><li><a class="active" href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
+<!-- Hero -->
+<section class="ref-hero">
+<h1>Mutlu Müşterilerimiz</h1>
+<p>1500'den fazla işletmeye hizmet verdik. Güveninizi kazanmak en büyük referansımız.</p>
+</section>
+<!-- İstatistikler -->
+<div class="stats-bar">
+<div class="stat-item">
+<span class="stat-number">1500+</span>
+<span class="stat-label">Aktif Müşteri</span>
+</div>
+<div class="stat-item">
+<span class="stat-number">98%</span>
+<span class="stat-label">Memnuniyet Oranı</span>
+</div>
+<div class="stat-item">
+<span class="stat-number">50+</span>
+<span class="stat-label">Kurumsal Firma</span>
+</div>
+<div class="stat-item">
+<span class="stat-number">7/24</span>
+<span class="stat-label">Destek</span>
+</div>
+</div>
+<div class="container">
+<!-- Müşteri Yorumları -->
+<h2 class="section-title">Müşteri Yorumları</h2>
+<div class="yorumlar-grid">
+<div class="yorum-kart">
+<p class="yorum-text">E-fatura geçiş sürecinde aldığımız destek mükemmeldi. Teknik ekip sorularımızı anında yanıtladı ve sistem 1 günde hazır hale geldi. Kesinlikle tavsiye ederim.</p>
+<div class="yorum-sahibi">
+<div class="sahibi-avatar">AY</div>
+<div class="sahibi-info">
+<h4>Ahmet Yılmaz</h4>
+<span>Yılmaz Ticaret - Genel Müdür</span>
+<div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+</div>
+</div>
+</div>
+<div class="yorum-kart">
+<p class="yorum-text">Trendyol entegrasyonu sayesinde sipariş yönetimimiz %80 daha hızlandı. Otomatik fatura kesimi ve stok takibi işlerimizi çok kolaylaştırdı.</p>
+<div class="yorum-sahibi">
+<div class="sahibi-avatar">SK</div>
+<div class="sahibi-info">
+<h4>Selin Kaya</h4>
+<span>Kaya Textil - E-Ticaret Müdürü</span>
+<div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+</div>
+</div>
+</div>
+<div class="yorum-kart">
+<p class="yorum-text">Kurumsal IT hizmetleri sayesinde artık teknik sorunlarla uğraşmıyoruz. 7/24 destek gerçekten var ve çok hızlılar. Mali mühür kurulumu bile uzaktan hallettiler.</p>
+<div class="yorum-sahibi">
+<div class="sahibi-avatar">MB</div>
+<div class="sahibi-info">
+<h4>Mehmet Berk</h4>
+<span>Berk Danışmanlık - İK Direktörü</span>
+<div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Başarı Hikayeleri -->
+<h2 class="section-title">Başarı Hikayeleri</h2>
+<div class="hikayeler-grid">
+<div class="hikaye-kart">
+<div class="hikaye-img"><i class="fas fa-industry"></i></div>
+<div class="hikaye-icerik">
+<h3>Üretim Firması Dijital Dönüşümü</h3>
+<p>250 çalışanlı üretim firmasının tüm muhasebe süreçlerini dijitalleştirdik. E-fatura, e-defter ve e-irsaliye entegrasyonu tamamlandı.</p>
+<span class="hikaye-sonuc">%60 Maliyet Düşüşü</span>
+</div>
+</div>
+<div class="hikaye-kart">
+<div class="hikaye-img" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><i class="fas fa-shopping-bag"></i></div>
+<div class="hikaye-icerik">
+<h3>E-Ticaret Operasyon Optimizasyonu</h3>
+<p>Trendyol, Hepsiburada ve Amazon entegrasyonu ile günlük 500+ siparişi otomatik yönetir hale geldiler.</p>
+<span class="hikaye-sonuc">3x Satış Artışı</span>
+</div>
+</div>
+<div class="hikaye-kart">
+<div class="hikaye-img" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><i class="fas fa-building"></i></div>
+<div class="hikaye-icerik">
+<h3>İnşaat Şirketi IT Altyapısı</h3>
+<p>5 şubeli inşaat şirketinin tüm IT altyapısını yeniledik. VPN, bulut yedekleme ve güvenlik çözümleri kurduk.</p>
+<span class="hikaye-sonuc">Sıfır Kesinti</span>
+</div>
+</div>
+</div>
+<!-- Partnerler -->
+<div class="partnerler" style="margin-top: 60px;">
+<h3 style="color: #6b7280; font-size: 18px; margin-bottom: 10px;">İş Ortaklarımız</h3>
+<div class="partner-grid">
+<div class="partner-logo">GİB</div>
+<div class="partner-logo">Trendyol</div>
+<div class="partner-logo">Hepsiburada</div>
+<div class="partner-logo">Amazon</div>
+<div class="partner-logo">e-Devlet</div>
+<div class="partner-logo">Dell</div>
+</div>
+</div>
+</div>
+<footer>
+<p>© 2025 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
+</footer>
 
-    <!-- Navbar -->
-    <nav class="navbar">
-        <a href="index.html" class="logo">Kurumsal<span>Tedarikçi</span></a>
-        <ul class="nav-links">
-            <li><a href="index.html">Anasayfa</a></li>
-            <li><a href="hizmetler.html">Hizmetler</a></li>
-            <li><a href="paketler.html">Paketler</a></li>
-            <li><a href="urunler.html">Ürünler</a></li>
-            <li><a href="referanslar.html" class="active">Referanslar</a></li>
-            <li><a href="teklif.html" style="color: #f59e0b; font-weight: 600;">Teklif Al</a></li>
-            <li><a href="iletisim.html">İletişim</a></li>
-        </ul>
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <a href="giris.html" style="text-decoration: none; color: #6366f1; font-weight: 600; font-size: 14px; padding: 8px 16px; border: 2px solid #6366f1; border-radius: 20px;">Giriş Yap</a>
-            <a href="odeme.html" style="background: #6366f1; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none;">
-                <i class="fas fa-shopping-cart" style="font-size: 16px;"></i>
-            </a>
-        </div>
-    </nav>
+<script>
+(function() {
+  function setOpen(next) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu) return;
+    menu.classList.toggle('active', next);
+    document.body.classList.toggle('menu-open', next);
+    const icon = document.getElementById('menuIcon');
+    if (icon) icon.className = next ? 'fas fa-times' : 'fas fa-bars';
+  }
 
-    <!-- Hero -->
-    <section class="ref-hero">
-        <h1>Mutlu Müşterilerimiz</h1>
-        <p>1500'den fazla işletmeye hizmet verdik. Güveninizi kazanmak en büyük referansımız.</p>
-    </section>
+  window.toggleMenu = function(forceClose) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu) return;
+    const isOpen = menu.classList.contains('active');
+    const next = forceClose === true ? false : !isOpen;
+    setOpen(next);
+  };
 
-    <!-- İstatistikler -->
-    <div class="stats-bar">
-        <div class="stat-item">
-            <span class="stat-number">1500+</span>
-            <span class="stat-label">Aktif Müşteri</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-number">98%</span>
-            <span class="stat-label">Memnuniyet Oranı</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-number">50+</span>
-            <span class="stat-label">Kurumsal Firma</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-number">7/24</span>
-            <span class="stat-label">Destek</span>
-        </div>
-    </div>
+  // Overlay click closes menu
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu || !menu.classList.contains('active')) return;
+    if (e.target === menu) toggleMenu(true);
+  });
 
-    <div class="container">
-        <!-- Müşteri Yorumları -->
-        <h2 class="section-title">Müşteri Yorumları</h2>
-        <div class="yorumlar-grid">
-            <div class="yorum-kart">
-                <p class="yorum-text">E-fatura geçiş sürecinde aldığımız destek mükemmeldi. Teknik ekip sorularımızı anında yanıtladı ve sistem 1 günde hazır hale geldi. Kesinlikle tavsiye ederim.</p>
-                <div class="yorum-sahibi">
-                    <div class="sahibi-avatar">AY</div>
-                    <div class="sahibi-info">
-                        <h4>Ahmet Yılmaz</h4>
-                        <span>Yılmaz Ticaret - Genel Müdür</span>
-                        <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                    </div>
-                </div>
-            </div>
+  // Close after clicking any link in mobile menu
+  document.addEventListener('click', function(e) {
+    const a = e.target.closest && e.target.closest('#mobileMenu a');
+    if (a) toggleMenu(true);
+  });
 
-            <div class="yorum-kart">
-                <p class="yorum-text">Trendyol entegrasyonu sayesinde sipariş yönetimimiz %80 daha hızlandı. Otomatik fatura kesimi ve stok takibi işlerimizi çok kolaylaştırdı.</p>
-                <div class="yorum-sahibi">
-                    <div class="sahibi-avatar">SK</div>
-                    <div class="sahibi-info">
-                        <h4>Selin Kaya</h4>
-                        <span>Kaya Textil - E-Ticaret Müdürü</span>
-                        <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="yorum-kart">
-                <p class="yorum-text">Kurumsal IT hizmetleri sayesinde artık teknik sorunlarla uğraşmıyoruz. 7/24 destek gerçekten var ve çok hızlılar. Mali mühür kurulumu bile uzaktan hallettiler.</p>
-                <div class="yorum-sahibi">
-                    <div class="sahibi-avatar">MB</div>
-                    <div class="sahibi-info">
-                        <h4>Mehmet Berk</h4>
-                        <span>Berk Danışmanlık - İK Direktörü</span>
-                        <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Başarı Hikayeleri -->
-        <h2 class="section-title">Başarı Hikayeleri</h2>
-        <div class="hikayeler-grid">
-            <div class="hikaye-kart">
-                <div class="hikaye-img"><i class="fas fa-industry"></i></div>
-                <div class="hikaye-icerik">
-                    <h3>Üretim Firması Dijital Dönüşümü</h3>
-                    <p>250 çalışanlı üretim firmasının tüm muhasebe süreçlerini dijitalleştirdik. E-fatura, e-defter ve e-irsaliye entegrasyonu tamamlandı.</p>
-                    <span class="hikaye-sonuc">%60 Maliyet Düşüşü</span>
-                </div>
-            </div>
-
-            <div class="hikaye-kart">
-                <div class="hikaye-img" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><i class="fas fa-shopping-bag"></i></div>
-                <div class="hikaye-icerik">
-                    <h3>E-Ticaret Operasyon Optimizasyonu</h3>
-                    <p>Trendyol, Hepsiburada ve Amazon entegrasyonu ile günlük 500+ siparişi otomatik yönetir hale geldiler.</p>
-                    <span class="hikaye-sonuc">3x Satış Artışı</span>
-                </div>
-            </div>
-
-            <div class="hikaye-kart">
-                <div class="hikaye-img" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><i class="fas fa-building"></i></div>
-                <div class="hikaye-icerik">
-                    <h3>İnşaat Şirketi IT Altyapısı</h3>
-                    <p>5 şubeli inşaat şirketinin tüm IT altyapısını yeniledik. VPN, bulut yedekleme ve güvenlik çözümleri kurduk.</p>
-                    <span class="hikaye-sonuc">Sıfır Kesinti</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Partnerler -->
-        <div class="partnerler" style="margin-top: 60px;">
-            <h3 style="color: #6b7280; font-size: 18px; margin-bottom: 10px;">İş Ortaklarımız</h3>
-            <div class="partner-grid">
-                <div class="partner-logo">GİB</div>
-                <div class="partner-logo">Trendyol</div>
-                <div class="partner-logo">Hepsiburada</div>
-                <div class="partner-logo">Amazon</div>
-                <div class="partner-logo">e-Devlet</div>
-                <div class="partner-logo">Dell</div>
-            </div>
-        </div>
-    </div>
-
-    <footer>
-        <p>&copy; 2025 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
-    </footer>
-
+  // ESC closes
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') toggleMenu(true);
+  });
+})();
+</script>
 </body>
 </html>

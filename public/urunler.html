@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ürünler - Kurumsal Tedarikçi</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ürünler - Kurumsal Tedarikçi</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/><link href="css/style.css" rel="stylesheet"/>
+<style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f9fafb; }
         
@@ -219,167 +220,148 @@
     </style>
 </head>
 <body>
-
-    <nav class="navbar" style="position: fixed; top: 0; left: 0; width: 100%; background: white; z-index: 9999; box-shadow: 0 2px 20px rgba(0,0,0,0.1); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center;">
-    <a href="index.html" class="logo" style="font-size: 24px; font-weight: 800; color: #1f2937; text-decoration: none;">Kurumsal<span style="color: #6366f1;">Tedarikçi</span></a>
-    
-    <ul class="nav-links" style="display: flex; list-style: none; gap: 25px; margin: 0;">
-        <li><a href="index.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Anasayfa</a></li>
-        <li><a href="hizmetler.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Hizmetler</a></li>
-        <li><a href="paketler.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Paketler</a></li>
-        <li><a href="urunler.html" style="text-decoration: none; color: #6366f1; font-weight: 700; font-size: 15px;">Ürünler</a></li>
-        <li><a href="referanslar.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Referanslar</a></li>
-        <li><a href="teklif.html" style="text-decoration: none; color: #f59e0b; font-weight: 600; font-size: 15px;">Teklif Al</a></li>
-        <li><a href="iletisim.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">İletişim</a></li>
-    </ul>
-    
-    <div style="display: flex; align-items: center; gap: 15px;">
-        <a href="giris.html" style="text-decoration: none; color: #6366f1; font-weight: 600; font-size: 14px; padding: 8px 16px; border: 2px solid #6366f1; border-radius: 20px;">Giriş Yap</a>
-        <a href="odeme.html" style="background: #6366f1; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; position: relative;">
-            <i class="fas fa-shopping-cart" style="font-size: 16px;"></i>
-            <span id="cart-count" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; border: 2px solid white;">0</span>
-        </a>
-    </div>
-</nav>
-    <!-- Hero -->
-    <section class="urunler-hero">
-        <h1>E-Dönüşüm Ürünleri</h1>
-        <p>İşletmenizi dijitalleştiren tüm yazılım ve entegrasyon çözümleri. E-fatura, e-arşiv, e-irsaliye ve daha fazlası.</p>
-    </section>
-
-    <!-- Ürünler Grid -->
-    <section class="urun-grid">
-        
-        <!-- Ürün 1 - DÜZELTİLMİŞ -->
-        <div class="urun-kart">
-            <div class="urun-gorsel">📄</div>
-            <div class="urun-icerik">
-                <div class="urun-kategori">E-Fatura</div>
-                <h3 class="urun-baslik">E-Fatura Modülü</h3>
-                <p class="urun-aciklama">Gelen ve giden efatura yönetimi, otomatik kontrol, raporlama ve entegrasyon özellikleri.</p>
-                <div class="urun-fiyat">₺899<span>/yıl</span></div>
-                
-                <div class="btn-group">
-                    <button class="btn-sepet" onclick="sepeteEkle('E-Fatura Modülü', 899, 'urun-efatura')">
-                        <i class="fas fa-cart-plus"></i> Sepete Ekle
+<nav class="navbar" style="position: fixed; top: 0; left: 0; width: 100%; background: white; z-index: 9999; box-shadow: 0 2px 20px rgba(0,0,0,0.1); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center;">
+<a class="logo" href="index.html" style="font-size: 24px; font-weight: 800; color: #1f2937; text-decoration: none;">Kurumsal<span style="color: #6366f1;">Tedarikçi</span></a><button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()"><i class="fas fa-bars" id="menuIcon"></i></button>
+<ul class="nav-links" style="display: flex; list-style: none; gap: 25px; margin: 0;">
+<li><a href="index.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Anasayfa</a></li>
+<li><a href="hizmetler.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Hizmetler</a></li>
+<li><a href="paketler.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Paketler</a></li>
+<li><a href="urunler.html" style="text-decoration: none; color: #6366f1; font-weight: 700; font-size: 15px;">Ürünler</a></li>
+<li><a href="referanslar.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Referanslar</a></li>
+<li><a href="teklif.html" style="text-decoration: none; color: #f59e0b; font-weight: 600; font-size: 15px;">Teklif Al</a></li>
+<li><a href="iletisim.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">İletişim</a></li>
+</ul>
+<div style="display: flex; align-items: center; gap: 15px;">
+<a href="giris.html" style="text-decoration: none; color: #6366f1; font-weight: 600; font-size: 14px; padding: 8px 16px; border: 2px solid #6366f1; border-radius: 20px;">Giriş Yap</a>
+<a href="odeme.html" style="background: #6366f1; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; position: relative;">
+<i class="fas fa-shopping-cart" style="font-size: 16px;"></i>
+<span id="cart-count" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; border: 2px solid white;">0</span>
+</a>
+</div>
+</nav><div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a class="active" href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
+<!-- Hero -->
+<section class="urunler-hero">
+<h1>E-Dönüşüm Ürünleri</h1>
+<p>İşletmenizi dijitalleştiren tüm yazılım ve entegrasyon çözümleri. E-fatura, e-arşiv, e-irsaliye ve daha fazlası.</p>
+</section>
+<!-- Ürünler Grid -->
+<section class="urun-grid">
+<!-- Ürün 1 - DÜZELTİLMİŞ -->
+<div class="urun-kart">
+<div class="urun-gorsel">📄</div>
+<div class="urun-icerik">
+<div class="urun-kategori">E-Fatura</div>
+<h3 class="urun-baslik">E-Fatura Modülü</h3>
+<p class="urun-aciklama">Gelen ve giden efatura yönetimi, otomatik kontrol, raporlama ve entegrasyon özellikleri.</p>
+<div class="urun-fiyat">₺899<span>/yıl</span></div>
+<div class="btn-group">
+<button class="btn-sepet" onclick="sepeteEkle('E-Fatura Modülü', 899, 'urun-efatura')">
+<i class="fas fa-cart-plus"></i> Sepete Ekle
                     </button>
-                    <button class="btn-hemen" onclick="hemenSatınAl('E-Fatura Modülü', 899, 'urun-efatura')">
-                        <i class="fas fa-bolt"></i> Hemen Al
+<button class="btn-hemen" onclick="hemenSatınAl('E-Fatura Modülü', 899, 'urun-efatura')">
+<i class="fas fa-bolt"></i> Hemen Al
                     </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Ürün 2 -->
-        <div class="urun-kart">
-            <div class="urun-gorsel">📦</div>
-            <div class="urun-icerik">
-                <div class="urun-kategori">E-İrsaliye</div>
-                <h3 class="urun-baslik">E-İrsaliye Çözümü</h3>
-                <p class="urun-aciklama">Sevkiyat takibi, dijital irsaliye oluşturma ve faturala ile entegre çalışan sistem.</p>
-                <div class="urun-fiyat">₺649<span>/yıl</span></div>
-                
-                <div class="btn-group">
-                    <button class="btn-sepet" onclick="sepeteEkle('E-İrsaliye Çözümü', 649, 'urun-eirsaliye')">
-                        <i class="fas fa-cart-plus"></i> Sepete Ekle
+</div>
+</div>
+</div>
+<!-- Ürün 2 -->
+<div class="urun-kart">
+<div class="urun-gorsel">📦</div>
+<div class="urun-icerik">
+<div class="urun-kategori">E-İrsaliye</div>
+<h3 class="urun-baslik">E-İrsaliye Çözümü</h3>
+<p class="urun-aciklama">Sevkiyat takibi, dijital irsaliye oluşturma ve faturala ile entegre çalışan sistem.</p>
+<div class="urun-fiyat">₺649<span>/yıl</span></div>
+<div class="btn-group">
+<button class="btn-sepet" onclick="sepeteEkle('E-İrsaliye Çözümü', 649, 'urun-eirsaliye')">
+<i class="fas fa-cart-plus"></i> Sepete Ekle
                     </button>
-                    <button class="btn-hemen" onclick="hemenSatınAl('E-İrsaliye Çözümü', 649, 'urun-eirsaliye')">
-                        <i class="fas fa-bolt"></i> Hemen Al
+<button class="btn-hemen" onclick="hemenSatınAl('E-İrsaliye Çözümü', 649, 'urun-eirsaliye')">
+<i class="fas fa-bolt"></i> Hemen Al
                     </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Ürün 3 -->
-        <div class="urun-kart">
-            <div class="urun-gorsel">📊</div>
-            <div class="urun-icerik">
-                <div class="urun-kategori">Raporlama</div>
-                <h3 class="urun-baslik">Gelir Gider Raporlama</h3>
-                <p class="urun-aciklama">Detaylı finansal raporlar, grafiksel analizler ve vergi optimizasyon önerileri.</p>
-                <div class="urun-fiyat">₺1.299<span>/yıl</span></div>
-                
-                <div class="btn-group">
-                    <button class="btn-sepet" onclick="sepeteEkle('Gelir Gider Raporlama', 1299, 'urun-raporlama')">
-                        <i class="fas fa-cart-plus"></i> Sepete Ekle
+</div>
+</div>
+</div>
+<!-- Ürün 3 -->
+<div class="urun-kart">
+<div class="urun-gorsel">📊</div>
+<div class="urun-icerik">
+<div class="urun-kategori">Raporlama</div>
+<h3 class="urun-baslik">Gelir Gider Raporlama</h3>
+<p class="urun-aciklama">Detaylı finansal raporlar, grafiksel analizler ve vergi optimizasyon önerileri.</p>
+<div class="urun-fiyat">₺1.299<span>/yıl</span></div>
+<div class="btn-group">
+<button class="btn-sepet" onclick="sepeteEkle('Gelir Gider Raporlama', 1299, 'urun-raporlama')">
+<i class="fas fa-cart-plus"></i> Sepete Ekle
                     </button>
-                    <button class="btn-hemen" onclick="hemenSatınAl('Gelir Gider Raporlama', 1299, 'urun-raporlama')">
-                        <i class="fas fa-bolt"></i> Hemen Al
+<button class="btn-hemen" onclick="hemenSatınAl('Gelir Gider Raporlama', 1299, 'urun-raporlama')">
+<i class="fas fa-bolt"></i> Hemen Al
                     </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Ürün 4 -->
-        <div class="urun-kart">
-            <div class="urun-gorsel">🔐</div>
-            <div class="urun-icerik">
-                <div class="urun-kategori">Entegrasyon</div>
-                <h3 class="urun-baslik">Mali Mühür Entegrasyonu</h3>
-                <p class="urun-aciklama">E-imza ve mali mühür kurulumu, yönetimi ve teknik destek hizmeti.</p>
-                <div class="urun-fiyat">₺450<span>/bir defalık</span></div>
-                
-                <div class="btn-group">
-                    <button class="btn-sepet" onclick="sepeteEkle('Mali Mühür Entegrasyonu', 450, 'urun-muhur')">
-                        <i class="fas fa-cart-plus"></i> Sepete Ekle
+</div>
+</div>
+</div>
+<!-- Ürün 4 -->
+<div class="urun-kart">
+<div class="urun-gorsel">🔐</div>
+<div class="urun-icerik">
+<div class="urun-kategori">Entegrasyon</div>
+<h3 class="urun-baslik">Mali Mühür Entegrasyonu</h3>
+<p class="urun-aciklama">E-imza ve mali mühür kurulumu, yönetimi ve teknik destek hizmeti.</p>
+<div class="urun-fiyat">₺450<span>/bir defalık</span></div>
+<div class="btn-group">
+<button class="btn-sepet" onclick="sepeteEkle('Mali Mühür Entegrasyonu', 450, 'urun-muhur')">
+<i class="fas fa-cart-plus"></i> Sepete Ekle
                     </button>
-                    <button class="btn-hemen" onclick="hemenSatınAl('Mali Mühür Entegrasyonu', 450, 'urun-muhur')">
-                        <i class="fas fa-bolt"></i> Hemen Al
+<button class="btn-hemen" onclick="hemenSatınAl('Mali Mühür Entegrasyonu', 450, 'urun-muhur')">
+<i class="fas fa-bolt"></i> Hemen Al
                     </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Ürün 5 -->
-        <div class="urun-kart">
-            <div class="urun-gorsel">🛒</div>
-            <div class="urun-icerik">
-                <div class="urun-kategori">Pazaryeri</div>
-                <h3 class="urun-baslik">Trendyol Entegrasyonu</h3>
-                <p class="urun-aciklama">Trendyol siparişlerinizi otomatik faturalandırın, stok takibini kolaylaştırın.</p>
-                <div class="urun-fiyat">₺1.599<span>/yıl</span></div>
-                
-                <div class="btn-group">
-                    <button class="btn-sepet" onclick="sepeteEkle('Trendyol Entegrasyonu', 1599, 'urun-trendyol')">
-                        <i class="fas fa-cart-plus"></i> Sepete Ekle
+</div>
+</div>
+</div>
+<!-- Ürün 5 -->
+<div class="urun-kart">
+<div class="urun-gorsel">🛒</div>
+<div class="urun-icerik">
+<div class="urun-kategori">Pazaryeri</div>
+<h3 class="urun-baslik">Trendyol Entegrasyonu</h3>
+<p class="urun-aciklama">Trendyol siparişlerinizi otomatik faturalandırın, stok takibini kolaylaştırın.</p>
+<div class="urun-fiyat">₺1.599<span>/yıl</span></div>
+<div class="btn-group">
+<button class="btn-sepet" onclick="sepeteEkle('Trendyol Entegrasyonu', 1599, 'urun-trendyol')">
+<i class="fas fa-cart-plus"></i> Sepete Ekle
                     </button>
-                    <button class="btn-hemen" onclick="hemenSatınAl('Trendyol Entegrasyonu', 1599, 'urun-trendyol')">
-                        <i class="fas fa-bolt"></i> Hemen Al
+<button class="btn-hemen" onclick="hemenSatınAl('Trendyol Entegrasyonu', 1599, 'urun-trendyol')">
+<i class="fas fa-bolt"></i> Hemen Al
                     </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Ürün 6 -->
-        <div class="urun-kart">
-            <div class="urun-gorsel">☁️</div>
-            <div class="urun-icerik">
-                <div class="urun-kategori">Yedekleme</div>
-                <h3 class="urun-baslik">Bulut Yedekleme</h3>
-                <p class="urun-aciklama">Tüm finansal verilerinizin günlük otomatik yedeklemesi ve 7 yıl saklama.</p>
-                <div class="urun-fiyat">₺399<span>/yıl</span></div>
-                
-                <div class="btn-group">
-                    <button class="btn-sepet" onclick="sepeteEkle('Bulut Yedekleme', 399, 'urun-yedekleme')">
-                        <i class="fas fa-cart-plus"></i> Sepete Ekle
+</div>
+</div>
+</div>
+<!-- Ürün 6 -->
+<div class="urun-kart">
+<div class="urun-gorsel">☁️</div>
+<div class="urun-icerik">
+<div class="urun-kategori">Yedekleme</div>
+<h3 class="urun-baslik">Bulut Yedekleme</h3>
+<p class="urun-aciklama">Tüm finansal verilerinizin günlük otomatik yedeklemesi ve 7 yıl saklama.</p>
+<div class="urun-fiyat">₺399<span>/yıl</span></div>
+<div class="btn-group">
+<button class="btn-sepet" onclick="sepeteEkle('Bulut Yedekleme', 399, 'urun-yedekleme')">
+<i class="fas fa-cart-plus"></i> Sepete Ekle
                     </button>
-                    <button class="btn-hemen" onclick="hemenSatınAl('Bulut Yedekleme', 399, 'urun-yedekleme')">
-                        <i class="fas fa-bolt"></i> Hemen Al
+<button class="btn-hemen" onclick="hemenSatınAl('Bulut Yedekleme', 399, 'urun-yedekleme')">
+<i class="fas fa-bolt"></i> Hemen Al
                     </button>
-                </div>
-            </div>
-        </div>
-
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2025 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
-    </footer>
-
-    <!-- Sepet JS -->
-    <script src="js/sepet.js"></script>
-    <script>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer>
+<p>© 2025 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
+</footer>
+<!-- Sepet JS -->
+<script src="js/sepet.js"></script>
+<script>
         // Sepet sayısını güncelle
         function updateCartCount() {
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -394,5 +376,43 @@
         }
     </script>
 
+<script>
+(function() {
+  function setOpen(next) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu) return;
+    menu.classList.toggle('active', next);
+    document.body.classList.toggle('menu-open', next);
+    const icon = document.getElementById('menuIcon');
+    if (icon) icon.className = next ? 'fas fa-times' : 'fas fa-bars';
+  }
+
+  window.toggleMenu = function(forceClose) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu) return;
+    const isOpen = menu.classList.contains('active');
+    const next = forceClose === true ? false : !isOpen;
+    setOpen(next);
+  };
+
+  // Overlay click closes menu
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu || !menu.classList.contains('active')) return;
+    if (e.target === menu) toggleMenu(true);
+  });
+
+  // Close after clicking any link in mobile menu
+  document.addEventListener('click', function(e) {
+    const a = e.target.closest && e.target.closest('#mobileMenu a');
+    if (a) toggleMenu(true);
+  });
+
+  // ESC closes
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') toggleMenu(true);
+  });
+})();
+</script>
 </body>
 </html>

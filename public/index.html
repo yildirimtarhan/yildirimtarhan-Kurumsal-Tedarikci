@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>Kurumsal Tedarikçi - Dijital Dönüşümde Güvenilir Çözüm Ortağınız</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport"/>
+<title>Kurumsal Tedarikçi - Dijital Dönüşümde Güvenilir Çözüm Ortağınız</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/><link href="css/style.css" rel="stylesheet"/>
+<style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
@@ -554,190 +555,167 @@
     </style>
 </head>
 <body>
+<nav class="navbar">
+<a class="logo" href="index.html">Kurumsal<span>Tedarikçi</span></a>
+<button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()">
+<i class="fas fa-bars" id="menuIcon"></i>
+</button>
+<ul class="nav-links" id="navLinks">
+<button aria-label="Menüyü Kapat" class="close-menu" onclick="toggleMenu()">
+<i class="fas fa-times"></i>
+</button>
+<li><a href="index.html">Anasayfa</a></li>
+<li><a href="hizmetler.html">Hizmetler</a></li>
+<li><a href="paketler.html">Paketler</a></li>
+<li><a href="urunler.html">Ürünler</a></li>
+<li><a href="referanslar.html">Referanslar</a></li>
+<li><a href="teklif.html" style="color: #f59e0b;">Teklif Al</a></li>
+<li><a href="iletisim.html">İletişim</a></li>
+</ul>
+<div class="nav-right">
+<a class="login-btn" href="giris.html">Giriş Yap</a>
+<a class="cart-btn" href="odeme.html">
+<i class="fas fa-shopping-cart"></i>
+<span class="cart-count" id="cart-count">0</span>
+</a>
+</div>
+</nav><div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a class="active" href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
 
-    <nav class="navbar">
-        <a href="index.html" class="logo">Kurumsal<span>Tedarikçi</span></a>
-        
-        <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Menüyü Aç">
-            <i class="fas fa-bars" id="menuIcon"></i>
-        </button>
-        
-        <ul class="nav-links" id="navLinks">
-            <button class="close-menu" onclick="toggleMenu()" aria-label="Menüyü Kapat">
-                <i class="fas fa-times"></i>
-            </button>
-            <li><a href="index.html">Anasayfa</a></li>
-            <li><a href="hizmetler.html">Hizmetler</a></li>
-            <li><a href="paketler.html">Paketler</a></li>
-            <li><a href="urunler.html">Ürünler</a></li>
-            <li><a href="referanslar.html">Referanslar</a></li>
-            <li><a href="teklif.html" style="color: #f59e0b;">Teklif Al</a></li>
-            <li><a href="iletisim.html">İletişim</a></li>
-        </ul>
-        
-        <div class="nav-right">
-            <a href="giris.html" class="login-btn">Giriş Yap</a>
-            <a href="odeme.html" class="cart-btn">
-                <i class="fas fa-shopping-cart"></i>
-                <span class="cart-count" id="cart-count">0</span>
-            </a>
-        </div>
-    </nav>
-    
-    <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
-
-    <section class="hero">
-        <div class="hero-bg"></div>
-        <div class="hero-container">
-            <div class="hero-content">
-                <span class="badge">✓ 7/24 WhatsApp Destek</span>
-                <h1>
-                    Dijital Dönüşümde<br>
-                    <span class="gradient-text">Güvenilir Çözüm</span><br>
+<section class="hero">
+<div class="hero-bg"></div>
+<div class="hero-container">
+<div class="hero-content">
+<span class="badge">✓ 7/24 WhatsApp Destek</span>
+<h1>
+                    Dijital Dönüşümde<br/>
+<span class="gradient-text">Güvenilir Çözüm</span><br/>
                     Ortağınız
                 </h1>
-                <p>
+<p>
                     E-Fatura, E-İmza, Mali Mühür ve kurumsal IT çözümleriyle 
                     işletmenizi geleceğe taşıyoruz.
                 </p>
-                
-                <div class="hero-buttons">
-                    <a href="hizmetler.html" class="btn btn-primary">
-                        <i class="fas fa-rocket"></i> Hizmetleri Keşfet
+<div class="hero-buttons">
+<a class="btn btn-primary" href="hizmetler.html">
+<i class="fas fa-rocket"></i> Hizmetleri Keşfet
                     </a>
-                    <a href="https://wa.me/905059112749" target="_blank" class="btn btn-whatsapp">
-                        <i class="fab fa-whatsapp"></i> WhatsApp
+<a class="btn btn-whatsapp" href="https://wa.me/905059112749" target="_blank">
+<i class="fab fa-whatsapp"></i> WhatsApp
                     </a>
-                </div>
-                
-                <div class="hero-stats">
-                    <div class="stat-item">
-                        <span class="stat-number">1500+</span>
-                        <span class="stat-label">Mutlu Müşteri</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">6</span>
-                        <span class="stat-label">Hizmet</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">24/7</span>
-                        <span class="stat-label">Destek</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="hero-visual">
-                <div class="main-circle"></div>
-                <i class="fas fa-award main-icon"></i>
-                
-                <div class="floating-card card-1">
-                    <i class="fas fa-file-invoice"></i>
-                    <span>E-Fatura</span>
-                </div>
-                <div class="floating-card card-2">
-                    <i class="fas fa-signature"></i>
-                    <span>E-İmza</span>
-                </div>
-                <div class="floating-card card-3">
-                    <i class="fas fa-shield-alt"></i>
-                    <span>Güvenlik</span>
-                </div>
-            </div>
-        </div>
-    </section>
+</div>
+<div class="hero-stats">
+<div class="stat-item">
+<span class="stat-number">1500+</span>
+<span class="stat-label">Mutlu Müşteri</span>
+</div>
+<div class="stat-item">
+<span class="stat-number">6</span>
+<span class="stat-label">Hizmet</span>
+</div>
+<div class="stat-item">
+<span class="stat-number">24/7</span>
+<span class="stat-label">Destek</span>
+</div>
+</div>
+</div>
+<div class="hero-visual">
+<div class="main-circle"></div>
+<i class="fas fa-award main-icon"></i>
+<div class="floating-card card-1">
+<i class="fas fa-file-invoice"></i>
+<span>E-Fatura</span>
+</div>
+<div class="floating-card card-2">
+<i class="fas fa-signature"></i>
+<span>E-İmza</span>
+</div>
+<div class="floating-card card-3">
+<i class="fas fa-shield-alt"></i>
+<span>Güvenlik</span>
+</div>
+</div>
+</div>
+</section>
+<section class="quick-access">
+<h2 class="section-title">Hızlı Erişim</h2>
+<div class="cards-grid">
+<a class="feature-card" href="hizmetler.html">
+<div class="feature-icon"><i class="fas fa-cogs"></i></div>
+<h3>Tüm Hizmetler</h3>
+<p>E-Dönüşüm çözümleri</p>
+</a>
+<a class="feature-card" href="paketler.html">
+<div class="feature-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
+<i class="fas fa-box-open"></i>
+</div>
+<h3>Fiyatlandırma</h3>
+<p>Uygun paketler</p>
+</a>
+<a class="feature-card" href="iletisim.html">
+<div class="feature-icon" style="background: rgba(16,185,129,0.1); color: #10b981;">
+<i class="fas fa-map-marker-alt"></i>
+</div>
+<h3>İletişim</h3>
+<p>Bize ulaşın</p>
+</a>
+<a class="feature-card" href="https://wa.me/905059112749" target="_blank">
+<div class="feature-icon" style="background: rgba(37,211,102,0.1); color: #25d366;">
+<i class="fab fa-whatsapp"></i>
+</div>
+<h3>WhatsApp</h3>
+<p>7/24 destek</p>
+</a>
+</div>
+</section>
+<footer>
+<div class="social-links">
+<a href="https://wa.me/905059112749"><i class="fab fa-whatsapp"></i></a>
+<a href="#"><i class="fab fa-instagram"></i></a>
+<a href="#"><i class="fab fa-linkedin"></i></a>
+<a href="mailto:iletisim@tedarikci.org.tr"><i class="fas fa-envelope"></i></a>
+</div>
+<p>© 2025 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
+</footer>
+<!-- INLINE JAVASCRIPT - Main.js yerine direkt burada -->
 
-    <section class="quick-access">
-        <h2 class="section-title">Hızlı Erişim</h2>
-        <div class="cards-grid">
-            <a href="hizmetler.html" class="feature-card">
-                <div class="feature-icon"><i class="fas fa-cogs"></i></div>
-                <h3>Tüm Hizmetler</h3>
-                <p>E-Dönüşüm çözümleri</p>
-            </a>
-            
-            <a href="paketler.html" class="feature-card">
-                <div class="feature-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
-                    <i class="fas fa-box-open"></i>
-                </div>
-                <h3>Fiyatlandırma</h3>
-                <p>Uygun paketler</p>
-            </a>
-            
-            <a href="iletisim.html" class="feature-card">
-                <div class="feature-icon" style="background: rgba(16,185,129,0.1); color: #10b981;">
-                    <i class="fas fa-map-marker-alt"></i>
-                </div>
-                <h3>İletişim</h3>
-                <p>Bize ulaşın</p>
-            </a>
-            
-            <a href="https://wa.me/905059112749" target="_blank" class="feature-card">
-                <div class="feature-icon" style="background: rgba(37,211,102,0.1); color: #25d366;">
-                    <i class="fab fa-whatsapp"></i>
-                </div>
-                <h3>WhatsApp</h3>
-                <p>7/24 destek</p>
-            </a>
-        </div>
-    </section>
 
-    <footer>
-        <div class="social-links">
-            <a href="https://wa.me/905059112749"><i class="fab fa-whatsapp"></i></a>
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fab fa-linkedin"></i></a>
-            <a href="mailto:iletisim@tedarikci.org.tr"><i class="fas fa-envelope"></i></a>
-        </div>
-        <p>&copy; 2025 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
-    </footer>
+<script>
+(function() {
+  function setOpen(next) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu) return;
+    menu.classList.toggle('active', next);
+    document.body.classList.toggle('menu-open', next);
+    const icon = document.getElementById('menuIcon');
+    if (icon) icon.className = next ? 'fas fa-times' : 'fas fa-bars';
+  }
 
-    <!-- INLINE JAVASCRIPT - Main.js yerine direkt burada -->
-    <script>
-        // Menü Aç/Kapat Fonksiyonu
-        function toggleMenu() {
-            const nav = document.getElementById('navLinks');
-            const overlay = document.getElementById('menuOverlay');
-            const body = document.body;
-            const icon = document.getElementById('menuIcon');
-            
-            if (nav.classList.contains('active')) {
-                // Menüyü kapat
-                nav.classList.remove('active');
-                overlay.classList.remove('active');
-                body.style.overflow = '';
-                if(icon) icon.className = 'fas fa-bars';
-            } else {
-                // Menüyü aç
-                nav.classList.add('active');
-                overlay.classList.add('active');
-                body.style.overflow = 'hidden';
-                if(icon) icon.className = 'fas fa-times';
-            }
-        }
-        
-        // Sepet Sayısını Güncelle
-        function updateCartCount() {
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const countElement = document.getElementById('cart-count');
-            if(countElement) {
-                countElement.innerText = cart.length;
-            }
-        }
-        
-        // Sayfa yüklenince çalıştır
-        document.addEventListener('DOMContentLoaded', function() {
-            updateCartCount();
-        });
-        
-        // ESC tuşu ile menüyü kapat
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                const nav = document.getElementById('navLinks');
-                if (nav.classList.contains('active')) {
-                    toggleMenu();
-                }
-            }
-        });
-    </script>
+  window.toggleMenu = function(forceClose) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu) return;
+    const isOpen = menu.classList.contains('active');
+    const next = forceClose === true ? false : !isOpen;
+    setOpen(next);
+  };
+
+  // Overlay click closes menu
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu || !menu.classList.contains('active')) return;
+    if (e.target === menu) toggleMenu(true);
+  });
+
+  // Close after clicking any link in mobile menu
+  document.addEventListener('click', function(e) {
+    const a = e.target.closest && e.target.closest('#mobileMenu a');
+    if (a) toggleMenu(true);
+  });
+
+  // ESC closes
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') toggleMenu(true);
+  });
+})();
+</script>
 </body>
 </html>
