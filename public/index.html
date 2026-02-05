@@ -558,12 +558,12 @@
     <nav class="navbar">
         <a href="index.html" class="logo">Kurumsal<span>Tedarikçi</span></a>
         
-        <button class="mobile-menu-btn" id="menuBtn" aria-label="Menüyü Aç">
-            <i class="fas fa-bars"></i>
+        <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Menüyü Aç">
+            <i class="fas fa-bars" id="menuIcon"></i>
         </button>
         
         <ul class="nav-links" id="navLinks">
-            <button class="close-menu" id="closeMenuBtn" aria-label="Menüyü Kapat">
+            <button class="close-menu" onclick="toggleMenu()" aria-label="Menüyü Kapat">
                 <i class="fas fa-times"></i>
             </button>
             <li><a href="index.html">Anasayfa</a></li>
@@ -584,7 +584,7 @@
         </div>
     </nav>
     
-    <div class="menu-overlay" id="menuOverlay"></div>
+    <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
 
     <section class="hero">
         <div class="hero-bg"></div>
@@ -691,8 +691,53 @@
         <p>&copy; 2025 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
     </footer>
 
-    <!-- SADECE main.js kullan, inline JS yok -->
-    <script src="js/sepet.js"></script>
-    <script src="js/main.js"></script>
+    <!-- INLINE JAVASCRIPT - Main.js yerine direkt burada -->
+    <script>
+        // Menü Aç/Kapat Fonksiyonu
+        function toggleMenu() {
+            const nav = document.getElementById('navLinks');
+            const overlay = document.getElementById('menuOverlay');
+            const body = document.body;
+            const icon = document.getElementById('menuIcon');
+            
+            if (nav.classList.contains('active')) {
+                // Menüyü kapat
+                nav.classList.remove('active');
+                overlay.classList.remove('active');
+                body.style.overflow = '';
+                if(icon) icon.className = 'fas fa-bars';
+            } else {
+                // Menüyü aç
+                nav.classList.add('active');
+                overlay.classList.add('active');
+                body.style.overflow = 'hidden';
+                if(icon) icon.className = 'fas fa-times';
+            }
+        }
+        
+        // Sepet Sayısını Güncelle
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const countElement = document.getElementById('cart-count');
+            if(countElement) {
+                countElement.innerText = cart.length;
+            }
+        }
+        
+        // Sayfa yüklenince çalıştır
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+        });
+        
+        // ESC tuşu ile menüyü kapat
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const nav = document.getElementById('navLinks');
+                if (nav.classList.contains('active')) {
+                    toggleMenu();
+                }
+            }
+        });
+    </script>
 </body>
 </html>
