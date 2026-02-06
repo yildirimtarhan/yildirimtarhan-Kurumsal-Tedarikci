@@ -1,69 +1,79 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const SibApiV3Sdk = require('sib-api-v3-sdk');
-const path = require('path');
-const mongoose = require('mongoose');
-const { ObjectId } = require('mongodb');
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const SibApiV3Sdk = require("sib-api-v3-sdk");
+const path = require("path");
+const mongoose = require("mongoose");
+const { ObjectId } = require("mongodb");
 
 const app = express();
 
-// MongoDB Bağlantısı - DÜZELTİLDİ (useNewUrlParser ve useUnifiedTopology kaldırıldı)
-const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/kurumsal-tedarikci';
+/* ======================================================
+   ✅ MongoDB Bağlantısı
+====================================================== */
+const mongoUri =
+  process.env.MONGODB_URI || "mongodb://localhost:27017/kurumsal-tedarikci";
 
-mongoose.connect(mongoUri)
-.then(() => console.log('✅ MongoDB bağlandı'))
-.catch(err => console.error('❌ MongoDB bağlantı hatası:', err));
+mongoose
+  .connect(mongoUri)
+  .then(() => console.log("✅ MongoDB bağlandı"))
+  .catch((err) => console.error("❌ MongoDB bağlantı hatası:", err));
 
-const db = mongoose.connection;
+/* ======================================================
+   ✅ User Model Import (Yeni Sistem)
+====================================================== */
+const User = require("./models/User");
 
-// CORS AYARLARI (Render + Vercel için)
+/* ======================================================
+   ✅ CORS Ayarları
+====================================================== */
 const corsOptions = {
   origin: [
-    'http://localhost:3000',
-    'http://localhost:5500',
-    'https://kurumsal-final.vercel.app',
-    'https://kurumsal-tedarikci.onrender.com',
-    'https://www.tedarikci.org.tr',
-    'https://tedarikci.org.tr',
+    "http://localhost:3000",
+    "http://localhost:5500",
+    "https://kurumsal-final.vercel.app",
+    "https://kurumsal-tedarikci.onrender.com",
+    "https://www.tedarikci.org.tr",
+    "https://tedarikci.org.tr",
   ],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 app.use(cors(corsOptions));
+
+/* ======================================================
+   ✅ Body Parser
+====================================================== */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// STATIC DOSYALAR
-app.use(express.static(path.join(__dirname, '..', 'public')));
+/* ======================================================
+   ✅ Static Dosyalar
+====================================================== */
+app.use(express.static(path.join(__dirname, "..", "public")));
 
-// BREVO API YAPILANDIRMASI (SMTP yerine API kullanıyoruz)
+/* ======================================================
+   ✅ Brevo API Setup
+====================================================== */
 const defaultClient = SibApiV3Sdk.ApiClient.instance;
-const apiKey = defaultClient.authentications['api-key'];
-apiKey.apiKey = process.env.BREVO_API_KEY; // Environment'dan al
+const apiKey = defaultClient.authentications["api-key"];
+apiKey.apiKey = process.env.BREVO_API_KEY;
 
-// Geçici kod saklama
+/* ======================================================
+   ✅ Reset Kodları (Geçici)
+====================================================== */
 const resetCodes = new Map();
 
-// Basit veritabanı
-const users = [
-    {
-        id: '1',
-        ad: 'Test Kullanıcı',
-        email: 'test@tedarikci.org.tr',
-        password: '$2a$10$YourHashedPasswordHere',
-        firma: 'Test Firması',
-        telefon: '05551234567',
-        kayitTarihi: new Date().toLocaleDateString()
-    }
-];
+/* ======================================================
+   ✅ JWT Secret
+====================================================== */
+const JWT_SECRET =
+  process.env.JWT_SECRET || "kurumsal-tedarikci-secret-key";
 
-// JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || 'kurumsal-tedarikci-secret-key-2024';
 
 // MAIL GÖNDERİM FONKSİYONU (Brevo API ile - SMTP yerine)
 async function sendResetEmail(toEmail, kod, userName) {
@@ -299,113 +309,157 @@ app.post('/api/admin/create-order', adminAuth, async (req, res) => {
 // API ROUTES
 
 // 1. Kayıt Ol
-app.post('/api/auth/register', async (req, res) => {
-    try {
-        const { ad, email, password, firma, telefon } = req.body;
-        
-        if (users.find(u => u.email === email)) {
-            return res.status(400).json({ success: false, message: 'Bu e-posta adresi zaten kayıtlı' });
-        }
-        
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = {
-            id: Date.now().toString(),
-            ad,
-            email,
-            password: hashedPassword,
-            firma: firma || '',
-            telefon: telefon || '',
-            kayitTarihi: new Date().toLocaleDateString('tr-TR')
-        };
-        
-        users.push(newUser);
-        console.log('Yeni kullanıcı:', email);
-        
-        // DÜZELTİLDİ: MongoDB'ye de kaydet
-        if (mongoose.connection.readyState === 1) {
-            await mongoose.connection.db.collection('users').insertOne({
-                ...newUser,
-                _id: newUser.id,
-                createdAt: new Date()
-            });
-        }
-        
-        res.json({ success: true, message: 'Kayıt başarılı' });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Sunucu hatası' });
+app.post("/api/auth/register", async (req, res) => {
+  try {
+    const { ad, email, password, firma, telefon } = req.body;
+
+    // 1) Email zaten var mı?
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "Bu e-posta adresi zaten kayıtlı",
+      });
     }
+
+    // 2) Şifre hashle
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 3) MongoDB’ye yeni kullanıcı oluştur
+    const newUser = await User.create({
+      ad,
+      email,
+      password: hashedPassword,
+      firma: firma || "",
+      telefon: telefon || "",
+    });
+
+    console.log("✅ Yeni kullanıcı kaydedildi:", email);
+
+    // 4) Response dön
+    res.json({
+      success: true,
+      message: "Kayıt başarılı",
+      userId: newUser._id,
+    });
+  } catch (error) {
+    console.error("REGISTER ERROR:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Sunucu hatası",
+    });
+  }
 });
 
 // 2. Giriş Yap
-app.post('/api/auth/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        const user = users.find(u => u.email === email);
-        
-        if (!user) {
-            return res.status(400).json({ success: false, message: 'E-posta veya şifre hatalı' });
-        }
-        
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ success: false, message: 'E-posta veya şifre hatalı' });
-        }
-        
-        const token = jwt.sign(
-            { userId: user.id, email: user.email }, 
-            JWT_SECRET, 
-            { expiresIn: '24h' }
-        );
-        
-        res.json({ 
-            success: true, 
-            token,
-            user: { 
-                id: user.id, 
-                ad: user.ad, 
-                email: user.email, 
-                firma: user.firma,
-                telefon: user.telefon
-            }
-        });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Sunucu hatası' });
+app.post("/api/auth/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // 1) MongoDB’den kullanıcıyı bul
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "E-posta veya şifre hatalı",
+      });
     }
+
+    // 2) Şifre doğrula
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "E-posta veya şifre hatalı",
+      });
+    }
+
+    // 3) JWT Token oluştur
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        email: user.email,
+      },
+      JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+
+    // 4) Response dön
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        ad: user.ad,
+        email: user.email,
+        firma: user.firma,
+        telefon: user.telefon,
+      },
+    });
+  } catch (error) {
+    console.error("LOGIN ERROR:", error);
+    res.status(500).json({
+      success: false,
+      message: "Sunucu hatası",
+    });
+  }
 });
 
+
 // 3. Şifre Sıfırlama - Kod Gönder
-app.post('/api/auth/forgot-password', async (req, res) => {
-    try {
-        const { email } = req.body;
-        const user = users.find(u => u.email === email);
-        
-        // Güvenlik için kullanıcı yoksa bile başarılı dön
-        if (!user) {
-            return res.json({ success: true, message: 'Eğer bu e-posta kayıtlıysa kod gönderildi' });
-        }
-        
-        // 6 haneli kod oluştur
-        const kod = Math.floor(100000 + Math.random() * 900000).toString();
-        
-        // Kodu sakla (15 dakika)
-        resetCodes.set(email, { 
-            kod, 
-            userId: user.id,
-            expiry: Date.now() + 900000
-        });
-        
-        // Brevo API ile mail gönder
-        const sent = await sendResetEmail(email, kod, user.ad);
-        
-        if (sent) {
-            res.json({ success: true, message: 'Doğrulama kodu e-posta adresinize gönderildi' });
-        } else {
-            res.status(500).json({ success: false, message: 'E-posta gönderilemedi, lütfen tekrar deneyin' });
-        }
-    } catch (error) {
-        console.error('Forgot password error:', error);
-        res.status(500).json({ success: false, message: 'Sunucu hatası' });
+app.post("/api/auth/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // 1) MongoDB’den kullanıcıyı bul
+    const user = await User.findOne({ email });
+
+    // Güvenlik: kullanıcı yoksa bile başarılı dön
+    if (!user) {
+      return res.json({
+        success: true,
+        message: "Eğer bu e-posta kayıtlıysa kod gönderildi",
+      });
     }
+
+    // 2) 6 haneli kod oluştur
+    const kod = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // 3) Kodu sakla (15 dakika)
+    resetCodes.set(email, {
+      kod,
+      userId: user._id,
+      expiry: Date.now() + 900000,
+    });
+
+    console.log("📩 Reset kodu üretildi:", email, kod);
+
+    // 4) Brevo ile mail gönder
+    const sent = await sendResetEmail(email, kod, user.ad);
+
+    if (!sent) {
+      return res.status(500).json({
+        success: false,
+        message: "E-posta gönderilemedi, lütfen tekrar deneyin",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Doğrulama kodu e-posta adresinize gönderildi",
+    });
+  } catch (error) {
+    console.error("Forgot password error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Sunucu hatası",
+    });
+  }
 });
 
 // 4. Kod Doğrulama
@@ -437,37 +491,68 @@ app.post('/api/auth/verify-code', (req, res) => {
 });
 
 // 5. Yeni Şifre Kaydetme
-app.post('/api/auth/reset-password', async (req, res) => {
-    try {
-        const { email, resetToken, newPassword } = req.body;
-        
-        // Token doğrula
-        const decoded = jwt.verify(resetToken, JWT_SECRET);
-        
-        if (decoded.email !== email || decoded.type !== 'password-reset') {
-            return res.status(400).json({ success: false, message: 'Geçersiz veya süresi dolmuş token' });
-        }
-        
-        // Şifreyi hash'le
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        
-        // Kullanıcıyı bul ve güncelle
-        const userIndex = users.findIndex(u => u.email === email);
-        if (userIndex === -1) {
-            return res.status(404).json({ success: false, message: 'Kullanıcı bulunamadı' });
-        }
-        
-        users[userIndex].password = hashedPassword;
-        resetCodes.delete(email); // Kodu temizle
-        
-        console.log(`Şifre sıfırlandı: ${email}`);
-        res.json({ success: true, message: 'Şifreniz başarıyla güncellendi' });
-    } catch (error) {
-        if (error.name === 'TokenExpiredError') {
-            return res.status(400).json({ success: false, message: 'İşlem süresi dolmuş, lütfen tekrar deneyin' });
-        }
-        res.status(500).json({ success: false, message: 'Sunucu hatası' });
+app.post("/api/auth/reset-password", async (req, res) => {
+  try {
+    const { email, resetToken, newPassword } = req.body;
+
+    // 1) Eksik alan kontrolü
+    if (!email || !resetToken || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Email, token ve yeni şifre zorunludur",
+      });
     }
+
+    // 2) Token doğrula
+    const decoded = jwt.verify(resetToken, JWT_SECRET);
+
+    if (decoded.email !== email || decoded.type !== "password-reset") {
+      return res.status(400).json({
+        success: false,
+        message: "Geçersiz veya süresi dolmuş token",
+      });
+    }
+
+    // 3) Şifreyi hashle
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // 4) MongoDB’de kullanıcıyı güncelle
+    const result = await User.updateOne(
+      { email },
+      { $set: { password: hashedPassword } }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Kullanıcı bulunamadı",
+      });
+    }
+
+    // 5) Reset kodunu temizle
+    resetCodes.delete(email);
+
+    console.log("✅ Şifre sıfırlandı:", email);
+
+    res.json({
+      success: true,
+      message: "Şifreniz başarıyla güncellendi",
+    });
+  } catch (error) {
+    console.error("RESET PASSWORD ERROR:", error);
+
+    if (error.name === "TokenExpiredError") {
+      return res.status(400).json({
+        success: false,
+        message: "İşlem süresi dolmuş, lütfen tekrar deneyin",
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Sunucu hatası",
+    });
+  }
 });
 
 // 6. Profil Şifre Değiştirme
@@ -682,10 +767,7 @@ app.get("/api/admin/orders", adminAuth, async (req, res) => {
     const userIds = [...new Set(orders.map(o => o.userId).filter(Boolean).map(String))];
     let usersById = {};
     if (userIds.length) {
-      const users = await mongoose.connection.db.collection("users")
-        .find({ _id: { $in: userIds.map(id => new ObjectId(id)) } })
-        .project({ email: 1, ad: 1, firma: 1, telefon: 1 })
-        .toArray();
+      
       usersById = Object.fromEntries(users.map(u => [String(u._id), u]));
     }
 
