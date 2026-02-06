@@ -1,4 +1,3 @@
-alert("MAIN JS GUNCEL");
 
 document.addEventListener('DOMContentLoaded', function () {
 
