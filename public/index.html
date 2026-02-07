@@ -671,6 +671,7 @@
 <div class="social-links">
 <a href="https://wa.me/905059112749"><i class="fab fa-whatsapp"></i></a>
 <a href="#"><i class="fab fa-instagram"></i></a>
+<a href="giris.html" class="btn-login">Giriş Yap</a>
 <a href="#"><i class="fab fa-linkedin"></i></a>
 <a href="mailto:iletisim@tedarikci.org.tr"><i class="fas fa-envelope"></i></a>
 </div>
@@ -717,5 +718,23 @@
   });
 })();
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const userData = localStorage.getItem("user");
+
+    if (userData) {
+        const user = JSON.parse(userData);
+
+        // Navbar butonunu değiştir
+        const loginBtn = document.querySelector(".btn-login");
+
+        if (loginBtn) {
+            loginBtn.innerHTML = "👤 " + user.ad;
+            loginBtn.href = "profil.html";
+        }
+    }
+});
+</script>
+
 </body>
 </html>

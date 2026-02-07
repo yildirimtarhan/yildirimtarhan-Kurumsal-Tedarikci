@@ -525,6 +525,10 @@
                 </div>
                 <i class="fas fa-chevron-right" style="color: #9ca3af;"></i>
             </div>
+            <button onclick="logout()" class="btn-logout">
+   Çıkış Yap
+</button>
+
             
             <div class="menu-item" onclick="window.location.href='sepet.html'">
                 <i class="fas fa-shopping-bag"></i>
@@ -652,6 +656,18 @@
                 console.error(`Alert elementi bulunamadı: ${elementId}`);
                 alert(message); // Fallback olarak browser alert
                 return;
+
+                if (data.success) {
+    // Token kaydet
+    localStorage.setItem("token", data.token);
+
+    // Kullanıcı bilgisini kaydet
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    // Ana sayfaya yönlendir
+    window.location.href = "index.html";
+}
+
             }
             alert.textContent = message;
             alert.className = `alert ${type}`;
@@ -699,13 +715,20 @@
                 const data = await response.json();
                 
                 if(response.ok) {
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    if(hatirla) localStorage.setItem('rememberEmail', email);
-                    profilGoster(data.user);
-                } else {
-                    showAlert('girisAlert', data.message || 'Giriş başarısız! Bilgilerinizi kontrol edin.');
-                }
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+
+    if(hatirla) localStorage.setItem('rememberEmail', email);
+
+    // ✅ Kullanıcı profilini göster
+    profilGoster(data.user);
+
+    // ✅ Ana sayfaya yönlendir
+    setTimeout(() => {
+        window.location.href = "index.html";
+    }, 800);
+}
+
             } catch(error) {
                 console.error('Giriş hatası:', error);
                 showAlert('girisAlert', 'Sunucuya bağlanılamıyor. Lütfen internet bağlantınızı kontrol edin.');
@@ -1049,5 +1072,14 @@
             if(e.target === this) closeSifreModal();
         });
     </script>
+    <script>
+function logout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    alert("Çıkış yapıldı");
+    window.location.href = "index.html";
+}
+</script>
+
 </body>
 </html>
