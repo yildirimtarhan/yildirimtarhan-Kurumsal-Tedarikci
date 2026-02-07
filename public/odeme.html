@@ -194,19 +194,59 @@
             odemeToplam.textContent = `₺${toplam.toLocaleString('tr-TR')}`;
         }
         
-        function odemeYap(e) {
-            e.preventDefault();
-            const firma = document.getElementById('firmaAdi').value;
-            
+        async function odemeYap(e) {
+    e.preventDefault();
+
+    // Form verilerini al
+    const firmaAdi = document.getElementById("firmaAdi").value;
+    const email = document.getElementById("email").value;
+
+    // Sepet boşsa gönderme
+    if (!sepet || sepet.length === 0) {
+        alert("Sepet boş!");
+        return;
+    }
+
+    try {
+        // Backend'e sipariş gönder
+        const response = await fetch(
+            "https://backend-api-7s13.onrender.com/api/orders/create",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    firmaAdi,
+                    email,
+                    items: sepet,
+                }),
+            }
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert("✅ Sipariş alındı ve ERP’ye aktarıldı!");
+
             // Sepeti temizle
             sepet = [];
-            localStorage.removeItem('kurumsalSepet');
-            
-            alert(`Teşekkürler ${firma}! Siparişiniz alındı.`);
-            window.location.href = 'index.html';
+            localStorage.removeItem("kurumsalSepet");
+
+            // Ana sayfaya dön
+            window.location.href = "index.html";
+        } else {
+            alert("❌ Sipariş kaydedilemedi: " + data.message);
         }
-        
-        odemeSayfasiniGuncelle();
+    } catch (error) {
+        console.error("Sipariş gönderme hatası:", error);
+        alert("❌ Sunucuya bağlanılamadı!");
+    }
+}
+
+// Sayfa yüklenince sepeti göster
+odemeSayfasiniGuncelle();
+
     </script>
 </body>
 </html>

@@ -7,6 +7,12 @@ const SibApiV3Sdk = require("sib-api-v3-sdk");
 const path = require("path");
 const mongoose = require("mongoose");
 const { ObjectId } = require("mongodb");
+const Order = require("./models/Order");
+const Order = require("./models/Order");
+
+
+
+
 
 const app = express();
 
@@ -863,3 +869,75 @@ app.listen(PORT, () => {
     console.log(`📧 Brevo API: ${process.env.BREVO_API_KEY ? 'Aktif' : 'Eksik!'}`);
     console.log(`🗄️  MongoDB: ${process.env.MONGODB_URI ? 'Bağlandı' : 'Local mod'}`);
 });
+app.post("/api/orders/create", async (req, res) => {
+  try {
+    const { firmaAdi, email, items } = req.body;
+
+    if (!firmaAdi || !email || !items || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Sipariş bilgileri eksik veya sepet boş",
+      });
+    }
+
+    const toplam = items.reduce(
+      (sum, item) => sum + Number(item.fiyat) * Number(item.adet),
+      0
+    );
+
+    const newOrder = await Order.create({
+      firmaAdi,
+      email,
+      items,
+      toplam,
+      status: "Yeni",
+    });
+
+    console.log("✅ Sipariş MongoDB kaydedildi:", newOrder._id);
+
+    // ERP’ye otomatik aktar
+    try {
+      const erpResp = await fetch(
+        "https://satistakip.online/api/satis/create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            cariUnvan: firmaAdi,
+            email,
+            urunler: items,
+            toplam,
+            kaynak: "KurumsalTedarikci",
+          }),
+        }
+      );
+
+      const erpData = await erpResp.json();
+
+      if (erpData.success) {
+        newOrder.erpAktarildi = true;
+        await newOrder.save();
+        console.log("🚀 ERP’ye aktarıldı:", newOrder._id);
+      } else {
+        console.log("❌ ERP aktarım hatası:", erpData.message);
+      }
+    } catch (err) {
+      console.log("❌ ERP bağlantı hatası:", err.message);
+    }
+
+    res.json({
+      success: true,
+      message: "Sipariş kaydedildi ve ERP’ye gönderildi",
+      orderId: newOrder._id,
+    });
+  } catch (error) {
+    console.error("ORDER CREATE ERROR:", error);
+    res.status(500).json({
+      success: false,
+      message: "Sipariş kaydedilemedi",
+    });
+  }
+});
+

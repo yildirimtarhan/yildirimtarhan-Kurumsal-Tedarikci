@@ -1,7 +1,14 @@
 {
-  "version": 2,
-  "public": true,
-  "github": {
-    "enabled": true
-  }
+  "builds": [
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/public/$1"
+    }
+  ]
 }
