@@ -1653,3 +1653,116 @@ body.menu-open{
   .navbar{ height:60px !important; padding:10px 15px !important; }
   .nav-right{ margin-right:60px; }
 }
+
+/* ============================= */
+/* ✅ SADECE INDEX (home) HERO OVERRIDE */
+/* ============================= */
+
+body.home .hero{
+  position: relative;
+  overflow: hidden;
+}
+
+/* hero-bg arkada kalsın */
+body.home .hero-bg{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+}
+
+/* container kesin flex olsun */
+body.home .hero-container{
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 60px;
+}
+
+/* sol taraf taşmasın */
+body.home .hero-content{
+  flex: 1;
+  min-width: 0;
+}
+
+/* sağ taraf: ortalı ve kontrollü */
+body.home .hero-visual{
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ortadaki daire */
+body.home .main-circle{
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(79,70,229,.35), rgba(79,70,229,0) 60%),
+              radial-gradient(circle at 70% 70%, rgba(139,92,246,.35), rgba(139,92,246,0) 60%);
+  filter: blur(0px);
+}
+
+/* ikon ortada */
+body.home .main-icon{
+  position: absolute;
+  font-size: 56px;
+  color: #4f46e5;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* ✅ Beyaz dikdörtgeni yapan şey genelde burada: width/height %100 geliyor.
+   Biz kesin override ediyoruz. */
+body.home .floating-card{
+  position: absolute;
+  background: #fff;
+  padding: 12px 14px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.10);
+  width: auto !important;
+  height: auto !important;
+  max-width: 180px;
+  white-space: nowrap;
+  z-index: 3;
+}
+
+/* kart konumları */
+body.home .card-1{ left: 20px; top: 40px; }
+body.home .card-2{ right: 20px; top: 120px; }
+body.home .card-3{ right: 40px; bottom: 60px; }
+
+/* stats hizası */
+body.home .hero-stats{
+  display: flex;
+  gap: 26px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+/* responsive: küçük ekranda alt alta */
+@media (max-width: 992px){
+  body.home .hero-container{
+    flex-direction: column;
+    text-align: center;
+  }
+  body.home .hero-visual{
+    min-height: 360px;
+    margin-top: 20px;
+  }
+  body.home .card-1{ left: 10px; top: 20px; }
+  body.home .card-2{ right: 10px; top: 90px; }
+  body.home .card-3{ right: 10px; botatom: 30px; }
+}

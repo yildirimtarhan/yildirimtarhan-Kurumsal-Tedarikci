@@ -231,7 +231,7 @@
 <li><a href="teklif.html" style="text-decoration: none; color: #f59e0b; font-weight: 600; font-size: 15px;">Teklif Al</a></li>
 <li><a href="iletisim.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">İletişim</a></li>
 </ul>
-<div style="display: flex; align-items: center; gap: 15px;">
+<div id="navUserArea" style="display: flex; align-items: center; gap: 15px;">
 <a href="giris.html" style="text-decoration: none; color: #6366f1; font-weight: 600; font-size: 14px; padding: 8px 16px; border: 2px solid #6366f1; border-radius: 20px;">Giriş Yap</a>
 <a href="odeme.html" style="background: #6366f1; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; position: relative;">
 <i class="fas fa-shopping-cart" style="font-size: 16px;"></i>
@@ -363,18 +363,26 @@
 <script src="js/sepet.js"></script>
 <script>
         // Sepet sayısını güncelle
-        function updateCartCount() {
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            document.getElementById('cart-count').innerText = cart.length;
-        }
-        updateCartCount();
-        
-        // Hemen satın al fonksiyonu
-        function hemenSatınAl(name, price, id) {
-            sepeteEkle(name, price, id);
-            window.location.href = 'odeme.html';
-        }
-    </script>
+        // Sepet sayısını güncelle
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const toplamAdet = cart.reduce((sum, item) => sum + (item.qty || item.adet || 1), 0);
+    const countEl = document.getElementById('cart-count');
+    if (countEl) {
+        countEl.innerText = toplamAdet;
+        countEl.style.display = toplamAdet > 0 ? 'flex' : 'none';
+    }
+}
+updateCartCount();
+
+// Hemen satın al fonksiyonu
+function hemenSatınAl(name, price, id) {
+    sepeteEkle(name, price, id);
+    setTimeout(() => {
+        window.location.href = 'odeme.html';
+    }, 500);
+}   
+ </script>
 
 <script>
 (function() {
@@ -414,5 +422,6 @@
   });
 })();
 </script>
+<script src="js/main.js"></script>
 </body>
 </html>

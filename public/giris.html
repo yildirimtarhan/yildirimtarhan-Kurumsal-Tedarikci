@@ -738,65 +738,106 @@
         }
         
         // 2. Kayıt Ol - DÜZELTİLMİŞ (showAlert kullanımı düzeltildi)
-        async function kayitOl() {
-            const uyelikTipi = document.getElementById('uyelikTipi').value;
-            
-            const userData = {
-                ad: document.getElementById('kayitAd').value,
-                email: document.getElementById('kayitEmail').value,
-                telefon: document.getElementById('kayitTelefon').value,
-                password: document.getElementById('kayitSifre').value,
-                uyelikTipi: uyelikTipi,
-                faturaAdresi: document.getElementById('faturaAdresi').value,
-                teslimatAdresi: document.getElementById('teslimatAyni').checked ? 
-                    document.getElementById('faturaAdresi').value : 
-                    document.getElementById('teslimatAdresi').value
-            };
-            
-            // Kurumsal/Bireysel özel alanlar
-            if(uyelikTipi === 'kurumsal') {
-                userData.firma = document.getElementById('kayitFirma').value;
-                userData.vergiNo = document.getElementById('vergiNo').value;
-                userData.vergiDairesi = document.getElementById('vergiDairesi').value;
-                userData.faturaTipi = 'kurumsal';
-                
-                // Kurumsal validasyon
-                if(!userData.firma || !userData.vergiNo || !userData.vergiDairesi) {
-                    showAlert('kayitAlert', 'Lütfen tüm kurumsal bilgileri doldurun!');
-                    return;
-                }
-            } else {
-                userData.tcNo = document.getElementById('tcNo').value;
-                userData.faturaTipi = 'bireysel';
-            }
-            
-            showLoading('kayitBtn');
-            
-            try {
-                const response = await fetch(`${API_URL}/auth/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(userData)
-                });
-                
-                const data = await response.json();
-                
-                if(response.ok) {
-                    showAlert('kayitAlert', 'Kayıt başarılı! Giriş yapabilirsiniz.', 'success');
-                    setTimeout(() => {
-                        showTab('giris');
-                        document.getElementById('kayitForm').reset();
-                    }, 2000);
-                } else {
-                    showAlert('kayitAlert', data.message || 'Kayıt başarısız!');
-                }
-            } catch(error) {
-                console.error('Kayıt hatası:', error);
-                showAlert('kayitAlert', 'Bağlantı hatası! Lütfen tekrar deneyin.');
-            } finally {
-                showLoading('kayitBtn', false);
-            }
+       // 2. Kayıt Ol - DÜZELTİLMİŞ
+async function kayitOl() {
+    const uyelikTipi = document.getElementById('uyelikTipi').value;
+    
+    const userData = {
+        ad: document.getElementById('kayitAd').value.trim(),
+        email: document.getElementById('kayitEmail').value.trim(),
+        telefon: document.getElementById('kayitTelefon').value.trim(),
+        password: document.getElementById('kayitSifre').value,
+        uyelikTipi: uyelikTipi,
+        faturaAdresi: document.getElementById('faturaAdresi').value.trim(),
+        teslimatAdresi: document.getElementById('teslimatAyni').checked ? 
+            document.getElementById('faturaAdresi').value.trim() : 
+            document.getElementById('teslimatAdresi').value.trim()
+    };
+    
+    // Validasyon
+    if(!userData.ad || !userData.email || !userData.password || !userData.telefon) {
+        showAlert('kayitAlert', 'Lütfen tüm zorunlu alanları doldurun!');
+        return;
+    }
+    
+    if(userData.password.length < 6) {
+        showAlert('kayitAlert', 'Şifre en az 6 karakter olmalı!');
+        return;
+    }
+    
+    // Kurumsal/Bireysel özel alanlar
+    if(uyelikTipi === 'kurumsal') {
+        userData.firma = document.getElementById('kayitFirma').value.trim();
+        userData.vergiNo = document.getElementById('vergiNo').value.trim();
+        userData.vergiDairesi = document.getElementById('vergiDairesi').value.trim();
+        
+        if(!userData.firma || !userData.vergiNo || !userData.vergiDairesi) {
+            showAlert('kayitAlert', 'Lütfen tüm kurumsal bilgileri doldurun!');
+            return;
         }
+    } else {
+        userData.tcNo = document.getElementById('tcNo').value.trim();
+    }
+    
+    showLoading('kayitBtn');
+    
+    try {
+        const response = await fetch(`${API_URL}/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        });
+        
+        const data = await response.json();
+        
+        if(response.ok) {
+            showAlert('kayitAlert', 'Kayıt başarılı! Giriş yapılıyor...', 'success');
+            
+            // ✅ Otomatik giriş yap
+            setTimeout(async () => {
+                try {
+                    const loginResponse = await fetch(`${API_URL}/auth/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            email: userData.email, 
+                            password: userData.password 
+                        })
+                    });
+                    
+                    const loginData = await loginResponse.json();
+                    
+                    if(loginResponse.ok) {
+                        // ✅ Tüm kullanıcı bilgilerini kaydet
+                        localStorage.setItem('token', loginData.token);
+                        localStorage.setItem('user', JSON.stringify(loginData.user));
+                        
+                        // ✅ Sepet verisini temizle (yeni kullanıcı)
+                        localStorage.removeItem('cart');
+                        localStorage.removeItem('kurumsalSepet');
+                        
+                        // ✅ Anasayfaya yönlendir
+                        window.location.href = "index.html";
+                    } else {
+                        showAlert('kayitAlert', 'Kayıt başarılı! Lütfen giriş yapın.', 'success');
+                        showTab('giris');
+                    }
+                } catch(error) {
+                    showAlert('kayitAlert', 'Kayıt başarılı! Lütfen giriş yapın.', 'success');
+                    showTab('giris');
+                }
+            }, 1500);
+            
+        } else {
+            showAlert('kayitAlert', data.message || 'Kayıt başarısız!');
+        }
+    } catch(error) {
+        console.error('Kayıt hatası:', error);
+        showAlert('kayitAlert', 'Bağlantı hatası! Lütfen tekrar deneyin.');
+    } finally {
+        showLoading('kayitBtn', false);
+    }
+}
         
         // 3. Şifre Sıfırlama - Adım 1: Kod Gönder
         async function sifreSifirlaStep1() {
@@ -1073,13 +1114,52 @@
         });
     </script>
     <script>
-function logout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    alert("Çıkış yapıldı");
-    window.location.href = "index.html";
-}
+document.addEventListener("DOMContentLoaded", () => {
+
+    // ✅ Kullanıcı bilgisi
+    const userData = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
+
+    // ✅ Navbar elementleri
+    const loginBtn = document.getElementById("loginButton");
+    const cartCount = document.getElementById("cart-count");
+
+    // ✅ Sepeti oku
+    const sepet = JSON.parse(localStorage.getItem("kurumsalSepet")) || [];
+
+    // ✅ Sepet sayacı güncelle
+    if (cartCount) {
+        cartCount.innerText = sepet.length;
+    }
+
+    // ✅ Eğer giriş yapılmışsa navbar değiştir
+    if (userData && token && loginBtn) {
+
+        const user = JSON.parse(userData);
+
+        loginBtn.innerHTML = "👤 " + user.ad;
+        loginBtn.href = "profil.html";
+
+        // ✅ Logout butonu ekle
+        const logoutBtn = document.createElement("a");
+        logoutBtn.innerHTML = "Çıkış";
+        logoutBtn.href = "#";
+        logoutBtn.style.marginLeft = "15px";
+        logoutBtn.style.color = "#ef4444";
+        logoutBtn.style.fontWeight = "600";
+
+        logoutBtn.onclick = () => {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "index.html";
+        };
+
+        loginBtn.parentElement.appendChild(logoutBtn);
+    }
+
+});
 </script>
+<script src="main.js"></script>
 
 </body>
 </html>

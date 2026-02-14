@@ -1,144 +1,269 @@
-// Sepet State
-let sepet = JSON.parse(localStorage.getItem('kurumsalSepet')) || [];
+// Sepet Yönetim Sistemi - GÜNCELLENMİŞ VERSİYON (KDV %20 + Senkronizasyon Fix)
+// Tüm sayfalarda aynı localStorage anahtarını kullan: 'cart'
 
-// Sayfa yüklendiğinde çalıştır
-document.addEventListener('DOMContentLoaded', () => {
+const KDV_ORANI = 0.20; // %20 KDV
+
+// Sepeti getir - GLOBAL değişken
+let sepet = [];
+
+// Sayfa yüklendiğinde sepeti yükle
+function initSepet() {
+    const savedCart = localStorage.getItem("cart");
+    if (savedCart) {
+        try {
+            sepet = JSON.parse(savedCart);
+            // Eski format kontrolü ve düzeltme
+            sepet = sepet.map(item => ({
+                id: item.id || Date.now().toString(),
+                name: item.name || item.ad || 'Ürün',
+                ad: item.name || item.ad || 'Ürün', // Geriye uyumluluk
+                price: parseFloat(item.price || item.fiyat || 0),
+                fiyat: parseFloat(item.price || item.fiyat || 0),
+                qty: parseInt(item.qty || item.adet || 1),
+                adet: parseInt(item.qty || item.adet || 1),
+                category: item.category || 'Ürün',
+                kdvOrani: 20
+            }));
+        } catch (e) {
+            console.error("Sepet yükleme hatası:", e);
+            sepet = [];
+        }
+    }
+    // Eski anahtarı temizle
+    localStorage.removeItem("kurumsalSepet");
+    sepetiKaydet();
     sepetGuncelle();
-});
-
-// Sepeti Aç/Kapat
-function toggleSepet() {
-    const dropdown = document.getElementById('cartDropdown');
-    const overlay = document.querySelector('.overlay') || createOverlay();
-    
-    dropdown.classList.toggle('active');
-    overlay.classList.toggle('active');
+    return sepet;
 }
 
-// Overlay oluştur
-function createOverlay() {
-    const overlay = document.createElement('div');
-    overlay.className = 'overlay';
-    overlay.onclick = toggleSepet;
-    document.body.appendChild(overlay);
-    return overlay;
+// Sepeti kaydet
+function sepetiKaydet() {
+    localStorage.setItem("cart", JSON.stringify(sepet));
+    // Tüm sayfalarda güncelleme yapılması için event dispatch et
+    window.dispatchEvent(new StorageEvent('storage', {
+        key: 'cart',
+        newValue: JSON.stringify(sepet)
+    }));
 }
 
-// Sepete Ürün Ekle
-function sepeteEkle(urunAdi, fiyat, id) {
-    const mevcutUrun = sepet.find(item => item.id === id);
+// Fiyat hesaplama fonksiyonları
+function hesaplaKDV(tutar) {
+    return tutar * KDV_ORANI;
+}
+
+function hesaplaKDVsiz(tutar) {
+    return tutar / (1 + KDV_ORANI);
+}
+
+function formatFiyat(fiyat) {
+    return parseFloat(fiyat).toLocaleString('tr-TR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+// Sepete ürün ekle
+function sepeteEkle(urunAd, fiyat, id, adet = 1) {
+    // Fiyat KDV dahil olarak kaydedilir
+    const kdvDahilFiyat = parseFloat(fiyat);
     
-    if (mevcutUrun) {
-        mevcutUrun.adet++;
+    const mevcutIndex = sepet.findIndex(item => 
+        (id && item.id === id) || item.name === urunAd || item.ad === urunAd
+    );
+    
+    if (mevcutIndex >= 0) {
+        sepet[mevcutIndex].qty += adet;
+        sepet[mevcutIndex].adet = sepet[mevcutIndex].qty;
     } else {
         sepet.push({
-            id: id,
-            ad: urunAdi,
-            fiyat: fiyat,
-            adet: 1
+            id: id || Date.now().toString(),
+            name: urunAd,
+            ad: urunAd,
+            price: kdvDahilFiyat,
+            fiyat: kdvDahilFiyat,
+            qty: adet,
+            adet: adet,
+            category: 'Ürün',
+            kdvOrani: 20
         });
     }
     
-    sepetKaydet();
+    sepetiKaydet();
     sepetGuncelle();
+    bildirimGoster(`${urunAd} sepete eklendi!`);
     
-    // Buton feedback
-    const btn = event.target;
-    const originalText = btn.textContent;
-    btn.textContent = '✓ Eklendi';
-    btn.classList.add('added');
-    
-    setTimeout(() => {
-        btn.textContent = originalText;
-        btn.classList.remove('added');
-    }, 1500);
-    
-    // Sepeti aç
-    setTimeout(() => {
-        document.getElementById('cartDropdown').classList.add('active');
-        createOverlay().classList.add('active');
-    }, 500);
+    // Diğer sayfaları da güncelle
+    if (typeof loadCart === 'function') {
+        loadCart();
+    }
 }
 
-// Sepetten Ürün Çıkar
-function sepettenCikar(id) {
-    sepet = sepet.filter(item => item.id !== id);
-    sepetKaydet();
+// Ürün adetini güncelle (artır/azalt)
+function adetGuncelle(urunAd, degisim) {
+    const index = sepet.findIndex(item => item.name === urunAd || item.ad === urunAd);
+    if (index === -1) return;
+    
+    const mevcutAdet = sepet[index].qty || sepet[index].adet || 1;
+    const yeniAdet = mevcutAdet + degisim;
+    
+    if (yeniAdet <= 0) {
+        urunSil(urunAd);
+        return;
+    }
+    
+    sepet[index].qty = yeniAdet;
+    sepet[index].adet = yeniAdet;
+    
+    sepetiKaydet();
     sepetGuncelle();
+    
+    // Tüm sayfalarda güncelle
+    broadcastUpdate();
 }
 
-// Adet Güncelle
-function adetGuncelle(id, islem) {
-    const urun = sepet.find(item => item.id === id);
-    if (urun) {
-        if (islem === 'artir') {
-            urun.adet++;
-        } else if (islem === 'azalt') {
-            urun.adet--;
-            if (urun.adet <= 0) {
-                sepettenCikar(id);
-                return;
+// Ürünü sepetten sil
+function urunSil(urunAd) {
+    sepet = sepet.filter(item => item.name !== urunAd && item.ad !== urunAd);
+    sepetiKaydet();
+    sepetGuncelle();
+    broadcastUpdate();
+    bildirimGoster("Ürün sepetten kaldırıldı");
+}
+
+// Tüm sayfalarda güncelleme yap
+function broadcastUpdate() {
+    // Sepet sayfasını güncelle
+    if (typeof sepetiGoster === 'function') {
+        sepetiGoster();
+    }
+    // Ödeme sayfasını güncelle
+    if (typeof loadCart === 'function') {
+        loadCart();
+    }
+}
+
+// Sepet özetini hesapla
+function hesaplaSepetOzeti() {
+    const araToplamKDVsiz = sepet.reduce((toplam, item) => {
+        const adet = item.qty || item.adet || 1;
+        const birimFiyat = item.price || item.fiyat || 0;
+        const kdvHaric = birimFiyat / (1 + KDV_ORANI);
+        return toplam + (kdvHaric * adet);
+    }, 0);
+    
+    const kdvTutari = araToplamKDVsiz * KDV_ORANI;
+    const araToplamKDVli = araToplamKDVsiz + kdvTutari;
+    const kargo = araToplamKDVli > 500 ? 0 : 29.90;
+    const genelToplam = araToplamKDVli + kargo;
+    
+    return {
+        araToplamKDVsiz,
+        kdvTutari,
+        araToplamKDVli,
+        kargo,
+        genelToplam
+    };
+}
+
+// Sepet sayacını güncelle
+function sepetGuncelle() {
+    const countEl = document.getElementById("cart-count");
+    if (countEl) {
+        const toplamAdet = sepet.reduce((toplam, item) => toplam + (item.qty || item.adet || 1), 0);
+        countEl.innerText = toplamAdet;
+        countEl.style.display = toplamAdet > 0 ? 'flex' : 'none';
+    }
+}
+
+// Sepeti görüntüle
+function sepetGoster() {
+    if (sepet.length === 0) {
+        bildirimGoster("Sepetiniz boş!");
+        return;
+    }
+    window.location.href = "sepet.html";
+}
+
+// Sepeti temizle
+function sepetiTemizle() {
+    if (confirm("Sepeti tamamen temizlemek istiyor musunuz?")) {
+        sepet = [];
+        sepetiKaydet();
+        sepetGuncelle();
+        broadcastUpdate();
+        bildirimGoster("Sepet temizlendi");
+    }
+}
+
+// Bildirim göster
+function bildirimGoster(mesaj, type = 'success') {
+    const existingToast = document.querySelector('.sepet-toast');
+    if (existingToast) existingToast.remove();
+    
+    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+    const color = type === 'success' ? '#10b981' : '#ef4444';
+    
+    const toast = document.createElement('div');
+    toast.className = 'sepet-toast';
+    toast.innerHTML = `
+        <div style="
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: ${color};
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            z-index: 9999;
+            font-weight: 600;
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 250px;
+        ">
+            <i class="fas ${icon}"></i>
+            ${mesaj}
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Sayfa yüklendiğinde sepeti başlat
+document.addEventListener("DOMContentLoaded", () => {
+    initSepet();
+    
+    // Storage event'ini dinle (diğer sayfalardan gelen değişiklikler)
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'cart') {
+            initSepet();
+            if (typeof sepetiGoster === 'function') {
+                sepetiGoster();
+            }
+            if (typeof loadCart === 'function') {
+                loadCart();
             }
         }
-        sepetKaydet();
-        sepetGuncelle();
-    }
-}
+    });
+});
 
-// Sepet UI Güncelle
-function sepetGuncelle() {
-    const cartItems = document.getElementById('cartItems');
-    const cartCount = document.getElementById('cartCount');
-    const cartTotal = document.getElementById('cartTotal');
-    
-    if (!cartItems) return;
-    
-    // Sayı badge'i
-    const toplamAdet = sepet.reduce((sum, item) => sum + item.adet, 0);
-    cartCount.textContent = toplamAdet;
-    
-    if (toplamAdet === 0) {
-        cartCount.style.display = 'none';
-    } else {
-        cartCount.style.display = 'flex';
+// CSS Animasyonları
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
     }
-    
-    // Sepet içeriği
-    if (sepet.length === 0) {
-        cartItems.innerHTML = `
-            <div class="bos-sepet" style="text-align:center;padding:40px;color:#999;">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom:10px;opacity:0.3;">
-                    <circle cx="9" cy="21" r="1"></circle>
-                    <circle cx="20" cy="21" r="1"></circle>
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                </svg>
-                <p>Sepetiniz boş</p>
-                <a href="#paketler" onclick="toggleSepet()" style="color:#6366f1;">Paketlere Göz At</a>
-            </div>
-        `;
-    } else {
-        cartItems.innerHTML = sepet.map(item => `
-            <div class="cart-item">
-                <div class="cart-item-info" style="flex:1;">
-                    <h4>${item.ad}</h4>
-                    <div class="cart-item-price">₺${item.fiyat}</div>
-                    <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
-                        <button onclick="adetGuncelle('${item.id}', 'azalt')" style="padding:2px 8px;border:1px solid #ddd;background:white;border-radius:4px;cursor:pointer;">-</button>
-                        <span>${item.adet}</span>
-                        <button onclick="adetGuncelle('${item.id}', 'artir')" style="padding:2px 8px;border:1px solid #ddd;background:white;border-radius:4px;cursor:pointer;">+</button>
-                    </div>
-                </div>
-                <button class="cart-item-remove" onclick="sepettenCikar('${item.id}')">Sil</button>
-            </div>
-        `).join('');
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 1; }
     }
-    
-    // Toplam tutar
-    const toplam = sepet.reduce((sum, item) => sum + (item.fiyat * item.adet), 0);
-    cartTotal.textContent = `₺${toplam.toLocaleString('tr-TR')}`;
-}
-
-// LocalStorage'a Kaydet
-function sepetKaydet() {
-    localStorage.setItem('kurumsalSepet', JSON.stringify(sepet));
-}
+`;
+document.head.appendChild(style);

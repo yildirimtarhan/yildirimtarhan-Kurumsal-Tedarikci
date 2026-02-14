@@ -1,26 +1,27 @@
 require("dotenv").config();
+console.log("ENV TEST:", process.env.MONGODB_URI);
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const SibApiV3Sdk = require("sib-api-v3-sdk");
-const path = require("path");
 const mongoose = require("mongoose");
-const { ObjectId } = require("mongodb");
+const path = require("path");
+
+
+console.log("JWT_SECRET:", process.env.JWT_SECRET);
+
+
+
+const User = require("./models/User");
 const Order = require("./models/Order");
-
-
-
-
-
 
 const app = express();
 
 /* ======================================================
    ✅ MongoDB Bağlantısı
 ====================================================== */
-const mongoUri =
-  process.env.MONGODB_URI || "mongodb://localhost:27017/kurumsal-tedarikci";
+const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017/kurumsal-tedarikci";
 
 mongoose
   .connect(mongoUri)
@@ -28,373 +29,354 @@ mongoose
   .catch((err) => console.error("❌ MongoDB bağlantı hatası:", err));
 
 /* ======================================================
-   ✅ User Model Import (Yeni Sistem)
+   ✅ JWT Secret
 ====================================================== */
-const User = require("./models/User");
+const JWT_SECRET = process.env.JWT_SECRET || "kurumsal-tedarikci-secret-key";
 
 /* ======================================================
-   ✅ CORS Ayarları
+   ✅ Middleware
 ====================================================== */
-const corsOptions = {
-  origin: [
-    "http://localhost:3000",
-    "http://localhost:5500",
-    "https://kurumsal-final.vercel.app",
-    "https://kurumsal-tedarikci.onrender.com",
-    "https://www.tedarikci.org.tr",
-    "https://tedarikci.org.tr",
-  ],
+app.use(cors({
+  origin: ["http://localhost:3000", "http://localhost:5500", "https://tedarikci.org.tr", "https://www.tedarikci.org.tr"],
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-};
+}));
 
-app.use(cors(corsOptions));
-
-/* ======================================================
-   ✅ Body Parser
-====================================================== */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/* ======================================================
-   ✅ Static Dosyalar
-====================================================== */
-app.use(express.static(path.join(__dirname, "..", "public")));
+// ===================== ROUTES =====================
+const authRoutes = require("./routes/auth");
+const addressRoutes = require("./routes/addresses");
+const orderRoutes = require("./routes/orders");
+
+app.use("/api/auth", authRoutes);
+app.use("/api/addresses", addressRoutes);
+app.use("/api/orders", orderRoutes);
+
 
 /* ======================================================
-   ✅ Brevo API Setup
+   ✅ AUTHENTICATE TOKEN MIDDLEWARE
+====================================================== */
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    return res.status(401).json({
+      success: false,
+      message: "Token gerekli"
+    });
+  }
+
+  const token = authHeader.startsWith("Bearer ")
+    ? authHeader.split(" ")[1]
+    : authHeader;
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    req.user = decoded;          // decoded = { userId: ... }
+    req.userId = decoded.userId; // kolay erişim
+
+    next();
+  } catch (err) {
+    return res.status(401).json({
+      success: false,
+      message: "Token geçersiz veya süresi dolmuş"
+    });
+  }
+}
+
+
+/* ======================================================
+   ✅ Brevo Mail Setup
 ====================================================== */
 const defaultClient = SibApiV3Sdk.ApiClient.instance;
 const apiKey = defaultClient.authentications["api-key"];
 apiKey.apiKey = process.env.BREVO_API_KEY;
 
-/* ======================================================
-   ✅ Reset Kodları (Geçici)
-====================================================== */
 const resetCodes = new Map();
 
 /* ======================================================
-   ✅ JWT Secret
+   ✅ Email Gönderme Fonksiyonları
 ====================================================== */
-const JWT_SECRET =
-  process.env.JWT_SECRET || "kurumsal-tedarikci-secret-key";
+async function sendEmail(toEmail, subject, htmlContent) {
+  try {
+    const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
 
+    sendSmtpEmail.subject = subject;
+    sendSmtpEmail.htmlContent = htmlContent;
+    sendSmtpEmail.sender = {
+      name: "Kurumsal Tedarikçi",
+      email: process.env.SMTP_FROM_EMAIL || "info@tedarikci.org.tr",
+    };
+    sendSmtpEmail.to = [{ email: toEmail }];
 
-// MAIL GÖNDERİM FONKSİYONU (Brevo API ile - SMTP yerine)
-async function sendResetEmail(toEmail, kod, userName) {
-    try {
-        const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-        const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-        
-        sendSmtpEmail.subject = "Şifre Sıfırlama Kodunuz - Kurumsal Tedarikçi";
-        sendSmtpEmail.htmlContent = `
-            <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; background: #f9fafb; border-radius: 10px;">
-                <div style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <div style="text-align: center; margin-bottom: 30px;">
-                        <h1 style="color: #6366f1; margin: 0; font-size: 28px;">Kurumsal Tedarikçi</h1>
-                        <div style="width: 50px; height: 4px; background: #6366f1; margin: 10px auto; border-radius: 2px;"></div>
-                    </div>
-                    
-                    <h2 style="color: #1f2937; font-size: 20px; margin-bottom: 20px;">Şifre Sıfırlama İsteği</h2>
-                    <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">Merhaba <strong>${userName}</strong>,</p>
-                    <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">Hesabınız için şifre sıfırlama talebinde bulundunuz. Aşağıdaki 6 haneli kodu kullanarak şifrenizi sıfırlayabilirsiniz:</p>
-                    
-                    <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 25px; text-align: center; border-radius: 10px; margin: 30px 0;">
-                        <span style="font-size: 36px; font-weight: bold; color: white; letter-spacing: 8px; font-family: monospace;">${kod}</span>
-                    </div>
-                    
-                    <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 5px;">
-                        <p style="color: #92400e; font-size: 14px; margin: 0;"><i style="margin-right: 8px;">⏱️</i> Bu kod <strong>15 dakika</strong> içinde geçerlidir.</p>
-                    </div>
-                    
-                    <p style="color: #6b7280; font-size: 14px; line-height: 1.5;">Eğer bu talebi siz yapmadıysanız, lütfen bu e-postayı dikkate almayın. Hesabınız güvende olmaya devam edecektir.</p>
-                    
-                    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
-                    <p style="font-size: 12px; color: #9ca3af; text-align: center; margin: 0;">
-                        Kurumsal Tedarikçi | ${process.env.SMTP_FROM_EMAIL || 'yildirimtarhan@tedarikci.org.tr'}<br>
-                        Bu e-posta otomatik olarak gönderilmiştir, lütfen yanıtlamayınız.
-                    </p>
-                </div>
-            </div>
-        `;
-        sendSmtpEmail.textContent = `Şifre sıfırlama kodunuz: ${kod}. Bu kod 15 dakika içinde geçerlidir.`;
-        sendSmtpEmail.sender = { 
-            name: process.env.SMTP_FROM_NAME || 'Kurumsal Tedarikci', 
-            email: process.env.SMTP_FROM_EMAIL || 'yildirimtarhan@tedarikci.org.tr'
-        };
-        sendSmtpEmail.to = [{ email: toEmail }];
-        sendSmtpEmail.replyTo = { email: process.env.NOTIFY_EMAIL || 'iletisim@tedarikci.org.tr' };
-        
-        const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
-        console.log(`✅ Mail gönderildi: ${toEmail} (Message ID: ${data.messageId})`);
-        return true;
-    } catch (error) {
-        console.error('❌ Mail gönderim hatası:', error.message);
-        if (error.response && error.response.text) {
-            console.error('Brevo API Hatası:', error.response.text);
-        }
-        return false;
-    }
+    await apiInstance.sendTransacEmail(sendSmtpEmail);
+    console.log("✅ Email gönderildi:", toEmail);
+    return true;
+  } catch (err) {
+    console.error("❌ Email hatası:", err.message);
+    return false;
+  }
 }
 
-// ADMIN MIDDLEWARE - Token doğrulama
-const adminAuth = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'Token gerekli' });
+// Hoşgeldin emaili
+async function sendWelcomeEmail(toEmail, userName, uyelikTipi) {
+  const subject = "Hoş Geldiniz - Kurumsal Tedarikçi";
+  const htmlContent = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 30px; text-align: center; color: white;">
+        <h1>Kurumsal Tedarikçi'ye Hoş Geldiniz!</h1>
+      </div>
+      <div style="padding: 30px; background: #f9fafb;">
+        <h2 style="color: #1f2937;">Merhaba ${userName},</h2>
+        <p style="color: #6b7280; font-size: 16px; line-height: 1.6;">
+          ${uyelikTipi === 'kurumsal' ? 'Kurumsal' : 'Bireysel'} üyeliğiniz başarıyla oluşturuldu.
+        </p>
+        
+        <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0;">
+          <h3 style="color: #6366f1; margin-bottom: 15px;">🎁 Avantajlarınız:</h3>
+          <ul style="color: #374151; line-height: 2;">
+            <li>Online sipariş takibi</li>
+            <li>Geçmiş alışverişlerinize erişim</li>
+            <li>Özel indirim ve kampanyalar</li>
+            <li>7/24 destek erişimi</li>
+          </ul>
+        </div>
+        
+        <a href="https://tedarikci.org.tr/urunler.html" 
+           style="display: inline-block; background: #6366f1; color: white; padding: 15px 30px; 
+                  text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 20px;">
+          Alışverişe Başla
+        </a>
+        
+        <p style="color: #9ca3af; font-size: 12px; margin-top: 30px;">
+          Bu email otomatik olarak gönderilmiştir. Lütfen yanıtlamayın.
+        </p>
+      </div>
+    </div>
+  `;
   
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'gizli-anahtar');
-    if (!decoded.isAdmin) return res.status(403).json({ error: 'Yetkisiz erişim' });
-    req.user = decoded;
-    next();
-  } catch (err) {
-    res.status(401).json({ error: 'Geçersiz token' });
-  }
-};
+  return await sendEmail(toEmail, subject, htmlContent);
+}
 
-// ADMIN GİRİŞ (İlk admin için MongoDB'ye elle ekleme yapmalısın)
-app.post('/api/admin/login', async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    
-    // Bağlantı kontrolü eklendi
-    if (mongoose.connection.readyState !== 1) {
-      return res.status(500).json({ error: 'Veritabanına bağlanılamadı' });
-    }
-    
-    // DÜZELTİLDİ: mongoose.connection.db.collection kullanıldı
-    const admin = await mongoose.connection.db.collection('admins').findOne({ username });
-    
-    if (!admin || !await bcrypt.compare(password, admin.password)) {
-      return res.status(401).json({ error: 'Kullanıcı adı veya şifre hatalı' });
-    }
-    
-    const token = jwt.sign(
-      { id: admin._id, username: admin.username, isAdmin: true },
-      process.env.JWT_SECRET || 'gizli-anahtar',
-      { expiresIn: '24h' }
-    );
-    
-    res.json({ token, user: { username: admin.username } });
-  } catch (err) {
-    console.error('Admin login hatası:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// DASHBOARD İSTATİSTİKLERİ
-app.get('/api/admin/dashboard', adminAuth, async (req, res) => {
-  try {
-    // DÜZELTİLDİ
-    const totalUsers = await mongoose.connection.db.collection('users').countDocuments();
-    const todayOrders = await mongoose.connection.db.collection('orders').countDocuments({
-      createdAt: { $gte: new Date(Date.now() - 24*60*60*1000) }
-    });
-    const pendingOrders = await mongoose.connection.db.collection('orders').countDocuments({ status: 'pending' });
-    
-    res.json({
-      stats: {
-        totalUsers,
-        todayOrders,
-        pendingOrders,
-        totalRevenue: 0 // Sonra hesaplanacak
-      }
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// KULLANICI LİSTESİ (ERP'ye aktarılmamışlar)
-app.get('/api/admin/users', adminAuth, async (req, res) => {
-  try {
-    // DÜZELTİLDİ
-    const users = await mongoose.connection.db.collection('users').find().toArray();
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ERP ENTEGRASYONU - Cari Hesap Oluşturma
-app.post('/api/admin/sync-cari', adminAuth, async (req, res) => {
-  const { userId } = req.body;
+// Şifre sıfırlama emaili
+async function sendResetEmail(toEmail, kod, userName) {
+  const subject = "Şifre Sıfırlama Kodunuz";
+  const htmlContent = `
+    <h2>Merhaba ${userName}</h2>
+    <p>Şifre sıfırlama kodunuz:</p>
+    <h1 style="color: #6366f1; font-size: 32px; letter-spacing: 5px;">${kod}</h1>
+    <p>Bu kod 15 dakika geçerlidir.</p>
+  `;
   
-  try {
-    // DÜZELTİLDİ
-    const user = await mongoose.connection.db.collection('users').findOne({ _id: new ObjectId(userId) });
-    if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı' });
-    
-    // ERP'nize istek at
-    const erpResponse = await fetch('http://localhost:3001/api/cari/create', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ERP_API_KEY // Environment variable olarak tanımla
-      },
-      body: JSON.stringify({
-        ad: user.firmaAdi || user.ad,
-        email: user.email,
-        telefon: user.telefon,
-        kaynak: 'web'
-      })
-    });
-    
-    if (erpResponse.ok) {
-      // DÜZELTİLDİ
-      await mongoose.connection.db.collection('users').updateOne(
-        { _id: new ObjectId(userId) },
-        { $set: { erpSynced: true, erpSyncDate: new Date() } }
-      );
-      res.json({ success: true, message: 'ERP\'ye aktarıldı' });
-    } else {
-      throw new Error('ERP API hatası');
-    }
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+  return await sendEmail(toEmail, subject, htmlContent);
+}
 
-// ÜRÜN LİSTESİ (ERP'den çek)
-app.get('/api/admin/erp-products', adminAuth, async (req, res) => {
-  try {
-    const response = await fetch('http://localhost:3001/pages/api/sales', {
-      headers: { 'x-api-key': process.env.ERP_API_KEY }
-    });
-    const products = await response.json();
-    res.json(products);
-  } catch (err) {
-    res.status(500).json({ error: 'ERP bağlantı hatası' });
-  }
-});
-
-// SİPARİŞ OLUŞTURMA ve ERP'ye Gönderme
-app.post('/api/admin/create-order', adminAuth, async (req, res) => {
-  const { userId, items, total } = req.body;
+// Sipariş onay emaili
+async function sendOrderConfirmationEmail(toEmail, order, userName) {
+  const subject = `Sipariş Alındı - ${order.orderId || order._id}`;
   
-  try {
-    // 1. MongoDB'ye kaydet - DÜZELTİLDİ
-    const order = await mongoose.connection.db.collection('orders').insertOne({
-      userId: new ObjectId(userId),
-      items,
-      total,
-      status: 'pending',
-      createdAt: new Date()
-    });
-    
-    // 2. ERP'ye gönder
-    const erpResponse = await fetch('http://localhost:3001/pages/api/satis/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ERP_API_KEY
-      },
-      body: JSON.stringify({
-        cariId: userId, // Veya ERP cari kodu
-        items,
-        total,
-        kaynak: 'web-sitesi'
-      })
-    });
-    
-    if (erpResponse.ok) {
-      // DÜZELTİLDİ
-      await mongoose.connection.db.collection('orders').updateOne(
-        { _id: order.insertedId },
-        { $set: { erpOrderId: (await erpResponse.json()).id, status: 'completed' } }
-      );
-    }
-    
-    res.json({ success: true, orderId: order.insertedId });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+  const itemsHtml = order.items.map(item => `
+    <tr>
+      <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${item.ad || item.name}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: center;">${item.adet || item.qty}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: right;">₺${((item.fiyat || item.price) * (item.adet || item.qty)).toFixed(2)}</td>
+    </tr>
+  `).join('');
 
-// API ROUTES
+  const htmlContent = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 30px; text-align: center; color: white;">
+        <h1>Siparişiniz Alındı!</h1>
+      </div>
+      <div style="padding: 30px; background: #f9fafb;">
+        <h2 style="color: #1f2937;">Merhaba ${userName},</h2>
+        <p style="color: #6b7280; font-size: 16px; line-height: 1.6;">
+          Siparişiniz başarıyla oluşturuldu. En kısa sürede hazırlanıp kargoya verilecektir.
+        </p>
+        
+        <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0;">
+          <h3 style="color: #6366f1; margin-bottom: 15px;">Sipariş Detayları</h3>
+          <p><strong>Sipariş No:</strong> ${order.orderId || order._id}</p>
+          <p><strong>Tarih:</strong> ${new Date(order.createdAt || order.tarih).toLocaleString('tr-TR')}</p>
+          <p><strong>Ödeme Yöntemi:</strong> ${order.odemeYontemi || order.paymentMethod}</p>
+          
+          <table style="width: 100%; margin-top: 15px; border-collapse: collapse;">
+            <thead>
+              <tr style="background: #f3f4f6;">
+                <th style="padding: 10px; text-align: left;">Ürün</th>
+                <th style="padding: 10px; text-align: center;">Adet</th>
+                <th style="padding: 10px; text-align: right;">Tutar</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+          </table>
+          
+          <div style="margin-top: 15px; text-align: right; font-size: 18px; font-weight: bold; color: #6366f1;">
+            Toplam: ₺${order.toplam || order.total}
+          </div>
+        </div>
+        
+        <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0;">
+          <h3 style="color: #6366f1; margin-bottom: 15px;">Teslimat Adresi</h3>
+          <p>${order.shippingAddress?.fullName || order.firmaAdi}<br>
+          ${order.shippingAddress?.phone || order.telefon}<br>
+          ${order.shippingAddress?.address || order.adres}<br>
+          ${order.shippingAddress?.district || ''} / ${order.shippingAddress?.city || ''}</p>
+        </div>
+        
+        <p style="color: #9ca3af; font-size: 12px; margin-top: 30px;">
+          Siparişlerinizi <a href="https://tedarikci.org.tr/siparisler.html" style="color: #6366f1;">buradan</a> takip edebilirsiniz.
+        </p>
+      </div>
+    </div>
+  `;
+  
+  return await sendEmail(toEmail, subject, htmlContent);
+}
 
-// 1. Kayıt Ol
+/* ======================================================
+   ✅ AUTH ROUTES
+====================================================== */
+
+/* ---------- Register (Kayıt Ol) - GÜNCELLENMİŞ ---------- */
 app.post("/api/auth/register", async (req, res) => {
   try {
-    const { ad, email, password, firma, telefon } = req.body;
+    const { 
+      ad, email, password, telefon, uyelikTipi,
+      firma, vergiNo, vergiDairesi, tcNo,
+      faturaAdresi, teslimatAdresi, city, district
+    } = req.body;
 
-    // 1) Email zaten var mı?
-    const existingUser = await User.findOne({ email });
+    // Email kontrolü
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ success: false, message: "Bu email zaten kayıtlı" });
+    }
 
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: "Bu e-posta adresi zaten kayıtlı",
+    // Şifreyi hashle
+    const hashed = await bcrypt.hash(password, 10);
+
+    // Adres array'ini oluştur
+    const addresses = [];
+    
+    // Fatura adresi varsa ekle
+    if (faturaAdresi) {
+      addresses.push({
+        title: "Fatura Adresi",
+        fullName: ad,
+        phone: telefon || "",
+        city: city || "İstanbul",
+        district: district || "",
+        address: faturaAdresi,
+        isDefault: true
+      });
+    }
+    
+    // Teslimat adresi varsa ve faturadan farklıysa ekle
+    if (teslimatAdresi && teslimatAdresi !== faturaAdresi) {
+      addresses.push({
+        title: "Teslimat Adresi",
+        fullName: ad,
+        phone: telefon || "",
+        city: city || "İstanbul",
+        district: district || "",
+        address: teslimatAdresi,
+        isDefault: false
       });
     }
 
-    // 2) Şifre hashle
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // 3) MongoDB’ye yeni kullanıcı oluştur
+    // Kullanıcı oluştur
     const newUser = await User.create({
       ad,
       email,
-      password: hashedPassword,
-      firma: firma || "",
+      password: hashed,
       telefon: telefon || "",
+      uyelikTipi: uyelikTipi || 'bireysel',
+      rol: 'user',
+      firma: firma || "",
+      vergiNo: vergiNo || "",
+      vergiDairesi: vergiDairesi || "",
+      tcNo: tcNo || "",
+      faturaAdresi: faturaAdresi || "",
+      teslimatAdresi: teslimatAdresi || faturaAdresi || "",
+      addresses: addresses
     });
 
-    console.log("✅ Yeni kullanıcı kaydedildi:", email);
+   // Hoşgeldin emaili gönder
+sendWelcomeEmail(email, ad, uyelikTipi || 'bireysel').catch(err => {
+  console.log("Hoşgeldin emaili gönderilemedi:", err.message);
+});
 
-    // 4) Response dön
-    res.json({
-      success: true,
-      message: "Kayıt başarılı",
-      userId: newUser._id,
-    });
-  } catch (error) {
-    console.error("REGISTER ERROR:", error);
+// ✅ Token üret
+const token = jwt.sign(
+  {
+    userId: newUser._id,
+    email: newUser.email,
+    rol: newUser.rol
+  },
+  JWT_SECRET,
+  { expiresIn: "24h" }
+);
 
-    res.status(500).json({
-      success: false,
-      message: "Sunucu hatası",
-    });
+// ✅ Artık sadece userId değil, token + user dönüyoruz
+res.json({
+  success: true,
+  message: "Kayıt başarılı! Hoş geldiniz.",
+  token,
+  user: {
+    id: newUser._id,
+    ad: newUser.ad,
+    email: newUser.email,
+    rol: newUser.rol,
+    uyelikTipi: newUser.uyelikTipi,
+    telefon: newUser.telefon,
+    firma: newUser.firma,
+    vergiNo: newUser.vergiNo,
+    vergiDairesi: newUser.vergiDairesi,
+    tcNo: newUser.tcNo,
+    faturaAdresi: newUser.faturaAdresi,
+    teslimatAdresi: newUser.teslimatAdresi,
+    addresses: newUser.addresses || []
   }
 });
 
-// 2. Giriş Yap
+
+  } catch (err) {
+    console.error("Register hatası:", err);
+    res.status(500).json({ success: false, message: "Kayıt sırasında hata: " + err.message });
+  }
+});
+
+/* ---------- Login (Giriş Yap) ---------- */
 app.post("/api/auth/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // 1) MongoDB’den kullanıcıyı bul
     const user = await User.findOne({ email });
-
     if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: "E-posta veya şifre hatalı",
-      });
+      return res.status(400).json({ success: false, message: "Email veya şifre yanlış" });
     }
 
-    // 2) Şifre doğrula
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      return res.status(400).json({
-        success: false,
-        message: "E-posta veya şifre hatalı",
-      });
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(400).json({ success: false, message: "Email veya şifre yanlış" });
     }
 
-    // 3) JWT Token oluştur
-    const token = jwt.sign(
-      {
-        userId: user._id,
-        email: user.email,
-      },
-      JWT_SECRET,
-      { expiresIn: "24h" }
-    );
+   const token = jwt.sign(
+  {
+    userId: user._id,
+    email: user.email,
+    rol: user.rol
+  },
+  JWT_SECRET,
+  { expiresIn: "24h" }
+);
 
-    // 4) Response dön
     res.json({
       success: true,
       token,
@@ -402,542 +384,451 @@ app.post("/api/auth/login", async (req, res) => {
         id: user._id,
         ad: user.ad,
         email: user.email,
-        firma: user.firma,
+        rol: user.rol,
+        uyelikTipi: user.uyelikTipi,
         telefon: user.telefon,
+        firma: user.firma,
+        vergiNo: user.vergiNo,
+        vergiDairesi: user.vergiDairesi,
+        tcNo: user.tcNo,
+        faturaAdresi: user.faturaAdresi,
+        teslimatAdresi: user.teslimatAdresi,
+        addresses: user.addresses || []
       },
     });
-  } catch (error) {
-    console.error("LOGIN ERROR:", error);
-    res.status(500).json({
-      success: false,
-      message: "Sunucu hatası",
-    });
+  } catch (err) {
+    console.error("Login hatası:", err);
+    res.status(500).json({ success: false, message: "Giriş hatası: " + err.message });
   }
 });
 
-
-// 3. Şifre Sıfırlama - Kod Gönder
-app.post("/api/auth/forgot-password", async (req, res) => {
+/* ---------- Profil Getir ---------- */
+app.get("/api/auth/profile", authenticateToken, async (req, res) => {
   try {
-    const { email } = req.body;
-
-    // 1) MongoDB’den kullanıcıyı bul
-    const user = await User.findOne({ email });
-
-    // Güvenlik: kullanıcı yoksa bile başarılı dön
+    const user = await User.findById(req.userId)
+.select('-password');
+    
     if (!user) {
-      return res.json({
-        success: true,
-        message: "Eğer bu e-posta kayıtlıysa kod gönderildi",
-      });
-    }
-
-    // 2) 6 haneli kod oluştur
-    const kod = Math.floor(100000 + Math.random() * 900000).toString();
-
-    // 3) Kodu sakla (15 dakika)
-    resetCodes.set(email, {
-      kod,
-      userId: user._id,
-      expiry: Date.now() + 900000,
-    });
-
-    console.log("📩 Reset kodu üretildi:", email, kod);
-
-    // 4) Brevo ile mail gönder
-    const sent = await sendResetEmail(email, kod, user.ad);
-
-    if (!sent) {
-      return res.status(500).json({
-        success: false,
-        message: "E-posta gönderilemedi, lütfen tekrar deneyin",
-      });
+      return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı" });
     }
 
     res.json({
       success: true,
-      message: "Doğrulama kodu e-posta adresinize gönderildi",
+      user: {
+        id: user._id,
+        ad: user.ad,
+        email: user.email,
+        rol: user.rol,
+        uyelikTipi: user.uyelikTipi,
+        telefon: user.telefon,
+        firma: user.firma,
+        vergiNo: user.vergiNo,
+        vergiDairesi: user.vergiDairesi,
+        tcNo: user.tcNo,
+        faturaAdresi: user.faturaAdresi,
+        teslimatAdresi: user.teslimatAdresi,
+        addresses: user.addresses || []
+      }
     });
-  } catch (error) {
-    console.error("Forgot password error:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Sunucu hatası",
-    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Profil hatası: " + err.message });
   }
 });
 
-// 4. Kod Doğrulama
-app.post('/api/auth/verify-code', (req, res) => {
-    try {
-        const { email, code } = req.body;
-        const data = resetCodes.get(email);
-        
-        if (!data || data.kod !== code) {
-            return res.status(400).json({ success: false, message: 'Hatalı doğrulama kodu' });
-        }
-        
-        if (Date.now() > data.expiry) {
-            resetCodes.delete(email);
-            return res.status(400).json({ success: false, message: 'Kod süresi dolmuş, lütfen yeni kod talep edin' });
-        }
-        
-        // Geçici reset token oluştur
-        const resetToken = jwt.sign(
-            { email, userId: data.userId, type: 'password-reset' }, 
-            JWT_SECRET, 
-            { expiresIn: '15m' }
-        );
-        
-        res.json({ success: true, resetToken });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Sunucu hatası' });
-    }
+/* ---------- Forgot Password ---------- */
+app.post("/api/auth/forgot-password", async (req, res) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.json({ success: true, message: "Eğer kayıtlıysa kod gönderildi" });
+  }
+
+  const kod = Math.floor(100000 + Math.random() * 900000).toString();
+  resetCodes.set(email, { kod, expiry: Date.now() + 900000 });
+
+  const sent = await sendResetEmail(email, kod, user.ad);
+  if (!sent) {
+    return res.status(500).json({ success: false, message: "Mail gönderilemedi" });
+  }
+
+  res.json({ success: true, message: "Kod mail ile gönderildi" });
 });
 
-// 5. Yeni Şifre Kaydetme
+/* ---------- Reset Password ---------- */
 app.post("/api/auth/reset-password", async (req, res) => {
   try {
-    const { email, resetToken, newPassword } = req.body;
+    const { email, code, newPassword } = req.body;
 
-    // 1) Eksik alan kontrolü
-    if (!email || !resetToken || !newPassword) {
-      return res.status(400).json({
-        success: false,
-        message: "Email, token ve yeni şifre zorunludur",
-      });
+    const data = resetCodes.get(email);
+    if (!data || data.kod !== code) {
+      return res.status(400).json({ success: false, message: "Kod hatalı" });
     }
 
-    // 2) Token doğrula
-    const decoded = jwt.verify(resetToken, JWT_SECRET);
-
-    if (decoded.email !== email || decoded.type !== "password-reset") {
-      return res.status(400).json({
-        success: false,
-        message: "Geçersiz veya süresi dolmuş token",
-      });
+    if (Date.now() > data.expiry) {
+      return res.status(400).json({ success: false, message: "Kod süresi doldu" });
     }
 
-    // 3) Şifreyi hashle
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    // 4) MongoDB’de kullanıcıyı güncelle
-    const result = await User.updateOne(
-      { email },
-      { $set: { password: hashedPassword } }
-    );
-
-    if (result.matchedCount === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Kullanıcı bulunamadı",
-      });
-    }
-
-    // 5) Reset kodunu temizle
+    const hashed = await bcrypt.hash(newPassword, 10);
+    await User.updateOne({ email }, { $set: { password: hashed } });
     resetCodes.delete(email);
 
-    console.log("✅ Şifre sıfırlandı:", email);
-
-    res.json({
-      success: true,
-      message: "Şifreniz başarıyla güncellendi",
-    });
-  } catch (error) {
-    console.error("RESET PASSWORD ERROR:", error);
-
-    if (error.name === "TokenExpiredError") {
-      return res.status(400).json({
-        success: false,
-        message: "İşlem süresi dolmuş, lütfen tekrar deneyin",
-      });
-    }
-
-    res.status(500).json({
-      success: false,
-      message: "Sunucu hatası",
-    });
+    res.json({ success: true, message: "Şifre güncellendi" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Reset hatası: " + err.message });
   }
 });
 
-// 6. Profil Şifre Değiştirme
-app.post('/api/auth/change-password', async (req, res) => {
-    try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({ success: false, message: 'Yetkisiz erişim' });
-        }
-        
-        const token = authHeader.split(' ')[1];
-        const decoded = jwt.verify(token, JWT_SECRET);
-        
-        const { currentPassword, newPassword } = req.body;
-        
-        const user = users.find(u => u.id === decoded.userId);
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'Kullanıcı bulunamadı' });
-        }
-        
-        // Mevcut şifreyi kontrol et
-        const isMatch = await bcrypt.compare(currentPassword, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ success: false, message: 'Mevcut şifreniz hatalı' });
-        }
-        
-        // Yeni şifreyi kaydet
-        user.password = await bcrypt.hash(newPassword, 10);
-        
-        res.json({ success: true, message: 'Şifreniz başarıyla güncellendi' });
-    } catch (error) {
-        if (error.name === 'TokenExpiredError') {
-            return res.status(401).json({ success: false, message: 'Oturum süresi dolmuş, lütfen tekrar giriş yapın' });
-        }
-        res.status(500).json({ success: false, message: 'Sunucu hatası' });
-    }
-});
+/* ======================================================
+   ✅ ADRES ROUTES (YENİ)
+====================================================== */
 
-// 7. Token Doğrulama
-app.get('/api/auth/verify', (req, res) => {
-    try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({ success: false, message: 'Token bulunamadı' });
-        }
-        
-        const token = authHeader.split(' ')[1];
-        const decoded = jwt.verify(token, JWT_SECRET);
-        
-        const user = users.find(u => u.id === decoded.userId);
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'Kullanıcı bulunamadı' });
-        }
-        
-        res.json({ 
-            success: true, 
-            user: { 
-                id: user.id, 
-                ad: user.ad, 
-                email: user.email, 
-                firma: user.firma 
-            } 
-        });
-    } catch (error) {
-        res.status(401).json({ success: false, message: 'Geçersiz token' });
-    }
-});
-
-// Health check
-app.get('/health', (req, res) => {
-    res.json({ status: 'OK', timestamp: new Date().toISOString() });
-});
-
-// 404
-app.use((req, res) => {
-    res.status(404).json({ success: false, message: 'Sayfa bulunamadı' });
-});
-
-// Sunucuyu başlat
-const PORT = process.env.PORT || 3000;
-
-// =====================================================
-// SİPARİŞ OLUŞTUR (WEB) -> MongoDB'ye kaydet -> ERP'ye gönder
-// Endpoint: POST /api/order/create
-// Not: ERP multi-tenant olduğu için, ERP'ye sipariş göndermek için
-//      siparişi oluşturan kullanıcının JWT token'ı kullanılır.
-// =====================================================
-app.post("/api/order/create", async (req, res) => {
+/* ---------- Tüm Adresleri Getir ---------- */
+app.get("/api/addresses", authenticateToken, async (req, res) => {
   try {
-    if (!ensureDbReady(res)) return;
+    const user = await User.findById(req.userId);
 
-    // Kullanıcı token al (web login token'ı)
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) {
-      return res.status(401).json({ success: false, message: "Giriş yapmanız gerekiyor (token yok)." });
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı" });
+    }
+    
+    // Eğer addresses boşsa ama eski adres alanları doluysa, onları çevir
+    let addresses = user.addresses || [];
+    
+    if (addresses.length === 0 && (user.faturaAdresi || user.teslimatAdresi)) {
+      // Eski adresleri yeni formata çevir
+      if (user.faturaAdresi) {
+        addresses.push({
+          _id: 'addr_old_1',
+          title: "Fatura Adresi",
+          fullName: user.ad,
+          phone: user.telefon || "",
+          city: "İstanbul",
+          district: "",
+          address: user.faturaAdresi,
+          isDefault: true
+        });
+      }
+      if (user.teslimatAdresi && user.teslimatAdresi !== user.faturaAdresi) {
+        addresses.push({
+          _id: 'addr_old_2',
+          title: "Teslimat Adresi",
+          fullName: user.ad,
+          phone: user.telefon || "",
+          city: "İstanbul",
+          district: "",
+          address: user.teslimatAdresi,
+          isDefault: false
+        });
+      }
+    }
+    
+    res.json({ 
+      success: true, 
+      addresses: addresses 
+    });
+  } catch (error) {
+    console.error('Adres getirme hatası:', error);
+    res.status(500).json({ success: false, message: "Sunucu hatası" });
+  }
+});
+
+/* ---------- Yeni Adres Ekle ---------- */
+app.post("/api/addresses", authenticateToken, async (req, res) => {
+  try {
+    const { title, fullName, phone, city, district, address, isDefault } = req.body;
+    
+    if (!fullName || !phone || !city || !district || !address) {
+      return res.status(400).json({ success: false, message: "Tüm alanlar zorunludur" });
     }
 
-    // Token doğrula (multi-tenant: companyId token içinden gelir)
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await User.findById(req.userId);
 
-    const email = normalizeEmail(req.body?.email);
-    const firma = String(req.body?.firma || "").trim();
-    const items = Array.isArray(req.body?.items) ? req.body.items : [];
-    const total = Number(req.body?.total || 0);
-
-    if (!items.length) {
-      return res.status(400).json({ success: false, message: "Sepet boş." });
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı" });
     }
 
-    // Sipariş kaydı (orders collection otomatik oluşur)
-    const orderDoc = {
-      userId: new ObjectId(decoded.id),
-      companyId: decoded.companyId || null,
-      email,
-      firma,
-      items: items.map(it => ({
-        productId: it.productId || it.id || null,
-        title: it.title || it.name || "Ürün",
-        qty: Number(it.qty || 1),
-        price: Number(it.price || 0)
+    const newAddress = {
+      title: title || "Yeni Adres",
+      fullName,
+      phone,
+      city,
+      district,
+      address,
+      isDefault: isDefault || false
+    };
+
+    if (newAddress.isDefault && user.addresses) {
+      user.addresses.forEach(addr => addr.isDefault = false);
+    }
+
+    if (!user.addresses) user.addresses = [];
+    
+    user.addresses.push(newAddress);
+    await user.save();
+
+    res.json({ 
+      success: true, 
+      message: "Adres eklendi",
+      addresses: user.addresses
+    });
+  } catch (error) {
+    console.error('Adres ekleme hatası:', error);
+    res.status(500).json({ success: false, message: "Sunucu hatası" });
+  }
+});
+
+/* ---------- Adres Sil ---------- */
+app.delete("/api/addresses/:index", authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı" });
+    }
+
+    const index = parseInt(req.params.index);
+    if (user.addresses && user.addresses[index]) {
+      user.addresses.splice(index, 1);
+      await user.save();
+    }
+
+    res.json({ success: true, message: "Adres silindi", addresses: user.addresses });
+  } catch (error) {
+    console.error('Adres silme hatası:', error);
+    res.status(500).json({ success: false, message: "Sunucu hatası" });
+  }
+});
+
+/* ======================================================
+   ✅ ORDERS ROUTES (GÜNCELLENMİŞ)
+====================================================== */
+
+/* ---------- Sipariş Oluştur (Ödeme Sayfası İçin) ---------- */
+app.post("/api/orders", authenticateToken, async (req, res) => {
+  try {
+    const { items, shippingAddressId, invoiceAddressId, paymentMethod, subtotal, total } = req.body;
+    
+    if (!items || items.length === 0) {
+      return res.status(400).json({ success: false, message: "Sepet boş" });
+    }
+
+   const user = await User.findById(req.userId);
+
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı" });
+    }
+
+    // Adres ID'si index veya string olabilir
+    let shippingAddress, invoiceAddress;
+    
+    if (shippingAddressId && shippingAddressId.startsWith('addr_old_')) {
+      // Eski adres formatı
+      shippingAddress = {
+        title: user.faturaAdresi === user.teslimatAdresi ? "Fatura/Teslimat" : "Teslimat",
+        fullName: user.ad,
+        phone: user.telefon || "",
+        city: "İstanbul",
+        district: "",
+        address: user.teslimatAdresi || user.faturaAdresi
+      };
+    } else {
+      // Yeni adres formatı - index olarak kullan
+      const addrIndex = parseInt(shippingAddressId) || 0;
+      shippingAddress = user.addresses[addrIndex] || user.addresses[0] || {
+        title: "Varsayılan",
+        fullName: user.ad,
+        phone: user.telefon || "",
+        city: "İstanbul",
+        district: "",
+        address: user.faturaAdresi || ""
+      };
+    }
+
+    // Fatura adresi
+    if (invoiceAddressId === shippingAddressId || !invoiceAddressId) {
+      invoiceAddress = shippingAddress;
+    } else if (invoiceAddressId && invoiceAddressId.startsWith('addr_old_')) {
+      invoiceAddress = {
+        title: "Fatura",
+        fullName: user.ad,
+        phone: user.telefon || "",
+        city: "İstanbul",
+        district: "",
+        address: user.faturaAdresi || ""
+      };
+    } else {
+      const invIndex = parseInt(invoiceAddressId) || 0;
+      invoiceAddress = user.addresses[invIndex] || shippingAddress;
+    }
+
+    // Toplam tutarı parse et
+    let totalAmount = 0;
+    if (typeof total === 'string') {
+      totalAmount = parseFloat(total.replace('₺', '').replace(/\./g, '').replace(',', '.')) || 0;
+    } else {
+      totalAmount = parseFloat(total) || 0;
+    }
+
+    // Sipariş verilerini hazırla
+    const orderData = {
+      firmaAdi: user.firma || user.ad,
+      email: user.email,
+      telefon: user.telefon,
+      adres: `${shippingAddress.address}, ${shippingAddress.district}/${shippingAddress.city}`,
+      items: items.map(item => ({
+        ad: item.name || item.ad,
+        fiyat: parseFloat(item.price || item.fiyat || 0),
+        adet: parseInt(item.qty || item.adet || 1)
       })),
-      total,
-      status: "pending",
-      erpSync: false,
-      erpSaleNo: null,
-      // Admin panelden "Tekrar Dene" için (token expire olursa yeniden login gerekir)
-      erpForwardToken: token,
-      erpForwardTokenExp: decoded.exp ? new Date(decoded.exp * 1000) : null,
-      lastErpError: null,
+      toplam: totalAmount,
+      odemeYontemi: paymentMethod === 'card' ? 'Kredi Kartı' : paymentMethod === 'transfer' ? 'Havale/EFT' : 'Kapıda Ödeme',
+      not: '',
+      status: "Yeni",
+      userId: user._id,
+      shippingAddress: shippingAddress,
+      invoiceAddress: invoiceAddress,
+      paymentMethod: paymentMethod,
       createdAt: new Date()
     };
 
-    const orderResult = await mongoose.connection.db.collection("orders").insertOne(orderDoc);
-    const orderId = orderResult.insertedId;
+    const newOrder = await Order.create(orderData);
 
-    // ERP'ye satış gönder (kullanıcının token'ı ile)
-    const erpResp = await fetch("https://satistakip.online/api/satis/create", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token
-      },
-      body: JSON.stringify({
-        orderId: String(orderId),
-        items: orderDoc.items,
-        total: orderDoc.total
-      })
+    // Sipariş onay emaili gönder
+    sendOrderConfirmationEmail(user.email, orderData, user.ad).catch(err => {
+      console.log("Sipariş emaili gönderilemedi:", err.message);
     });
 
-    let erpData = null;
-    try { erpData = await erpResp.json(); } catch (e) { erpData = null; }
-
-    if (!erpResp.ok) {
-      await mongoose.connection.db.collection("orders").updateOne(
-        { _id: orderId },
-        { $set: { lastErpError: erpData || { message: "ERP hata döndü" }, status: "pending" } }
-      );
-
-      return res.status(502).json({
-        success: false,
-        message: "Sipariş kaydedildi ama ERP'ye aktarılamadı.",
-        orderId: String(orderId),
-        erpError: erpData
-      });
-    }
-
-    // Başarılı -> siparişi güncelle
-    await mongoose.connection.db.collection("orders").updateOne(
-      { _id: orderId },
-      {
-        $set: {
-          erpSync: true,
-          erpSaleNo: erpData?.saleNo || erpData?.sale_id || null,
-          status: "completed",
-          lastErpError: null,
-          syncedAt: new Date()
-        }
-      }
-    );
-
-    return res.json({
-      success: true,
-      message: "Sipariş oluşturuldu ve ERP'ye aktarıldı.",
-      orderId: String(orderId),
-      saleNo: erpData?.saleNo || null
+    res.json({ 
+      success: true, 
+      message: "Sipariş oluşturuldu",
+      orderId: newOrder._id
     });
-  } catch (err) {
-    console.error("Order create error:", err);
-    return res.status(500).json({ success: false, message: "Sunucu hatası" });
+  } catch (error) {
+    console.error('Sipariş oluşturma hatası:', error);
+    res.status(500).json({ success: false, message: "Sipariş oluşturulamadı: " + error.message });
   }
 });
 
-// =====================================================
-// ADMIN: Siparişleri listele
-// Endpoint: GET /api/admin/orders
-// Query: ?onlyPending=true -> sadece ERP'ye aktarılmamışlar
-// =====================================================
-app.get("/api/admin/orders", adminAuth, async (req, res) => {
+/* ---------- Eski Sipariş Oluştur (Geriye Uyumluluk) ---------- */
+app.post("/api/orders/create", authenticateToken, async (req, res) => {
   try {
-    if (!ensureDbReady(res)) return;
+    const { firmaAdi, email, telefon, adres, items, odemeYontemi, not } = req.body;
 
-    const onlyPending = String(req.query?.onlyPending || "") === "true";
-    const filter = onlyPending ? { erpSync: { $ne: true } } : {};
-
-    const orders = await mongoose.connection.db.collection("orders")
-      .find(filter)
-      .sort({ createdAt: -1 })
-      .limit(200)
-      .toArray();
-
-    // kullanıcı bilgisi ekle (email/firma)
-    const userIds = [...new Set(orders.map(o => o.userId).filter(Boolean).map(String))];
-    let usersById = {};
-    if (userIds.length) {
-      
-      usersById = Object.fromEntries(users.map(u => [String(u._id), u]));
+    if (!firmaAdi || !email || !items?.length) {
+      return res.status(400).json({ success: false, message: "Eksik bilgi" });
     }
 
-    const out = orders.map(o => ({
-      ...o,
-      _id: String(o._id),
-      userId: o.userId ? String(o.userId) : null,
-      companyId: o.companyId || null,
-      user: o.userId ? (usersById[String(o.userId)] || null) : null
-    }));
-
-    res.json({ success: true, orders: out });
-  } catch (err) {
-    console.error("Admin orders error:", err);
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-// =====================================================
-// ADMIN: ERP'ye tekrar gönder (retry)
-// Endpoint: POST /api/admin/orders/sync
-// Body: { orderId }
-// Not: Sipariş oluşturulurken kaydedilen erpForwardToken ile dener.
-// Token expired ise kullanıcı yeniden login olmalı.
-// =====================================================
-app.post("/api/admin/orders/sync", adminAuth, async (req, res) => {
-  try {
-    if (!ensureDbReady(res)) return;
-
-    const orderId = String(req.body?.orderId || "").trim();
-    if (!orderId) return res.status(400).json({ success: false, message: "orderId gerekli" });
-
-    const order = await mongoose.connection.db.collection("orders")
-      .findOne({ _id: new ObjectId(orderId) });
-
-    if (!order) return res.status(404).json({ success: false, message: "Sipariş bulunamadı" });
-
-    const token = order.erpForwardToken;
-    if (!token) {
-      return res.status(400).json({
-        success: false,
-        message: "Bu sipariş için kullanıcı token'ı kayıtlı değil. Kullanıcı yeniden sipariş vermeli veya yeniden giriş yapmalı."
-      });
-    }
-
-    // token expiry kontrolü (varsa)
-    if (order.erpForwardTokenExp && new Date() > new Date(order.erpForwardTokenExp)) {
-      return res.status(400).json({
-        success: false,
-        message: "Kullanıcı oturumu süresi dolmuş. Kullanıcı yeniden giriş yapıp tekrar denemeli."
-      });
-    }
-
-    const erpResp = await fetch("https://satistakip.online/api/satis/create", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token
-      },
-      body: JSON.stringify({
-        orderId: String(order._id),
-        items: order.items || [],
-        total: Number(order.total || 0)
-      })
-    });
-
-    let erpData = null;
-    try { erpData = await erpResp.json(); } catch (e) { erpData = null; }
-
-    if (!erpResp.ok) {
-      await mongoose.connection.db.collection("orders").updateOne(
-        { _id: order._id },
-        { $set: { lastErpError: erpData || { message: "ERP hata döndü" } } }
-      );
-      return res.status(502).json({ success: false, message: "ERP'ye gönderilemedi", erpError: erpData });
-    }
-
-    await mongoose.connection.db.collection("orders").updateOne(
-      { _id: order._id },
-      { $set: { erpSync: true, erpSaleNo: erpData?.saleNo || erpData?.sale_id || null, status: "completed", lastErpError: null, syncedAt: new Date() } }
-    );
-
-    return res.json({ success: true, message: "ERP'ye tekrar gönderildi", saleNo: erpData?.saleNo || null });
-  } catch (err) {
-    console.error("Admin sync order error:", err);
-    return res.status(500).json({ success: false, message: "Sunucu hatası" });
-  }
-});
-
-
-app.listen(PORT, () => {
-    console.log(`🚀 Server çalışıyor: http://localhost:${PORT}`);
-    console.log(`📧 Brevo API: ${process.env.BREVO_API_KEY ? 'Aktif' : 'Eksik!'}`);
-    console.log(`🗄️  MongoDB: ${process.env.MONGODB_URI ? 'Bağlandı' : 'Local mod'}`);
-});
-app.post("/api/orders/create", async (req, res) => {
-  try {
-    const { firmaAdi, email, items } = req.body;
-
-    if (!firmaAdi || !email || !items || items.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Sipariş bilgileri eksik veya sepet boş",
-      });
-    }
-
-    const toplam = items.reduce(
-      (sum, item) => sum + Number(item.fiyat) * Number(item.adet),
-      0
-    );
+    const toplam = items.reduce((sum, item) => sum + (item.fiyat * item.adet), 0);
 
     const newOrder = await Order.create({
       firmaAdi,
       email,
+      telefon,
+      adres,
       items,
       toplam,
+      odemeYontemi: odemeYontemi || 'card',
+      not: not || '',
       status: "Yeni",
+      tarih: new Date(),
+      userId: req.user.userId
     });
-
-    console.log("✅ Sipariş MongoDB kaydedildi:", newOrder._id);
-
-    // ERP’ye otomatik aktar
-    try {
-      const erpResp = await fetch(
-        "https://satistakip.online/api/satis/create",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            cariUnvan: firmaAdi,
-            email,
-            urunler: items,
-            toplam,
-            kaynak: "KurumsalTedarikci",
-          }),
-        }
-      );
-
-      const erpData = await erpResp.json();
-
-      if (erpData.success) {
-        newOrder.erpAktarildi = true;
-        await newOrder.save();
-        console.log("🚀 ERP’ye aktarıldı:", newOrder._id);
-      } else {
-        console.log("❌ ERP aktarım hatası:", erpData.message);
-      }
-    } catch (err) {
-      console.log("❌ ERP bağlantı hatası:", err.message);
-    }
 
     res.json({
       success: true,
-      message: "Sipariş kaydedildi ve ERP’ye gönderildi",
+      message: "Sipariş kaydedildi",
       orderId: newOrder._id,
     });
-  } catch (error) {
-    console.error("ORDER CREATE ERROR:", error);
-    res.status(500).json({
-      success: false,
-      message: "Sipariş kaydedilemedi",
-    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Sipariş hatası: " + err.message });
   }
 });
 
+/* ---------- Kullanıcının Siparişlerini Getir ---------- */
+app.get("/api/orders/my", authenticateToken, async (req, res) => {
+  try {
+    const orders = await Order.find({ 
+      $or: [
+        { email: req.user.email },
+        { userId: req.user.userId }
+      ]
+    }).sort({ createdAt: -1 });
+    
+    res.json({ success: true, orders });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Siparişler alınamadı: " + err.message });
+  }
+});
+
+/* ---------- Tüm Siparişleri Getir (Admin) ---------- */
+app.get("/api/orders", authenticateToken, async (req, res) => {
+  try {
+   const user = await User.findById(req.userId);
+
+    if (user.rol !== 'admin') {
+      return res.status(403).json({ success: false, message: "Yetkisiz erişim" });
+    }
+    
+    const orders = await Order.find().sort({ createdAt: -1 });
+    res.json({ success: true, orders });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Siparişler alınamadı: " + err.message });
+  }
+});
+
+/* ---------- Tek Sipariş Detayı ---------- */
+app.get("/api/orders/:orderId", authenticateToken, async (req, res) => {
+  try {
+    const order = await Order.findOne({ 
+      _id: req.params.orderId,
+      $or: [
+        { email: req.user.email },
+        { userId: req.user.userId }
+      ]
+    });
+    
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Sipariş bulunamadı" });
+    }
+
+    res.json({ success: true, order });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Sipariş detay hatası: " + err.message });
+  }
+});
+
+/* ======================================================
+   ✅ Public Static Dosyalar
+====================================================== */
+// ==================== PUBLIC PATH (FINAL FIX) ====================
+const publicPath = path.join(__dirname, "..", "public");
+
+// Static dosyaları buradan servis et
+app.use(express.static(publicPath));
+
+
+/* ======================================================
+   ✅ HTML Sayfa Route Garantisi
+====================================================== */
+const htmlPages = ['index', 'sepet', 'profil', 'odeme', 'siparisler', 'giris', 'kayit', 'sifremi-unuttum', 'hakkimizda', 'hizmetlerimiz', 'urunler', 'referanslarimiz', 'iletisim', 'teklif-al'];
+htmlPages.forEach(page => {
+  app.get(`/${page}.html`, (req, res) => {
+    res.sendFile(path.join(publicPath, `${page}.html`));
+  });
+});
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(publicPath, "index.html"));
+});
+
+/* ======================================================
+   ✅ Server Start
+====================================================== */
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log("🚀 Server çalışıyor: http://localhost:" + PORT);
+});
