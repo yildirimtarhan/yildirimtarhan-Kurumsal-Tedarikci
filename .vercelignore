@@ -1,0 +1,6 @@
+backend/
+render.yaml
+server.js
+.env
+.env.local
+node_modules/

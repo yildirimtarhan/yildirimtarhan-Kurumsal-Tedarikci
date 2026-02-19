@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Fiyatlandırma Paketleri - Kurumsal Tedarikçi</title>
+<link href="css/style.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+</head>
+<body>
+<!-- Navbar (Tüm sayfalarda aynı) -->
+<nav class="navbar" style="position: fixed; top: 0; left: 0; width: 100%; background: white; z-index: 9999; box-shadow: 0 2px 20px rgba(0,0,0,0.1); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center;">
+<a class="logo" href="index.html" style="font-size: 24px; font-weight: 800; color: #1f2937; text-decoration: none;">Kurumsal<span style="color: #6366f1;">Tedarikçi</span></a><button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()"><i class="fas fa-bars" id="menuIcon"></i></button>
+<ul class="nav-links" style="display: flex; list-style: none; gap: 25px; margin: 0;">
+<li><a href="index.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Anasayfa</a></li>
+<li><a href="hizmetler.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Hizmetler</a></li>
+<li><a href="paketler.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Paketler</a></li>
+<li><a href="urunler.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Ürünler</a></li>
+<li><a href="referanslar.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Referanslar</a></li>
+<li><a href="teklif.html" style="text-decoration: none; color: #f59e0b; font-weight: 600; font-size: 15px;">Teklif Al</a></li>
+<li><a href="iletisim.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">İletişim</a></li>
+</ul>
+<div id="navUserArea" style="display: flex; align-items: center; gap: 15px;">
+<a href="giris.html" style="text-decoration: none; color: #6366f1; font-weight: 600; font-size: 14px; padding: 8px 16px; border: 2px solid #6366f1; border-radius: 20px; transition: all 0.3s;">Giriş Yap</a>
+<a href="odeme.html" style="background: #6366f1; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; position: relative;">
+<i class="fas fa-shopping-cart" style="font-size: 16px;"></i>
+<span id="cart-count" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; border: 2px solid white;">0</span>
+</a>
+</div>
+</nav><div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a class="active" href="paketler.html">Paketler</a></li><li><a href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
+<!-- Hero -->
+<section style="margin-top: 70px; padding: 80px 5%; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; text-align: center;">
+<h1 style="font-size: 3rem; margin-bottom: 15px; font-weight: 800;">Fiyatlandırma Paketleri</h1>
+<p style="font-size: 1.2rem; opacity: 0.9;">İşletmenizin büyüklüğüne uygun esnek çözümler</p>
+</section>
+<!-- Paketler -->
+<section style="padding: 60px 5%; max-width: 1200px; margin: 0 auto;">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+<!-- Başlangıç Paketi -->
+<div style="background: white; border-radius: 20px; padding: 40px 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border: 2px solid #e5e7eb; text-align: center;">
+<h3 style="color: #6b7280; font-size: 1.2rem; margin-bottom: 10px;">Başlangıç</h3>
+<div style="font-size: 3rem; font-weight: 800; color: #1f2937; margin-bottom: 20px;">₺749<span style="font-size: 1rem; color: #6b7280; font-weight: 400;">/ay</span></div>
+<p style="color: #6b7280; margin-bottom: 30px;">Küçük işletmeler için ideal</p>
+<ul style="list-style: none; padding: 0; margin-bottom: 30px; text-align: left;">
+<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> 100 E-Fatura/ay</li>
+<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> E-İrsaliye (50 adet)</li>
+<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> E-Defter (Aylık)</li>
+<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> Teknik Destek (Haftaiçi)</li>
+<li style="padding: 10px 0; color: #9ca3af;"><i class="fas fa-times" style="margin-right: 10px;"></i> Mali Mühür</li>
+</ul>
+<button onclick="addToCart({name: 'Başlangıç Paketi', price: 749})" style="width: 100%; padding: 15px; background: #6366f1; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer;">Sepete Ekle</button>
+</div>
+<!-- Profesyonel Paket (Önerilen) -->
+<div style="background: white; border-radius: 20px; padding: 40px 30px; box-shadow: 0 20px 60px rgba(99,102,241,0.2); border: 3px solid #6366f1; text-align: center; position: relative; transform: scale(1.05);">
+<div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: #6366f1; color: white; padding: 5px 20px; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">En Popüler</div>
+<h3 style="color: #6366f1; font-size: 1.2rem; margin-bottom: 10px;">Profesyonel</h3>
+<div style="font-size: 3rem; font-weight: 800; color: #1f2937; margin-bottom: 20px;">₺1.499<span style="font-size: 1rem; color: #6b7280; font-weight: 400;">/ay</span></div>
+<p style="color: #6b7280; margin-bottom: 30px;">Orta ölçekli işletmeler için</p>
+<ul style="list-style: none; padding: 0; margin-bottom: 30px; text-align: left;">
+<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> Sınırsız E-Fatura</li>
+<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> E-İrsaliye (Sınırsız)</li>
+<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> E-Defter + Arşiv</li>
+<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> 7/24 Teknik Destek</li>
+<li style="padding: 10px 0; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> 1 Adet Mali Mühür</li>
+</ul>
+<button onclick="addToCart({name: 'Profesyonel Paketi', price: 1499})" style="width: 100%; padding: 15px; background: #6366f1; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(99,102,241,0.4);">Sepete Ekle</button>
+</div>
+<!-- Kurumsal Paket -->
+<div style="background: white; border-radius: 20px; padding: 40px 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border: 2px solid #e5e7eb; text-align: center;">
+<h3 style="color: #f59e0b; font-size: 1.2rem; margin-bottom: 10px;">Kurumsal</h3>
+<div style="font-size: 3rem; font-weight: 800; color: #1f2937; margin-bottom: 20px;">₺2.999<span style="font-size: 1rem; color: #6b7280; font-weight: 400;">/ay</span></div>
+<p style="color: #6b7280; margin-bottom: 30px;">Büyük işletmeler için</p>
+<ul style="list-style: none; padding: 0; margin-bottom: 30px; text-align: left;">
+<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> Her Şey Dahil (Sınırsız)</li>
+<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> Özel Entegrasyonlar</li>
+<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> Öncelikli Destek</li>
+<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> 3 Mali Mühür</li>
+<li style="padding: 10px 0; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> API Erişimi</li>
+</ul>
+<button onclick="addToCart({name: 'Kurumsal Paketi', price: 2999})" style="width: 100%; padding: 15px; background: #f59e0b; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer;">Sepete Ekle</button>
+</div>
+</div>
+<!-- Özel Teklif -->
+<div style="margin-top: 60px; background: linear-gradient(135deg, #1f2937 0%, #374151 100%); color: white; padding: 50px; border-radius: 20px; text-align: center;">
+<h2 style="font-size: 2rem; margin-bottom: 15px;">Özel İhtiyaçlarınız mı var?</h2>
+<p style="font-size: 1.1rem; opacity: 0.9; margin-bottom: 25px;">Size özel paket oluşturalım. Teklif almak için iletişime geçin.</p>
+<a href="iletisim.html" style="display: inline-block; padding: 15px 40px; background: white; color: #1f2937; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 1.1rem;">İletişime Geç</a>
+</div>
+</section>
+<footer style="background: #1f2937; color: white; padding: 40px 5%; text-align: center;">
+<p>© 2025 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
+</footer>
+<script src="js/sepet.js"></script>
+
+<script>
+(function() {
+  function setOpen(next) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu) return;
+    menu.classList.toggle('active', next);
+    document.body.classList.toggle('menu-open', next);
+    const icon = document.getElementById('menuIcon');
+    if (icon) icon.className = next ? 'fas fa-times' : 'fas fa-bars';
+  }
+
+  window.toggleMenu = function(forceClose) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu) return;
+    const isOpen = menu.classList.contains('active');
+    const next = forceClose === true ? false : !isOpen;
+    setOpen(next);
+  };
+
+  // Overlay click closes menu
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu || !menu.classList.contains('active')) return;
+    if (e.target === menu) toggleMenu(true);
+  });
+
+  // Close after clicking any link in mobile menu
+  document.addEventListener('click', function(e) {
+    const a = e.target.closest && e.target.closest('#mobileMenu a');
+    if (a) toggleMenu(true);
+  });
+
+  // ESC closes
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') toggleMenu(true);
+  });
+})();
+</script>
+<script src="js/main.js"></script>
+</body>
+</html>

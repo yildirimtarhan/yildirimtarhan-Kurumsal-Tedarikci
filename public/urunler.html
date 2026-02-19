@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ürünler - Kurumsal Tedarikçi</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/><link href="css/style.css" rel="stylesheet"/>
+<style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f9fafb; }
+        
+        /* Navbar - Yeni yapıya uygun */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo { font-size: 24px; font-weight: 800; color: #1f2937; text-decoration: none; }
+        .logo span { color: #6366f1; }
+        
+        .nav-links { display: flex; list-style: none; gap: 30px; }
+        .nav-links a { 
+            text-decoration: none; 
+            color: #4b5563; 
+            font-weight: 600; 
+            transition: color 0.3s;
+        }
+        .nav-links a:hover, .nav-links a.active { color: #6366f1; }
+        
+        .cart-btn {
+            background: #6366f1;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(99,102,241,0.3);
+        }
+        
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+        
+        /* Hero */
+        .urunler-hero {
+            margin-top: 70px;
+            padding: 100px 5% 60px;
+            background: linear-gradient(135deg, #f5f7ff 0%, #e0e7ff 100%);
+            text-align: center;
+        }
+        
+        .urunler-hero h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #1f2937;
+        }
+        
+        .urunler-hero p {
+            font-size: 1.1rem;
+            color: #6b7280;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Ürün Grid */
+        .urun-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            padding: 60px 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .urun-kart {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .urun-kart:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+        }
+        
+        .urun-gorsel {
+            height: 200px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+        }
+        
+        .urun-icerik { padding: 30px; }
+        
+        .urun-kategori {
+            color: #6366f1;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        
+        .urun-baslik {
+            font-size: 22px;
+            margin-bottom: 12px;
+            color: #1f2937;
+            font-weight: 700;
+        }
+        
+        .urun-aciklama {
+            color: #6b7280;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        
+        .urun-fiyat {
+            font-size: 28px;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 20px;
+        }
+        
+        .urun-fiyat span {
+            font-size: 14px;
+            color: #9ca3af;
+            font-weight: 600;
+        }
+        
+        /* Butonlar - Düzeltilmiş */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn-sepet {
+            flex: 1;
+            padding: 12px;
+            background: white;
+            color: #6366f1;
+            border: 2px solid #6366f1;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .btn-sepet:hover {
+            background: #6366f1;
+            color: white;
+        }
+        
+        .btn-hemen {
+            flex: 1;
+            padding: 12px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .btn-hemen:hover {
+            background: #4f46e5;
+        }
+        
+        /* Footer */
+        footer {
+            background: #1f2937;
+            color: white;
+            padding: 40px 5%;
+            text-align: center;
+            margin-top: 60px;
+        }
+        
+        /* Mobil */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .urunler-hero h1 { font-size: 2rem; }
+            .urun-grid { grid-template-columns: 1fr; padding: 30px 5%; }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar" style="position: fixed; top: 0; left: 0; width: 100%; background: white; z-index: 9999; box-shadow: 0 2px 20px rgba(0,0,0,0.1); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center;">
+<a class="logo" href="index.html" style="font-size: 24px; font-weight: 800; color: #1f2937; text-decoration: none;">Kurumsal<span style="color: #6366f1;">Tedarikçi</span></a><button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()"><i class="fas fa-bars" id="menuIcon"></i></button>
+<ul class="nav-links" style="display: flex; list-style: none; gap: 25px; margin: 0;">
+<li><a href="index.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Anasayfa</a></li>
+<li><a href="hizmetler.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Hizmetler</a></li>
+<li><a href="paketler.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Paketler</a></li>
+<li><a href="urunler.html" style="text-decoration: none; color: #6366f1; font-weight: 700; font-size: 15px;">Ürünler</a></li>
+<li><a href="referanslar.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Referanslar</a></li>
+<li><a href="teklif.html" style="text-decoration: none; color: #f59e0b; font-weight: 600; font-size: 15px;">Teklif Al</a></li>
+<li><a href="iletisim.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">İletişim</a></li>
+</ul>
+<div id="navUserArea" style="display: flex; align-items: center; gap: 15px;">
+<a href="giris.html" style="text-decoration: none; color: #6366f1; font-weight: 600; font-size: 14px; padding: 8px 16px; border: 2px solid #6366f1; border-radius: 20px;">Giriş Yap</a>
+<a href="odeme.html" style="background: #6366f1; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; position: relative;">
+<i class="fas fa-shopping-cart" style="font-size: 16px;"></i>
+<span id="cart-count" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; border: 2px solid white;">0</span>
+</a>
+</div>
+</nav><div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a class="active" href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
+<!-- Hero -->
+<section class="urunler-hero">
+<h1>E-Dönüşüm Ürünleri</h1>
+<p>İşletmenizi dijitalleştiren tüm yazılım ve entegrasyon çözümleri. E-fatura, e-arşiv, e-irsaliye ve daha fazlası.</p>
+</section>
+<!-- Ürünler Grid -->
+<section class="urun-grid">
+<!-- Ürün 1 - DÜZELTİLMİŞ -->
+<div class="urun-kart">
+<div class="urun-gorsel">📄</div>
+<div class="urun-icerik">
+<div class="urun-kategori">E-Fatura</div>
+<h3 class="urun-baslik">E-Fatura Modülü</h3>
+<p class="urun-aciklama">Gelen ve giden efatura yönetimi, otomatik kontrol, raporlama ve entegrasyon özellikleri.</p>
+<div class="urun-fiyat">₺899<span>/yıl</span></div>
+<div class="btn-group">
+<button class="btn-sepet" onclick="sepeteEkle('E-Fatura Modülü', 899, 'urun-efatura')">
+<i class="fas fa-cart-plus"></i> Sepete Ekle
+                    </button>
+<button class="btn-hemen" onclick="hemenSatınAl('E-Fatura Modülü', 899, 'urun-efatura')">
+<i class="fas fa-bolt"></i> Hemen Al
+                    </button>
+</div>
+</div>
+</div>
+<!-- Ürün 2 -->
+<div class="urun-kart">
+<div class="urun-gorsel">📦</div>
+<div class="urun-icerik">
+<div class="urun-kategori">E-İrsaliye</div>
+<h3 class="urun-baslik">E-İrsaliye Çözümü</h3>
+<p class="urun-aciklama">Sevkiyat takibi, dijital irsaliye oluşturma ve faturala ile entegre çalışan sistem.</p>
+<div class="urun-fiyat">₺649<span>/yıl</span></div>
+<div class="btn-group">
+<button class="btn-sepet" onclick="sepeteEkle('E-İrsaliye Çözümü', 649, 'urun-eirsaliye')">
+<i class="fas fa-cart-plus"></i> Sepete Ekle
+                    </button>
+<button class="btn-hemen" onclick="hemenSatınAl('E-İrsaliye Çözümü', 649, 'urun-eirsaliye')">
+<i class="fas fa-bolt"></i> Hemen Al
+                    </button>
+</div>
+</div>
+</div>
+<!-- Ürün 3 -->
+<div class="urun-kart">
+<div class="urun-gorsel">📊</div>
+<div class="urun-icerik">
+<div class="urun-kategori">Raporlama</div>
+<h3 class="urun-baslik">Gelir Gider Raporlama</h3>
+<p class="urun-aciklama">Detaylı finansal raporlar, grafiksel analizler ve vergi optimizasyon önerileri.</p>
+<div class="urun-fiyat">₺1.299<span>/yıl</span></div>
+<div class="btn-group">
+<button class="btn-sepet" onclick="sepeteEkle('Gelir Gider Raporlama', 1299, 'urun-raporlama')">
+<i class="fas fa-cart-plus"></i> Sepete Ekle
+                    </button>
+<button class="btn-hemen" onclick="hemenSatınAl('Gelir Gider Raporlama', 1299, 'urun-raporlama')">
+<i class="fas fa-bolt"></i> Hemen Al
+                    </button>
+</div>
+</div>
+</div>
+<!-- Ürün 4 -->
+<div class="urun-kart">
+<div class="urun-gorsel">🔐</div>
+<div class="urun-icerik">
+<div class="urun-kategori">Entegrasyon</div>
+<h3 class="urun-baslik">Mali Mühür Entegrasyonu</h3>
+<p class="urun-aciklama">E-imza ve mali mühür kurulumu, yönetimi ve teknik destek hizmeti.</p>
+<div class="urun-fiyat">₺450<span>/bir defalık</span></div>
+<div class="btn-group">
+<button class="btn-sepet" onclick="sepeteEkle('Mali Mühür Entegrasyonu', 450, 'urun-muhur')">
+<i class="fas fa-cart-plus"></i> Sepete Ekle
+                    </button>
+<button class="btn-hemen" onclick="hemenSatınAl('Mali Mühür Entegrasyonu', 450, 'urun-muhur')">
+<i class="fas fa-bolt"></i> Hemen Al
+                    </button>
+</div>
+</div>
+</div>
+<!-- Ürün 5 -->
+<div class="urun-kart">
+<div class="urun-gorsel">🛒</div>
+<div class="urun-icerik">
+<div class="urun-kategori">Pazaryeri</div>
+<h3 class="urun-baslik">Trendyol Entegrasyonu</h3>
+<p class="urun-aciklama">Trendyol siparişlerinizi otomatik faturalandırın, stok takibini kolaylaştırın.</p>
+<div class="urun-fiyat">₺1.599<span>/yıl</span></div>
+<div class="btn-group">
+<button class="btn-sepet" onclick="sepeteEkle('Trendyol Entegrasyonu', 1599, 'urun-trendyol')">
+<i class="fas fa-cart-plus"></i> Sepete Ekle
+                    </button>
+<button class="btn-hemen" onclick="hemenSatınAl('Trendyol Entegrasyonu', 1599, 'urun-trendyol')">
+<i class="fas fa-bolt"></i> Hemen Al
+                    </button>
+</div>
+</div>
+</div>
+<!-- Ürün 6 -->
+<div class="urun-kart">
+<div class="urun-gorsel">☁️</div>
+<div class="urun-icerik">
+<div class="urun-kategori">Yedekleme</div>
+<h3 class="urun-baslik">Bulut Yedekleme</h3>
+<p class="urun-aciklama">Tüm finansal verilerinizin günlük otomatik yedeklemesi ve 7 yıl saklama.</p>
+<div class="urun-fiyat">₺399<span>/yıl</span></div>
+<div class="btn-group">
+<button class="btn-sepet" onclick="sepeteEkle('Bulut Yedekleme', 399, 'urun-yedekleme')">
+<i class="fas fa-cart-plus"></i> Sepete Ekle
+                    </button>
+<button class="btn-hemen" onclick="hemenSatınAl('Bulut Yedekleme', 399, 'urun-yedekleme')">
+<i class="fas fa-bolt"></i> Hemen Al
+                    </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer>
+<p>© 2025 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
+</footer>
+<!-- Sepet JS -->
+<script src="js/sepet.js"></script>
+<script>
+        // Sepet sayısını güncelle
+        // Sepet sayısını güncelle
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const toplamAdet = cart.reduce((sum, item) => sum + (item.qty || item.adet || 1), 0);
+    const countEl = document.getElementById('cart-count');
+    if (countEl) {
+        countEl.innerText = toplamAdet;
+        countEl.style.display = toplamAdet > 0 ? 'flex' : 'none';
+    }
+}
+updateCartCount();
+
+// Hemen satın al fonksiyonu
+function hemenSatınAl(name, price, id) {
+    sepeteEkle(name, price, id);
+    setTimeout(() => {
+        window.location.href = 'odeme.html';
+    }, 500);
+}   
+ </script>
+
+<script>
+(function() {
+  function setOpen(next) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu) return;
+    menu.classList.toggle('active', next);
+    document.body.classList.toggle('menu-open', next);
+    const icon = document.getElementById('menuIcon');
+    if (icon) icon.className = next ? 'fas fa-times' : 'fas fa-bars';
+  }
+
+  window.toggleMenu = function(forceClose) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu) return;
+    const isOpen = menu.classList.contains('active');
+    const next = forceClose === true ? false : !isOpen;
+    setOpen(next);
+  };
+
+  // Overlay click closes menu
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu || !menu.classList.contains('active')) return;
+    if (e.target === menu) toggleMenu(true);
+  });
+
+  // Close after clicking any link in mobile menu
+  document.addEventListener('click', function(e) {
+    const a = e.target.closest && e.target.closest('#mobileMenu a');
+    if (a) toggleMenu(true);
+  });
+
+  // ESC closes
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') toggleMenu(true);
+  });
+})();
+</script>
+<script src="js/main.js"></script>
+</body>
+</html>
