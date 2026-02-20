@@ -1,28 +1,18 @@
-// 1) HER ŞEYDEN ÖNCE
 require("dotenv").config();
-
-// (İsteğe bağlı) Sadece var mı diye kontrol et, secret'ı basma!
-console.log("ENV OK:", {
-  MONGODB_URI: !!process.env.MONGODB_URI,
-  JWT_SECRET: !!process.env.JWT_SECRET,
-  SMTP_HOST: !!process.env.SMTP_HOST,
-  ERP_BASE_URL: !!process.env.ERP_BASE_URL,
-});
-
-// 2) Sonra importlar
-const nodemailer = require("nodemailer");
+console.log("ENV TEST:", process.env.MONGODB_URI);
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const SibApiV3Sdk = require("sib-api-v3-sdk");
 const mongoose = require("mongoose");
 const path = require("path");
-const SibApiV3Sdk = require("sib-api-v3-sdk");  // ✅ EKLENDİ
 
-// ✅ ERP Service Import
-const { createCariInERP, createSaleInERP } = require('./services/erpService');
 
-// Modeller
+console.log("JWT_SECRET:", process.env.JWT_SECRET);
+
+
+
 const User = require("./models/User");
 const Order = require("./models/Order");
 
@@ -55,30 +45,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ===================== ROUTES =====================
-// Önce route'ları import et
 const authRoutes = require("./routes/auth");
 const addressRoutes = require("./routes/addresses");
 const orderRoutes = require("./routes/orders");
-const adminRoutes = require("./routes/admin");
-const productRoutes = require("./routes/products");
 
-
-// Sonra kullan
 app.use("/api/auth", authRoutes);
 app.use("/api/addresses", addressRoutes);
 app.use("/api/orders", orderRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/products", productRoutes);
-
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT || 587),
-  secure: process.env.SMTP_SECURE === "true", // 587 => false
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
 
 
 /* ======================================================
@@ -335,75 +308,43 @@ app.post("/api/auth/register", async (req, res) => {
     });
 
    // Hoşgeldin emaili gönder
-    sendWelcomeEmail(email, ad, uyelikTipi || 'bireysel').catch(err => {
-      console.log("Hoşgeldin emaili gönderilemedi:", err.message);
-    });
+sendWelcomeEmail(email, ad, uyelikTipi || 'bireysel').catch(err => {
+  console.log("Hoşgeldin emaili gönderilemedi:", err.message);
+});
 
-    // ✅ ERP'ye Cari Aktarımı (YENİ)
-    try {
-      const erpResult = await createCariInERP({
-        ad: newUser.ad,
-        email: newUser.email,
-        telefon: newUser.telefon,
-        firma: newUser.firma,
-        vergiNo: newUser.vergiNo,
-        vergiDairesi: newUser.vergiDairesi,
-        tcNo: newUser.tcNo,
-        faturaAdresi: newUser.faturaAdresi,
-        teslimatAdresi: newUser.teslimatAdresi,
-        uyelikTipi: newUser.uyelikTipi,
-        city: newUser.addresses?.[0]?.city || "İstanbul",
-        district: newUser.addresses?.[0]?.district || ""
-      });
-      
-      if (erpResult.success) {
-        newUser.erpSynced = true;
-        newUser.erpCariId = erpResult.cariId;
-        newUser.erpSyncDate = new Date();
-        await newUser.save();
-        console.log("✅ Kullanıcı ERP'ye aktarıldı:", erpResult.cariId);
-      } else {
-        console.error("⚠️ ERP aktarım hatası:", erpResult.error);
-      }
-    } catch (erpErr) {
-      console.error("⚠️ ERP hatası (kayıt devam etti):", erpErr.message);
-      // Kayıt başarılı sayılır, ERP hatası loglanır
-    }
+// ✅ Token üret
+const token = jwt.sign(
+  {
+    userId: newUser._id,
+    email: newUser.email,
+    rol: newUser.rol
+  },
+  JWT_SECRET,
+  { expiresIn: "24h" }
+);
 
-    // ✅ Token üret
-    const token = jwt.sign(
-      {
-        userId: newUser._id,
-        email: newUser.email,
-        rol: newUser.rol
-      },
-      JWT_SECRET,
-      { expiresIn: "24h" }
-    );
+// ✅ Artık sadece userId değil, token + user dönüyoruz
+res.json({
+  success: true,
+  message: "Kayıt başarılı! Hoş geldiniz.",
+  token,
+  user: {
+    id: newUser._id,
+    ad: newUser.ad,
+    email: newUser.email,
+    rol: newUser.rol,
+    uyelikTipi: newUser.uyelikTipi,
+    telefon: newUser.telefon,
+    firma: newUser.firma,
+    vergiNo: newUser.vergiNo,
+    vergiDairesi: newUser.vergiDairesi,
+    tcNo: newUser.tcNo,
+    faturaAdresi: newUser.faturaAdresi,
+    teslimatAdresi: newUser.teslimatAdresi,
+    addresses: newUser.addresses || []
+  }
+});
 
-    // ✅ Artık sadece userId değil, token + user dönüyoruz
-    res.json({
-      success: true,
-      message: "Kayıt başarılı! Hoş geldiniz.",
-      token,
-      user: {
-        id: newUser._id,
-        ad: newUser.ad,
-        email: newUser.email,
-        rol: newUser.rol,
-        uyelikTipi: newUser.uyelikTipi,
-        telefon: newUser.telefon,
-        firma: newUser.firma,
-        vergiNo: newUser.vergiNo,
-        vergiDairesi: newUser.vergiDairesi,
-        tcNo: newUser.tcNo,
-        faturaAdresi: newUser.faturaAdresi,
-        teslimatAdresi: newUser.teslimatAdresi,
-        addresses: newUser.addresses || [],
-        erpSynced: newUser.erpSynced,
-        erpCariId: newUser.erpCariId
-      }
-    });
 
   } catch (err) {
     console.error("Register hatası:", err);
@@ -761,41 +702,10 @@ app.post("/api/orders", authenticateToken, async (req, res) => {
       console.log("Sipariş emaili gönderilemedi:", err.message);
     });
 
-    // ✅ ERP'ye Satış Aktarımı (YENİ)
-    try {
-      const erpResult = await createSaleInERP(newOrder, {
-        _id: user._id,
-        ad: user.ad,
-        email: user.email,
-        telefon: user.telefon,
-        firma: user.firma,
-        vergiNo: user.vergiNo,
-        vergiDairesi: user.vergiDairesi,
-        tcNo: user.tcNo,
-        faturaAdresi: user.faturaAdresi,
-        teslimatAdresi: user.teslimatAdresi,
-        uyelikTipi: user.uyelikTipi,
-        erpCariId: user.erpCariId
-      });
-      
-      if (erpResult.success) {
-        newOrder.erpSaleNo = erpResult.saleNo;
-        newOrder.erpTransactionId = erpResult.transactionId;
-        await newOrder.save();
-        console.log("✅ Sipariş ERP'ye aktarıldı:", erpResult.saleNo);
-      } else {
-        console.error("⚠️ ERP satış aktarım hatası:", erpResult.error);
-      }
-    } catch (erpErr) {
-      console.error("⚠️ ERP satış hatası (sipariş devam etti):", erpErr.message);
-      // Sipariş başarılı sayılır, ERP hatası loglanır
-    }
-
     res.json({ 
       success: true, 
       message: "Sipariş oluşturuldu",
-      orderId: newOrder._id,
-      erpSaleNo: newOrder.erpSaleNo || null
+      orderId: newOrder._id
     });
   } catch (error) {
     console.error('Sipariş oluşturma hatası:', error);
@@ -841,159 +751,53 @@ app.post("/api/orders/create", authenticateToken, async (req, res) => {
 /* ---------- Kullanıcının Siparişlerini Getir ---------- */
 app.get("/api/orders/my", authenticateToken, async (req, res) => {
   try {
-    const orders = await Order.find({
+    const orders = await Order.find({ 
       $or: [
         { email: req.user.email },
         { userId: req.user.userId }
       ]
     }).sort({ createdAt: -1 });
-
+    
     res.json({ success: true, orders });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: "Siparişler alınamadı: " + err.message
-    });
+    res.status(500).json({ success: false, message: "Siparişler alınamadı: " + err.message });
   }
 });
 
-
-/* ---------- Tüm Siparişleri Getir (Admin Panel) ---------- */
+/* ---------- Tüm Siparişleri Getir (Admin) ---------- */
 app.get("/api/orders", authenticateToken, async (req, res) => {
   try {
+   const user = await User.findById(req.userId);
 
-    // ✅ Admin token kontrolü
-    // Admin login tokenı: { role: "admin" }
-    // User login tokenı: { userId, rol }
-
-    const isAdmin =
-      req.user.rol === "admin" || req.user.role === "admin";
-
-    if (!isAdmin) {
-      return res.status(403).json({
-        success: false,
-        message: "Yetkisiz erişim (Admin gerekli)"
-      });
+    if (user.rol !== 'admin') {
+      return res.status(403).json({ success: false, message: "Yetkisiz erişim" });
     }
-
-    // ✅ Admin ise tüm siparişleri getir
+    
     const orders = await Order.find().sort({ createdAt: -1 });
-
-    res.json({
-      success: true,
-      orders
-    });
-
+    res.json({ success: true, orders });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: "Siparişler alınamadı: " + err.message
-    });
+    res.status(500).json({ success: false, message: "Siparişler alınamadı: " + err.message });
   }
 });
-
-/* ---------- Sipariş Durum Güncelle (Admin) ---------- */
-app.put("/api/orders/:orderId/status", authenticateToken, async (req, res) => {
-  try {
-    // ✅ Admin kontrol
-    const isAdmin =
-      req.user.rol === "admin" || req.user.role === "admin";
-
-    if (!isAdmin) {
-      return res.status(403).json({
-        success: false,
-        message: "Yetkisiz erişim (Admin gerekli)",
-      });
-    }
-
-    // ✅ Yeni status al
-    const { status } = req.body;
-
-    const allowedStatuses = [
-      "Yeni",
-      "Hazırlanıyor",
-      "Kargoya Verildi",
-      "Teslim Edildi",
-    ];
-
-    if (!allowedStatuses.includes(status)) {
-      return res.status(400).json({
-        success: false,
-        message: "Geçersiz durum",
-      });
-    }
-
-    // ✅ Siparişi güncelle
-    const order = await Order.findByIdAndUpdate(
-      req.params.orderId,
-      { status },
-      { new: true }
-    );
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Sipariş bulunamadı",
-      });
-    }
-
-    res.json({
-      success: true,
-      message: "Sipariş durumu güncellendi ✅",
-      order,
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: "Durum güncelleme hatası: " + err.message,
-    });
-  }
-});
-
-
-
 
 /* ---------- Tek Sipariş Detayı ---------- */
 app.get("/api/orders/:orderId", authenticateToken, async (req, res) => {
   try {
-
-    const isAdmin =
-      req.user.rol === "admin" || req.user.role === "admin";
-
-    let order;
-
-    if (isAdmin) {
-      // ✅ Admin tüm siparişleri görebilir
-      order = await Order.findById(req.params.orderId);
-    } else {
-      // ✅ Normal kullanıcı sadece kendi siparişini görür
-      order = await Order.findOne({
-        _id: req.params.orderId,
-        $or: [
-          { email: req.user.email },
-          { userId: req.user.userId }
-        ]
-      });
-    }
-
+    const order = await Order.findOne({ 
+      _id: req.params.orderId,
+      $or: [
+        { email: req.user.email },
+        { userId: req.user.userId }
+      ]
+    });
+    
     if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Sipariş bulunamadı"
-      });
+      return res.status(404).json({ success: false, message: "Sipariş bulunamadı" });
     }
 
-    res.json({
-      success: true,
-      order
-    });
-
+    res.json({ success: true, order });
   } catch (err) {
-     console.error("KARGO HATA DETAYI:", err);  // ✅ BU SATIRI EKLE
-    res.status(500).json({
-      success: false,
-      message: "Sipariş detay hatası: " + err.message
-    });
+    res.status(500).json({ success: false, message: "Sipariş detay hatası: " + err.message });
   }
 });
 

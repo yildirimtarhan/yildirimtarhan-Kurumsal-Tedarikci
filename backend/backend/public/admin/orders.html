@@ -1,92 +1,401 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Siparişler - Admin Panel</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background: #f5f6fa;
-            display: flex;
-        }
-        
-        .sidebar {
-            width: 250px;
-            height: 100vh;
-            background: #2c3e50;
-            color: white;
-            padding-top: 1rem;
-            position: fixed;
-        }
-        .sidebar h2 { 
-            text-align: center; 
-            margin-bottom: 2rem;
-            padding: 0 1rem;
-        }
-        .sidebar a {
-            display: block;
-            padding: 1rem 2rem;
-            color: #ecf0f1;
-            text-decoration: none;
-            transition: 0.3s;
-        }
-        .sidebar a:hover, .sidebar a.active { 
-            background: #34495e; 
-        }
-        
-        .main-content {
-            margin-left: 250px;
-            padding: 2rem;
-            width: calc(100% - 250px);
-        }
-        
-        h1 { margin-bottom: 1.5rem; }
-        
-        .empty-state {
-            background: white;
-            padding: 3rem;
-            text-align: center;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            color: #7f8c8d;
-        }
-        
-        @media (max-width: 768px) {
-            .sidebar { display: none; }
-            .main-content { margin-left: 0; width: 100%; }
-        }
-    </style>
-</head>
-<body>
-    <div class="sidebar">
-        <h2>Kurumsal Tedarikçi</h2>
-        <a href="index.html">Dashboard</a>
-        <a href="users.html">Kullanıcılar</a>
-        <a href="orders.html" class="active">Siparişler</a>
-        <a href="products.html">Ürünler (ERP)</a>
-        <a href="#" onclick="logout()">Çıkış Yap</a>
-    </div>
-    
-    <div class="main-content">
-        <h1>Siparişler</h1>
-        
-        <div class="empty-state">
-            <h3>Sipariş Yönetimi</h3>
-            <p>Bu bölüm yakında aktif olacak.</p>
-            <p style="margin-top: 1rem; font-size: 0.9rem;">Şu an için siparişler veritabanında kaydediliyor.</p>
-        </div>
-    </div>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Siparişler</title>
 
-    <script>
-        const token = localStorage.getItem('adminToken');
-        if (!token) window.location.href = 'login.html';
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #f5f6fa;
+      display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: #2c3e50;
+      color: white;
+      height: 100vh;
+      padding-top: 20px;
+      position: fixed;
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 14px 20px;
+      color: white;
+      text-decoration: none;
+    }
+
+    .sidebar a.active,
+    .sidebar a:hover {
+      background: #34495e;
+    }
+
+    /* Main */
+    .main-content {
+      margin-left: 250px;
+      padding: 25px;
+      width: 100%;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #2c3e50;
+    }
+
+    /* Table */
+    .table-container {
+      overflow-x: auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 700px;
+    }
+
+    th {
+      background: #34495e;
+      color: white;
+      padding: 14px;
+      text-align: left;
+    }
+
+    td {
+      padding: 14px;
+      border-bottom: 1px solid #eee;
+    }
+
+    tr:hover {
+      background: #f9faf9;
+    }
+
+    /* Status Badge */
+    .badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      display: inline-block;
+    }
+
+    .Yeni { background: #ffeaa7; color: #2d3436; }
+    .Hazırlanıyor { background: #74b9ff; color: white; }
+    .Kargoya\ Verildi { background: #00b894; color: white; }
+    .Teslim\ Edildi { background: #2ecc71; color: white; }
+
+    /* Buttons */
+    .btn {
+      padding: 7px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .btn-detail {
+      background: #3498db;
+      color: white;
+    }
+
+    .btn-kargo {
+      background: #e67e22;
+      color: white;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 25px;
+      width: 90%;
+      max-width: 700px;
+      border-radius: 12px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .close {
+      position: absolute;
+      right: 20px;
+      top: 15px;
+      font-size: 28px;
+      cursor: pointer;
+    }
+
+    input, select {
+      padding: 8px;
+      border-radius: 6px;
+      margin-top: 5px;
+      width: 100%;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      margin-top: 10px;
+    }
+
+    /* Mobile */
+    @media(max-width: 768px) {
+      .sidebar { display: none; }
+      .main-content { margin-left: 0; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Kurumsal Tedarikçi</h2>
+    <a href="index.html">Dashboard</a>
+    <a href="users.html">Kullanıcılar</a>
+    <a href="orders.html" class="active">Siparişler</a>
+    <a href="products.html">Ürünler (ERP)</a>
+    <a href="kargo-bildirim.html"><i class="fas fa-truck"></i> Kargo Bildirim</a>
+    <a href="products-manage.html"><i class="fas fa-warehouse"></i> Stok Yönetimi</a>
+    <a href="#" onclick="logout()">Çıkış Yap</a>
+  </div>
+
+  <!-- Content -->
+  <div class="main-content">
+    <h1>📦 Sipariş Yönetimi</h1>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Email</th>
+            <th>Tutar</th>
+            <th>Durum</th>
+            <th>Tarih</th>
+            <th>İşlem</th>
+          </tr>
+        </thead>
+
+        <tbody id="ordersBody">
+          <tr>
+            <td colspan="6" style="text-align:center;">Yükleniyor...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="orderModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2>📦 Sipariş Detayı</h2>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+<script>
+  const API_URL = "http://localhost:3000/api";
+  const token = localStorage.getItem("adminToken");
+
+  if (!token) window.location.href = "login.html";
+
+  function logout() {
+    localStorage.removeItem("adminToken");
+    window.location.href = "login.html";
+  }
+
+  async function loadOrders() {
+    const res = await fetch(`${API_URL}/orders`, {
+      headers: { Authorization: "Bearer " + token }
+    });
+
+    const data = await res.json();
+    const tbody = document.getElementById("ordersBody");
+
+    tbody.innerHTML = data.orders.map(order => `
+      <tr>
+        <td>${order._id}</td>
+        <td>${order.email}</td>
+        <td>₺${order.toplam}</td>
+        <td><span class="badge ${order.status}">${order.status}</span></td>
+        <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+        <td>
+          <button class="btn btn-detail" onclick="showDetail('${order._id}')">Detay</button>
+        </td>
+      </tr>
+    `).join("");
+  }
+
+ async function showDetail(id) {
+  const res = await fetch(`${API_URL}/orders/${id}`, {
+    headers: { Authorization: "Bearer " + token }
+  });
+
+  const { order } = await res.json();
+
+  // Ürün listesi HTML'i oluştur
+  let itemsHtml = '';
+  if (order.items && order.items.length > 0) {
+    itemsHtml = `
+      <div style="margin: 20px 0; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+        <h3 style="margin-bottom: 15px; color: #2c3e50;">📦 Sipariş Ürünleri</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background: #34495e; color: white;">
+              <th style="padding: 10px; text-align: left;">Ürün</th>
+              <th style="padding: 10px; text-align: center;">Adet</th>
+              <th style="padding: 10px; text-align: right;">Birim Fiyat</th>
+              <th style="padding: 10px; text-align: right;">Toplam</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${order.items.map(item => `
+              <tr style="border-bottom: 1px solid #dee2e6;">
+                <td style="padding: 10px;">${item.ad || item.name || 'Ürün'}</td>
+                <td style="padding: 10px; text-align: center;">${item.adet || item.quantity || 1}</td>
+                <td style="padding: 10px; text-align: right;">₺${(item.fiyat || item.price || 0).toFixed(2)}</td>
+                <td style="padding: 10px; text-align: right; font-weight: bold;">₺${((item.fiyat || item.price || 0) * (item.adet || item.quantity || 1)).toFixed(2)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
         
-        function logout() {
-            localStorage.removeItem('adminToken');
-            window.location.href = 'login.html';
-        }
-    </script>
+        <div style="margin-top: 15px; text-align: right; font-size: 16px;">
+          <div style="color: #7f8c8d;">Ara Toplam: ₺${order.toplam ? (order.toplam / 1.2).toFixed(2) : '0.00'}</div>
+          <div style="color: #7f8c8d;">KDV (%20): ₺${order.toplam ? (order.toplam - (order.toplam / 1.2)).toFixed(2) : '0.00'}</div>
+          <div style="font-size: 20px; font-weight: bold; color: #2c3e50; margin-top: 10px;">
+            Genel Toplam: ₺${order.toplam ? order.toplam.toFixed(2) : '0.00'}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  document.getElementById("modalBody").innerHTML = `
+    <p><b>Sipariş ID:</b> ${order._id}</p>
+    <p><b>Email:</b> ${order.email}</p>
+    <p><b>Firma:</b> ${order.firmaAdi || '-'}</p>
+    <p><b>Telefon:</b> ${order.telefon || '-'}</p>
+    <p><b>Tarih:</b> ${new Date(order.createdAt).toLocaleString('tr-TR')}</p>
+    
+    <hr style="margin: 20px 0;">
+    
+    ${itemsHtml}
+    
+    <hr style="margin: 20px 0;">
+
+    <h3 style="margin-bottom: 15px;">🚚 Kargo Bilgisi</h3>
+    
+    <label>Durum</label>
+    <select id="statusSelect" style="width: 100%; padding: 8px; margin-bottom: 15px;">
+      <option ${order.status==="Yeni"?"selected":""}>Yeni</option>
+      <option ${order.status==="Hazırlanıyor"?"selected":""}>Hazırlanıyor</option>
+      <option ${order.status==="Kargoya Verildi"?"selected":""}>Kargoya Verildi</option>
+      <option ${order.status==="Teslim Edildi"?"selected":""}>Teslim Edildi</option>
+      <option ${order.status==="İptal Edildi"?"selected":""}>İptal Edildi</option>
+    </select>
+    <button onclick="updateStatus('${order._id}')" style="background: #3498db; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 20px;">
+      Durum Kaydet
+    </button>
+
+    <hr style="margin: 20px 0;">
+
+    <label>Kargo Firması</label>
+    <select id="kargoFirma" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+      <option value="Yurtiçi Kargo" ${order.kargoBilgisi?.firma === 'Yurtiçi Kargo' ? 'selected' : ''}>Yurtiçi Kargo</option>
+      <option value="Aras Kargo" ${order.kargoBilgisi?.firma === 'Aras Kargo' ? 'selected' : ''}>Aras Kargo</option>
+      <option value="MNG Kargo" ${order.kargoBilgisi?.firma === 'MNG Kargo' ? 'selected' : ''}>MNG Kargo</option>
+      <option value="PTT Kargo" ${order.kargoBilgisi?.firma === 'PTT Kargo' ? 'selected' : ''}>PTT Kargo</option>
+      <option value="Sürat Kargo" ${order.kargoBilgisi?.firma === 'Sürat Kargo' ? 'selected' : ''}>Sürat Kargo</option>
+    </select>
+
+    <label>Takip No</label>
+    <input id="kargoTakipNo" value="${order.kargoBilgisi?.takipNo || ''}" style="width: 100%; padding: 8px; margin-bottom: 10px;" placeholder="Takip numarası girin">
+
+    <label>Kargo Durumu</label>
+    <select id="kargoDurum" style="width: 100%; padding: 8px; margin-bottom: 15px;">
+      <option value="Hazırlanıyor" ${order.kargoBilgisi?.durum === 'Hazırlanıyor' ? 'selected' : ''}>Hazırlanıyor</option>
+      <option value="Kargoya Verildi" ${order.kargoBilgisi?.durum === 'Kargoya Verildi' ? 'selected' : ''}>Kargoya Verildi</option>
+      <option value="Yolda" ${order.kargoBilgisi?.durum === 'Yolda' ? 'selected' : ''}>Yolda</option>
+      <option value="Dağıtımda" ${order.kargoBilgisi?.durum === 'Dağıtımda' ? 'selected' : ''}>Dağıtımda</option>
+      <option value="Teslim Edildi" ${order.kargoBilgisi?.durum === 'Teslim Edildi' ? 'selected' : ''}>Teslim Edildi</option>
+    </select>
+
+    <button onclick="updateKargo('${order._id}')" style="background: #e67e22; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+      Kargo Kaydet
+    </button>
+  `;
+
+  document.getElementById("orderModal").style.display = "flex";
+}
+
+  async function updateStatus(orderId) {
+    const status = document.getElementById("statusSelect").value;
+
+    await fetch(`${API_URL}/orders/${orderId}/status`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      body: JSON.stringify({ status })
+    });
+
+    alert("Durum güncellendi ✅");
+    closeModal();
+    loadOrders();
+  }
+
+  async function updateKargo(orderId) {
+    const firma = document.getElementById("kargoFirma").value;
+    const takipNo = document.getElementById("kargoTakipNo").value;
+    const durum = document.getElementById("kargoDurum").value;
+
+    // orders.html içinde updateKargo fonksiyonunda:
+await fetch(`${API_URL}/admin/orders/${orderId}/kargo`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      body: JSON.stringify({ firma, takipNo, durum })
+    });
+
+    alert("Kargo kaydedildi ✅");
+    closeModal();
+    loadOrders();
+  }
+
+  function closeModal() {
+    document.getElementById("orderModal").style.display = "none";
+  }
+
+  loadOrders();
+</script>
+
 </body>
 </html>

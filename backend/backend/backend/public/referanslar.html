@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Referanslarımız - Kurumsal Tedarikçi</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/><link href="css/style.css" rel="stylesheet"/>
+<style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f9fafb; }
+        
+        .navbar {
+            position: fixed; top: 0; left: 0; width: 100%; background: white; 
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1); z-index: 1000; padding: 15px 5%;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo { font-size: 24px; font-weight: 800; color: #1f2937; text-decoration: none; }
+        .logo span { color: #6366f1; }
+        .nav-links { display: flex; list-style: none; gap: 25px; }
+        .nav-links a { text-decoration: none; color: #374151; font-weight: 500; font-size: 15px; }
+        .nav-links a.active { color: #6366f1; font-weight: 700; }
+        
+        .ref-hero {
+            margin-top: 70px; padding: 100px 5%; 
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+            color: white; text-align: center;
+        }
+        .ref-hero h1 { font-size: 3rem; margin-bottom: 15px; font-weight: 800; }
+        .ref-hero p { font-size: 1.2rem; opacity: 0.95; }
+        
+        .stats-bar {
+            background: white; padding: 40px 5%; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center; gap: 60px; flex-wrap: wrap;
+        }
+        .stat-item { text-align: center; }
+        .stat-number { font-size: 2.5rem; font-weight: 800; color: #6366f1; display: block; }
+        .stat-label { color: #6b7280; font-weight: 600; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 60px 5%; }
+        
+        .section-title {
+            text-align: center; font-size: 2.2rem; color: #1f2937; 
+            margin-bottom: 50px; font-weight: 700;
+        }
+        
+        /* Müşteri Yorumları */
+        .yorumlar-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px;
+            margin-bottom: 80px;
+        }
+        .yorum-kart {
+            background: white; padding: 35px; border-radius: 16px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .yorum-kart::before {
+            content: '"'; position: absolute; top: 20px; left: 20px; 
+            font-size: 60px; color: #6366f1; opacity: 0.2; font-family: serif;
+        }
+        .yorum-text {
+            font-size: 16px; line-height: 1.8; color: #4b5563; margin-bottom: 25px; font-style: italic;
+        }
+        .yorum-sahibi {
+            display: flex; align-items: center; gap: 15px;
+        }
+        .sahibi-avatar {
+            width: 50px; height: 50px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 20px;
+        }
+        .sahibi-info h4 { color: #1f2937; margin-bottom: 3px; font-size: 16px; }
+        .sahibi-info span { color: #6b7280; font-size: 14px; }
+        .stars { color: #f59e0b; margin-top: 5px; font-size: 14px; }
+        
+        /* Partner Logoları */
+        .partnerler {
+            background: white; padding: 60px 5%; border-radius: 20px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05); text-align: center;
+        }
+        .partner-grid {
+            display: flex; justify-content: center; align-items: center; 
+            gap: 40px; flex-wrap: wrap; margin-top: 40px;
+        }
+        .partner-logo {
+            width: 120px; height: 60px; background: #f3f4f6; 
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            color: #9ca3af; font-weight: 700; font-size: 14px; border: 2px solid #e5e7eb;
+        }
+        
+        /* Başarı Hikayeleri */
+        .hikayeler-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;
+            margin-top: 60px;
+        }
+        .hikaye-kart {
+            background: white; border-radius: 16px; overflow: hidden; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .hikaye-img {
+            height: 180px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            display: flex; align-items: center; justify-content: center; color: white; font-size: 48px;
+        }
+        .hikaye-icerik { padding: 25px; }
+        .hikaye-icerik h3 { color: #1f2937; margin-bottom: 10px; font-size: 18px; }
+        .hikaye-icerik p { color: #6b7280; font-size: 14px; line-height: 1.6; margin-bottom: 15px; }
+        .hikaye-sonuc {
+            background: #f0fdf4; color: #059669; padding: 10px 15px; 
+            border-radius: 8px; font-size: 13px; font-weight: 700; display: inline-block;
+        }
+        
+        footer { background: #1f2937; color: white; padding: 40px 5%; text-align: center; }
+        
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .stats-bar { gap: 30px; }
+            .yorumlar-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar">
+<a class="logo" href="index.html">Kurumsal<span>Tedarikçi</span></a><button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()"><i class="fas fa-bars" id="menuIcon"></i></button>
+<ul class="nav-links">
+<li><a href="index.html">Anasayfa</a></li>
+<li><a href="hizmetler.html">Hizmetler</a></li>
+<li><a href="paketler.html">Paketler</a></li>
+<li><a href="urunler.html">Ürünler</a></li>
+<li><a class="active" href="referanslar.html">Referanslar</a></li>
+<li><a href="teklif.html" style="color: #f59e0b; font-weight: 600;">Teklif Al</a></li>
+<li><a href="iletisim.html">İletişim</a></li>
+</ul>
+<div id="navUserArea" style="display: flex; align-items: center; gap: 15px;">
+<a href="giris.html" style="text-decoration: none; color: #6366f1; font-weight: 600; font-size: 14px; padding: 8px 16px; border: 2px solid #6366f1; border-radius: 20px;">Giriş Yap</a>
+<a href="odeme.html" style="background: #6366f1; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none;">
+<i class="fas fa-shopping-cart" style="font-size: 16px;"></i>
+</a>
+</div>
+</nav><div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a href="urunler.html">Ürünler</a></li><li><a class="active" href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
+<!-- Hero -->
+<section class="ref-hero">
+<h1>Mutlu Müşterilerimiz</h1>
+<p>1500'den fazla işletmeye hizmet verdik. Güveninizi kazanmak en büyük referansımız.</p>
+</section>
+<!-- İstatistikler -->
+<div class="stats-bar">
+<div class="stat-item">
+<span class="stat-number">1500+</span>
+<span class="stat-label">Aktif Müşteri</span>
+</div>
+<div class="stat-item">
+<span class="stat-number">98%</span>
+<span class="stat-label">Memnuniyet Oranı</span>
+</div>
+<div class="stat-item">
+<span class="stat-number">50+</span>
+<span class="stat-label">Kurumsal Firma</span>
+</div>
+<div class="stat-item">
+<span class="stat-number">7/24</span>
+<span class="stat-label">Destek</span>
+</div>
+</div>
+<div class="container">
+<!-- Müşteri Yorumları -->
+<h2 class="section-title">Müşteri Yorumları</h2>
+<div class="yorumlar-grid">
+<div class="yorum-kart">
+<p class="yorum-text">E-fatura geçiş sürecinde aldığımız destek mükemmeldi. Teknik ekip sorularımızı anında yanıtladı ve sistem 1 günde hazır hale geldi. Kesinlikle tavsiye ederim.</p>
+<div class="yorum-sahibi">
+<div class="sahibi-avatar">AY</div>
+<div class="sahibi-info">
+<h4>Ahmet Yılmaz</h4>
+<span>Yılmaz Ticaret - Genel Müdür</span>
+<div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+</div>
+</div>
+</div>
+<div class="yorum-kart">
+<p class="yorum-text">Trendyol entegrasyonu sayesinde sipariş yönetimimiz %80 daha hızlandı. Otomatik fatura kesimi ve stok takibi işlerimizi çok kolaylaştırdı.</p>
+<div class="yorum-sahibi">
+<div class="sahibi-avatar">SK</div>
+<div class="sahibi-info">
+<h4>Selin Kaya</h4>
+<span>Kaya Textil - E-Ticaret Müdürü</span>
+<div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+</div>
+</div>
+</div>
+<div class="yorum-kart">
+<p class="yorum-text">Kurumsal IT hizmetleri sayesinde artık teknik sorunlarla uğraşmıyoruz. 7/24 destek gerçekten var ve çok hızlılar. Mali mühür kurulumu bile uzaktan hallettiler.</p>
+<div class="yorum-sahibi">
+<div class="sahibi-avatar">MB</div>
+<div class="sahibi-info">
+<h4>Mehmet Berk</h4>
+<span>Berk Danışmanlık - İK Direktörü</span>
+<div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Başarı Hikayeleri -->
+<h2 class="section-title">Başarı Hikayeleri</h2>
+<div class="hikayeler-grid">
+<div class="hikaye-kart">
+<div class="hikaye-img"><i class="fas fa-industry"></i></div>
+<div class="hikaye-icerik">
+<h3>Üretim Firması Dijital Dönüşümü</h3>
+<p>250 çalışanlı üretim firmasının tüm muhasebe süreçlerini dijitalleştirdik. E-fatura, e-defter ve e-irsaliye entegrasyonu tamamlandı.</p>
+<span class="hikaye-sonuc">%60 Maliyet Düşüşü</span>
+</div>
+</div>
+<div class="hikaye-kart">
+<div class="hikaye-img" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><i class="fas fa-shopping-bag"></i></div>
+<div class="hikaye-icerik">
+<h3>E-Ticaret Operasyon Optimizasyonu</h3>
+<p>Trendyol, Hepsiburada ve Amazon entegrasyonu ile günlük 500+ siparişi otomatik yönetir hale geldiler.</p>
+<span class="hikaye-sonuc">3x Satış Artışı</span>
+</div>
+</div>
+<div class="hikaye-kart">
+<div class="hikaye-img" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><i class="fas fa-building"></i></div>
+<div class="hikaye-icerik">
+<h3>İnşaat Şirketi IT Altyapısı</h3>
+<p>5 şubeli inşaat şirketinin tüm IT altyapısını yeniledik. VPN, bulut yedekleme ve güvenlik çözümleri kurduk.</p>
+<span class="hikaye-sonuc">Sıfır Kesinti</span>
+</div>
+</div>
+</div>
+<!-- Partnerler -->
+<div class="partnerler" style="margin-top: 60px;">
+<h3 style="color: #6b7280; font-size: 18px; margin-bottom: 10px;">İş Ortaklarımız</h3>
+<div class="partner-grid">
+<div class="partner-logo">Taxten</div>
+<div class="partner-logo">Arksigner</div>
+<div class="partner-logo">GİB</div>
+<div class="partner-logo">Trendyol</div>
+<div class="partner-logo">Hepsiburada</div>
+<div class="partner-logo">Amazon</div>
+<div class="partner-logo">e-Devlet</div>
+<div class="partner-logo">Dell</div>
+</div>
+</div>
+</div>
+<footer>
+<p>© 2025 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
+</footer>
+
+<script>
+(function() {
+  function setOpen(next) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu) return;
+    menu.classList.toggle('active', next);
+    document.body.classList.toggle('menu-open', next);
+    const icon = document.getElementById('menuIcon');
+    if (icon) icon.className = next ? 'fas fa-times' : 'fas fa-bars';
+  }
+
+  window.toggleMenu = function(forceClose) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu) return;
+    const isOpen = menu.classList.contains('active');
+    const next = forceClose === true ? false : !isOpen;
+    setOpen(next);
+  };
+
+  // Overlay click closes menu
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('mobileMenu');
+    if (!menu || !menu.classList.contains('active')) return;
+    if (e.target === menu) toggleMenu(true);
+  });
+
+  // Close after clicking any link in mobile menu
+  document.addEventListener('click', function(e) {
+    const a = e.target.closest && e.target.closest('#mobileMenu a');
+    if (a) toggleMenu(true);
+  });
+
+  // ESC closes
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') toggleMenu(true);
+  });
+})();
+</script>
+<script src="js/main.js"></script>
+</body>
+</html>

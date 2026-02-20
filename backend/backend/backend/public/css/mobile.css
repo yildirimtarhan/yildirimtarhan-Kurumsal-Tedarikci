@@ -1,0 +1,397 @@
+/* ========================================
+   KURUMSAL TEDARİKÇİ - MOBİL UYUMLULUK
+   Tüm sayfalar için responsive CSS
+======================================== */
+
+/* ========== GENEL MOBİL AYARLAR ========== */
+@media (max-width: 768px) {
+    * { -webkit-tap-highlight-color: transparent; }
+    
+    body { 
+        font-size: 16px; 
+        overflow-x: hidden;
+    }
+    
+    /* Dokunma hedefleri minimum 44px */
+    button, a, input, select, textarea {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Container ayarları */
+    .container { 
+        padding: 0 15px !important; 
+        width: 100% !important; 
+        max-width: 100% !important;
+    }
+}
+
+/* ========== NAVBAR & MENÜ ========== */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 12px 15px !important;
+        flex-wrap: wrap;
+        position: fixed !important;
+    }
+    
+    .logo { 
+        font-size: 20px !important; 
+        z-index: 1001;
+    }
+    
+    /* Hamburger Buton */
+    .mobile-menu-btn {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #374151;
+        cursor: pointer;
+        padding: 8px;
+        z-index: 1001;
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    
+    /* Mobil Menü - Slide-in */
+    .nav-links {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: rgba(255,255,255,0.98);
+        backdrop-filter: blur(10px);
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 25px !important;
+        z-index: 1000;
+        margin: 0;
+        padding: 80px 20px 40px;
+        animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .nav-links.active { display: flex !important; }
+    
+    .nav-links a {
+        font-size: 18px !important;
+        padding: 12px 24px;
+        width: 100%;
+        text-align: center;
+        border-radius: 30px;
+        transition: all 0.3s;
+    }
+    
+    .nav-links a:hover, .nav-links a.active {
+        background: rgba(99,102,241,0.1);
+    }
+    
+    /* Kapatma butonu */
+    .close-menu {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: none;
+        border: none;
+        font-size: 28px;
+        color: #374151;
+        cursor: pointer;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+    
+    .close-menu:hover { background: #f3f4f6; }
+    
+    /* Nav sağ kısım (Giriş + Sepet) */
+    .nav-right {
+        gap: 10px !important;
+        margin-right: 50px; /* Hamburger için boşluk */
+    }
+    
+    .cart-btn {
+        width: 40px !important;
+        height: 40px !important;
+    }
+}
+
+/* ========== HERO SECTION ========== */
+@media (max-width: 768px) {
+    .hero {
+        margin-top: 60px !important;
+        min-height: auto !important;
+        padding: 40px 15px !important;
+        text-align: center;
+    }
+    
+    .hero-container {
+        grid-template-columns: 1fr !important;
+        gap: 30px !important;
+    }
+    
+    .hero h1 {
+        font-size: 2rem !important;
+        line-height: 1.2 !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .hero p {
+        font-size: 1rem !important;
+        line-height: 1.6 !important;
+        margin-bottom: 25px !important;
+    }
+    
+    .badge {
+        font-size: 12px !important;
+        padding: 6px 14px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .hero-buttons {
+        flex-direction: column !important;
+        gap: 12px !important;
+        margin-bottom: 30px !important;
+    }
+    
+    .btn {
+        width: 100% !important;
+        justify-content: center;
+        padding: 14px 24px !important;
+        font-size: 15px !important;
+    }
+    
+    .hero-visual { display: none !important; }
+    
+    .hero-stats {
+        flex-direction: column !important;
+        gap: 20px !important;
+        padding-top: 20px !important;
+    }
+    
+    .stat-number { font-size: 1.8rem !important; }
+}
+
+/* ========== QUICK ACCESS CARDS ========== */
+@media (max-width: 768px) {
+    .quick-access { padding: 50px 15px !important; }
+    
+    .section-title {
+        font-size: 1.5rem !important;
+        margin-bottom: 30px !important;
+    }
+    
+    .cards-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+    
+    .feature-card {
+        padding: 30px 20px !important;
+    }
+    
+    .feature-icon {
+        width: 60px !important;
+        height: 60px !important;
+        font-size: 24px !important;
+    }
+    
+    .feature-card h3 {
+        font-size: 1.1rem !important;
+    }
+    
+    .feature-card p {
+        font-size: 14px !important;
+    }
+}
+
+/* ========== GİRİŞ/KAYIT SAYFASI (giris.html) ========== */
+@media (max-width: 768px) {
+    .auth-container {
+        grid-template-columns: 1fr !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        min-height: 100vh !important;
+        max-width: 100% !important;
+    }
+    
+    .auth-left { display: none !important; }
+    
+    .auth-right {
+        padding: 80px 20px 40px !important;
+        position: relative;
+    }
+    
+    .back-link {
+        position: fixed !important;
+        top: 20px !important;
+        left: 15px !important;
+        background: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        z-index: 100;
+    }
+    
+    .tabs {
+        margin-bottom: 25px !important;
+    }
+    
+    .tab-btn {
+        font-size: 15px !important;
+        padding: 10px 20px !important;
+    }
+    
+    .form-group {
+        margin-bottom: 16px !important;
+    }
+    
+    .form-group input {
+        padding: 16px !important; /* Mobil zoom önlemi için 16px */
+        font-size: 16px !important;
+        border-radius: 12px !important;
+    }
+    
+    .social-login {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+    
+    /* Modal Düzenlemeleri */
+    .modal-content {
+        width: 95% !important;
+        padding: 30px 20px !important;
+        margin: 10px !important;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .modal-header h3 {
+        font-size: 1.3rem !important;
+    }
+    
+    .code-inputs {
+        gap: 8px !important;
+    }
+    
+    .code-input {
+        width: 45px !important;
+        height: 45px !important;
+        font-size: 18px !important;
+    }
+    
+    /* Profil Sayfası */
+    .profil-card {
+        margin: 80px 15px 20px !important;
+        padding: 25px !important;
+        max-width: 100% !important;
+    }
+    
+    .profil-header {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 15px !important;
+    }
+    
+    .profil-avatar {
+        width: 70px !important;
+        height: 70px !important;
+        font-size: 28px !important;
+    }
+    
+    .password-section {
+        padding: 20px !important;
+    }
+}
+
+/* ========== FOOTER ========== */
+@media (max-width: 768px) {
+    footer {
+        padding: 30px 15px !important;
+    }
+    
+    footer p {
+        font-size: 13px !important;
+    }
+    
+    .social-links {
+        gap: 15px !important;
+    }
+    
+    .social-links a {
+        width: 40px !important;
+        height: 40px !important;
+    }
+}
+
+/* ========== TABLET DÜZENLEMELERİ (769px - 1024px) ========== */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .hero h1 { font-size: 2.8rem !important; }
+    .hero-container { gap: 40px !important; }
+    .cards-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* ========== YATAY MOD (Landscape) ========== */
+@media (max-height: 500px) and (orientation: landscape) {
+    .hero { min-height: auto !important; padding: 30px 15px !important; }
+    .hero-visual { display: none !important; }
+    .nav-links { padding-top: 60px !important; }
+}
+
+/* =========================================
+   MOBİL MENÜ JAVASCRIPT DESTEĞİ
+   Bu kodları mobile.css SONUNA ekleyin
+========================================= */
+
+/* Menü açıkken body scroll engelleme */
+body.menu-open {
+    overflow: hidden !important;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+/* Mobil menü içerik düzeltmesi */
+@media (max-width: 768px) {
+    .nav-links li {
+        transform: translateY(-20px);
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-links.active li {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    
+    /* Link tıklama alanını genişlet */
+    .nav-links a {
+        padding: 20px !important;
+        margin: 0 !important;
+        display: block !important;
+        width: 100% !important;
+        text-align: center !important;
+        touch-action: manipulation !important;
+        -webkit-touch-callout: none !important;
+        -webkit-user-select: none !important;
+        user-select: none !important;
+    }
+    
+    /* Aktif link görünümü */
+    .nav-links a:active {
+        background: rgba(99,102,241,0.2) !important;
+    }
+}
