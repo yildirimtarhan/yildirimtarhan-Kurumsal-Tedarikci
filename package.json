@@ -1,8 +1,7 @@
 {
-<<<<<<< HEAD
   "name": "kurumsal-tedarikci-backend",
   "version": "1.0.0",
-  "description": "Kurumsal Tedarikci Mail API Backend (Brevo API)",
+  "description": "Kurumsal Tedarikci Mail API Backend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -15,21 +14,8 @@
     "dotenv": "^16.6.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
-    "mongodb": "^7.0.0",
-    "mongoose": "^9.1.5",
-    "nodemailer": "^8.0.1",
-    "sib-api-v3-sdk": "^8.5.0",
-    "twilio": "^5.12.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.2"
+    "mongoose": "^7.0.0",
+    "nodemailer": "^6.9.0",
+    "sib-api-v3-sdk": "^8.5.0"
   }
 }
-=======
-  "name": "kurumsal-tedarikci",
-  "version": "1.0.0",
-  "scripts": {
-    "build": "echo 'Static site - no build needed'"
-  }
-}
->>>>>>> c62ce47d17b67557ff3ccc5f67f893094d0ddcf7
