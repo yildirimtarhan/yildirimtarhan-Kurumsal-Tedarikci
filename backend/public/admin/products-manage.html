@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Stok Yönetimi - Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f6fa;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            position: fixed;
+            left: 0;
+            top: 0;
+            color: white;
+            padding-top: 1.5rem;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: transform 0.3s;
+        }
+        
+        .sidebar .logo {
+            text-align: center;
+            padding: 0 1rem 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar .logo h2 { font-size: 1.3rem; font-weight: 600; }
+        .sidebar .logo span { color: #3498db; }
+        
+        .sidebar nav { margin-top: 1rem; }
+        
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 1rem 1.5rem;
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            font-size: 0.95rem;
+        }
+        
+        .sidebar a:hover, .sidebar a.active {
+            background: rgba(255,255,255,0.05);
+            color: white;
+            border-left-color: #3498db;
+        }
+        
+        .sidebar a i { width: 20px; text-align: center; }
+        
+        .sidebar .logout {
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 1rem;
+        }
+        
+        /* Mobile Menu Button */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        /* Overlay */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        
+        .overlay.active { display: block; }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            padding: 1.5rem;
+            width: calc(100% - 260px);
+            min-height: 100vh;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .header h1 { 
+            color: #2c3e50; 
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.875rem 1.25rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn:active { transform: scale(0.98); }
+        
+        .btn-sm { padding: 0.625rem; font-size: 0.85rem; min-width: 40px; }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .stat-card .icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        
+        .stat-card.blue .icon { background: #e3f2fd; color: #1976d2; }
+        .stat-card.orange .icon { background: #fff3e0; color: #f57c00; }
+        .stat-card.red .icon { background: #ffebee; color: #d32f2f; }
+        .stat-card.green .icon { background: #e8f5e9; color: #388e3c; }
+        
+        .stat-card .info h3 { 
+            color: #7f8c8d; 
+            font-size: 0.75rem; 
+            margin-bottom: 0.2rem;
+            text-transform: uppercase;
+        }
+        
+        .stat-card .number { 
+            font-size: 1.4rem; 
+            font-weight: bold; 
+            color: #2c3e50; 
+        }
+        
+        /* Filters */
+        .filters {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        .filters input, .filters select {
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        /* Table Desktop */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #34495e;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 0.9rem;
+        }
+        
+        tr:hover { background: #f8f9fa; }
+        
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-danger { background: #f8d7da; color: #721c24; }
+        
+        .stock-bar {
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        
+        .stock-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+        
+        .stock-fill.high { background: #27ae60; }
+        .stock-fill.medium { background: #f39c12; }
+        .stock-fill.low { background: #e74c3c; }
+        
+        /* Mobile Cards */
+        .mobile-cards {
+            display: none;
+            gap: 1rem;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .product-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+        
+        .product-card h3 {
+            font-size: 1rem;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+        }
+        
+        .product-card .sku {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            font-family: monospace;
+        }
+        
+        .product-card .card-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.85rem;
+        }
+        
+        .product-card .card-footer {
+            display: flex;
+            gap: 0.5rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #ecf0f1;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        
+        .modal.active { display: flex; }
+        
+        .modal-content {
+            background: white;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 12px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+        
+        .modal-header h2 { 
+            color: #2c3e50; 
+            font-size: 1.25rem;
+        }
+        
+        .close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #7f8c8d;
+            padding: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            color: #555;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            -webkit-appearance: none;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Loading & Empty */
+        .loading, .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #7f8c8d;
+        }
+        
+        .loading i, .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 1024px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        @media (max-width: 768px) {
+            .menu-toggle { display: block; }
+            
+            .sidebar { 
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            
+            .sidebar.active { transform: translateX(0); }
+            
+            .main-content { 
+                margin-left: 0; 
+                width: 100%;
+                padding: 4rem 1rem 1rem;
+            }
+            
+            .header h1 { font-size: 1.25rem; }
+            
+            .stats-grid { 
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+            
+            .stat-card { padding: 1rem; }
+            .stat-card .icon { width: 40px; height: 40px; font-size: 1rem; }
+            .stat-card .number { font-size: 1.2rem; }
+            .stat-card .info h3 { font-size: 0.7rem; }
+            
+            .filters { flex-direction: column; }
+            .filters input, .filters select { width: 100%; }
+            
+            .table-container { display: none; }
+            .mobile-cards { display: flex; flex-direction: column; }
+            
+            .form-row { grid-template-columns: 1fr; }
+            
+            .btn { 
+                padding: 1rem; 
+                font-size: 1rem;
+                min-height: 48px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <h2>Kurumsal<span>Tedarikçi</span></h2>
+            <small>Admin Paneli</small>
+        </div>
+        <nav>
+            <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="users.html"><i class="fas fa-users"></i> Kullanıcılar</a>
+            <a href="orders.html"><i class="fas fa-box"></i> Siparişler</a>
+            <a href="products.html"><i class="fas fa-cubes"></i> Ürünler (ERP)</a>
+            <a href="products-manage.html" class="active"><i class="fas fa-warehouse"></i> Stok Yönetimi</a>
+            <a href="kargo-bildirim.html"><i class="fas fa-truck"></i> Kargo Bildirim</a>
+            <a href="#" class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h1><i class="fas fa-warehouse"></i> Stok Yönetimi</h1>
+            <button class="btn btn-primary" onclick="openModal()">
+                <i class="fas fa-plus"></i> <span class="hide-mobile">Yeni Ürün</span>
+            </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card blue">
+                <div class="icon"><i class="fas fa-boxes"></i></div>
+                <div class="info">
+                    <h3>Toplam Ürün</h3>
+                    <div class="number" id="totalProducts">-</div>
+                </div>
+            </div>
+            <div class="stat-card orange">
+                <div class="icon"><i class="fas fa-coins"></i></div>
+                <div class="info">
+                    <h3>Stok Değeri</h3>
+                    <div class="number" id="stockValue">-</div>
+                </div>
+            </div>
+            <div class="stat-card red">
+                <div class="icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="info">
+                    <h3>Kritik Stok</h3>
+                    <div class="number" id="lowStockCount">-</div>
+                </div>
+            </div>
+            <div class="stat-card green">
+                <div class="icon"><i class="fas fa-check-circle"></i></div>
+                <div class="info">
+                    <h3>Aktif Ürün</h3>
+                    <div class="number" id="activeProducts">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <input type="text" id="searchInput" placeholder="Ürün adı veya SKU ara..." onkeyup="loadProducts()">
+            <select id="categoryFilter" onchange="loadProducts()">
+                <option value="all">Tüm Kategoriler</option>
+                <option value="E-Fatura">E-Fatura</option>
+                <option value="E-İrsaliye">E-İrsaliye</option>
+                <option value="Mali Mühür">Mali Mühür</option>
+                <option value="E-Defter">E-Defter</option>
+                <option value="Diğer">Diğer</option>
+            </select>
+            <select id="stockFilter" onchange="loadProducts()">
+                <option value="all">Tüm Stoklar</option>
+                <option value="low">Kritik Stok</option>
+                <option value="out">Tükenen</option>
+            </select>
+        </div>
+
+        <!-- Desktop Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ürün</th>
+                        <th>SKU</th>
+                        <th>Kategori</th>
+                        <th>Fiyat</th>
+                        <th>Stok</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTable">
+                    <tr>
+                        <td colspan="6" class="loading">
+                            <i class="fas fa-spinner fa-spin"></i> Yükleniyor...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="mobile-cards" id="mobileCards"></div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Yeni Ürün Ekle</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="productForm" onsubmit="saveProduct(event)">
+                <input type="hidden" id="productId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Ürün Adı *</label>
+                        <input type="text" id="productName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>SKU *</label>
+                        <input type="text" id="productSku" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Kategori *</label>
+                        <select id="productCategory" required>
+                            <option value="E-Fatura">E-Fatura</option>
+                            <option value="E-İrsaliye">E-İrsaliye</option>
+                            <option value="Mali Mühür">Mali Mühür</option>
+                            <option value="E-Defter">E-Defter</option>
+                            <option value="Diğer">Diğer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Birim</label>
+                        <input type="text" id="productUnit" value="Adet">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Satış Fiyatı *</label>
+                        <input type="number" id="productPrice" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Maliyet Fiyatı</label>
+                        <input type="number" id="productCost" step="0.01">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Başlangıç Stoku *</label>
+                        <input type="number" id="productStock" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Kritik Stok Seviyesi</label>
+                        <input type="number" id="productMinStock" value="10">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Açıklama</label>
+                    <textarea id="productDesc" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-save"></i> Kaydet
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="stockModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Stok Güncelle</h2>
+                <span class="close" onclick="closeStockModal()">&times;</span>
+            </div>
+            <form id="stockForm" onsubmit="updateStock(event)">
+                <input type="hidden" id="stockProductId">
+                <div class="form-group">
+                    <label>İşlem Tipi *</label>
+                    <select id="stockType" required>
+                        <option value="giris">Stok Girişi (+)</option>
+                        <option value="cikis">Stok Çıkışı (-)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Miktar *</label>
+                    <input type="number" id="stockQuantity" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Açıklama</label>
+                    <input type="text" id="stockReason" placeholder="Örn: Yeni sevkiyat">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-sync"></i> Güncelle
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.hostname.includes("localhost") 
+            ? "http://localhost:3000/api" 
+            : "https://backend-api-7s13.onrender.com/api";
+
+        const token = localStorage.getItem("adminToken");
+        if (!token) window.location.href = "login.html";
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function logout() {
+            localStorage.removeItem("adminToken");
+            window.location.href = "login.html";
+        }
+
+        async function loadStats() {
+            try {
+                const res = await fetch(`${API_URL}/products/report/summary`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    document.getElementById('totalProducts').textContent = data.report.totalProducts;
+                    document.getElementById('stockValue').textContent = '₺' + Math.round(data.report.totalStockValue || 0).toLocaleString('tr-TR');
+                    document.getElementById('lowStockCount').textContent = data.report.lowStockProducts;
+                    document.getElementById('activeProducts').textContent = data.report.totalProducts;
+                }
+            } catch (err) {
+                console.error("Stats error:", err);
+            }
+        }
+
+        async function loadProducts() {
+            const tbody = document.getElementById('productsTable');
+            const mobileCards = document.getElementById('mobileCards');
+            const search = document.getElementById('searchInput').value;
+            const category = document.getElementById('categoryFilter').value;
+            const stockFilter = document.getElementById('stockFilter').value;
+
+            try {
+                let url = `${API_URL}/products?`;
+                if (search) url += `search=${encodeURIComponent(search)}&`;
+                if (category !== 'all') url += `category=${encodeURIComponent(category)}&`;
+                if (stockFilter === 'low') url += `lowStock=true&`;
+
+                const res = await fetch(url, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (!data.success) throw new Error(data.message);
+
+                if (data.products.length === 0) {
+                    const emptyHtml = `
+                        <div class="empty-state">
+                            <i class="fas fa-box-open"></i>
+                            <p>Ürün bulunamadı</p>
+                        </div>
+                    `;
+                    tbody.innerHTML = `<tr><td colspan="6">${emptyHtml}</td></tr>`;
+                    mobileCards.innerHTML = emptyHtml;
+                    return;
+                }
+
+                // Desktop Table
+                tbody.innerHTML = data.products.map(p => renderTableRow(p)).join('');
+                
+                // Mobile Cards
+                mobileCards.innerHTML = data.products.map(p => renderMobileCard(p)).join('');
+
+            } catch (err) {
+                const errorHtml = `<div style="color: red; text-align: center; padding: 2rem;">Hata: ${err.message}</div>`;
+                tbody.innerHTML = `<tr><td colspan="6">${errorHtml}</td></tr>`;
+                mobileCards.innerHTML = errorHtml;
+            }
+        }
+
+        function renderTableRow(p) {
+            const stockPercent = Math.min((p.stock / (p.maxStock || 100)) * 100, 100);
+            let stockClass = 'high';
+            let stockBadge = 'badge-success';
+            let stockText = 'Yeterli';
+            
+            if (p.stock <= 0) {
+                stockClass = 'low';
+                stockBadge = 'badge-danger';
+                stockText = 'Tükendi';
+            } else if (p.stock <= p.minStock) {
+                stockClass = 'low';
+                stockBadge = 'badge-danger';
+                stockText = 'Kritik';
+            } else if (p.stock <= p.minStock * 1.5) {
+                stockClass = 'medium';
+                stockBadge = 'badge-warning';
+                stockText = 'Az';
+            }
+
+            return `
+                <tr>
+                    <td>
+                        <strong>${p.name}</strong>
+                        ${p.description ? `<br><small style="color: #7f8c8d;">${p.description.substring(0, 50)}...</small>` : ''}
+                    </td>
+                    <td><code style="background: #f8f9fa; padding: 2px 6px; border-radius: 4px;">${p.sku}</code></td>
+                    <td>${p.category}</td>
+                    <td>₺${p.price.toFixed(2)}</td>
+                    <td>
+                        <span class="badge ${stockBadge}">${stockText}</span>
+                        <div style="margin-top: 5px; font-size: 0.85rem;">
+                            <strong>${p.stock} ${p.unit}</strong>
+                        </div>
+                        <div class="stock-bar">
+                            <div class="stock-fill ${stockClass}" style="width: ${stockPercent}%"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-sm btn-warning" onclick="openStockModal('${p._id}')" title="Stok">
+                                <i class="fas fa-sync"></i>
+                            </button>
+                            <button class="btn btn-sm btn-primary" onclick="editProduct('${p._id}')" title="Düzenle">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteProduct('${p._id}')" title="Sil">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function renderMobileCard(p) {
+            const stockStatus = p.stock <= p.minStock ? 'Kritik' : p.stock <= p.minStock * 1.5 ? 'Az' : 'Yeterli';
+            const stockColor = p.stock <= p.minStock ? '#e74c3c' : p.stock <= p.minStock * 1.5 ? '#f39c12' : '#27ae60';
+            
+            return `
+                <div class="product-card">
+                    <div class="card-header">
+                        <div>
+                            <h3>${p.name}</h3>
+                            <span class="sku">${p.sku}</span>
+                        </div>
+                        <span class="badge" style="background: ${stockColor}20; color: ${stockColor};">
+                            ${stockStatus}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div><strong>Kategori:</strong> ${p.category}</div>
+                        <div><strong>Fiyat:</strong> ₺${p.price.toFixed(2)}</div>
+                        <div><strong>Stok:</strong> ${p.stock} ${p.unit}</div>
+                        <div><strong>Kritik:</strong> ${p.minStock} ${p.unit}</div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-warning" onclick="openStockModal('${p._id}')">
+                            <i class="fas fa-sync"></i> Stok
+                        </button>
+                        <button class="btn btn-sm btn-primary" onclick="editProduct('${p._id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteProduct('${p._id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openModal() {
+            document.getElementById('productModal').classList.add('active');
+            document.getElementById('productForm').reset();
+            document.getElementById('productId').value = '';
+            document.getElementById('modalTitle').textContent = 'Yeni Ürün Ekle';
+        }
+
+        function closeModal() {
+            document.getElementById('productModal').classList.remove('active');
+        }
+
+        function openStockModal(id) {
+            document.getElementById('stockModal').classList.add('active');
+            document.getElementById('stockProductId').value = id;
+            document.getElementById('stockForm').reset();
+        }
+
+        function closeStockModal() {
+            document.getElementById('stockModal').classList.remove('active');
+        }
+
+        async function saveProduct(e) {
+            e.preventDefault();
+            const id = document.getElementById('productId').value;
+            
+            const data = {
+                name: document.getElementById('productName').value,
+                sku: document.getElementById('productSku').value,
+                category: document.getElementById('productCategory').value,
+                unit: document.getElementById('productUnit').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                costPrice: parseFloat(document.getElementById('productCost').value) || 0,
+                stock: parseInt(document.getElementById('productStock').value),
+                minStock: parseInt(document.getElementById('productMinStock').value),
+                description: document.getElementById('productDesc').value
+            };
+
+            try {
+                const url = id ? `${API_URL}/products/${id}` : `${API_URL}/products`;
+                const method = id ? 'PUT' : 'POST';
+
+                const res = await fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+                
+                if (result.success) {
+                    alert(id ? 'Ürün güncellendi' : 'Ürün eklendi');
+                    closeModal();
+                    loadProducts();
+                    loadStats();
+                } else {
+                    alert('Hata: ' + result.message);
+                }
+            } catch (err) {
+                alert('Bağlantı hatası: ' + err.message);
+            }
+        }
+
+        async function editProduct(id) {
+            try {
+                const res = await fetch(`${API_URL}/products/${id}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                if (!data.success) throw new Error(data.message);
+
+                const p = data.product;
+                document.getElementById('productId').value = p._id;
+                document.getElementById('productName').value = p.name;
+                document.getElementById('productSku').value = p.sku;
+                document.getElementById('productCategory').value = p.category;
+                document.getElementById('productUnit').value = p.unit;
+                document.getElementById('productPrice').value = p.price;
+                document.getElementById('productCost').value = p.costPrice || '';
+                document.getElementById('productStock').value = p.stock;
+                document.getElementById('productMinStock').value = p.minStock;
+                document.getElementById('productDesc').value = p.description || '';
+                
+                document.getElementById('modalTitle').textContent = 'Ürün Düzenle';
+                document.getElementById('productModal').classList.add('active');
+            } catch (err) {
+                alert('Ürün bilgisi alınamadı: ' + err.message);
+            }
+        }
+
+        async function updateStock(e) {
+            e.preventDefault();
+            const id = document.getElementById('stockProductId').value;
+            
+            const data = {
+                type: document.getElementById('stockType').value,
+                quantity: parseInt(document.getElementById('stockQuantity').value),
+                reason: document.getElementById('stockReason').value
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/products/${id}/stock`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+                
+                if (result.success) {
+                    alert('Stok güncellendi');
+                    closeStockModal();
+                    loadProducts();
+                    loadStats();
+                } else {
+                    alert('Hata: ' + result.message);
+                }
+            } catch (err) {
+                alert('Bağlantı hatası: ' + err.message);
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('Bu ürünü silmek istediğinize emin misiniz?')) return;
+
+            try {
+                const res = await fetch(`${API_URL}/products/${id}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                const result = await res.json();
+                
+                if (result.success) {
+                    alert('Ürün silindi');
+                    loadProducts();
+                    loadStats();
+                } else {
+                    alert('Hata: ' + result.message);
+                }
+            } catch (err) {
+                alert('Bağlantı hatası: ' + err.message);
+            }
+        }
+
+        // Initialize
+        loadStats();
+        loadProducts();
+    </script>
+
+</body>
+</html>

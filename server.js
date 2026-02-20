@@ -20,7 +20,7 @@ const path = require("path");
 const SibApiV3Sdk = require("sib-api-v3-sdk");  // ✅ EKLENDİ
 
 // ✅ ERP Service Import
-const { createCariInERP, createSaleInERP } = require('./services/erpService');
+const { createCariInERP, createSaleInERP } = require('../services/erpService');
 
 // Modeller
 const User = require("./models/User");

@@ -3,56 +3,201 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard</title>
-  <link rel="stylesheet" href="css/mobile.css">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Kurumsal Tedarikçi</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; }
+    body { 
+      font-family: 'Segoe UI', sans-serif; 
+      background: #f5f6fa; 
+    }
     
     /* Sidebar */
     .sidebar {
-      width: 250px;
+      width: 260px;
       height: 100vh;
-      background: #2c3e50;
+      background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
       position: fixed;
       left: 0;
       top: 0;
       color: white;
-      padding-top: 1rem;
+      padding-top: 1.5rem;
       transition: transform 0.3s;
+      z-index: 1000;
     }
-    .sidebar h2 { text-align: center; margin-bottom: 2rem; }
+    .sidebar .logo {
+      text-align: center;
+      padding: 0 1rem 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .sidebar .logo h2 { 
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+    .sidebar .logo span {
+      color: #3498db;
+    }
+    .sidebar nav {
+      margin-top: 1rem;
+    }
     .sidebar a {
-      display: block;
-      padding: 1rem 2rem;
-      color: #ecf0f1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 1rem 1.5rem;
+      color: #bdc3c7;
       text-decoration: none;
-      transition: 0.3s;
+      transition: all 0.3s;
+      border-left: 3px solid transparent;
     }
-    .sidebar a:hover, .sidebar a.active { background: #34495e; }
+    .sidebar a:hover, .sidebar a.active { 
+      background: rgba(255,255,255,0.05);
+      color: white;
+      border-left-color: #3498db;
+    }
+    .sidebar a i {
+      width: 20px;
+      text-align: center;
+    }
+    .sidebar .logout {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
     
     /* Main Content */
     .main-content {
-      margin-left: 250px;
+      margin-left: 260px;
       padding: 2rem;
+      min-height: 100vh;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .header h1 {
+      color: #2c3e50;
+      font-size: 1.8rem;
+    }
+    .header .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #7f8c8d;
     }
     
     /* Stats Cards */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 1.5rem;
       margin-bottom: 2rem;
     }
     .stat-card {
       background: white;
       padding: 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: transform 0.2s;
     }
-    .stat-card h3 { color: #7f8c8d; font-size: 0.9rem; margin-bottom: 0.5rem; }
-    .stat-card .number { font-size: 2rem; font-weight: bold; color: #2c3e50; }
+    .stat-card:hover {
+      transform: translateY(-3px);
+    }
+    .stat-card .icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    .stat-card.blue .icon { background: #e3f2fd; color: #1976d2; }
+    .stat-card.green .icon { background: #e8f5e9; color: #388e3c; }
+    .stat-card.orange .icon { background: #fff3e0; color: #f57c00; }
+    .stat-card.red .icon { background: #ffebee; color: #d32f2f; }
+    
+    .stat-card .info h3 { 
+      color: #7f8c8d; 
+      font-size: 0.9rem; 
+      margin-bottom: 0.3rem;
+      font-weight: 500;
+    }
+    .stat-card .number { 
+      font-size: 1.8rem; 
+      font-weight: bold; 
+      color: #2c3e50; 
+    }
+    
+    /* Recent Orders */
+    .section {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      margin-bottom: 1.5rem;
+    }
+    .section h2 {
+      color: #2c3e50;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section h2 i {
+      color: #3498db;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #ecf0f1;
+    }
+    th {
+      color: #7f8c8d;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+    }
+    tr:hover {
+      background: #f8f9fa;
+    }
+    
+    .badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge.yeni { background: #fff3e0; color: #e65100; }
+    .badge.hazirlaniyor { background: #e3f2fd; color: #1565c0; }
+    .badge.kargoya-verildi { background: #e8f5e9; color: #2e7d32; }
+    .badge.teslim-edildi { background: #e8f5e9; color: #2e7d32; }
+    
+    .btn-sm {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      background: #3498db;
+      color: white;
+    }
+    .btn-sm:hover {
+      background: #2980b9;
+    }
     
     /* Mobile Menu Button */
     .menu-btn {
@@ -60,93 +205,226 @@
       position: fixed;
       top: 1rem;
       left: 1rem;
-      z-index: 1000;
+      z-index: 1001;
       background: #2c3e50;
       color: white;
       border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 5px;
+      padding: 0.7rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
     }
     
     /* Responsive */
     @media (max-width: 768px) {
-      .sidebar { transform: translateX(-100%); }
-      .sidebar.active { transform: translateX(0); }
-      .main-content { margin-left: 0; }
-      .menu-btn { display: block; }
-      .stats-grid { grid-template-columns: 1fr; }
+      .sidebar { 
+        transform: translateX(-100%); 
+      }
+      .sidebar.active { 
+        transform: translateX(0); 
+      }
+      .main-content { 
+        margin-left: 0; 
+        padding: 1rem;
+        padding-top: 4rem;
+      }
+      .menu-btn { 
+        display: block; 
+      }
+      .stats-grid { 
+        grid-template-columns: 1fr; 
+      }
+      table {
+        font-size: 0.85rem;
+      }
+      th, td {
+        padding: 0.7rem;
+      }
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #7f8c8d;
+    }
+    .loading i {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      display: block;
     }
   </style>
 </head>
 <body>
-  <button class="menu-btn" onclick="toggleSidebar()">☰ Menü</button>
+  <button class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i> Menü</button>
   
   <div class="sidebar" id="sidebar">
-    <h2>Kurumsal Tedarikçi</h2>
-    <a href="#" class="active">Dashboard</a>
-    <a href="users.html">Kullanıcılar</a>
-    <a href="orders.html">Siparişler</a>
-    <a href="products.html">Ürünler (ERP)</a>
-    <a href="#" onclick="logout()">Çıkış Yap</a>
+    <div class="logo">
+      <h2>Kurumsal<span>Tedarikçi</span></h2>
+      <small>Admin Paneli</small>
+    </div>
+    <nav>
+      <a href="index.html" class="active"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="users.html"><i class="fas fa-users"></i> Kullanıcılar</a>
+      <a href="orders.html"><i class="fas fa-box"></i> Siparişler</a>
+      <a href="products.html"><i class="fas fa-cubes"></i> Ürünler (ERP)</a>
+      <a href="kargo-bildirim.html"><i class="fas fa-truck"></i> Kargo Bildirim</a>
+      <a href="products-manage.html"><i class="fas fa-warehouse"></i> Stok Yönetimi</a>
+    </nav>
+    <a href="#" class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</a>
   </div>
   
   <div class="main-content">
-    <h1>Dashboard</h1>
+    <div class="header">
+      <h1>Dashboard</h1>
+      <div class="user-info">
+        <i class="fas fa-user-circle"></i>
+        <span>Admin</span>
+      </div>
+    </div>
     
     <div class="stats-grid">
-      <div class="stat-card">
-        <h3>Toplam Kullanıcı</h3>
-        <div class="number" id="totalUsers">0</div>
+      <div class="stat-card blue">
+        <div class="icon"><i class="fas fa-users"></i></div>
+        <div class="info">
+          <h3>Toplam Kullanıcı</h3>
+          <div class="number" id="totalUsers">-</div>
+        </div>
       </div>
-      <div class="stat-card">
-        <h3>Bugünkü Sipariş</h3>
-        <div class="number" id="todayOrders">0</div>
+      <div class="stat-card green">
+        <div class="icon"><i class="fas fa-shopping-bag"></i></div>
+        <div class="info">
+          <h3>Toplam Sipariş</h3>
+          <div class="number" id="totalOrders">-</div>
+        </div>
       </div>
-      <div class="stat-card">
-        <h3>Bekleyen Onay</h3>
-        <div class="number" id="pendingOrders">0</div>
+      <div class="stat-card orange">
+        <div class="icon"><i class="fas fa-clock"></i></div>
+        <div class="info">
+          <h3>Bugünkü Sipariş</h3>
+          <div class="number" id="todayOrders">-</div>
+        </div>
+      </div>
+      <div class="stat-card red">
+        <div class="icon"><i class="fas fa-exclamation-circle"></i></div>
+        <div class="info">
+          <h3>Bekleyen Onay</h3>
+          <div class="number" id="pendingOrders">-</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2><i class="fas fa-box-open"></i> Son Siparişler</h2>
+      <div id="recentOrders">
+        <div class="loading">
+          <i class="fas fa-spinner fa-spin"></i>
+          Yükleniyor...
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    const API_URL = 'https://backend-api-7s13.onrender.com/api';
-    const token = localStorage.getItem('adminToken');
-    
-    if (!token) window.location.href = '/admin/login.html';
-    
+    const API_URL = window.location.hostname.includes("localhost") 
+      ? "http://localhost:3000/api" 
+      : "https://backend-api-7s13.onrender.com/api";
+
+    const token = localStorage.getItem("adminToken");
+
+    if (!token) {
+      window.location.href = "login.html";
+    }
+
     function toggleSidebar() {
       document.getElementById('sidebar').classList.toggle('active');
     }
-    
+
     function logout() {
-      localStorage.removeItem('adminToken');
-      window.location.href = '/admin/login.html';
+      localStorage.removeItem("adminToken");
+      window.location.href = "login.html";
     }
-    
-    // Dashboard verilerini çek
+
     async function loadDashboard() {
       try {
         const res = await fetch(`${API_URL}/admin/dashboard`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { Authorization: "Bearer " + token }
         });
+
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            throw new Error("Yetkisiz erişim");
+          }
+          throw new Error("Veri alınamadı");
+        }
+
         const data = await res.json();
         
-        document.getElementById('totalUsers').textContent = data.stats.totalUsers;
-        document.getElementById('todayOrders').textContent = data.stats.todayOrders;
-        document.getElementById('pendingOrders').textContent = data.stats.pendingOrders;
+        document.getElementById("totalUsers").textContent = data.stats.totalUsers || 0;
+        document.getElementById("totalOrders").textContent = data.stats.totalOrders || 0;
+        document.getElementById("todayOrders").textContent = data.stats.todayOrders || 0;
+        document.getElementById("pendingOrders").textContent = data.stats.pendingOrders || 0;
+
+        // Son siparişleri yükle
+        loadRecentOrders();
+        
       } catch (err) {
-        console.error(err);
+        console.error("Dashboard hatası:", err);
+        if (err.message === "Yetkisiz erişim") {
+          alert("Oturum süreniz dolmuş, tekrar giriş yapın.");
+          logout();
+        }
       }
     }
-    
+
+    async function loadRecentOrders() {
+      try {
+        const res = await fetch(`${API_URL}/admin/orders?limit=5`, {
+          headers: { Authorization: "Bearer " + token }
+        });
+        
+        const data = await res.json();
+        
+        if (!data.orders || data.orders.length === 0) {
+          document.getElementById("recentOrders").innerHTML = '<p style="text-align:center; padding: 2rem; color: #7f8c8d;">Henüz sipariş yok</p>';
+          return;
+        }
+        
+        const html = `
+          <table>
+            <thead>
+              <tr>
+                <th>Sipariş No</th>
+                <th>Müşteri</th>
+                <th>Tutar</th>
+                <th>Durum</th>
+                <th>İşlem</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.orders.slice(0, 5).map(order => `
+                <tr>
+                  <td>#${order._id.toString().slice(-6)}</td>
+                  <td>${order.firmaAdi || order.email}</td>
+                  <td>₺${order.toplam?.toFixed(2) || '0.00'}</td>
+                  <td><span class="badge ${order.status?.toLowerCase().replace(' ', '-')}">${order.status}</span></td>
+                  <td><button class="btn-sm" onclick="viewOrder('${order._id}')">Detay</button></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+        
+        document.getElementById("recentOrders").innerHTML = html;
+        
+      } catch (err) {
+        document.getElementById("recentOrders").innerHTML = '<p style="text-align:center; color: #e74c3c;">Siparişler yüklenemedi</p>';
+      }
+    }
+
+    function viewOrder(id) {
+      window.location.href = `orders.html?id=${id}`;
+    }
+
     loadDashboard();
   </script>
-  
-    <script>
-    function toggleMenu() {
-        document.querySelector('.nav-links').classList.toggle('active');
-    }
-    </script>
 </body>
 </html>
