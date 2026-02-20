@@ -105,7 +105,9 @@
         <a href="users.html" class="active">Kullanıcılar</a>
         <a href="orders.html">Siparişler</a>
         <a href="products.html">Ürünler (ERP)</a>
-        <a href="#" onclick="logout()">Çıkış Yap</a>
+        <a href="kargo-bildirim.html"><i class="fas fa-truck"></i> Kargo Bildirim</a>
+        <a href="products-manage.html"><i class="fas fa-warehouse"></i> Stok Yönetimi</a>
+                <a href="#" onclick="logout()">Çıkış Yap</a>
     </div>
     
     <div class="main-content">
@@ -131,69 +133,109 @@
         </div>
     </div>
 
-    <script>
-        const API_URL = 'https://backend-api-7s13.onrender.com/api';
-        const token = localStorage.getItem('adminToken');
-        
-        if (!token) window.location.href = 'login.html';
-        
-        function logout() {
-            localStorage.removeItem('adminToken');
-            window.location.href = 'login.html';
-        }
-        
-        async function loadUsers() {
-            try {
-                const res = await fetch(`${API_URL}/admin/users`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                
-                if (!res.ok) throw new Error('Yetkisiz erişim');
-                
-                const users = await res.json();
-                const tbody = document.getElementById('usersBody');
-                
-                if (users.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem;">Henüz kullanıcı yok</td></tr>';
-                    return;
-                }
-                
-                tbody.innerHTML = users.map(user => `
-                    <tr>
-                        <td>${user.firma || '-'}</td>
-                        <td>${user.email}</td>
-                        <td>${user.telefon || '-'}</td>
-                        <td>${user.kayitTarihi || '-'}</td>
-                        <td>
-                            <button class="btn btn-primary" onclick="syncToERP('${user._id}')">ERP'ye Aktar</button>
-                        </td>
-                    </tr>
-                `).join('');
-            } catch (err) {
-                document.getElementById('usersBody').innerHTML = 
-                    `<tr><td colspan="5" style="color:red; text-align:center; padding: 2rem;">Hata: ${err.message}</td></tr>`;
-            }
-        }
-        
-        async function syncToERP(userId) {
-            try {
-                const res = await fetch(`${API_URL}/admin/sync-cari`, {
-                    method: 'POST',
-                    headers: { 
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ userId })
-                });
-                
-                const data = await res.json();
-                alert(data.message || 'İşlem tamamlandı');
-            } catch (err) {
-                alert('Hata: ' + err.message);
-            }
-        }
-        
-        loadUsers();
-    </script>
+   <script>
+  const API_URL = window.location.hostname.includes("localhost") 
+    ? "http://localhost:3000/api" 
+    : "https://backend-api-7s13.onrender.com/api";
+
+  // ✅ Admin Token kontrol
+  const token = localStorage.getItem("adminToken");
+
+  if (!token) {
+    window.location.href = "login.html";
+  }
+
+  // ✅ Logout
+  function logout() {
+    localStorage.removeItem("adminToken");
+    window.location.href = "login.html";
+  }
+
+  // ✅ Kullanıcıları yükle
+  async function loadUsers() {
+    const tbody = document.getElementById("usersBody");
+    
+    try {
+      const res = await fetch(`${API_URL}/admin/users`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        alert("Oturum süresi dolmuş. Tekrar giriş yapın.");
+        logout();
+        return;
+      }
+
+      const data = await res.json();
+      
+      // 🔴 KRİTİK: API {success: true, users: [...]} döndürüyor
+      // data.users kullanmalıyız, direkt data değil!
+      const users = data.users || [];
+
+      if (!users || users.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align:center; padding: 2rem;">
+              Henüz kullanıcı yok
+            </td>
+          </tr>`;
+        return;
+      }
+
+      tbody.innerHTML = users.map((user) => `
+        <tr>
+          <td>${user.firma || user.ad || "-"}</td>
+          <td>${user.email}</td>
+          <td>${user.telefon || "-"}</td>
+          <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString('tr-TR') : "-"}</td>
+          <td>
+            <button class="btn btn-primary" onclick="syncToERP('${user._id}')">
+              ERP'ye Aktar
+            </button>
+          </td>
+        </tr>
+      `).join("");
+
+    } catch (err) {
+      console.error("Hata:", err);
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" style="color:red; text-align:center; padding: 2rem;">
+            Hata: ${err.message}
+          </td>
+        </tr>`;
+    }
+  }
+
+  // ✅ ERP Cari Aktar
+  async function syncToERP(userId) {
+    try {
+      const res = await fetch(`${API_URL}/admin/sync-cari`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId }),
+      });
+
+      const data = await res.json();
+
+      alert(data.message || "Cari aktarım tamamlandı");
+      
+      // Listeyi yenile
+      loadUsers();
+      
+    } catch (err) {
+      alert("Hata: " + err.message);
+    }
+  }
+
+  // Sayfa yüklendiğinde çalıştır
+  loadUsers();
+</script>
+
 </body>
 </html>

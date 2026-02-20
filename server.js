@@ -6,6 +6,7 @@ console.log("ENV OK:", {
   MONGODB_URI: !!process.env.MONGODB_URI,
   JWT_SECRET: !!process.env.JWT_SECRET,
   SMTP_HOST: !!process.env.SMTP_HOST,
+  ERP_BASE_URL: !!process.env.ERP_BASE_URL,
 });
 
 // 2) Sonra importlar
@@ -17,6 +18,9 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const path = require("path");
 const SibApiV3Sdk = require("sib-api-v3-sdk");  // ✅ EKLENDİ
+
+// ✅ ERP Service Import
+const { createCariInERP, createSaleInERP } = require('./services/erpService');
 
 // Modeller
 const User = require("./models/User");
@@ -331,43 +335,75 @@ app.post("/api/auth/register", async (req, res) => {
     });
 
    // Hoşgeldin emaili gönder
-sendWelcomeEmail(email, ad, uyelikTipi || 'bireysel').catch(err => {
-  console.log("Hoşgeldin emaili gönderilemedi:", err.message);
-});
+    sendWelcomeEmail(email, ad, uyelikTipi || 'bireysel').catch(err => {
+      console.log("Hoşgeldin emaili gönderilemedi:", err.message);
+    });
 
-// ✅ Token üret
-const token = jwt.sign(
-  {
-    userId: newUser._id,
-    email: newUser.email,
-    rol: newUser.rol
-  },
-  JWT_SECRET,
-  { expiresIn: "24h" }
-);
+    // ✅ ERP'ye Cari Aktarımı (YENİ)
+    try {
+      const erpResult = await createCariInERP({
+        ad: newUser.ad,
+        email: newUser.email,
+        telefon: newUser.telefon,
+        firma: newUser.firma,
+        vergiNo: newUser.vergiNo,
+        vergiDairesi: newUser.vergiDairesi,
+        tcNo: newUser.tcNo,
+        faturaAdresi: newUser.faturaAdresi,
+        teslimatAdresi: newUser.teslimatAdresi,
+        uyelikTipi: newUser.uyelikTipi,
+        city: newUser.addresses?.[0]?.city || "İstanbul",
+        district: newUser.addresses?.[0]?.district || ""
+      });
+      
+      if (erpResult.success) {
+        newUser.erpSynced = true;
+        newUser.erpCariId = erpResult.cariId;
+        newUser.erpSyncDate = new Date();
+        await newUser.save();
+        console.log("✅ Kullanıcı ERP'ye aktarıldı:", erpResult.cariId);
+      } else {
+        console.error("⚠️ ERP aktarım hatası:", erpResult.error);
+      }
+    } catch (erpErr) {
+      console.error("⚠️ ERP hatası (kayıt devam etti):", erpErr.message);
+      // Kayıt başarılı sayılır, ERP hatası loglanır
+    }
 
-// ✅ Artık sadece userId değil, token + user dönüyoruz
-res.json({
-  success: true,
-  message: "Kayıt başarılı! Hoş geldiniz.",
-  token,
-  user: {
-    id: newUser._id,
-    ad: newUser.ad,
-    email: newUser.email,
-    rol: newUser.rol,
-    uyelikTipi: newUser.uyelikTipi,
-    telefon: newUser.telefon,
-    firma: newUser.firma,
-    vergiNo: newUser.vergiNo,
-    vergiDairesi: newUser.vergiDairesi,
-    tcNo: newUser.tcNo,
-    faturaAdresi: newUser.faturaAdresi,
-    teslimatAdresi: newUser.teslimatAdresi,
-    addresses: newUser.addresses || []
-  }
-});
+    // ✅ Token üret
+    const token = jwt.sign(
+      {
+        userId: newUser._id,
+        email: newUser.email,
+        rol: newUser.rol
+      },
+      JWT_SECRET,
+      { expiresIn: "24h" }
+    );
 
+    // ✅ Artık sadece userId değil, token + user dönüyoruz
+    res.json({
+      success: true,
+      message: "Kayıt başarılı! Hoş geldiniz.",
+      token,
+      user: {
+        id: newUser._id,
+        ad: newUser.ad,
+        email: newUser.email,
+        rol: newUser.rol,
+        uyelikTipi: newUser.uyelikTipi,
+        telefon: newUser.telefon,
+        firma: newUser.firma,
+        vergiNo: newUser.vergiNo,
+        vergiDairesi: newUser.vergiDairesi,
+        tcNo: newUser.tcNo,
+        faturaAdresi: newUser.faturaAdresi,
+        teslimatAdresi: newUser.teslimatAdresi,
+        addresses: newUser.addresses || [],
+        erpSynced: newUser.erpSynced,
+        erpCariId: newUser.erpCariId
+      }
+    });
 
   } catch (err) {
     console.error("Register hatası:", err);
@@ -725,10 +761,41 @@ app.post("/api/orders", authenticateToken, async (req, res) => {
       console.log("Sipariş emaili gönderilemedi:", err.message);
     });
 
+    // ✅ ERP'ye Satış Aktarımı (YENİ)
+    try {
+      const erpResult = await createSaleInERP(newOrder, {
+        _id: user._id,
+        ad: user.ad,
+        email: user.email,
+        telefon: user.telefon,
+        firma: user.firma,
+        vergiNo: user.vergiNo,
+        vergiDairesi: user.vergiDairesi,
+        tcNo: user.tcNo,
+        faturaAdresi: user.faturaAdresi,
+        teslimatAdresi: user.teslimatAdresi,
+        uyelikTipi: user.uyelikTipi,
+        erpCariId: user.erpCariId
+      });
+      
+      if (erpResult.success) {
+        newOrder.erpSaleNo = erpResult.saleNo;
+        newOrder.erpTransactionId = erpResult.transactionId;
+        await newOrder.save();
+        console.log("✅ Sipariş ERP'ye aktarıldı:", erpResult.saleNo);
+      } else {
+        console.error("⚠️ ERP satış aktarım hatası:", erpResult.error);
+      }
+    } catch (erpErr) {
+      console.error("⚠️ ERP satış hatası (sipariş devam etti):", erpErr.message);
+      // Sipariş başarılı sayılır, ERP hatası loglanır
+    }
+
     res.json({ 
       success: true, 
       message: "Sipariş oluşturuldu",
-      orderId: newOrder._id
+      orderId: newOrder._id,
+      erpSaleNo: newOrder.erpSaleNo || null
     });
   } catch (error) {
     console.error('Sipariş oluşturma hatası:', error);
