@@ -334,51 +334,68 @@ app.post("/api/auth/register", async (req, res) => {
     });
 
    // Hoşgeldin emaili gönder
-    sendWelcomeEmail(email, ad, uyelikTipi || 'bireysel').catch(err => {
-      console.log("Hoşgeldin emaili gönderilemedi:", err.message);
-    });
+sendWelcomeEmail(email, ad, uyelikTipi || 'bireysel').catch(err => {
+  console.log("Hoşgeldin emaili gönderilemedi:", err.message);
+});
 
-    // ✅ ERP'ye Cari Aktarımı (YENİ)
-    try {
-      const erpResult = await createCariInERP({
-        ad: newUser.ad,
-        email: newUser.email,
-        telefon: newUser.telefon,
-        firma: newUser.firma,
-        vergiNo: newUser.vergiNo,
-        vergiDairesi: newUser.vergiDairesi,
-        tcNo: newUser.tcNo,
-        faturaAdresi: newUser.faturaAdresi,
-        teslimatAdresi: newUser.teslimatAdresi,
-        uyelikTipi: newUser.uyelikTipi,
-        city: newUser.addresses?.[0]?.city || "İstanbul",
-        district: newUser.addresses?.[0]?.district || ""
-      });
-      
-      if (erpResult.success) {
-        newUser.erpSynced = true;
-        newUser.erpCariId = erpResult.cariId;
-        newUser.erpSyncDate = new Date();
-        await newUser.save();
-        console.log("✅ Kullanıcı ERP'ye aktarıldı:", erpResult.cariId);
-      } else {
-        console.error("⚠️ ERP aktarım hatası:", erpResult.error);
-      }
-    } catch (erpErr) {
-      console.error("⚠️ ERP hatası (kayıt devam etti):", erpErr.message);
-      // Kayıt başarılı sayılır, ERP hatası loglanır
-    }
+// ✅ ERP'ye Cari Aktarımı (GÜNCELLENMİŞ - Detaylı Log)
+console.log('========== ERP AKTARIM BAŞLADI ==========');
+console.log('🔄 ERP aktarımı başlıyor...');
+console.log('📋 ERP_BASE_URL:', process.env.ERP_BASE_URL || 'TANIMLI DEĞİL!');
+console.log('📋 Kullanıcı:', newUser.email, '| Tip:', newUser.uyelikTipi);
 
-    // ✅ Token üret
-    const token = jwt.sign(
-      {
-        userId: newUser._id,
-        email: newUser.email,
-        rol: newUser.rol
-      },
-      JWT_SECRET,
-      { expiresIn: "24h" }
-    );
+try {
+  const erpData = {
+    ad: newUser.ad,
+    email: newUser.email,
+    telefon: newUser.telefon,
+    firma: newUser.firma,
+    vergiNo: newUser.vergiNo,
+    vergiDairesi: newUser.vergiDairesi,
+    tcNo: newUser.tcNo,
+    faturaAdresi: newUser.faturaAdresi,
+    teslimatAdresi: newUser.teslimatAdresi,
+    uyelikTipi: newUser.uyelikTipi,
+    city: newUser.addresses?.[0]?.city || "İstanbul",
+    district: newUser.addresses?.[0]?.district || ""
+  };
+  
+  console.log('📤 ERP\'ye gönderilen data:', JSON.stringify(erpData, null, 2));
+  
+  const erpResult = await createCariInERP(erpData);
+  
+  console.log('📥 ERP Sonuç:', JSON.stringify(erpResult, null, 2));
+  
+  if (erpResult.success) {
+    newUser.erpSynced = true;
+    newUser.erpCariId = erpResult.cariId;
+    newUser.erpSyncDate = new Date();
+    await newUser.save();
+    console.log("✅ Kullanıcı ERP'ye aktarıldı - Cari ID:", erpResult.cariId);
+  } else {
+    console.error("⚠️ ERP aktarım başarısız - Hata:", erpResult.error);
+    console.error("⚠️ Hata Detayı:", JSON.stringify(erpResult, null, 2));
+  }
+} catch (erpErr) {
+  console.error("❌ ERP HATA (Exception):", erpErr.message);
+  console.error("❌ Stack Trace:", erpErr.stack);
+  if (erpErr.response) {
+    console.error("❌ HTTP Status:", erpErr.response.status);
+    console.error("❌ HTTP Data:", JSON.stringify(erpErr.response.data, null, 2));
+  }
+}
+console.log('========== ERP AKTARIM BİTTİ ==========');
+
+// ✅ Token üret
+const token = jwt.sign(
+  {
+    userId: newUser._id,
+    email: newUser.email,
+    rol: newUser.rol
+  },
+  JWT_SECRET,
+  { expiresIn: "24h" }
+);
 
     // ✅ Artık sadece userId değil, token + user dönüyoruz
     res.json({

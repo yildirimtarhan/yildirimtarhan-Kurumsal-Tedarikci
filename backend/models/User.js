@@ -47,6 +47,8 @@ const UserSchema = new mongoose.Schema({
     isDefault: { type: Boolean, default: false }
   }],
   
+  // ERP entegrasyonu için YENİ ALANLAR
+  erpCariId: { type: String, default: "" },
   erpSynced: { type: Boolean, default: false },
   erpSyncDate: { type: Date },
 
