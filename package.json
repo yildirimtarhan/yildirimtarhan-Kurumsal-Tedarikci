@@ -1,4 +1,7 @@
 {
-  "name": "kurumsal-tedarikci",
-  "version": "1.0.0"
+  "name": "kurumsal-tedarikci-root",
+  "version": "1.0.0",
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
 }
