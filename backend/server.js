@@ -53,6 +53,13 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// TEST: Basit log testi
+app.get("/api/test/log", (req, res) => {
+  console.log("🧪 TEST LOG:", new Date().toISOString());
+  console.log("🧪 Bu log Render'da görünmeli!");
+  res.json({ success: true, message: "Log testi", time: new Date().toISOString() });
+});
+
 // ===================== ROUTES =====================
 // Önce route'ları import et
 const authRoutes = require("./routes/auth");
@@ -271,6 +278,13 @@ async function sendOrderConfirmationEmail(toEmail, order, userName) {
 
 /* ---------- Register (Kayıt Ol) - GÜNCELLENMİŞ ---------- */
 app.post("/api/auth/register", async (req, res) => {
+   // ✅ EN BAŞTA - KESİNLİKLE ÇALIŞMALİ
+  console.log("========================================");
+  console.log("🚨 REGISTER ENDPOINT ÇAĞRILDI:", new Date().toISOString());
+  console.log("📧 Email:", req.body?.email);
+  console.log("📱 Telefon:", req.body?.telefon);
+  console.log("🏢 Firma:", req.body?.firma);
+  console.log("========================================");
   try {
     const { 
       ad, email, password, telefon, uyelikTipi,
