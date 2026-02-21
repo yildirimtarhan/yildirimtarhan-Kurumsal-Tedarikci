@@ -135,7 +135,7 @@ async function sendEmail(toEmail, subject, htmlContent) {
     sendSmtpEmail.htmlContent = htmlContent;
     sendSmtpEmail.sender = {
       name: "Kurumsal Tedarikçi",
-      email: process.env.SMTP_FROM_EMAIL || "info@tedarikci.org.tr",
+      email: process.env.SMTP_FROM_EMAIL || "yildirimtarhan@tedarikci.org.tr",
     };
     sendSmtpEmail.to = [{ email: toEmail }];
 
