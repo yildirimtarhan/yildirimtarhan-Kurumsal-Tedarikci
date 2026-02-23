@@ -11,6 +11,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "adm-zip": "^0.5.16",
     "axios": "^1.13.5",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
@@ -20,9 +21,12 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.0",
     "multer": "^1.4.5-lts.1",
+    "node-cron": "^4.2.1",
     "nodemailer": "^6.10.0",
     "sib-api-v3-sdk": "^8.5.0",
-    "twilio": "^5.12.1"
+    "twilio": "^5.12.1",
+    "uuid": "^13.0.0",
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

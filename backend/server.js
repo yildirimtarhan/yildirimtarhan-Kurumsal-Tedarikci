@@ -25,6 +25,7 @@ const { createCariInERP, createSaleInERP } = require('./services/erpService');
 const User = require("./models/User");
 const Order = require("./models/Order");
 
+
 const app = express();
 
 /* ======================================================
@@ -67,6 +68,10 @@ const addressRoutes = require("./routes/addresses");
 const orderRoutes = require("./routes/orders");
 const adminRoutes = require("./routes/admin");
 const productRoutes = require("./routes/products");
+// ==================== YENİ ROUTE IMPORTLARI ====================
+const cariRoutes = require('./routes/cari');
+const faturaRoutes = require('./routes/fatura');
+const tahsilatRoutes = require('./routes/tahsilat');
 
 
 // Sonra kullan
@@ -75,6 +80,10 @@ app.use("/api/addresses", addressRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/products", productRoutes);
+// ==================== YENİ ROUTE KULLANIMLARI ====================
+app.use('/api/cari', cariRoutes);
+app.use('/api/fatura', faturaRoutes);
+app.use('/api/tahsilat', tahsilatRoutes);
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -1051,6 +1060,59 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(publicPath, "index.html"));
 });
 
+// ==================== TAXTEN OTOMATIK SENKRONIZASYON ====================
+const cron = require('node-cron');
+const TaxtenService = require('./services/taxtenService');
+
+// Her 4 saatte bir fatura durumlarını senkronize et
+cron.schedule('0 */4 * * *', async () => {
+  console.log('[CRON] Taxten fatura durumları senkronize ediliyor...');
+  
+  try {
+    const Fatura = require('./models/Fatura');
+    const taxtenService = new TaxtenService();
+    
+    const birGunOnce = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    
+    const faturalar = await Fatura.find({
+      durum: { $in: ['GÖNDERİLDİ', 'BEKLİYOR'] },
+      taxtenGonderimTarihi: { $gte: birGunOnce }
+    }).select('uuid envUUID _id');
+    
+    for (const fatura of faturalar) {
+      try {
+        const statusResult = await taxtenService.getInvoiceStatus(fatura.envUUID, fatura.uuid);
+        
+        if (statusResult.success) {
+          const code = statusResult.data.ResponseCode;
+          let yeniDurum = fatura.durum;
+          
+          if (code === '1300') yeniDurum = '1300-BAŞARILI';
+          else if (code.startsWith('1')) yeniDurum = 'BEKLİYOR';
+          else yeniDurum = 'HATA';
+          
+          await Fatura.findByIdAndUpdate(fatura._id, {
+            durum: yeniDurum,
+            sistemYanitKodu: code,
+            sistemYanitAciklama: taxtenService.getStatusDescription(code),
+            sonGuncelleme: new Date()
+          });
+          
+          console.log(`[CRON] Fatura ${fatura._id} durumu: ${yeniDurum} (${code})`);
+        }
+      } catch (err) {
+        console.error(`[CRON] Fatura ${fatura._id} hata:`, err.message);
+      }
+    }
+    
+    console.log(`[CRON] ${faturalar.length} fatura kontrol edildi`);
+    
+  } catch (error) {
+    console.error('[CRON] Genel hata:', error);
+  }
+});
+
+console.log('[CRON] Taxten senkronizasyon zamanlayıcısı aktif (her 4 saat)');
 /* ======================================================
    ✅ Server Start
 ====================================================== */

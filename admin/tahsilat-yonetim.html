@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tahsilat Yönetimi - Kurumsal Tedarikçi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar { transition: all 0.3s; }
+        .sidebar-collapsed { width: 70px; }
+        .sidebar-expanded { width: 260px; }
+        .content-area { transition: margin-left 0.3s; }
+        .odeme-nakit { background: #dcfce7; color: #166534; }
+        .odeme-kredi { background: #dbeafe; color: #1e40af; }
+        .odeme-havale { background: #fef3c7; color: #92400e; }
+        .odeme-cek { background: #f3e8ff; color: #7c3aed; }
+        .odeme-kapida { background: #fce7f3; color: #be185d; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar sidebar-expanded fixed left-0 top-0 h-full bg-slate-900 text-white z-50 overflow-y-auto">
+        <div class="p-4 flex items-center justify-between border-b border-slate-700">
+            <div class="flex items-center gap-3 logo-full">
+                <i class="fas fa-building-columns text-2xl text-blue-400"></i>
+                <span class="font-bold text-lg">Kurumsal</span>
+            </div>
+            <button onclick="toggleSidebar()" class="text-gray-400 hover:text-white">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <nav class="mt-6 px-2">
+            <a href="panel.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-home w-5"></i>
+                <span class="menu-text">Ana Sayfa</span>
+            </a>
+            <a href="cari-yonetim.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-users w-5"></i>
+                <span class="menu-text">Cari Hesaplar</span>
+            </a>
+            <a href="fatura-yonetim.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-file-invoice w-5"></i>
+                <span class="menu-text">Faturalar</span>
+            </a>
+            <a href="tahsilat-yonetim.html" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg mb-1">
+                <i class="fas fa-money-bill-wave w-5"></i>
+                <span class="menu-text">Tahsilatlar</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div id="content" class="content-area ml-[260px] p-6">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Tahsilat Yönetimi</h1>
+                <p class="text-gray-500">Ödeme kayıtları, tahsilat takibi ve vade yönetimi</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="openModal('yeniTahsilatModal')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                    <i class="fas fa-plus"></i> Yeni Tahsilat
+                </button>
+            </div>
+        </div>
+
+        <!-- Özet Kartlar -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 text-sm">Bugünkü Tahsilat</p>
+                        <h3 class="text-2xl font-bold text-green-600" id="gunlukTahsilat">₺0,00</h3>
+                    </div>
+                    <div class="bg-green-100 p-2 rounded-lg">
+                        <i class="fas fa-calendar-day text-green-600"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 text-sm">Haftalık Tahsilat</p>
+                        <h3 class="text-2xl font-bold text-blue-600" id="haftalikTahsilat">₺0,00</h3>
+                    </div>
+                    <div class="bg-blue-100 p-2 rounded-lg">
+                        <i class="fas fa-calendar-week text-blue-600"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 text-sm">Aylık Tahsilat</p>
+                        <h3 class="text-2xl font-bold text-purple-600" id="aylikTahsilat">₺0,00</h3>
+                    </div>
+                    <div class="bg-purple-100 p-2 rounded-lg">
+                        <i class="fas fa-calendar-alt text-purple-600"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 text-sm">Vade Yaklaşan</p>
+                        <h3 class="text-2xl font-bold text-orange-600" id="vadeYaklasan">0</h3>
+                    </div>
+                    <div class="bg-orange-100 p-2 rounded-lg">
+                        <i class="fas fa-clock text-orange-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtreler -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6">
+            <div class="flex flex-wrap gap-4">
+                <div class="flex-1 min-w-[200px]">
+                    <input type="text" id="searchInput" placeholder="Cari ara..." 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <select id="tipFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="">Tüm Ödeme Tipleri</option>
+                    <option value="NAKİT">Nakit</option>
+                    <option value="KREDİ_KARTI">Kredi Kartı</option>
+                    <option value="HAVALE_EFT">Havale/EFT</option>
+                    <option value="ÇEK">Çek</option>
+                    <option value="SENET">Senet</option>
+                    <option value="KAPIDA_ODEME">Kapıda Ödeme</option>
+                </select>
+                <input type="date" id="startDate" class="px-4 py-2 border border-gray-300 rounded-lg">
+                <input type="date" id="endDate" class="px-4 py-2 border border-gray-300 rounded-lg">
+                <button onclick="loadTahsilatlar()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg">
+                    <i class="fas fa-filter"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tahsilat Listesi -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Tahsilat No</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Cari</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Tarih</th>
+                            <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Ödeme Tipi</th>
+                            <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Tutar</th>
+                            <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Fatura</th>
+                            <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tahsilatListesi" class="divide-y divide-gray-100">
+                        <!-- JavaScript ile doldurulacak -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yeni Tahsilat Modal -->
+    <div id="yeniTahsilatModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-xl font-bold">Yeni Tahsilat Kaydı</h2>
+                <button onclick="closeModal('yeniTahsilatModal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="yeniTahsilatForm" class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cari Hesap *</label>
+                        <select name="cariHesapId" id="cariSelect" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Seçiniz...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tutar (₺) *</label>
+                        <input type="number" name="tutar" required step="0.01" min="0.01" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Ödeme Tipi *</label>
+                        <select name="tahsilatTipi" id="odemeTipi" required 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                onchange="showOdemeDetay()">
+                            <option value="NAKİT">Nakit</option>
+                            <option value="KREDİ_KARTI">Kredi Kartı</option>
+                            <option value="HAVALE_EFT">Havale/EFT</option>
+                            <option value="ÇEK">Çek</option>
+                            <option value="SENET">Senet</option>
+                            <option value="KAPIDA_ODEME">Kapıda Ödeme</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tahsilat Tarihi</label>
+                        <input type="date" name="tahsilatTarihi" id="tahsilatTarihi"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <!-- Dinamik Ödeme Detayları -->
+                <div id="krediKartiDetay" class="hidden space-y-3 border-t border-gray-200 pt-3">
+                    <h4 class="font-medium text-gray-700">Kredi Kartı Bilgileri</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" name="odemeDetay.kartSahibi" placeholder="Kart Sahibi" class="px-3 py-2 border rounded-lg">
+                        <input type="text" name="odemeDetay.kartNo" placeholder="Kart No (****1234)" class="px-3 py-2 border rounded-lg">
+                        <input type="number" name="odemeDetay.taksitSayisi" placeholder="Taksit Sayısı" min="1" value="1" class="px-3 py-2 border rounded-lg">
+                    </div>
+                </div>
+
+                <div id="havaleDetay" class="hidden space-y-3 border-t border-gray-200 pt-3">
+                    <h4 class="font-medium text-gray-700">Banka Bilgileri</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" name="odemeDetay.bankaAdi" placeholder="Banka Adı" class="px-3 py-2 border rounded-lg">
+                        <input type="text" name="odemeDetay.referansNo" placeholder="Referans No" class="px-3 py-2 border rounded-lg">
+                    </div>
+                </div>
+
+                <div id="cekSenetDetay" class="hidden space-y-3 border-t border-gray-200 pt-3">
+                    <h4 class="font-medium text-gray-700">Çek/Senet Bilgileri</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" name="odemeDetay.cekNo" placeholder="Çek/Senet No" class="px-3 py-2 border rounded-lg">
+                        <input type="date" name="odemeDetay.vadeTarihi" placeholder="Vade Tarihi" class="px-3 py-2 border rounded-lg">
+                        <input type="text" name="odemeDetay.bankaKodu" placeholder="Banka Kodu (varsa)" class="px-3 py-2 border rounded-lg">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Açıklama</label>
+                    <textarea name="aciklama" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" onclick="closeModal('yeniTahsilatModal')" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">İptal</button>
+                    <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin + '/api';
+        let currentPage = 1;
+        let sidebarExpanded = true;
+
+        // Bugünün tarihini ayarla
+        document.getElementById('tahsilatTarihi').value = new Date().toISOString().split('T')[0];
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            sidebarExpanded = !sidebarExpanded;
+            
+            if (sidebarExpanded) {
+                sidebar.classList.remove('sidebar-collapsed');
+                sidebar.classList.add('sidebar-expanded');
+                content.style.marginLeft = '260px';
+                document.querySelectorAll('.menu-text').forEach(el => el.style.display = 'block');
+            } else {
+                sidebar.classList.remove('sidebar-expanded');
+                sidebar.classList.add('sidebar-collapsed');
+                content.style.marginLeft = '70px';
+                document.querySelectorAll('.menu-text').forEach(el => el.style.display = 'none');
+            }
+        }
+
+        function openModal(id) { 
+            document.getElementById(id).classList.remove('hidden'); 
+            if (id === 'yeniTahsilatModal') loadCarilerForSelect();
+        }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function showOdemeDetay() {
+            const tip = document.getElementById('odemeTipi').value;
+            document.getElementById('krediKartiDetay').classList.add('hidden');
+            document.getElementById('havaleDetay').classList.add('hidden');
+            document.getElementById('cekSenetDetay').classList.add('hidden');
+            
+            if (tip === 'KREDİ_KARTI') document.getElementById('krediKartiDetay').classList.remove('hidden');
+            else if (tip === 'HAVALE_EFT') document.getElementById('havaleDetay').classList.remove('hidden');
+            else if (tip === 'ÇEK' || tip === 'SENET') document.getElementById('cekSenetDetay').classList.remove('hidden');
+        }
+
+        function getOdemeClass(tip) {
+            const classes = {
+                'NAKİT': 'odeme-nakit',
+                'KREDİ_KARTI': 'odeme-kredi',
+                'HAVALE_EFT': 'odeme-havale',
+                'ÇEK': 'odeme-cek',
+                'SENET': 'odeme-cek',
+                'KAPIDA_ODEME': 'odeme-kapida'
+            };
+            return classes[tip] || 'bg-gray-100 text-gray-600';
+        }
+
+        function getOdemeIcon(tip) {
+            const icons = {
+                'NAKİT': '<i class="fas fa-money-bill"></i>',
+                'KREDİ_KARTI': '<i class="fas fa-credit-card"></i>',
+                'HAVALE_EFT': '<i class="fas fa-university"></i>',
+                'ÇEK': '<i class="fas fa-money-check"></i>',
+                'SENET': '<i class="fas fa-file-signature"></i>',
+                'KAPIDA_ODEME': '<i class="fas fa-truck"></i>'
+            };
+            return icons[tip] || '<i class="fas fa-question"></i>';
+        }
+
+        async function loadCarilerForSelect() {
+            try {
+                const response = await fetch(`${API_URL}/cari/list?limit=100`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const select = document.getElementById('cariSelect');
+                    select.innerHTML = '<option value="">Seçiniz...</option>' + 
+                        data.data.map(c => `<option value="${c._id}">${c.firmaUnvan} (Bakiye: ₺${c.bakiye.toFixed(2)})</option>`).join('');
+                }
+            } catch (error) {
+                console.error('Cari yükleme hatası:', error);
+            }
+        }
+
+        async function loadTahsilatlar() {
+            try {
+                const search = document.getElementById('searchInput').value;
+                const tip = document.getElementById('tipFilter').value;
+                const start = document.getElementById('startDate').value;
+                const end = document.getElementById('endDate').value;
+                
+                const params = new URLSearchParams({
+                    page: currentPage,
+                    search,
+                    tahsilatTipi: tip,
+                    startDate: start,
+                    endDate: end
+                });
+                
+                const response = await fetch(`${API_URL}/tahsilat/list?${params}`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderTahsilatList(data.data);
+                    loadOzetler();
+                }
+            } catch (error) {
+                console.error('Tahsilat yükleme hatası:', error);
+            }
+        }
+
+        function renderTahsilatList(tahsilatlar) {
+            const tbody = document.getElementById('tahsilatListesi');
+            tbody.innerHTML = tahsilatlar.map(t => `
+                <tr class="hover:bg-gray-50 fade-in">
+                    <td class="px-4 py-3 font-medium text-gray-800">${t.tahsilatNo}</td>
+                    <td class="px-4 py-3">
+                        <div>
+                            <p class="font-medium text-gray-800">${t.cariHesapId?.firmaUnvan || '-'}</p>
+                            <p class="text-xs text-gray-500">${t.cariHesapId?.vknTckn || ''}</p>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-600">${new Date(t.tahsilatTarihi).toLocaleDateString('tr-TR')}</td>
+                    <td class="px-4 py-3 text-center">
+                        <span class="px-3 py-1 rounded-full text-xs font-medium ${getOdemeClass(t.tahsilatTipi)}">
+                            ${getOdemeIcon(t.tahsilatTipi)} ${t.tahsilatTipi.replace('_', ' ')}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-right font-bold text-green-600">
+                        ₺${t.tutar.toLocaleString('tr-TR', {minimumFractionDigits: 2})}
+                    </td>
+                    <td class="px-4 py-3 text-center text-sm">
+                        ${t.faturaId ? `<span class="text-blue-600"><i class="fas fa-file-invoice"></i> ${t.faturaId.faturaNo}</span>` : '<span class="text-gray-400">-</span>'}
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        <button onclick="viewTahsilat('${t._id}')" class="text-blue-600 hover:text-blue-800 mx-1" title="Detay"><i class="fas fa-eye"></i></button>
+                        ${t.durum !== 'İPTAL' ? `<button onclick="cancelTahsilat('${t._id}')" class="text-red-600 hover:text-red-800 mx-1" title="İptal Et"><i class="fas fa-times-circle"></i></button>` : '<span class="text-gray-400 text-xs">İPTAL</span>'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadOzetler() {
+            try {
+                const gunluk = await fetch(`${API_URL}/tahsilat/rapor/ozet?tip=gunluk`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                }).then(r => r.json());
+                
+                if (gunluk.success) {
+                    document.getElementById('gunlukTahsilat').textContent = '₺' + gunluk.genelToplam.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+                }
+
+                const haftalik = await fetch(`${API_URL}/tahsilat/rapor/ozet?tip=haftalik`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                }).then(r => r.json());
+                
+                if (haftalik.success) {
+                    document.getElementById('haftalikTahsilat').textContent = '₺' + haftalik.genelToplam.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+                }
+
+                const aylik = await fetch(`${API_URL}/tahsilat/rapor/ozet?tip=aylik`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                }).then(r => r.json());
+                
+                if (aylik.success) {
+                    document.getElementById('aylikTahsilat').textContent = '₺' + aylik.genelToplam.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+                }
+
+                const vade = await fetch(`${API_URL}/tahsilat/rapor/vade-yaklasan?gun=7`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                }).then(r => r.json());
+                
+                if (vade.success) {
+                    document.getElementById('vadeYaklasan').textContent = vade.data.length;
+                }
+            } catch (error) {
+                console.error('Özet yükleme hatası:', error);
+            }
+        }
+
+        document.getElementById('yeniTahsilatForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                cariHesapId: formData.get('cariHesapId'),
+                tutar: parseFloat(formData.get('tutar')),
+                tahsilatTipi: formData.get('tahsilatTipi'),
+                tahsilatTarihi: formData.get('tahsilatTarihi'),
+                aciklama: formData.get('aciklama'),
+                odemeDetay: {}
+            };
+
+            const tip = data.tahsilatTipi;
+            if (tip === 'KREDİ_KARTI') {
+                data.odemeDetay = {
+                    kartSahibi: formData.get('odemeDetay.kartSahibi'),
+                    kartNo: formData.get('odemeDetay.kartNo'),
+                    taksitSayisi: parseInt(formData.get('odemeDetay.taksitSayisi')) || 1
+                };
+            } else if (tip === 'HAVALE_EFT') {
+                data.odemeDetay = {
+                    bankaAdi: formData.get('odemeDetay.bankaAdi'),
+                    referansNo: formData.get('odemeDetay.referansNo')
+                };
+            } else if (tip === 'ÇEK' || tip === 'SENET') {
+                data.odemeDetay = {
+                    cekNo: formData.get('odemeDetay.cekNo'),
+                    vadeTarihi: formData.get('odemeDetay.vadeTarihi'),
+                    bankaKodu: formData.get('odemeDetay.bankaKodu')
+                };
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/tahsilat/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    closeModal('yeniTahsilatModal');
+                    loadTahsilatlar();
+                    e.target.reset();
+                    alert('Tahsilat kaydedildi');
+                } else {
+                    alert(result.message || 'Hata oluştu');
+                }
+            } catch (error) {
+                alert('Kayıt hatası: ' + error.message);
+            }
+        });
+
+        async function cancelTahsilat(id) {
+            if (!confirm('Bu tahsilatı iptal etmek istediğinize emin misiniz?')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/tahsilat/${id}/cancel`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('Tahsilat iptal edildi');
+                    loadTahsilatlar();
+                } else {
+                    alert('Hata: ' + data.message);
+                }
+            } catch (error) {
+                alert('İptal hatası: ' + error.message);
+            }
+        }
+
+        function viewTahsilat(id) {
+            alert('Tahsilat ID: ' + id);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadTahsilatlar);
+    </script>
+</body>
+</html>
