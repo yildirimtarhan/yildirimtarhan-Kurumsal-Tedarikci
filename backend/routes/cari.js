@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const CariHesap = require('../models/CariHesap');
-const { authMiddleware } = require('../middleware/auth');
+const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 
 // Tüm cari hesapları listele
 router.get('/list', authMiddleware, async (req, res) => {
