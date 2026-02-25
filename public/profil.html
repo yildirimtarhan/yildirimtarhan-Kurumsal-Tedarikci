@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
@@ -183,6 +183,7 @@
       <div class="box">
         <h4>🏢 Firma</h4>
         <p id="userCompany">-</p>
+        <button onclick="showEditModal()" style="margin-top:8px;font-size:12px;padding:4px 10px;background:#6366f1;color:white;border:none;border-radius:6px;cursor:pointer;">Düzenle</button>
       </div>
 
       <div class="box">
@@ -202,13 +203,86 @@
       <a href="urunler.html" class="btn btn-primary">🛒 Alışverişe Başla</a>
       <a href="sepet.html" class="btn btn-primary" style="background: #8b5cf6;">🛍️ Sepetim</a>
       <a href="siparisler.html" class="btn btn-secondary">📦 Siparişlerim</a>
-      <button onclick="logout()" class="btn btn-danger">🚪 Çıkış Yap</button>
+      <a href="musteri/faturalarim.html" class="btn btn-info" style="background: #17a2b8; color: white;">
+        <i class="fas fa-file-invoice"></i> Faturalarım
+    </a>
+          <button onclick="logout()" class="btn btn-danger">🚪 Çıkış Yap</button>
     </div>
 
   </div>
 </div>
 
+<!-- Profil Düzenleme Modalı -->
+<div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:16px;padding:30px;width:90%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+    <h3 style="margin:0 0 20px;font-size:18px;">Profil Bilgilerini Düzenle</h3>
+    <div style="margin-bottom:14px;">
+      <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;">Üyelik Tipi</label>
+      <select id="editUyelikTipi" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;">
+        <option value="bireysel">Bireysel</option>
+        <option value="kurumsal">Kurumsal</option>
+      </select>
+    </div>
+    <div style="margin-bottom:14px;">
+      <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;">Firma Adı</label>
+      <input id="editFirma" type="text" placeholder="Firma / Şirket Adı" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;box-sizing:border-box;">
+    </div>
+    <div style="margin-bottom:14px;">
+      <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;">Vergi No</label>
+      <input id="editVergiNo" type="text" placeholder="Vergi No" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;box-sizing:border-box;">
+    </div>
+    <div style="margin-bottom:20px;">
+      <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;">Vergi Dairesi</label>
+      <input id="editVergiDairesi" type="text" placeholder="Vergi Dairesi" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;box-sizing:border-box;">
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="saveProfile()" style="flex:1;padding:12px;background:#6366f1;color:white;border:none;border-radius:10px;font-weight:700;cursor:pointer;">Kaydet</button>
+      <button onclick="closeEditModal()" style="flex:1;padding:12px;background:#f3f4f6;color:#374151;border:none;border-radius:10px;font-weight:700;cursor:pointer;">İptal</button>
+    </div>
+  </div>
+</div>
+
 <script>
+  const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : 'https://backend-api-7s13.onrender.com/api';
+
+  function showEditModal() {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    document.getElementById('editUyelikTipi').value = user.uyelikTipi || 'bireysel';
+    document.getElementById('editFirma').value = user.firma || '';
+    document.getElementById('editVergiNo').value = user.vergiNo || '';
+    document.getElementById('editVergiDairesi').value = user.vergiDairesi || '';
+    document.getElementById('editModal').style.display = 'flex';
+  }
+
+  function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+  }
+
+  async function saveProfile() {
+    const token = localStorage.getItem('token');
+    const uyelikTipi = document.getElementById('editUyelikTipi').value;
+    const firma = document.getElementById('editFirma').value.trim();
+    const vergiNo = document.getElementById('editVergiNo').value.trim();
+    const vergiDairesi = document.getElementById('editVergiDairesi').value.trim();
+
+    try {
+      const res = await fetch(`${API_URL}/auth/profile`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ uyelikTipi, firma, vergiNo, vergiDairesi })
+      });
+      const data = await res.json();
+      if (data.success) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+        closeEditModal();
+        loadUserProfile();
+      } else {
+        alert('Hata: ' + data.message);
+      }
+    } catch (e) {
+      alert('Güncelleme başarısız');
+    }
+  }
   // Kullanıcı bilgilerini getir
   async function loadUserProfile() {
     const token = localStorage.getItem("token");
@@ -251,7 +325,7 @@
 
     // Güncel kullanıcı bilgilerini API'den çek (opsiyonel)
     try {
-      const response = await fetch('http://localhost:3000/api/auth/profile', {
+      const response = await fetch(`${API_URL}/auth/profile`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -264,8 +338,25 @@
           // Ekranı güncelle
           document.getElementById("userPhone").innerText = data.user.telefon || "-";
           document.getElementById("userCompany").innerText = data.user.firma || "-";
-          document.getElementById("invoiceAddress").innerText = data.user.faturaAdresi || "Adres yok";
-          document.getElementById("deliveryAddress").innerText = data.user.teslimatAdresi || "Adres yok";
+          document.getElementById("invoiceAddress").innerText =
+            (data.user.faturaAdresi && data.user.faturaAdresi.acikAdres)
+              ? data.user.faturaAdresi.acikAdres
+              : (data.user.faturaAdresi || "Adres yok");
+          document.getElementById("deliveryAddress").innerText =
+            (data.user.teslimatAdresi && data.user.teslimatAdresi.acikAdres)
+              ? data.user.teslimatAdresi.acikAdres
+              : (data.user.teslimatAdresi || "Adres yok");
+
+          // Badge'i API verisinden güncelle
+          const typeEl = document.getElementById("userType");
+          if (data.user.uyelikTipi === 'kurumsal') {
+            typeEl.innerText = "Kurumsal Üye";
+            typeEl.classList.add('kurumsal');
+          } else {
+            typeEl.innerText = "Bireysel Üye";
+            typeEl.classList.remove('kurumsal');
+          }
+          document.getElementById("userName").innerText = data.user.ad || "Kullanıcı";
         }
       }
     } catch (error) {

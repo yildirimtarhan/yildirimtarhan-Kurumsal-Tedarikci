@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kurumsal Kayıt - Tedarikci.org.tr</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -27,7 +28,7 @@
             border-radius: 20px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             width: 100%;
-            max-width: 800px;
+            max-width: 900px;
             overflow: hidden;
         }
         
@@ -122,7 +123,7 @@
             margin-left: 3px;
         }
         
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 14px 16px;
             border: 2px solid #e5e7eb;
@@ -130,9 +131,15 @@
             font-size: 15px;
             transition: all 0.3s;
             background: #fafafa;
+            font-family: inherit;
         }
         
-        input:focus, select:focus {
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #6366f1;
             background: white;
@@ -260,6 +267,73 @@
             margin: 25px 0 15px 0;
             padding-bottom: 10px;
             border-bottom: 2px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* YENİ: Adres Bölümü Stilleri */
+        .address-section {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .address-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .same-address-check {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .same-address-check input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .same-address-check label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+            color: #1e40af;
+        }
+        
+        .kurumsal-fatura-info {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #166534;
+        }
+        
+        .bireysel-fatura-info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #1e40af;
         }
     </style>
 </head>
@@ -290,7 +364,7 @@
                 <input type="hidden" id="uyelikTipi" value="bireysel">
                 
                 <!-- Kişisel Bilgiler -->
-                <div class="section-title">Kişisel Bilgiler</div>
+                <div class="section-title"><i class="fas fa-user"></i> Kişisel Bilgiler</div>
                 
                 <div class="form-grid">
                     <div class="form-group">
@@ -316,7 +390,7 @@
                 
                 <!-- Kurumsal Bilgiler (Sadece Kurumsal için) -->
                 <div id="kurumsalFields" class="hidden">
-                    <div class="section-title">Kurumsal Bilgiler</div>
+                    <div class="section-title"><i class="fas fa-building"></i> Kurumsal Bilgiler</div>
                     
                     <div class="form-grid">
                         <div class="form-group full-width">
@@ -336,48 +410,114 @@
                     </div>
                 </div>
                 
-                <!-- Adres Bilgileri -->
-                <div class="section-title">Adres Bilgileri</div>
+                <!-- YENİ: Fatura Adresi Bölümü -->
+                <div class="section-title"><i class="fas fa-file-invoice"></i> Fatura Adresi</div>
                 
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>İl <span class="required">*</span></label>
-                        <select id="city" required>
-                            <option value="">İl Seçin</option>
-                            <option value="İstanbul">İstanbul</option>
-                            <option value="Ankara">Ankara</option>
-                            <option value="İzmir">İzmir</option>
-                            <option value="Bursa">Bursa</option>
-                            <option value="Antalya">Antalya</option>
-                            <option value="Adana">Adana</option>
-                            <option value="Konya">Konya</option>
-                            <option value="Gaziantep">Gaziantep</option>
-                            <option value="Şanlıurfa">Şanlıurfa</option>
-                            <option value="Mersin">Mersin</option>
-                             <option value="Balıkesir">Balıkesir</option>
-                              <option value="Yozgat">Yozgat</option>
-                            <option value="Diğer">Diğer</option>
-                        </select>
+                <div class="address-section">
+                    <!-- Kurumsal/Bireysel Bilgi Mesajı -->
+                    <div id="faturaBilgiMesaji" class="bireysel-fatura-info">
+                        <i class="fas fa-info-circle"></i> Bireysel üyelikte fatura Ad Soyad ve TC Kimlik No bilgilerinize düzenlenecektir.
                     </div>
                     
-                    <div class="form-group">
-                        <label>İlçe <span class="required">*</span></label>
-                        <input type="text" id="district" required placeholder="İlçe adı">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Adres Başlığı <span class="required">*</span></label>
+                            <input type="text" id="faturaAdresBaslik" required placeholder="Örn: Ev Adresi, İşyeri">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Şehir <span class="required">*</span></label>
+                            <select id="faturaSehir" required>
+                                <option value="">Seçiniz</option>
+                                <option value="İstanbul">İstanbul</option>
+                                <option value="Ankara">Ankara</option>
+                                <option value="İzmir">İzmir</option>
+                                <option value="Bursa">Bursa</option>
+                                <option value="Antalya">Antalya</option>
+                                <option value="Adana">Adana</option>
+                                <option value="Konya">Konya</option>
+                                <option value="Gaziantep">Gaziantep</option>
+                                <option value="Şanlıurfa">Şanlıurfa</option>
+                                <option value="Mersin">Mersin</option>
+                                <option value="Balıkesir">Balıkesir</option>
+                                <option value="Yozgat">Yozgat</option>
+                                <option value="Diğer">Diğer</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>İlçe <span class="required">*</span></label>
+                            <input type="text" id="faturaIlce" required placeholder="İlçe adı">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Posta Kodu <span class="required">*</span></label>
+                            <input type="text" id="faturaPostaKodu" required maxlength="5" placeholder="34000">
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label>Açık Adres <span class="required">*</span></label>
+                            <textarea id="faturaAdres" required placeholder="Mahalle, Sokak, No, Daire, Bina..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- YENİ: Teslimat Adresi Bölümü -->
+                <div class="section-title"><i class="fas fa-shipping-fast"></i> Teslimat Adresi</div>
+                
+                <div class="address-section">
+                    <div class="same-address-check">
+                        <input type="checkbox" id="sameAddress" onchange="toggleTeslimatAdresi()">
+                        <label for="sameAddress">Teslimat adresim fatura adresim ile aynı</label>
                     </div>
                     
-                    <div class="form-group full-width">
-                        <label>Fatura Adresi <span class="required">*</span></label>
-                        <input type="text" id="faturaAdresi" required placeholder="Tam adres bilgisi">
-                    </div>
-                    
-                    <div class="form-group full-width">
-                        <label>Teslimat Adresi (Farklı ise)</label>
-                        <input type="text" id="teslimatAdresi" placeholder="Teslimat adresi farklıysa doldurun">
+                    <div id="teslimatAdresiAlani">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Adres Başlığı <span class="required">*</span></label>
+                                <input type="text" id="teslimatAdresBaslik" placeholder="Örn: Ev, İşyeri">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Şehir <span class="required">*</span></label>
+                                <select id="teslimatSehir">
+                                    <option value="">Seçiniz</option>
+                                    <option value="İstanbul">İstanbul</option>
+                                    <option value="Ankara">Ankara</option>
+                                    <option value="İzmir">İzmir</option>
+                                    <option value="Bursa">Bursa</option>
+                                    <option value="Antalya">Antalya</option>
+                                    <option value="Adana">Adana</option>
+                                    <option value="Konya">Konya</option>
+                                    <option value="Gaziantep">Gaziantep</option>
+                                    <option value="Şanlıurfa">Şanlıurfa</option>
+                                    <option value="Mersin">Mersin</option>
+                                    <option value="Balıkesir">Balıkesir</option>
+                                    <option value="Yozgat">Yozgat</option>
+                                    <option value="Diğer">Diğer</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>İlçe <span class="required">*</span></label>
+                                <input type="text" id="teslimatIlce" placeholder="İlçe adı">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Posta Kodu <span class="required">*</span></label>
+                                <input type="text" id="teslimatPostaKodu" maxlength="5" placeholder="34000">
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label>Açık Adres <span class="required">*</span></label>
+                                <textarea id="teslimatAdres" placeholder="Mahalle, Sokak, No, Daire, Bina..."></textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Güvenlik -->
-                <div class="section-title">Güvenlik</div>
+                <div class="section-title"><i class="fas fa-shield-alt"></i> Güvenlik</div>
                 
                 <div class="form-grid">
                     <div class="form-group">
@@ -419,7 +559,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://backend-api-7s13.onrender.com';
+        const API_URL = 'http://localhost:3000';
         
         // Tab değiştirme
         function switchTab(type) {
@@ -432,17 +572,67 @@
             const firmaInput = document.getElementById('firma');
             const vergiNoInput = document.getElementById('vergiNo');
             const vergiDairesiInput = document.getElementById('vergiDairesi');
+            const faturaBilgiMesaji = document.getElementById('faturaBilgiMesaji');
             
             if (type === 'kurumsal') {
                 kurumsalFields.classList.remove('hidden');
                 firmaInput.required = true;
                 vergiNoInput.required = true;
                 vergiDairesiInput.required = true;
+                
+                // Kurumsal fatura bilgisi mesajı
+                faturaBilgiMesaji.className = 'kurumsal-fatura-info';
+                faturaBilgiMesaji.innerHTML = '<i class="fas fa-info-circle"></i> Kurumsal üyelikte fatura Firma Unvanı ve Vergi bilgilerinize düzenlenecektir.';
+                
+                // Fatura adres başlığını otomatik doldur
+                document.getElementById('faturaAdresBaslik').placeholder = 'Örn: İşyeri Merkez';
             } else {
                 kurumsalFields.classList.add('hidden');
                 firmaInput.required = false;
                 vergiNoInput.required = false;
                 vergiDairesiInput.required = false;
+                
+                // Bireysel fatura bilgisi mesajı
+                faturaBilgiMesaji.className = 'bireysel-fatura-info';
+                faturaBilgiMesaji.innerHTML = '<i class="fas fa-info-circle"></i> Bireysel üyelikte fatura Ad Soyad ve TC Kimlik No bilgilerinize düzenlenecektir.';
+                
+                // Fatura adres başlığını otomatik doldur
+                document.getElementById('faturaAdresBaslik').placeholder = 'Örn: Ev Adresi';
+            }
+        }
+        
+        // Teslimat adresi göster/gizle
+        function toggleTeslimatAdresi() {
+            const checkbox = document.getElementById('sameAddress');
+            const teslimatAlani = document.getElementById('teslimatAdresiAlani');
+            const teslimatInputs = teslimatAlani.querySelectorAll('input, select, textarea');
+            
+            if (checkbox.checked) {
+                teslimatAlani.style.display = 'none';
+                // Required attributelerini kaldır
+                teslimatInputs.forEach(input => {
+                    input.required = false;
+                });
+                
+                // Fatura adresini teslimat adresine kopyala
+                document.getElementById('teslimatAdresBaslik').value = document.getElementById('faturaAdresBaslik').value;
+                document.getElementById('teslimatSehir').value = document.getElementById('faturaSehir').value;
+                document.getElementById('teslimatIlce').value = document.getElementById('faturaIlce').value;
+                document.getElementById('teslimatPostaKodu').value = document.getElementById('faturaPostaKodu').value;
+                document.getElementById('teslimatAdres').value = document.getElementById('faturaAdres').value;
+            } else {
+                teslimatAlani.style.display = 'block';
+                // Required attributelerini ekle
+                teslimatInputs.forEach(input => {
+                    if (input.id !== 'teslimatAdresBaslik') {
+                        input.required = true;
+                    }
+                });
+                
+                // Alanları temizle
+                teslimatInputs.forEach(input => {
+                    input.value = '';
+                });
             }
         }
         
@@ -476,6 +666,25 @@
             
             const uyelikTipi = document.getElementById('uyelikTipi').value;
             
+            // Fatura adresi objesi
+            const faturaAdresi = {
+                baslik: document.getElementById('faturaAdresBaslik').value,
+                sehir: document.getElementById('faturaSehir').value,
+                ilce: document.getElementById('faturaIlce').value,
+                postaKodu: document.getElementById('faturaPostaKodu').value,
+                acikAdres: document.getElementById('faturaAdres').value
+            };
+            
+            // Teslimat adresi objesi (fatura ile aynı mı kontrol et)
+            const sameAddress = document.getElementById('sameAddress').checked;
+            const teslimatAdresi = sameAddress ? faturaAdresi : {
+                baslik: document.getElementById('teslimatAdresBaslik').value || faturaAdresi.baslik,
+                sehir: document.getElementById('teslimatSehir').value,
+                ilce: document.getElementById('teslimatIlce').value,
+                postaKodu: document.getElementById('teslimatPostaKodu').value,
+                acikAdres: document.getElementById('teslimatAdres').value
+            };
+            
             const data = {
                 ad: document.getElementById('ad').value,
                 email: document.getElementById('email').value,
@@ -483,10 +692,14 @@
                 password: password,
                 uyelikTipi: uyelikTipi,
                 tcNo: document.getElementById('tcNo').value,
-                city: document.getElementById('city').value,
-                district: document.getElementById('district').value,
-                faturaAdresi: document.getElementById('faturaAdresi').value,
-                teslimatAdresi: document.getElementById('teslimatAdresi').value || document.getElementById('faturaAdresi').value
+                // YENİ: Adres bilgileri
+                faturaAdresi: faturaAdresi,
+                teslimatAdresi: teslimatAdresi,
+                // Eski alanlar (geriye uyumluluk için)
+                city: faturaAdresi.sehir,
+                district: faturaAdresi.ilce,
+                faturaAdresi: faturaAdresi.acikAdres,
+                teslimatAdresi: teslimatAdresi.acikAdres
             };
             
             // Kurumsal ise ek alanlar
@@ -552,11 +765,51 @@
             this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
         });
         
+        // Posta kodu sadece rakam
+        document.getElementById('faturaPostaKodu').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 5);
+        });
+        
+        document.getElementById('teslimatPostaKodu').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 5);
+        });
+        
         // Telefon formatı
         document.getElementById('telefon').addEventListener('input', function(e) {
             let value = this.value.replace(/[^0-9]/g, '');
             if (value.length > 10) value = value.slice(0, 10);
             this.value = value;
+        });
+        
+        // Fatura adresi değiştiğinde teslimat adresini de güncelle (eğer aynı ise)
+        document.getElementById('faturaAdresBaslik').addEventListener('input', function() {
+            if (document.getElementById('sameAddress').checked) {
+                document.getElementById('teslimatAdresBaslik').value = this.value;
+            }
+        });
+        
+        document.getElementById('faturaSehir').addEventListener('change', function() {
+            if (document.getElementById('sameAddress').checked) {
+                document.getElementById('teslimatSehir').value = this.value;
+            }
+        });
+        
+        document.getElementById('faturaIlce').addEventListener('input', function() {
+            if (document.getElementById('sameAddress').checked) {
+                document.getElementById('teslimatIlce').value = this.value;
+            }
+        });
+        
+        document.getElementById('faturaPostaKodu').addEventListener('input', function() {
+            if (document.getElementById('sameAddress').checked) {
+                document.getElementById('teslimatPostaKodu').value = this.value;
+            }
+        });
+        
+        document.getElementById('faturaAdres').addEventListener('input', function() {
+            if (document.getElementById('sameAddress').checked) {
+                document.getElementById('teslimatAdres').value = this.value;
+            }
         });
     </script>
 </body>

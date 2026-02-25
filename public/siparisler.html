@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -226,6 +226,56 @@
             font-size: 15px;
         }
 
+        /* Kargo Bilgisi - YENİ EKLENDİ */
+        .kargo-bilgisi {
+            background: #e0f2fe;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid #0ea5e9;
+        }
+
+        .kargo-bilgisi h5 {
+            color: #0369a1;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .kargo-bilgisi p {
+            color: #0c4a6e;
+            font-size: 13px;
+            margin: 4px 0;
+        }
+
+        .kargo-bilgisi .takip-no {
+            font-weight: 700;
+            color: #0284c7;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .btn-kargo-takip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            padding: 8px 16px;
+            background: #0ea5e9;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn-kargo-takip:hover {
+            background: #0284c7;
+        }
+
         /* Sipariş Alt Bilgi */
         .order-footer {
             display: flex;
@@ -402,6 +452,10 @@
                 flex: 1;
                 justify-content: center;
             }
+
+            .kargo-bilgisi {
+                padding: 0.8rem;
+            }
         }
     </style>
 </head>
@@ -440,7 +494,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://backend-api-7s13.onrender.com/api';
+        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : 'https://backend-api-7s13.onrender.com/api';
 
         // Kullanıcı kontrolü
         const userData = localStorage.getItem('user');
@@ -458,7 +512,7 @@
             try {
                 const user = JSON.parse(userData);
                 
-                const response = await fetch(`${API_URL}/orders/user/${user.id || user._id}`, {
+                const response = await fetch(`${API_URL}/orders/my-orders`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -472,8 +526,9 @@
                 renderOrders(allOrders);
             } catch (error) {
                 console.error('Sipariş yükleme hatası:', error);
-                // Demo veriler (gerçek API yoksa)
-                showDemoOrders();
+                // HATA DURUMUNDA BOŞ LİSTE GÖSTER (Demo siparişler kaldırıldı)
+                allOrders = [];
+                renderOrders([]);
             }
         }
 
@@ -530,28 +585,35 @@
                         `).join('')}
                     </div>
 
-                   <!-- siparisler.html içindeki order-footer bölümünü değiştir: -->
+                    <!-- YENİ: Kargo Takip Bilgisi -->
+                    ${order.trackingNumber ? `
+                        <div class="kargo-bilgisi">
+                            <h5><i class="fas fa-truck"></i> Kargo Bilgisi</h5>
+                            <p><strong>Firma:</strong> ${order.cargoCompany || 'Yurtiçi Kargo'}</p>
+                            <p><strong>Takip No:</strong> <span class="takip-no">${order.trackingNumber}</span></p>
+                            <a href="https://www.yurticikargo.com/tr/online-servisler/gonderi-sorgula?code=${order.trackingNumber}" 
+                               target="_blank" 
+                               class="btn-kargo-takip">
+                                <i class="fas fa-external-link-alt"></i> Kargoyu Takip Et
+                            </a>
+                        </div>
+                    ` : ''}
 
-<div class="order-footer">
-    <div class="order-total">
-        Toplam: <span>₺${order.total?.toLocaleString('tr-TR') || order.toplam?.toLocaleString('tr-TR')}</span>
-    </div>
-    <div class="order-actions">
-        ${order.trackingNumber ? `
-            <a href="kargo-takip.html?track=${order.trackingNumber}" class="btn-action btn-primary">
-                <i class="fas fa-shipping-fast"></i> Kargo Takip
-            </a>
-        ` : ''}
-        <button class="btn-action btn-secondary" onclick="viewOrderDetails('${order._id}')">
-            <i class="fas fa-eye"></i> Detay
-        </button>
-        ${order.status === 'completed' ? `
-            <button class="btn-action btn-primary" onclick="reorder('${order._id}')">
-                <i class="fas fa-redo"></i> Tekrarla
-            </button>
-        ` : ''}
-    </div>
-</div>
+                    <div class="order-footer">
+                        <div class="order-total">
+                            Toplam: <span>₺${order.total?.toLocaleString('tr-TR') || order.toplam?.toLocaleString('tr-TR')}</span>
+                        </div>
+                        <div class="order-actions">
+                            <button class="btn-action btn-secondary" onclick="viewOrderDetails('${order._id}')">
+                                <i class="fas fa-eye"></i> Detay
+                            </button>
+                            ${order.status === 'completed' ? `
+                                <button class="btn-action btn-primary" onclick="reorder('${order._id}')">
+                                    <i class="fas fa-redo"></i> Tekrarla
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
                 </div>
             `).join('');
         }
@@ -592,35 +654,6 @@
                 localStorage.setItem('kurumsalSepet', JSON.stringify(order.items));
                 window.location.href = 'sepet.html';
             }
-        }
-
-        // Demo siparişler (API yoksa)
-        function showDemoOrders() {
-            const demoOrders = [
-                {
-                    _id: '1',
-                    orderNumber: 'KT-2024-001',
-                    status: 'completed',
-                    createdAt: new Date(Date.now() - 86400000 * 2),
-                    items: [
-                        { ad: 'E-Fatura Paketi', adet: 1, fiyat: 299, icon: 'fa-file-invoice' },
-                        { ad: 'Mali Mühür', adet: 2, fiyat: 150, icon: 'fa-stamp' }
-                    ],
-                    total: 599
-                },
-                {
-                    _id: '2',
-                    orderNumber: 'KT-2024-002',
-                    status: 'processing',
-                    createdAt: new Date(Date.now() - 86400000 * 5),
-                    items: [
-                        { ad: 'E-İmza Sertifikası', adet: 1, fiyat: 450, icon: 'fa-signature' }
-                    ],
-                    total: 450
-                }
-            ];
-            allOrders = demoOrders;
-            renderOrders(demoOrders);
         }
 
         // Sayfa yüklendiğinde

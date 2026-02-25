@@ -679,7 +679,7 @@
     <script>
         const API_URL = window.location.hostname.includes("localhost") 
             ? "http://localhost:3000/api" 
-            : "https://backend-api-7s13.onrender.com/api";
+            : "http://localhost:3000/api";
 
         const token = localStorage.getItem("adminToken");
         if (!token) window.location.href = "login.html";

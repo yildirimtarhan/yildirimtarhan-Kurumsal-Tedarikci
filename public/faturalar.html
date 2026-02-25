@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fatura Yönetimi - Tedarik.org.tr</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .fatura-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .fatura-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .fatura-title {
+            font-size: 1.8rem;
+            color: #1e3a8a;
+            margin: 0;
+        }
+
+        .fatura-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .btn-info {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        /* Filtreler */
+        .filters-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            ring: 2px solid rgba(102, 126, 234, 0.2);
+        }
+
+        /* İstatistik Kartları */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.blue { background: #dbeafe; color: #1e40af; }
+        .stat-icon.green { background: #d1fae5; color: #065f46; }
+        .stat-icon.yellow { background: #fef3c7; color: #92400e; }
+        .stat-icon.red { background: #fee2e2; color: #991b1b; }
+
+        .stat-content h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111827;
+            margin: 0;
+        }
+
+        .stat-content p {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin: 0;
+        }
+
+        /* Tablo */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: #f9fafb;
+            padding: 1rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #6b7280;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.875rem;
+        }
+
+        .data-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .fatura-no {
+            font-weight: 600;
+            color: #1e40af;
+        }
+
+        .musteri-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .musteri-ad {
+            font-weight: 500;
+            color: #111827;
+        }
+
+        .musteri-vkn {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .tutar {
+            font-weight: 600;
+            color: #059669;
+        }
+
+        .durum-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .durum-taslak { background: #f3f4f6; color: #374151; }
+        .durum-gonderildi { background: #dbeafe; color: #1e40af; }
+        .durum-onaylandi { background: #d1fae5; color: #065f46; }
+        .durum-reddedildi { background: #fee2e2; color: #991b1b; }
+        .durum-iptal { background: #fef3c7; color: #92400e; }
+
+        .actions-cell {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            transform: scale(1.1);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlide 0.3s ease;
+        }
+
+        @keyframes modalSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        /* Form Elements */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e5e7eb;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .toast {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease;
+            min-width: 300px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success { border-left: 4px solid #10b981; }
+        .toast.error { border-left: 4px solid #ef4444; }
+        .toast.warning { border-left: 4px solid #f59e0b; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .fatura-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .fatura-actions {
+                justify-content: stretch;
+            }
+
+            .fatura-actions button {
+                flex: 1;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .data-table {
+                min-width: 800px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <div class="fatura-container">
+        <!-- Header -->
+        <div class="fatura-header">
+            <h1 class="fatura-title">
+                <i class="fas fa-file-invoice-dollar"></i>
+                Fatura Yönetimi
+            </h1>
+            <div class="fatura-actions">
+                <button class="btn-secondary" onclick="faturaApp.refreshData()">
+                    <i class="fas fa-sync-alt"></i> Yenile
+                </button>
+                <button class="btn-primary" onclick="faturaApp.openCreateModal()">
+                    <i class="fas fa-plus"></i> Yeni Fatura
+                </button>
+            </div>
+        </div>
+
+        <!-- İstatistikler -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-file-invoice"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="statToplam">0</h3>
+                    <p>Toplam Fatura</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="statOnayli">0</h3>
+                    <p>Onaylı Fatura</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon yellow">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="statBekleyen">0</h3>
+                    <p>Bekleyen Fatura</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon red">
+                    <i class="fas fa-lira-sign"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="statToplamTutar">₺0,00</h3>
+                    <p>Toplam Tutar</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtreler -->
+        <div class="filters-section">
+            <div class="filters-grid">
+                <div class="form-group">
+                    <label>Durum</label>
+                    <select id="filterDurum" class="form-control" onchange="faturaApp.applyFilters()">
+                        <option value="">Tümü</option>
+                        <option value="taslak">Taslak</option>
+                        <option value="gonderildi">Gönderildi</option>
+                        <option value="onaylandi">Onaylandı</option>
+                        <option value="reddedildi">Reddedildi</option>
+                        <option value="iptal">İptal</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Fatura Tipi</label>
+                    <select id="filterTip" class="form-control" onchange="faturaApp.applyFilters()">
+                        <option value="">Tümü</option>
+                        <option value="efatura">E-Fatura</option>
+                        <option value="earsiv">E-Arşiv</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Başlangıç Tarihi</label>
+                    <input type="date" id="filterBaslangic" class="form-control" onchange="faturaApp.applyFilters()">
+                </div>
+                <div class="form-group">
+                    <label>Bitiş Tarihi</label>
+                    <input type="date" id="filterBitis" class="form-control" onchange="faturaApp.applyFilters()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Tablo -->
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Fatura No</th>
+                        <th>Müşteri</th>
+                        <th>Tarih</th>
+                        <th>Tip</th>
+                        <th>Tutar</th>
+                        <th>Durum</th>
+                        <th>Taxten</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody id="faturaTableBody">
+                    <!-- Dinamik içerik -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Yeni Fatura Modal -->
+    <div id="createModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Yeni Fatura Oluştur</h2>
+                <button class="modal-close" onclick="faturaApp.closeModal('createModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Sipariş Seçin</label>
+                    <select id="siparisSelect" class="form-control">
+                        <option value="">Sipariş seçin...</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Fatura Tipi</label>
+                        <select id="faturaTip" class="form-control">
+                            <option value="efatura">E-Fatura</option>
+                            <option value="earsiv">E-Arşiv</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Ödeme Vadesi (Gün)</label>
+                        <input type="number" id="odemeVadesi" class="form-control" value="14">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Açıklama</label>
+                    <textarea id="faturaAciklama" class="form-control" placeholder="Fatura açıklaması..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="faturaApp.closeModal('createModal')">İptal</button>
+                <button class="btn-primary" onclick="faturaApp.createFatura()">Oluştur</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fatura Detay Modal -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Fatura Detayı</h2>
+                <button class="modal-close" onclick="faturaApp.closeModal('detailModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="detailContent">
+                <!-- Dinamik içerik -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="faturaApp.closeModal('detailModal')">Kapat</button>
+                <button class="btn-info" onclick="faturaApp.downloadCurrentPDF()">
+                    <i class="fas fa-download"></i> PDF İndir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Taxten Gönderim Modal -->
+    <div id="taxtenModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Taxten'e Gönder</h2>
+                <button class="modal-close" onclick="faturaApp.closeModal('taxtenModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Bu faturayı Taxten e-fatura sistemine göndermek istediğinize emin misiniz?</p>
+                <div id="taxtenInfo" style="margin-top: 1rem; padding: 1rem; background: #f3f4f6; border-radius: 8px;">
+                    <!-- Fatura bilgisi -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="faturaApp.closeModal('taxtenModal')">İptal</button>
+                <button class="btn-primary" onclick="faturaApp.confirmTaxtenSend()">
+                    <i class="fas fa-paper-plane"></i> Gönder
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/fatura-service.js"></script>
+    <script>
+        class FaturaApp {
+            constructor() {
+                this.currentFatura = null;
+                this.faturalar = [];
+                this.init();
+            }
+
+            async init() {
+                this.showLoading();
+                try {
+                    await this.loadData();
+                    await this.loadSiparisler();
+                } catch (error) {
+                    this.showToast('Veri yüklenirken hata oluştu', 'error');
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            showLoading() {
+                document.getElementById('loadingOverlay').classList.add('active');
+            }
+
+            hideLoading() {
+                document.getElementById('loadingOverlay').classList.remove('active');
+            }
+
+            showToast(message, type = 'success') {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                
+                const icon = type === 'success' ? 'check-circle' : 
+                            type === 'error' ? 'exclamation-circle' : 'exclamation-triangle';
+                
+                toast.innerHTML = `
+                    <i class="fas fa-${icon}" style="color: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#f59e0b'}"></i>
+                    <span>${message}</span>
+                `;
+                
+                container.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+            }
+
+            async loadData() {
+                const filters = {
+                    durum: document.getElementById('filterDurum').value,
+                    tip: document.getElementById('filterTip').value,
+                    baslangicTarihi: document.getElementById('filterBaslangic').value,
+                    bitisTarihi: document.getElementById('filterBitis').value
+                };
+
+                const response = await faturaService.getFaturalar(filters);
+                this.faturalar = response.data || [];
+                
+                this.renderTable();
+                this.updateStats(response.istatistikler || {});
+            }
+
+            async loadSiparisler() {
+                // Siparişleri yükle (fatura oluşturmak için)
+                try {
+                    const response = await fetch(`${faturaService.baseUrl}/siparisler?durum=onaylandi&limit=50`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+                    const data = await response.json();
+                    
+                    const select = document.getElementById('siparisSelect');
+                    select.innerHTML = '<option value="">Sipariş seçin...</option>';
+                    
+                    (data.data || []).forEach(siparis => {
+                        const option = document.createElement('option');
+                        option.value = siparis._id;
+                        option.textContent = `Sipariş #${siparis.siparisNo} - ${siparis.musteri?.ad || 'İsimsiz'} (${this.formatMoney(siparis.toplamTutar)})`;
+                        select.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Siparişler yüklenemedi:', error);
+                }
+            }
+
+            renderTable() {
+                const tbody = document.getElementById('faturaTableBody');
+                tbody.innerHTML = '';
+
+                if (this.faturalar.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 3rem; color: #6b7280;">
+                                <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+                                Henüz fatura bulunmuyor
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                this.faturalar.forEach(fatura => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>
+                            <div class="fatura-no">${fatura.faturaNo}</div>
+                            <small style="color: #6b7280;">${fatura.seri || ''}</small>
+                        </td>
+                        <td>
+                            <div class="musteri-info">
+                                <span class="musteri-ad">${fatura.musteri?.ad || 'İsimsiz'}</span>
+                                <span class="musteri-vkn">VKN: ${fatura.musteri?.vergiNo || '-'}</span>
+                            </div>
+                        </td>
+                        <td>${this.formatDate(fatura.faturaTarihi)}</td>
+                        <td>
+                            <span class="durum-badge" style="background: ${fatura.tip === 'efatura' ? '#dbeafe' : '#fef3c7'}; color: ${fatura.tip === 'efatura' ? '#1e40af' : '#92400e'};">
+                                ${fatura.tip === 'efatura' ? 'E-Fatura' : 'E-Arşiv'}
+                            </span>
+                        </td>
+                        <td class="tutar">${this.formatMoney(fatura.genelToplam)}</td>
+                        <td>${this.getDurumBadge(fatura.durum)}</td>
+                        <td>
+                            ${fatura.taxtenUuid ? 
+                                `<span style="color: #10b981;"><i class="fas fa-check"></i> Gönderildi</span>` : 
+                                `<span style="color: #9ca3af;">-</span>`
+                            }
+                        </td>
+                        <td class="actions-cell">
+                            <button class="btn-icon btn-info" onclick="faturaApp.viewDetail('${fatura._id}')" title="Detay">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            ${fatura.durum === 'taslak' ? `
+                                <button class="btn-icon btn-success" onclick="faturaApp.sendToTaxten('${fatura._id}')" title="Taxten'e Gönder">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            ` : ''}
+                            <button class="btn-icon btn-secondary" onclick="faturaApp.downloadPDF('${fatura._id}')" title="PDF İndir">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            ${fatura.durum !== 'iptal' ? `
+                                <button class="btn-icon btn-danger" onclick="faturaApp.cancelFatura('${fatura._id}')" title="İptal Et">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            ` : ''}
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            getDurumBadge(durum) {
+                const durumlar = {
+                    'taslak': '<span class="durum-badge durum-taslak"><i class="fas fa-pencil-alt"></i> Taslak</span>',
+                    'gonderildi': '<span class="durum-badge durum-gonderildi"><i class="fas fa-paper-plane"></i> Gönderildi</span>',
+                    'onaylandi': '<span class="durum-badge durum-onaylandi"><i class="fas fa-check"></i> Onaylandı</span>',
+                    'reddedildi': '<span class="durum-badge durum-reddedildi"><i class="fas fa-times"></i> Reddedildi</span>',
+                    'iptal': '<span class="durum-badge durum-iptal"><i class="fas fa-ban"></i> İptal</span>'
+                };
+                return durumlar[durum] || durum;
+            }
+
+            updateStats(istatistikler) {
+                document.getElementById('statToplam').textContent = istatistikler.toplam || 0;
+                document.getElementById('statOnayli').textContent = istatistikler.onayli || 0;
+                document.getElementById('statBekleyen').textContent = istatistikler.bekleyen || 0;
+                document.getElementById('statToplamTutar').textContent = this.formatMoney(istatistikler.toplamTutar || 0);
+            }
+
+            applyFilters() {
+                this.loadData();
+            }
+
+            async refreshData() {
+                this.showLoading();
+                await this.loadData();
+                this.hideLoading();
+                this.showToast('Veriler yenilendi');
+            }
+
+            // Modal işlemleri
+            openCreateModal() {
+                document.getElementById('createModal').classList.add('active');
+            }
+
+            closeModal(modalId) {
+                document.getElementById(modalId).classList.remove('active');
+            }
+
+            async createFatura() {
+                const siparisId = document.getElementById('siparisSelect').value;
+                if (!siparisId) {
+                    this.showToast('Lütfen bir sipariş seçin', 'error');
+                    return;
+                }
+
+                this.showLoading();
+                try {
+                    const data = {
+                        tip: document.getElementById('faturaTip').value,
+                        odemeVadesi: parseInt(document.getElementById('odemeVadesi').value),
+                        aciklama: document.getElementById('faturaAciklama').value
+                    };
+
+                    await faturaService.createFromSiparis(siparisId, data);
+                    this.showToast('Fatura başarıyla oluşturuldu');
+                    this.closeModal('createModal');
+                    await this.loadData();
+                } catch (error) {
+                    this.showToast(error.message || 'Fatura oluşturulurken hata', 'error');
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            async viewDetail(faturaId) {
+                this.showLoading();
+                try {
+                    const fatura = await faturaService.getFaturaById(faturaId);
+                    this.currentFatura = fatura;
+                    
+                    const content = document.getElementById('detailContent');
+                    content.innerHTML = `
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                            <div>
+                                <h4 style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">Fatura Bilgileri</h4>
+                                <p><strong>Fatura No:</strong> ${fatura.faturaNo}</p>
+                                <p><strong>Tarih:</strong> ${this.formatDate(fatura.faturaTarihi)}</p>
+                                <p><strong>Tip:</strong> ${fatura.tip === 'efatura' ? 'E-Fatura' : 'E-Arşiv'}</p>
+                                <p><strong>Durum:</strong> ${this.getDurumBadge(fatura.durum)}</p>
+                            </div>
+                            <div>
+                                <h4 style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">Müşteri Bilgileri</h4>
+                                <p><strong>Ad:</strong> ${fatura.musteri?.ad || '-'}</p>
+                                <p><strong>Vergi No:</strong> ${fatura.musteri?.vergiNo || '-'}</p>
+                                <p><strong>Vergi Dairesi:</strong> ${fatura.musteri?.vergiDairesi || '-'}</p>
+                                <p><strong>Adres:</strong> ${fatura.musteri?.adres || '-'}</p>
+                            </div>
+                        </div>
+
+                        <h4 style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">Kalemler</h4>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem;">
+                            <thead>
+                                <tr style="background: #f9fafb;">
+                                    <th style="padding: 0.75rem; text-align: left; border-bottom: 1px solid #e5e7eb;">Ürün</th>
+                                    <th style="padding: 0.75rem; text-align: center; border-bottom: 1px solid #e5e7eb;">Miktar</th>
+                                    <th style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">Birim Fiyat</th>
+                                    <th style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">Toplam</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${fatura.kalemler.map(kalem => `
+                                    <tr>
+                                        <td style="padding: 0.75rem; border-bottom: 1px solid #e5e7eb;">
+                                            <strong>${kalem.urunAdi}</strong>
+                                            <br><small style="color: #6b7280;">${kalem.aciklama || ''}</small>
+                                        </td>
+                                        <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid #e5e7eb;">${kalem.miktar} ${kalem.birim}</td>
+                                        <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">${this.formatMoney(kalem.birimFiyat)}</td>
+                                        <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">${this.formatMoney(kalem.toplamTutar)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+
+                        <div style="background: #f9fafb; padding: 1.5rem; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>Ara Toplam:</span>
+                                <strong>${this.formatMoney(fatura.araToplam)}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>KDV (%${fatura.kdvOrani}):</span>
+                                <strong>${this.formatMoney(fatura.kdvTutari)}</strong>
+                            </div>
+                            ${fatura.indirimTutari > 0 ? `
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: #ef4444;">
+                                    <span>İndirim:</span>
+                                    <strong>-${this.formatMoney(fatura.indirimTutari)}</strong>
+                                </div>
+                            ` : ''}
+                            <div style="display: flex; justify-content: space-between; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #e5e7eb; font-size: 1.125rem;">
+                                <span>Genel Toplam:</span>
+                                <strong style="color: #059669;">${this.formatMoney(fatura.genelToplam)}</strong>
+                            </div>
+                        </div>
+
+                        ${fatura.taxtenUuid ? `
+                            <div style="margin-top: 1.5rem; padding: 1rem; background: #d1fae5; border-radius: 8px; border-left: 4px solid #10b981;">
+                                <h4 style="color: #065f46; margin-bottom: 0.5rem;"><i class="fas fa-check-circle"></i> Taxten Bilgileri</h4>
+                                <p style="color: #065f46; font-size: 0.875rem; margin: 0;">
+                                    <strong>UUID:</strong> ${fatura.taxtenUuid}<br>
+                                    <strong>Gönderim Tarihi:</strong> ${this.formatDate(fatura.taxtenGonderimTarihi)}<br>
+                                    <strong>Durum:</strong> ${fatura.taxtenDurum || 'İşleniyor'}
+                                </p>
+                            </div>
+                        ` : ''}
+                    `;
+                    
+                    document.getElementById('detailModal').classList.add('active');
+                } catch (error) {
+                    this.showToast('Detay yüklenirken hata oluştu', 'error');
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            sendToTaxten(faturaId) {
+                const fatura = this.faturalar.find(f => f._id === faturaId);
+                if (!fatura) return;
+
+                this.currentFatura = fatura;
+                document.getElementById('taxtenInfo').innerHTML = `
+                    <p><strong>Fatura No:</strong> ${fatura.faturaNo}</p>
+                    <p><strong>Müşteri:</strong> ${fatura.musteri?.ad}</p>
+                    <p><strong>Tutar:</strong> ${this.formatMoney(fatura.genelToplam)}</p>
+                `;
+                document.getElementById('taxtenModal').classList.add('active');
+            }
+
+            async confirmTaxtenSend() {
+                if (!this.currentFatura) return;
+
+                this.showLoading();
+                try {
+                    await faturaService.sendToTaxten(this.currentFatura._id);
+                    this.showToast('Fatura Taxten\'e başarıyla gönderildi');
+                    this.closeModal('taxtenModal');
+                    await this.loadData();
+                } catch (error) {
+                    this.showToast(error.message || 'Gönderim başarısız', 'error');
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            async downloadPDF(faturaId) {
+                this.showLoading();
+                try {
+                    await faturaService.downloadPDF(faturaId);
+                    this.showToast('PDF indirildi');
+                } catch (error) {
+                    this.showToast('PDF indirme hatası', 'error');
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            downloadCurrentPDF() {
+                if (this.currentFatura) {
+                    this.downloadPDF(this.currentFatura._id);
+                }
+            }
+
+            async cancelFatura(faturaId) {
+                if (!confirm('Bu faturayı iptal etmek istediğinize emin misiniz?')) return;
+
+                const aciklama = prompt('İptal nedeni:');
+                if (!aciklama) return;
+
+                this.showLoading();
+                try {
+                    await faturaService.cancelFatura(faturaId, aciklama);
+                    this.showToast('Fatura iptal edildi');
+                    await this.loadData();
+                } catch (error) {
+                    this.showToast(error.message || 'İptal işlemi başarısız', 'error');
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            // Yardımcı metodlar
+            formatMoney(amount) {
+                return new Intl.NumberFormat('tr-TR', {
+                    style: 'currency',
+                    currency: 'TRY'
+                }).format(amount);
+            }
+
+            formatDate(date) {
+                if (!date) return '-';
+                return new Date(date).toLocaleDateString('tr-TR');
+            }
+        }
+
+        // Uygulamayı başlat
+        const faturaApp = new FaturaApp();
+
+        // Modal dışına tıklama ile kapatma
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

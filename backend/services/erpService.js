@@ -1,118 +1,73 @@
 // 📁 /services/erpService.js
 const axios = require("axios");
 
-const ERP_BASE_URL = process.env.ERP_BASE_URL || "https://www.satistakip.online/api";
+// YENİ API: satistakip.online
+const ERP_API_URL = process.env.ERP_API_URL || "https://satistakip.online/api/integration/sales";
+const ERP_API_KEY = process.env.ERP_API_KEY; // SADECE env'den al, fallback YOK
 
-// Token saklama
-let erpToken = null;
+/**
+ * Siparişi ERP'ye gönder (YENİ API)
+ * @param {Object} orderData - Sipariş bilgileri
+ * @param {Object} userData - Kullanıcı bilgileri
+ * @returns {Object} ERP yanıtı
+ */
+async function sendOrderToERP(orderData, userData) {
+  console.log("========== ERP SİPARİŞ GÖNDERME BAŞLADI ==========");
+  console.log("📋 Sipariş ID:", orderData._id);
+  console.log("👤 Müşteri:", userData.email);
 
-// ERP'ye login olup token al (HER ZAMAN İLK BAŞTA ÇAĞRILMALI)
-async function loginToERP() {
   try {
-    console.log("🔑 ERP Login başlatılıyor...");
-    console.log("📧 Email:", process.env.ERP_USER_EMAIL);
-    console.log("🔗 URL:", `${ERP_BASE_URL}/auth/login`);
-    
-    const response = await axios.post(`${ERP_BASE_URL}/auth/login`, {
-      email: process.env.ERP_USER_EMAIL,
-      password: process.env.ERP_USER_PASSWORD
-    });
-    
-    erpToken = response.data.token;
-    console.log("✅ ERP Login başarılı - Token alındı");
-    console.log("📝 Token (ilk 50 karakter):", erpToken?.substring(0, 50) + "...");
-    
-    return erpToken;
-    
-  } catch (err) {
-    console.error("❌ ERP Login hatası:");
-    console.error("   Status:", err.response?.status);
-    console.error("   Mesaj:", err.response?.data?.message || err.message);
-    console.error("   URL:", `${ERP_BASE_URL}/auth/login`);
-    throw err;
-  }
-}
-
-// Token'ı kontrol et, yoksa login ol
-async function ensureToken() {
-  if (!erpToken) {
-    console.log("🔄 Token bulunamadı, login olunuyor...");
-    await loginToERP();
-  } else {
-    console.log("✅ Mevcut token kullanılıyor");
-  }
-  return erpToken;
-}
-
-// Axios instance with auth header
-async function getERPClient() {
-  const token = await ensureToken();
-  
-  return axios.create({
-    baseURL: ERP_BASE_URL,
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
-    },
-    timeout: 15000 // 15 saniye timeout
-  });
-}
-
-// ============================================
-// CARİ (MÜŞTERİ) İŞLEMLERİ
-// ============================================
-
-async function createCariInERP(userData) {
-  console.log("========== ERP CARİ OLUŞTURMA BAŞLADI ==========");
-  console.log("📋 Kullanıcı:", userData.email);
-  
-  try {
-    const client = await getERPClient();
-    
-    const cariData = {
-      unvan: userData.firma || userData.ad,
-      ad: userData.ad,
-      soyad: "",
-      email: userData.email,
-      telefon: userData.telefon || "",
-      vergiNo: userData.vergiNo || "",
-      vergiDairesi: userData.vergiDairesi || "",
-      tcNo: userData.tcNo || "",
-      adres: userData.faturaAdresi || userData.teslimatAdresi || "",
-      il: userData.city || "İstanbul",
-      ilce: userData.district || "",
-      tip: userData.uyelikTipi === 'kurumsal' ? 'kurumsal' : 'bireysel'
+    // API formatına dönüştür
+    const erpPayload = {
+      customer: {
+        ad: userData.ad?.split(' ')[0] || userData.ad || '',
+        soyad: userData.ad?.split(' ').slice(1).join(' ') || '',
+        email: userData.email,
+        phone: userData.telefon || '',
+        adres: userData.faturaAdresi?.acikAdres || 
+               userData.faturaAdresi || 
+               userData.teslimatAdresi?.acikAdres || 
+               userData.teslimatAdresi || ''
+      },
+      items: orderData.items.map(item => ({
+        code: item.ad?.substring(0, 20).replace(/\s+/g, '-') || 'URUN',
+        quantity: parseInt(item.adet || 1),
+        unitPrice: parseFloat(item.fiyat || 0)
+      })),
+      payment: {
+        method: getPaymentMethod(orderData.paymentMethod),
+        status: getPaymentStatus(orderData.paymentMethod)
+      }
     };
 
-    console.log("📤 Gönderilen data:", JSON.stringify(cariData, null, 2));
-    console.log("🌐 Endpoint:", `${ERP_BASE_URL}/cari/create`);
+    console.log("📤 Gönderilen veri:", JSON.stringify(erpPayload, null, 2));
+    console.log("🌐 Endpoint:", ERP_API_URL);
 
-    const response = await client.post("/cari/create", cariData);
-    
-    console.log("✅ ERP Yanıt:", JSON.stringify(response.data, null, 2));
-    console.log("========== ERP CARİ OLUŞTURMA BAŞARILI ==========");
-    
+    // API çağrısı (x-api-key header, Bearer YOK)
+    const response = await axios.post(ERP_API_URL, erpPayload, {
+      headers: {
+        'x-api-key': ERP_API_KEY,
+        'Content-Type': 'application/json'
+      },
+      timeout: 15000 // 15 saniye timeout
+    });
+
+    console.log("✅ ERP Yanıtı:", JSON.stringify(response.data, null, 2));
+    console.log("========== ERP SİPARİŞ GÖNDERME BAŞARILI ==========");
+
     return {
       success: true,
-      cariId: response.data._id || response.data.id || response.data.cariId,
+      erpOrderId: response.data.id || response.data.orderId || response.data._id,
       data: response.data
     };
-    
+
   } catch (err) {
-    console.error("❌ ERP Cari Hatası:");
+    console.error("❌ ERP Gönderim Hatası:");
     console.error("   HTTP Status:", err.response?.status);
     console.error("   Hata Mesajı:", err.response?.data?.message || err.message);
     console.error("   Hata Detayı:", JSON.stringify(err.response?.data, null, 2));
-    
-    // Token expired ise yenile ve tekrar dene
-    if (err.response?.status === 401) {
-      console.log("🔄 Token expired, yeniden login olunuyor...");
-      erpToken = null; // Token'ı sıfırla
-      await loginToERP();
-      return createCariInERP(userData); // Retry
-    }
-    
-    console.log("========== ERP CARİ OLUŞTURMA BAŞARISIZ ==========");
+    console.log("========== ERP SİPARİŞ GÖNDERME BAŞARISIZ ==========");
+
     return {
       success: false,
       error: err.response?.data?.message || err.message,
@@ -121,102 +76,70 @@ async function createCariInERP(userData) {
   }
 }
 
-// ============================================
-// SATIŞ (SİPARİŞ) İŞLEMLERİ
-// ============================================
-
-async function createSaleInERP(orderData, userData) {
-  console.log("========== ERP SATIŞ OLUŞTURMA BAŞLADI ==========");
+/**
+ * Ödeme yöntemini ERP formatına çevir
+ */
+function getPaymentMethod(paymentMethod) {
+  const methodMap = {
+    'Kredi Kartı': 'credit_card',
+    'credit_card': 'credit_card',
+    'Havale/EFT': 'transfer',
+    'transfer': 'transfer',
+    'Kapıda Ödeme': 'cash_on_delivery',
+    'cash': 'cash_on_delivery',
+    'Açık Hesap': 'open_account',
+    'open': 'open_account'
+  };
   
-  try {
-    const client = await getERPClient();
+  return methodMap[paymentMethod] || 'open_account';
+}
+
+/**
+ * Ödeme durumunu belirle (paid/unpaid)
+ */
+function getPaymentStatus(paymentMethod) {
+  // Kredi kartı = ödendi, diğerleri = ödenmedi
+  const paidMethods = ['Kredi Kartı', 'credit_card'];
+  return paidMethods.includes(paymentMethod) ? 'paid' : 'unpaid';
+}
+
+/**
+ * Toplu sipariş senkronizasyonu (manuel tetikleme için)
+ */
+async function syncPendingOrders() {
+  const Order = require('../models/Order');
+  
+  const pendingOrders = await Order.find({
+    erpStatus: { $in: [null, 'pending', 'failed'] }
+  }).limit(10);
+
+  console.log(`🔄 ${pendingOrders.length} sipariş senkronize edilecek...`);
+
+  for (const order of pendingOrders) {
+    const User = require('../models/User');
+    const user = await User.findById(order.userId);
     
-    // Cari ID bul veya oluştur
-    let cariId = userData.erpCariId;
-    
-    if (!cariId) {
-      console.log("🔍 Cari ID bulunamadı, yeni cari oluşturuluyor...");
-      const newCari = await createCariInERP(userData);
-      if (newCari.success) {
-        cariId = newCari.cariId;
-        console.log("✅ Yeni cari oluşturuldu:", cariId);
+    if (user) {
+      const result = await sendOrderToERP(order, user);
+      
+      if (result.success) {
+        order.erpStatus = 'synced';
+        order.erpOrderId = result.erpOrderId;
+        order.erpSyncDate = new Date();
+        order.erpError = null;
       } else {
-        throw new Error("Cari oluşturulamadı: " + newCari.error);
+        order.erpStatus = 'failed';
+        order.erpError = result.error;
       }
+      
+      await order.save();
     }
-    
-    const year = new Date().getFullYear();
-    const randomNum = Math.floor(1000 + Math.random() * 9000);
-    const saleNo = `WEB-${year}-${randomNum}`;
-    
-    const saleData = {
-      accountId: cariId,
-      saleNo: saleNo,
-      date: new Date().toISOString(),
-      currency: "TRY",
-      fxRate: 1,
-      paymentType: orderData.odemeYontemi === 'Kredi Kartı' ? 'card' : 
-                   orderData.odemeYontemi === 'Havale/EFT' ? 'transfer' : 'open',
-      note: `Web siparişi: ${orderData._id}`,
-      items: orderData.items.map(item => ({
-        name: item.ad || item.name,
-        quantity: parseInt(item.adet || item.qty || 1),
-        unitPrice: parseFloat(item.fiyat || item.price || 0),
-        vatRate: 20,
-        barcode: item.barcode || "",
-        sku: item.sku || ""
-      }))
-    };
-
-    console.log("📤 Satış data:", JSON.stringify(saleData, null, 2));
-
-    const response = await client.post("/transactions/create", saleData);
-    
-    console.log("✅ Satış ERP'ye aktarıldı:", response.data);
-    console.log("========== ERP SATIŞ OLUŞTURMA BAŞARILI ==========");
-    
-    return {
-      success: true,
-      saleNo: response.data.saleNo || saleNo,
-      transactionId: response.data._id || response.data.id,
-      data: response.data
-    };
-    
-  } catch (err) {
-    console.error("❌ ERP Satış Hatası:", err.response?.data || err.message);
-    
-    if (err.response?.status === 401) {
-      console.log("🔄 Token expired, retry...");
-      erpToken = null;
-      await loginToERP();
-      return createSaleInERP(orderData, userData);
-    }
-    
-    console.log("========== ERP SATIŞ OLUŞTURMA BAŞARISIZ ==========");
-    return {
-      success: false,
-      error: err.response?.data?.message || err.message
-    };
   }
 }
 
-async function findCariByEmail(email) {
-  try {
-    const client = await getERPClient();
-    const response = await client.get(`/cari?email=${encodeURIComponent(email)}`);
-    return response.data;
-  } catch (err) {
-    console.log("Cari arama hatası:", err.message);
-    return null;
-  }
-}
-
-// ============================================
-// EXPORTS
-// ============================================
 module.exports = {
-  createCariInERP,
-  createSaleInERP,
-  findCariByEmail,
-  loginToERP
+  sendOrderToERP,
+  syncPendingOrders,
+  getPaymentMethod,
+  getPaymentStatus
 };

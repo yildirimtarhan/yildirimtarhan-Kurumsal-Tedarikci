@@ -83,6 +83,7 @@ app.use("/api/products", productRoutes);
 // ==================== YENİ ROUTE KULLANIMLARI ====================
 app.use('/api/cari', cariRoutes);
 app.use('/api/fatura', faturaRoutes);
+app.use('/api/faturalar', faturaRoutes);
 app.use('/api/tahsilat', tahsilatRoutes);
 
 const transporter = nodemailer.createTransport({

@@ -1,5 +1,24 @@
 const mongoose = require("mongoose");
 
+// Adres alt şeması
+const AddressSchema = new mongoose.Schema({
+  baslik: { type: String, default: "Adres" }, // Ev, İşyeri, vb.
+  adSoyad: { type: String, default: "" },
+  telefon: { type: String, default: "" },
+  sehir: { type: String, default: "" },
+  ilce: { type: String, default: "" },
+  postaKodu: { type: String, default: "" },
+  acikAdres: { type: String, default: "" },
+  vergiDairesi: { type: String, default: "" }, // Kurumsal için
+  vergiNo: { type: String, default: "" },      // Kurumsal için
+  tip: { 
+    type: String, 
+    enum: ['fatura', 'teslimat'], 
+    default: 'teslimat' 
+  },
+  varsayilan: { type: Boolean, default: false }
+}, { _id: true });
+
 const UserSchema = new mongoose.Schema({
   ad: { type: String, required: true },
   email: {
@@ -32,20 +51,29 @@ const UserSchema = new mongoose.Schema({
   
   telefon: { type: String, default: "" },
   
-  // Adresler
-  faturaAdresi: { type: String, default: "" },
-  teslimatAdresi: { type: String, default: "" },
+  // YENİ: Detaylı adresler (fatura ve teslimat)
+  faturaAdresi: {
+    baslik: { type: String, default: "" },
+    sehir: { type: String, default: "" },
+    ilce: { type: String, default: "" },
+    postaKodu: { type: String, default: "" },
+    acikAdres: { type: String, default: "" },
+    vergiDairesi: { type: String, default: "" },
+    vergiNo: { type: String, default: "" }
+  },
   
-  // Adres array (detaylı adresler için)
-  addresses: [{
-    title: { type: String, default: "Adres" },
-    fullName: { type: String },
-    phone: { type: String },
-    city: { type: String },
-    district: { type: String },
-    address: { type: String },
-    isDefault: { type: Boolean, default: false }
-  }],
+  teslimatAdresi: {
+    baslik: { type: String, default: "" },
+    adSoyad: { type: String, default: "" },
+    telefon: { type: String, default: "" },
+    sehir: { type: String, default: "" },
+    ilce: { type: String, default: "" },
+    postaKodu: { type: String, default: "" },
+    acikAdres: { type: String, default: "" }
+  },
+  
+  // Eski adres array (geriye uyumluluk için)
+  addresses: [AddressSchema],
   
   // ERP entegrasyonu için YENİ ALANLAR
   erpCariId: { type: String, default: "" },

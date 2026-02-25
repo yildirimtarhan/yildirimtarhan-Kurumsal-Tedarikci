@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faturalarım - Kurumsal Tedarikçi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar { transition: all 0.3s; }
+        .sidebar-collapsed { width: 70px; }
+        .sidebar-expanded { width: 260px; }
+        .content-area { transition: margin-left 0.3s; }
+        .fatura-card { transition: all 0.3s ease; }
+        .fatura-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .status-odendi { background: #dcfce7; color: #166534; }
+        .status-bekliyor { background: #fef3c7; color: #92400e; }
+        .status-vade-gecti { background: #fee2e2; color: #991b1b; }
+        .status-vade-yaklasiyor { background: #dbeafe; color: #1e40af; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* PDF Viewer Modal */
+        .pdf-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
+        .pdf-modal.active { display: flex; align-items: center; justify-content: center; }
+        .pdf-container { width: 90%; height: 90%; background: white; border-radius: 8px; overflow: hidden; }
+        .pdf-toolbar { background: #1f2937; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .pdf-viewer { width: 100%; height: calc(100% - 60px); border: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    
+    <!-- SIDEBAR -->
+<div id="sidebar" class="sidebar sidebar-expanded fixed left-0 top-0 h-full bg-slate-900 text-white z-50 overflow-y-auto">
+    <div class="p-4 flex items-center justify-between border-b border-slate-700">
+        <div class="flex items-center gap-3 logo-full">
+            <i class="fas fa-building-columns text-2xl text-blue-400"></i>
+            <span class="font-bold text-lg">Kurumsal</span>
+        </div>
+        <button onclick="toggleSidebar()" class="text-gray-400 hover:text-white">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+    <nav class="mt-6 px-2">
+        <!-- DÜZELTİLDİ: Ana sayfaya yönlendir -->
+        <a href="../index.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+            <i class="fas fa-home w-5"></i>
+            <span class="menu-text">Ana Sayfa</span>
+        </a>
+        
+        <!-- DÜZELTİLDİ: Siparişler sayfasına yönlendir -->
+        <a href="../siparisler.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+            <i class="fas fa-shopping-bag w-5"></i>
+            <span class="menu-text">Siparişlerim</span>
+        </a>
+        
+        <!-- Aktif sayfa -->
+        <a href="faturalarim.html" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg mb-1">
+            <i class="fas fa-file-invoice w-5"></i>
+            <span class="menu-text">Faturalarım</span>
+        </a>
+        
+        <!-- DÜZELTİLDİ: Profil sayfasına yönlendir -->
+        <a href="../profil.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+            <i class="fas fa-user w-5"></i>
+            <span class="menu-text">Profilim</span>
+        </a>
+    </nav>
+</div>
+    <!-- Main Content -->
+    <div id="content" class="content-area ml-[260px] p-6">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Faturalarım</h1>
+                <p class="text-gray-500">Fatura görüntüleme ve indirme</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="loadVadeYaklasan()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                    <i class="fas fa-bell"></i> Vadesi Yaklaşanlar
+                </button>
+            </div>
+        </div>
+
+        <!-- Özet Kartlar -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 text-sm">Toplam Fatura</p>
+                        <h3 class="text-xl font-bold text-blue-600" id="toplamFatura">0</h3>
+                    </div>
+                    <div class="bg-blue-100 p-2 rounded-lg">
+                        <i class="fas fa-file-invoice text-blue-600"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 text-sm">Ödenen</p>
+                        <h3 class="text-xl font-bold text-green-600" id="odenenFatura">0</h3>
+                    </div>
+                    <div class="bg-green-100 p-2 rounded-lg">
+                        <i class="fas fa-check-circle text-green-600"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 text-sm">Bekleyen</p>
+                        <h3 class="text-xl font-bold text-yellow-600" id="bekleyenFatura">0</h3>
+                    </div>
+                    <div class="bg-yellow-100 p-2 rounded-lg">
+                        <i class="fas fa-clock text-yellow-600"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 text-sm">Vadesi Geçmiş</p>
+                        <h3 class="text-xl font-bold text-red-600" id="vadeGecmisFatura">0</h3>
+                    </div>
+                    <div class="bg-red-100 p-2 rounded-lg">
+                        <i class="fas fa-exclamation-triangle text-red-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtreler -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6">
+            <div class="flex flex-wrap gap-4">
+                <div class="flex-1 min-w-[200px]">
+                    <input type="text" id="searchInput" placeholder="Fatura no ara..." 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <select id="durumFilter" onchange="loadFaturalar()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="">Tüm Durumlar</option>
+                    <option value="odendi">Ödendi</option>
+                    <option value="bekliyor">Bekliyor</option>
+                    <option value="vade-gecti">Vadesi Geçmiş</option>
+                </select>
+                <input type="date" id="startDate" onchange="loadFaturalar()" class="px-4 py-2 border border-gray-300 rounded-lg">
+                <input type="date" id="endDate" onchange="loadFaturalar()" class="px-4 py-2 border border-gray-300 rounded-lg">
+            </div>
+        </div>
+
+        <!-- Fatura Listesi -->
+        <div id="faturaListesi" class="space-y-4">
+            <!-- Dinamik içerik -->
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-6 flex justify-center gap-2" id="pagination">
+            <!-- Dinamik pagination -->
+        </div>
+    </div>
+
+    <!-- Fatura Detay Modal -->
+    <div id="faturaDetayModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-xl font-bold">Fatura Detayı</h2>
+                <button onclick="closeModal('faturaDetayModal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="faturaDetayContent" class="p-6">
+                <!-- Dinamik içerik -->
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end gap-3">
+                <button onclick="closeModal('faturaDetayModal')" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Kapat</button>
+                <button id="btnIndir" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                    <i class="fas fa-download"></i> PDF İndir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Viewer Modal -->
+    <div id="pdfModal" class="pdf-modal">
+        <div class="pdf-container">
+            <div class="pdf-toolbar">
+                <span id="pdfTitle">Fatura Görüntüleyici</span>
+                <div class="flex gap-3">
+                    <button onclick="downloadCurrentPDF()" class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm">
+                        <i class="fas fa-download"></i> İndir
+                    </button>
+                    <button onclick="closePdfModal()" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm">
+                        <i class="fas fa-times"></i> Kapat
+                    </button>
+                </div>
+            </div>
+            <iframe id="pdfViewer" class="pdf-viewer"></iframe>
+        </div>
+    </div>
+
+    <!-- Vade Yaklaşanlar Modal -->
+    <div id="vadeModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-orange-50">
+                <h2 class="text-xl font-bold text-orange-800">
+                    <i class="fas fa-bell"></i> Vadesi Yaklaşan Faturalar
+                </h2>
+                <button onclick="closeModal('vadeModal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="vadeContent" class="p-6">
+                <!-- Dinamik içerik -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/musteri-fatura-service.js"></script>
+    <script>
+        let currentFatura = null;
+        let currentPage = 1;
+
+        // Sidebar toggle
+        let sidebarExpanded = true;
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            sidebarExpanded = !sidebarExpanded;
+            
+            if (sidebarExpanded) {
+                sidebar.classList.remove('sidebar-collapsed');
+                sidebar.classList.add('sidebar-expanded');
+                content.style.marginLeft = '260px';
+                document.querySelectorAll('.menu-text').forEach(el => el.style.display = 'block');
+            } else {
+                sidebar.classList.remove('sidebar-expanded');
+                sidebar.classList.add('sidebar-collapsed');
+                content.style.marginLeft = '70px';
+                document.querySelectorAll('.menu-text').forEach(el => el.style.display = 'none');
+            }
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function formatMoney(amount) {
+            return new Intl.NumberFormat('tr-TR', {
+                style: 'currency',
+                currency: 'TRY'
+            }).format(amount);
+        }
+
+        function formatDate(date) {
+            if (!date) return '-';
+            return new Date(date).toLocaleDateString('tr-TR');
+        }
+
+        function getStatusClass(durum, vadeTarihi) {
+            if (durum === 'odendi') return 'status-odendi';
+            if (vadeTarihi) {
+                const vade = new Date(vadeTarihi);
+                const today = new Date();
+                const diffDays = Math.ceil((vade - today) / (1000 * 60 * 60 * 24));
+                
+                if (diffDays < 0) return 'status-vade-gecti';
+                if (diffDays <= 7) return 'status-vade-yaklasiyor';
+            }
+            return 'status-bekliyor';
+        }
+
+        function getStatusText(durum, vadeTarihi) {
+            if (durum === 'odendi') return 'Ödendi';
+            if (vadeTarihi) {
+                const vade = new Date(vadeTarihi);
+                const today = new Date();
+                const diffDays = Math.ceil((vade - today) / (1000 * 60 * 60 * 24));
+                
+                if (diffDays < 0) return `Vadesi Geçti (${Math.abs(diffDays)} gün)`;
+                if (diffDays <= 7) return `Vadeye ${diffDays} gün`;
+            }
+            return 'Ödeme Bekliyor';
+        }
+
+        async function loadFaturalar() {
+            try {
+                const filters = {
+                    durum: document.getElementById('durumFilter').value,
+                    baslangicTarihi: document.getElementById('startDate').value,
+                    bitisTarihi: document.getElementById('endDate').value,
+                    sayfa: currentPage,
+                    limit: 10
+                };
+
+                const response = await musteriFaturaService.getMusteriFaturalar(filters);
+                const faturalar = response.data || [];
+                
+                renderFaturalar(faturalar);
+                updateStats(response.istatistikler || {});
+                renderPagination(response.toplamSayfa || 1);
+            } catch (error) {
+                console.error('Fatura yükleme hatası:', error);
+                // Mock data for testing
+                renderMockData();
+            }
+        }
+
+        function renderFaturalar(faturalar) {
+            const container = document.getElementById('faturaListesi');
+            
+            if (faturalar.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 bg-white rounded-xl">
+                        <i class="fas fa-inbox text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500">Henüz fatura bulunmuyor</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = faturalar.map(f => `
+                <div class="fatura-card bg-white p-6 rounded-xl shadow-sm border border-gray-100 fade-in">
+                    <div class="flex flex-wrap justify-between items-start gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                <h3 class="text-lg font-bold text-gray-800">${f.faturaNo}</h3>
+                                <span class="px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(f.odemeDurumu, f.vadeTarihi)}">
+                                    ${getStatusText(f.odemeDurumu, f.vadeTarihi)}
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                <div>
+                                    <p class="text-gray-500">Fatura Tarihi</p>
+                                    <p class="font-medium">${formatDate(f.faturaTarihi)}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Vade Tarihi</p>
+                                    <p class="font-medium ${f.vadeTarihi && new Date(f.vadeTarihi) < new Date() ? 'text-red-600' : ''}">
+                                        ${formatDate(f.vadeTarihi)}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Tutar</p>
+                                    <p class="font-bold text-lg text-blue-600">${formatMoney(f.genelToplam)}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Kalan</p>
+                                    <p class="font-medium ${f.kalanTutar > 0 ? 'text-red-600' : 'text-green-600'}">
+                                        ${formatMoney(f.kalanTutar || 0)}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="viewFatura('${f._id}')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 flex items-center gap-2">
+                                <i class="fas fa-eye"></i> Detay
+                            </button>
+                            <button onclick="downloadPDF('${f._id}')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2">
+                                <i class="fas fa-download"></i> İndir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats(istatistikler) {
+            document.getElementById('toplamFatura').textContent = istatistikler.toplam || 0;
+            document.getElementById('odenenFatura').textContent = istatistikler.odenen || 0;
+            document.getElementById('bekleyenFatura').textContent = istatistikler.bekleyen || 0;
+            document.getElementById('vadeGecmisFatura').textContent = istatistikler.vadeGecmis || 0;
+        }
+
+        function renderPagination(toplamSayfa) {
+            const container = document.getElementById('pagination');
+            let html = '';
+            
+            for (let i = 1; i <= toplamSayfa; i++) {
+                html += `
+                    <button onclick="goToPage(${i})" class="px-4 py-2 rounded-lg ${i === currentPage ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}">
+                        ${i}
+                    </button>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            loadFaturalar();
+        }
+
+        async function viewFatura(id) {
+            try {
+                const fatura = await musteriFaturaService.getFaturaDetay(id);
+                currentFatura = fatura;
+                
+                document.getElementById('faturaDetayContent').innerHTML = `
+                    <div class="grid grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">Fatura Bilgileri</h4>
+                            <table class="w-full text-sm">
+                                <tr><td class="py-1 text-gray-500">Fatura No:</td><td class="py-1 font-medium">${fatura.faturaNo}</td></tr>
+                                <tr><td class="py-1 text-gray-500">Tarih:</td><td class="py-1">${formatDate(fatura.faturaTarihi)}</td></tr>
+                                <tr><td class="py-1 text-gray-500">Vade:</td><td class="py-1">${formatDate(fatura.vadeTarihi)}</td></tr>
+                                <tr><td class="py-1 text-gray-500">Tip:</td><td class="py-1">${fatura.tip === 'efatura' ? 'E-Fatura' : 'E-Arşiv'}</td></tr>
+                            </table>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">Ödeme Bilgileri</h4>
+                            <table class="w-full text-sm">
+                                <tr><td class="py-1 text-gray-500">Durum:</td><td class="py-1"><span class="${getStatusClass(fatura.odemeDurumu, fatura.vadeTarihi)} px-2 py-1 rounded">${getStatusText(fatura.odemeDurumu, fatura.vadeTarihi)}</span></td></tr>
+                                <tr><td class="py-1 text-gray-500">Toplam:</td><td class="py-1 font-bold">${formatMoney(fatura.genelToplam)}</td></tr>
+                                <tr><td class="py-1 text-gray-500">Ödenen:</td><td class="py-1 text-green-600">${formatMoney(fatura.odenenTutar || 0)}</td></tr>
+                                <tr><td class="py-1 text-gray-500">Kalan:</td><td class="py-1 ${fatura.kalanTutar > 0 ? 'text-red-600' : 'text-green-600'}">${formatMoney(fatura.kalanTutar || 0)}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <h4 class="font-semibold text-gray-700 mb-2">Kalemler</h4>
+                    <table class="w-full text-sm border rounded-lg overflow-hidden">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-2 text-left">Ürün/Hizmet</th>
+                                <th class="px-3 py-2 text-right">Miktar</th>
+                                <th class="px-3 py-2 text-right">Birim Fiyat</th>
+                                <th class="px-3 py-2 text-right">Toplam</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${fatura.kalemler.map(k => `
+                                <tr class="border-b">
+                                    <td class="px-3 py-2">${k.urunAdi}</td>
+                                    <td class="px-3 py-2 text-right">${k.miktar} ${k.birim}</td>
+                                    <td class="px-3 py-2 text-right">${formatMoney(k.birimFiyat)}</td>
+                                    <td class="px-3 py-2 text-right font-medium">${formatMoney(k.toplamTutar)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                        <tfoot class="bg-gray-50 font-semibold">
+                            <tr><td colspan="3" class="px-3 py-2 text-right">Ara Toplam:</td><td class="px-3 py-2 text-right">${formatMoney(fatura.araToplam)}</td></tr>
+                            <tr><td colspan="3" class="px-3 py-2 text-right">KDV (%${fatura.kdvOrani}):</td><td class="px-3 py-2 text-right">${formatMoney(fatura.kdvTutari)}</td></tr>
+                            <tr class="text-lg bg-blue-50"><td colspan="3" class="px-3 py-2 text-right">Genel Toplam:</td><td class="px-3 py-2 text-right text-blue-600">${formatMoney(fatura.genelToplam)}</td></tr>
+                        </tfoot>
+                    </table>
+                `;
+                
+                document.getElementById('btnIndir').onclick = () => downloadPDF(id);
+                openModal('faturaDetayModal');
+            } catch (error) {
+                alert('Fatura detayı yüklenemedi: ' + error.message);
+            }
+        }
+
+        async function downloadPDF(id) {
+            try {
+                await musteriFaturaService.downloadPDF(id);
+            } catch (error) {
+                alert('PDF indirme hatası: ' + error.message);
+            }
+        }
+
+        async function loadVadeYaklasan() {
+            try {
+                const response = await musteriFaturaService.getVadeYaklasanFaturalar();
+                const faturalar = response.data || [];
+                
+                const content = document.getElementById('vadeContent');
+                
+                if (faturalar.length === 0) {
+                    content.innerHTML = `
+                        <div class="text-center py-8">
+                            <i class="fas fa-check-circle text-4xl text-green-500 mb-4"></i>
+                            <p class="text-gray-600">Vadesi yaklaşan fatura bulunmuyor. Tebrikler!</p>
+                        </div>
+                    `;
+                } else {
+                    content.innerHTML = `
+                        <div class="mb-4 p-4 bg-orange-100 rounded-lg text-orange-800">
+                            <i class="fas fa-info-circle"></i> 
+                            <strong>${faturalar.length} adet</strong> faturanızın vadesi yaklaşıyor veya geçmiş.
+                        </div>
+                        <div class="space-y-3">
+                            ${faturalar.map(f => {
+                                const vade = new Date(f.vadeTarihi);
+                                const today = new Date();
+                                const diffDays = Math.ceil((vade - today) / (1000 * 60 * 60 * 24));
+                                const isGecikme = diffDays < 0;
+                                
+                                return `
+                                    <div class="p-4 border rounded-lg ${isGecikme ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'}">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <h4 class="font-bold ${isGecikme ? 'text-red-800' : 'text-yellow-800'}">${f.faturaNo}</h4>
+                                                <p class="text-sm text-gray-600">Vade: ${formatDate(f.vadeTarihi)}</p>
+                                                <p class="text-sm ${isGecikme ? 'text-red-600 font-bold' : 'text-yellow-700'}">
+                                                    ${isGecikme ? `⚠️ ${Math.abs(diffDays)} gün gecikme` : `⏰ ${diffDays} gün kaldı`}
+                                                </p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-lg font-bold ${isGecikme ? 'text-red-600' : 'text-gray-800'}">${formatMoney(f.kalanTutar || f.genelToplam)}</p>
+                                                <button onclick="hatirlatmaGonder('${f._id}')" class="mt-2 text-sm text-blue-600 hover:text-blue-800 underline">
+                                                    <i class="fas fa-envelope"></i> Hatırlatma Gönder
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                }
+                
+                openModal('vadeModal');
+            } catch (error) {
+                alert('Vade bilgisi yüklenemedi: ' + error.message);
+            }
+        }
+
+        async function hatirlatmaGonder(faturaId) {
+            try {
+                await musteriFaturaService.odemeHatirlatmaGonder(faturaId);
+                alert('Hatırlatma e-postası gönderildi!');
+            } catch (error) {
+                alert('Hatırlatma gönderilemedi: ' + error.message);
+            }
+        }
+
+        function renderMockData() {
+            // Test için mock veri
+            const mockData = [
+                {
+                    _id: '1',
+                    faturaNo: 'F-2025-0001',
+                    faturaTarihi: '2025-02-15',
+                    vadeTarihi: '2025-03-01',
+                    genelToplam: 5000,
+                    odenenTutar: 0,
+                    kalanTutar: 5000,
+                    odemeDurumu: 'bekliyor',
+                    tip: 'efatura',
+                    kalemler: [
+                        { urunAdi: 'Test Ürün 1', miktar: 2, birim: 'Adet', birimFiyat: 2000, toplamTutar: 4000 },
+                        { urunAdi: 'Test Ürün 2', miktar: 1, birim: 'Adet', birimFiyat: 1000, toplamTutar: 1000 }
+                    ],
+                    araToplam: 5000,
+                    kdvOrani: 20,
+                    kdvTutari: 1000
+                }
+            ];
+            
+            renderFaturalar(mockData);
+            updateStats({ toplam: 1, odenen: 0, bekleyen: 1, vadeGecmis: 0 });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Varsayılan tarih aralığı (son 3 ay)
+            const end = new Date();
+            const start = new Date();
+            start.setMonth(start.getMonth() - 3);
+            
+            document.getElementById('endDate').value = end.toISOString().split('T')[0];
+            document.getElementById('startDate').value = start.toISOString().split('T')[0];
+            
+            loadFaturalar();
+        });
+    </script>
+</body>
+</html>

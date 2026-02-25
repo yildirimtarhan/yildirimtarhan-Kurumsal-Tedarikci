@@ -88,4 +88,41 @@ router.post("/", authMiddleware, async (req, res) => {
   }
 });
 
+// ==========================
+// UPDATE ADDRESS
+// ==========================
+router.put("/:id", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId || req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı" });
+    }
+
+    const addr = user.addresses.id(req.params.id);
+    if (!addr) {
+      return res.status(404).json({ success: false, message: "Adres bulunamadı" });
+    }
+
+    const { title, fullName, phone, city, district, address, postalCode } = req.body;
+    if (title !== undefined) addr.baslik = title;
+    if (fullName !== undefined) addr.adSoyad = fullName;
+    if (phone !== undefined) addr.telefon = phone;
+    if (city !== undefined) addr.sehir = city;
+    if (district !== undefined) addr.ilce = district;
+    if (address !== undefined) addr.acikAdres = address;
+    if (postalCode !== undefined) addr.postaKodu = postalCode;
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: "Adres güncellendi",
+      addresses: user.addresses,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Adres güncellenemedi" });
+  }
+});
+
 module.exports = router;

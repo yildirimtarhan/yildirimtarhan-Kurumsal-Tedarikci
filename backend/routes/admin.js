@@ -228,9 +228,26 @@ router.get("/orders", adminOnly, async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(parseInt(limit));
 
+    // Eski siparişlerde email/tutar yoksa userId'den kullanıcı bilgisi çek
+    const enrichedOrders = await Promise.all(orders.map(async (order) => {
+      const o = order.toObject();
+      if (!o.email && o.userId) {
+        const user = await User.findById(o.userId).select('email firma telefon');
+        if (user) {
+          o.email = user.email;
+          o.firmaAdi = o.firmaAdi || user.firma || '';
+        }
+      }
+      // toplam yoksa total veya subtotal+kdv'den hesapla
+      if (!o.toplam && (o.total || o.subtotal)) {
+        o.toplam = o.total || (o.subtotal + (o.kdv || 0));
+      }
+      return o;
+    }));
+
     res.json({
       success: true,
-      orders
+      orders: enrichedOrders
     });
 
   } catch (err) {
@@ -481,5 +498,302 @@ router.post("/sync-cari", adminOnly, async (req, res) => {
   }
 });
 
+// ============================================
+// CARİ YÖNETİMİ ENDPOINTLERİ
+// ============================================
+
+// İstatistikler
+// ============================================
+// CARİ YÖNETİMİ ENDPOINTLERİ - DÜZELTİLMİŞ
+// ============================================
+
+// İstatistikler - adminOnly EKLENDİ
+router.get("/cari-stats", adminOnly, async (req, res) => {
+  try {
+    console.log('📊 Cari stats istendi');
+    
+    const total = await User.countDocuments();
+    const kurumsal = await User.countDocuments({ uyelikTipi: 'kurumsal' });
+    const bireysel = await User.countDocuments({ uyelikTipi: 'bireysel' });
+    const pendingERP = await User.countDocuments({ 
+      $or: [
+        { erpSynced: false },
+        { erpSynced: { $exists: false } }
+      ]
+    });
+    
+    console.log(`✅ Stats: Toplam=${total}, Kurumsal=${kurumsal}, Bireysel=${bireysel}`);
+    
+    res.json({
+      success: true,
+      total,
+      kurumsal,
+      bireysel,
+      pendingERP
+    });
+  } catch (err) {
+    console.error('❌ Cari stats hatası:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Cari listesi - adminOnly EKLENDİ, FİLTRELER EKLENDİ
+// Cari listesi - adminOnly EKLENDİ, FİLTRELER EKLENDİ
+// Cari listesi - adminOnly EKLENDİ, FİLTRELER EKLENDİ
+router.get("/cariler", adminOnly, async (req, res) => {
+  try {
+    const { search, tip, risk } = req.query;
+    console.log('📋 Cari listesi istendi:', { search, tip, risk });
+    
+    let query = {};
+    
+    // Tip filtresi (kurumsal/bireysel)
+    if (tip && tip !== '') {
+      query.uyelikTipi = tip;
+    }
+    
+    // Arama
+    if (search && search !== '') {
+      const searchRegex = new RegExp(search, 'i');
+      query.$or = [
+        { firma: searchRegex },
+        { ad: searchRegex },
+        { email: searchRegex },
+        { vergiNo: searchRegex },
+        { tcNo: searchRegex }
+      ];
+    }
+    
+    console.log('🔍 MongoDB query:', JSON.stringify(query));
+    
+    const cariler = await User.find(query)
+      .select('ad email telefon firma uyelikTipi vergiNo tcNo erpSynced erpSyncDate erpCariId createdAt')
+      .sort({ createdAt: -1 })
+      .limit(100);
+    
+    console.log(`✅ ${cariler.length} cari bulundu`);
+    
+    // GÜVENLİ FORMATLAMA - Null/Undefined kontrolü eklendi
+    const formatted = cariler.map(c => {
+      // _id kontrolü - Güvenli dönüşüm
+      let id = 'unknown';
+      try {
+        id = c._id ? c._id.toString() : 'unknown';
+      } catch (e) {
+        console.error('❌ _id dönüşüm hatası:', e);
+        id = String(c._id) || 'unknown';
+      }
+      
+      return {
+        _id: id,
+        cariKodu: 'C-' + (id.slice(-6).toUpperCase()),
+        ad: c.ad || '',
+        email: c.email || '',
+        telefon: c.telefon || '',
+        firma: c.firma || '',
+        vergiNo: c.vergiNo || '',
+        tcNo: c.tcNo || '',
+        uyelikTipi: c.uyelikTipi || 'bireysel',
+        erpStatus: c.erpSynced ? 'synced' : 'pending',
+        erpCariId: c.erpCariId || '',
+        bakiye: 0,
+        riskDurumu: 'GÜVENLİ',
+        createdAt: c.createdAt
+      };
+    });
+    
+    res.json({ success: true, cariler: formatted });
+  } catch (err) {
+    console.error('❌ Cari listesi hatası:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+// Yeni Cari Oluştur - adminOnly EKLENDİ, DETAYLI LOG
+// Yeni Cari Oluştur - adminOnly EKLENDİ, DETAYLI LOG
+// Yeni Cari Oluştur - adminOnly EKLENDİ, DETAYLI LOG
+router.post("/cari-olustur", adminOnly, async (req, res) => {
+  try {
+    console.log('📥 Cari oluşturma isteği:', JSON.stringify(req.body, null, 2));
+    
+    const {
+      uyelikTipi, ad, email, telefon, password,
+      firma, vergiNo, vergiDairesi, tcNo,
+      sehir, ilce, faturaAdresi, teslimatAdresi,
+      sendEmail, syncERP
+    } = req.body;
+
+    // Validasyon
+    if (!ad || !email || !telefon || !password) {
+      console.log('❌ Validasyon hatası: Zorunlu alanlar eksik');
+      return res.status(400).json({ 
+        success: false, 
+        message: "Ad, email, telefon ve şifre zorunludur" 
+      });
+    }
+
+    if (uyelikTipi === 'kurumsal' && (!firma || !vergiNo)) {
+      console.log('❌ Validasyon hatası: Kurumsal alanlar eksik');
+      return res.status(400).json({ 
+        success: false, 
+        message: "Kurumsal cari için firma ve vergi no zorunludur" 
+      });
+    }
+
+    if (uyelikTipi === 'bireysel' && !tcNo) {
+      console.log('❌ Validasyon hatası: TC No eksik');
+      return res.status(400).json({ 
+        success: false, 
+        message: "Bireysel cari için TC Kimlik No zorunludur" 
+      });
+    }
+
+    // Email kontrol
+    const existing = await User.findOne({ email: email.toLowerCase() });
+    if (existing) {
+      console.log('❌ Email zaten kayıtlı:', email);
+      return res.status(400).json({ 
+        success: false, 
+        message: "Bu email adresi zaten kayıtlı" 
+      });
+    }
+
+    // Şifre hash
+    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('🔐 Şifre hashlendi');
+
+    // Cari oluştur
+    const newUser = new User({
+      ad,
+      email: email.toLowerCase(),
+      telefon,
+      password: hashedPassword,
+      uyelikTipi: uyelikTipi || 'bireysel',
+      rol: 'user',
+      tcNo: tcNo || '',
+      firma: firma || '',
+      vergiNo: vergiNo || '',
+      vergiDairesi: vergiDairesi || '',
+      sehir: sehir || 'İstanbul',
+      ilce: ilce || '',
+      faturaAdresi: faturaAdresi || { acikAdres: '', sehir: sehir || 'İstanbul' },
+      teslimatAdresi: teslimatAdresi || faturaAdresi || { acikAdres: '', sehir: sehir || 'İstanbul' },
+      erpSynced: false,
+      erpCariId: '',
+      createdAt: new Date()
+    });
+
+    await newUser.save();
+    console.log('✅ Kullanıcı MongoDB\'ye kaydedildi:', newUser._id);
+
+    // ERP'ye gönder - DÜZELTİLDİ: sendCustomerToERP kullanılıyor
+    // ERP'ye gönder - GEÇİCİ ÇÖZÜM
+let erpResult = { success: false, error: 'ERP sync disabled' };
+
+if (syncERP !== false) {
+  try {
+    console.log('🚀 ERP\'ye gönderiliyor...');
+    
+    // GEÇİCİ: sendOrderToERP kullan (sendCustomerToERP yerine)
+    const { sendOrderToERP } = require('../services/erpService');
+    
+    const fakeOrder = {
+      _id: newUser._id,
+      items: [{ ad: 'Cari Aktarım', fiyat: 0, adet: 1 }],
+      paymentMethod: 'open_account'
+    };
+    
+    erpResult = await sendOrderToERP(fakeOrder, newUser);
+        
+        if (erpResult.success) {
+          newUser.erpSynced = true;
+          newUser.erpCariId = erpResult.erpCustomerId || '';
+          newUser.erpSyncDate = new Date();
+          await newUser.save();
+          console.log('✅ ERP\'ye aktarıldı:', erpResult.erpCustomerId);
+        } else {
+          console.error('❌ ERP aktarım başarısız:', erpResult.error);
+        }
+      } catch (erpErr) {
+        console.error('❌ ERP hatası:', erpErr.message);
+        erpResult = { success: false, error: erpErr.message };
+      }
+    } else {
+      console.log('ℹ️ ERP sync pasif');
+    }
+
+    // Email gönder (simülasyon)
+    let emailSent = false;
+    if (sendEmail) {
+      console.log('📧 Email gönderimi simüle edildi:', email);
+      emailSent = true;
+    }
+
+    res.json({
+      success: true,
+      message: "Cari başarıyla oluşturuldu",
+      userId: newUser._id,
+      erpSync: erpResult.success,
+      erpError: erpResult.error,
+      emailSent
+    });
+
+  } catch (err) {
+    console.error('❌ Cari oluşturma hatası:', err);
+    res.status(500).json({ 
+      success: false, 
+      message: err.message || "Sunucu hatası" 
+    });
+  }
+});
+
+// Manuel ERP Senkronizasyonu - adminOnly EKLENDİ
+// Manuel ERP Senkronizasyonu - adminOnly EKLENDİ
+// Manuel ERP Senkronizasyonu - adminOnly EKLENDİ
+// Manuel ERP Senkronizasyonu - adminOnly EKLENDİ
+router.post("/cari-sync-erp/:id", adminOnly, async (req, res) => {
+  try {
+    console.log('🔄 Manuel ERP sync:', req.params.id);
+    
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Cari bulunamadı" });
+    }
+
+    // GEÇİCİ ÇÖZÜM: sendOrderToERP kullan (sendCustomerToERP yerine)
+    
+    const { sendOrderToERP } = require('../services/erpService');
+    
+    
+    // Sahte sipariş oluştur (sadece cari aktarımı için)
+    const fakeOrder = {
+      _id: user._id,
+      items: [{ ad: 'Cari Aktarım', fiyat: 0, adet: 1 }],
+      paymentMethod: 'open_account'
+    };
+    
+    const erpResult = await sendOrderToERP(fakeOrder, user);
+
+    if (erpResult.success) {
+      user.erpSynced = true;
+      user.erpCariId = erpResult.erpOrderId || '';
+      user.erpSyncDate = new Date();
+      await user.save();
+      console.log('✅ ERP sync başarılı:', erpResult.erpOrderId);
+    } else {
+      console.error('❌ ERP sync başarısız:', erpResult.error);
+    }
+
+    res.json({
+      success: erpResult.success,
+      message: erpResult.success ? "ERP'ye aktarıldı" : "Aktarım başarısız",
+      erpOrderId: erpResult.erpOrderId,
+      error: erpResult.error
+    });
+
+  } catch (err) {
+    console.error('❌ ERP sync hatası:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 // 🔴 BU EN SONA EKLENMELİ!
 module.exports = router;

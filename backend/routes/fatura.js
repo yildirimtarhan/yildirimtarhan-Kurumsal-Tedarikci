@@ -2,12 +2,120 @@ const express = require('express');
 const router = express.Router();
 const Fatura = require('../models/Fatura');
 const CariHesap = require('../models/CariHesap');
+const Order = require('../models/Order');
+const User = require('../models/User');
 const TaxtenService = require('../services/taxtenService');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 
 const taxtenService = new TaxtenService();
 
-// Fatura listesi
+// Siparişten fatura oluştur
+router.post('/from-siparis', authMiddleware, async (req, res) => {
+  try {
+    const { siparisId, tip = 'efatura', odemeVadesi = 14 } = req.body;
+
+    if (!siparisId) {
+      return res.status(400).json({ success: false, message: 'Sipariş ID gerekli' });
+    }
+
+    const order = await Order.findById(siparisId);
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Sipariş bulunamadı' });
+    }
+
+    const user = await User.findById(order.userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Kullanıcı bulunamadı' });
+    }
+
+    // Cari hesap bul veya oluştur
+    let cari = await CariHesap.findOne({ kullaniciId: user._id });
+    if (!cari) {
+      const vkn = user.vergiNo || user.tcNo || '00000000000';
+      const unvan = user.firma || user.ad || 'Bilinmeyen Müşteri';
+      cari = await CariHesap.create({
+        kullaniciId: user._id,
+        firmaUnvan: unvan,
+        vknTckn: vkn,
+        email: user.email,
+        telefon: user.telefon || ''
+      });
+    }
+
+    // Fatura kalemleri
+    const toplam = order.toplam || order.total || 0;
+    const matrah = toplam / 1.2;
+    const kdvTutari = toplam - matrah;
+
+    const kalemler = (order.items || []).map((item, index) => {
+      const ad = item.ad || item.name || 'Ürün';
+      const fiyat = parseFloat(item.fiyat || item.price || 0);
+      const adet = parseInt(item.adet || item.quantity || 1);
+      const tutar = fiyat * adet;
+      const kdv = tutar * 0.2;
+      return {
+        siraNo: index + 1,
+        malHizmet: ad,
+        miktar: adet,
+        birim: 'ADET',
+        birimFiyat: fiyat,
+        tutar: tutar,
+        kdvOrani: 20,
+        kdvTutari: kdv,
+        toplamTutar: tutar + kdv
+      };
+    });
+
+    if (kalemler.length === 0) {
+      kalemler.push({
+        siraNo: 1,
+        malHizmet: 'Sipariş Tutarı',
+        miktar: 1,
+        birim: 'ADET',
+        birimFiyat: matrah,
+        tutar: matrah,
+        kdvOrani: 20,
+        kdvTutari: kdvTutari,
+        toplamTutar: toplam
+      });
+    }
+
+    const vadeTarihi = new Date();
+    vadeTarihi.setDate(vadeTarihi.getDate() + parseInt(odemeVadesi));
+
+    const fatura = await Fatura.create({
+      cariHesapId: cari._id,
+      aliciVkn: cari.vknTckn,
+      aliciEtiket: cari.etiket,
+      aliciUnvan: cari.firmaUnvan,
+      aliciAdres: user.faturaAdresi?.acikAdres || '',
+      aliciTelefon: cari.telefon,
+      aliciEmail: cari.email,
+      kalemler,
+      matrah,
+      kdvOrani: 20,
+      kdvTutari,
+      toplamTutar: toplam,
+      siparisId: order._id,
+      odemeSekli: order.paymentMethod || 'ACIK',
+      vadeTarihi,
+      durum: 'TASLAK',
+      custInvId: `SIP-${order._id}`,
+      tip
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Fatura oluşturuldu',
+      data: { ...fatura.toObject(), faturaNo: fatura.faturaNo || fatura._id }
+    });
+  } catch (error) {
+    console.error('from-siparis hata:', error.message);
+    res.status(500).json({ success: false, message: 'Fatura oluşturulamadı: ' + error.message });
+  }
+});
+
+
 router.get('/list', authMiddleware, async (req, res) => {
   try {
     const { page = 1, limit = 20, durum, cariId, startDate, endDate, search } = req.query;

@@ -24,6 +24,7 @@
       padding-top: 1.5rem;
       transition: transform 0.3s;
       z-index: 1000;
+      overflow-y: auto;
     }
     .sidebar .logo {
       text-align: center;
@@ -39,6 +40,7 @@
     }
     .sidebar nav {
       margin-top: 1rem;
+      padding-bottom: 80px; /* Çıkış butonu için alan */
     }
     .sidebar a {
       display: flex;
@@ -60,9 +62,10 @@
       text-align: center;
     }
     .sidebar .logout {
-      position: absolute;
+      position: fixed;
       bottom: 0;
-      width: 100%;
+      width: 260px;
+      background: linear-gradient(180deg, #1a252f 0%, #2c3e50 100%);
       border-top: 1px solid rgba(255,255,255,0.1);
     }
     
@@ -71,6 +74,7 @@
       margin-left: 260px;
       padding: 2rem;
       min-height: 100vh;
+      transition: margin-left 0.3s;
     }
     
     .header {
@@ -78,6 +82,8 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
     }
     .header h1 {
       color: #2c3e50;
@@ -123,6 +129,8 @@
     .stat-card.green .icon { background: #e8f5e9; color: #388e3c; }
     .stat-card.orange .icon { background: #fff3e0; color: #f57c00; }
     .stat-card.red .icon { background: #ffebee; color: #d32f2f; }
+    .stat-card.purple .icon { background: #f3e5f5; color: #7b1fa2; }
+    .stat-card.teal .icon { background: #e0f2f1; color: #00796b; }
     
     .stat-card .info h3 { 
       color: #7f8c8d; 
@@ -185,6 +193,7 @@
     .badge.hazirlaniyor { background: #e3f2fd; color: #1565c0; }
     .badge.kargoya-verildi { background: #e8f5e9; color: #2e7d32; }
     .badge.teslim-edildi { background: #e8f5e9; color: #2e7d32; }
+    .badge.iptal-edildi { background: #ffebee; color: #c62828; }
     
     .btn-sm {
       padding: 6px 12px;
@@ -194,6 +203,7 @@
       font-size: 0.8rem;
       background: #3498db;
       color: white;
+      transition: background 0.2s;
     }
     .btn-sm:hover {
       background: #2980b9;
@@ -212,6 +222,22 @@
       padding: 0.7rem 1rem;
       border-radius: 8px;
       cursor: pointer;
+      font-size: 1rem;
+    }
+    
+    /* Overlay */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+    }
+    .overlay.active {
+      display: block;
     }
     
     /* Responsive */
@@ -239,6 +265,16 @@
       th, td {
         padding: 0.7rem;
       }
+      .header h1 {
+        font-size: 1.4rem;
+      }
+    }
+    
+    /* Tablet */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
     
     .loading {
@@ -251,10 +287,46 @@
       margin-bottom: 1rem;
       display: block;
     }
+    
+    /* Quick Actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .action-btn {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      color: #2c3e50;
+    }
+    .action-btn:hover {
+      border-color: #3498db;
+      transform: translateY(-3px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    .action-btn i {
+      font-size: 2rem;
+      color: #3498db;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    .action-btn span {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
   </style>
 </head>
 <body>
   <button class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i> Menü</button>
+  
+  <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
   
   <div class="sidebar" id="sidebar">
     <div class="logo">
@@ -265,6 +337,12 @@
       <a href="index.html" class="active"><i class="fas fa-home"></i> Dashboard</a>
       <a href="users.html"><i class="fas fa-users"></i> Kullanıcılar</a>
       <a href="orders.html"><i class="fas fa-box"></i> Siparişler</a>
+      
+      <!-- YENİ: Finans Menüleri -->
+      <a href="fatura-yonetim.html"><i class="fas fa-file-invoice-dollar"></i> Faturalar</a>
+      <a href="cari-yonetim.html"><i class="fas fa-users"></i> Cari Hesaplar</a>
+      <a href="tahsilat-yonetim.html"><i class="fas fa-money-bill-wave"></i> Tahsilatlar</a>
+      
       <a href="products.html"><i class="fas fa-cubes"></i> Ürünler (ERP)</a>
       <a href="kargo-bildirim.html"><i class="fas fa-truck"></i> Kargo Bildirim</a>
       <a href="products-manage.html"><i class="fas fa-warehouse"></i> Stok Yönetimi</a>
@@ -277,8 +355,28 @@
       <h1>Dashboard</h1>
       <div class="user-info">
         <i class="fas fa-user-circle"></i>
-        <span>Admin</span>
+        <span id="adminName">Admin</span>
       </div>
+    </div>
+    
+    <!-- Hızlı Erişim Butonları -->
+    <div class="quick-actions">
+      <a href="orders.html" class="action-btn">
+        <i class="fas fa-plus-circle"></i>
+        <span>Yeni Sipariş</span>
+      </a>
+      <a href="fatura-yonetim.html" class="action-btn">
+        <i class="fas fa-file-invoice"></i>
+        <span>Fatura Oluştur</span>
+      </a>
+      <a href="cari-yonetim.html" class="action-btn">
+        <i class="fas fa-user-plus"></i>
+        <span>Yeni Cari</span>
+      </a>
+      <a href="tahsilat-yonetim.html" class="action-btn">
+        <i class="fas fa-hand-holding-usd"></i>
+        <span>Tahsilat Al</span>
+      </a>
     </div>
     
     <div class="stats-grid">
@@ -310,6 +408,22 @@
           <div class="number" id="pendingOrders">-</div>
         </div>
       </div>
+      
+      <!-- YENİ: Finans Kartları -->
+      <div class="stat-card purple">
+        <div class="icon"><i class="fas fa-file-invoice"></i></div>
+        <div class="info">
+          <h3>Bekleyen Fatura</h3>
+          <div class="number" id="pendingFaturalar">-</div>
+        </div>
+      </div>
+      <div class="stat-card teal">
+        <div class="icon"><i class="fas fa-money-bill-wave"></i></div>
+        <div class="info">
+          <h3>Bekleyen Tahsilat</h3>
+          <div class="number" id="pendingTahsilatlar">-</div>
+        </div>
+      </div>
     </div>
     
     <div class="section">
@@ -326,7 +440,7 @@
   <script>
     const API_URL = window.location.hostname.includes("localhost") 
       ? "http://localhost:3000/api" 
-      : "https://backend-api-7s13.onrender.com/api";
+      : "http://localhost:3000/api";
 
     const token = localStorage.getItem("adminToken");
 
@@ -336,10 +450,12 @@
 
     function toggleSidebar() {
       document.getElementById('sidebar').classList.toggle('active');
+      document.getElementById('overlay').classList.toggle('active');
     }
 
     function logout() {
       localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminUser");
       window.location.href = "login.html";
     }
 
@@ -362,6 +478,17 @@
         document.getElementById("totalOrders").textContent = data.stats.totalOrders || 0;
         document.getElementById("todayOrders").textContent = data.stats.todayOrders || 0;
         document.getElementById("pendingOrders").textContent = data.stats.pendingOrders || 0;
+        
+        // Yeni finans kartları
+        document.getElementById("pendingFaturalar").textContent = data.stats.pendingFaturalar || 0;
+        document.getElementById("pendingTahsilatlar").textContent = data.stats.pendingTahsilatlar || 0;
+
+        // Admin adını göster
+        const adminUser = localStorage.getItem("adminUser");
+        if (adminUser) {
+          const user = JSON.parse(adminUser);
+          document.getElementById("adminName").textContent = user.ad || user.email || 'Admin';
+        }
 
         // Son siparişleri yükle
         loadRecentOrders();
@@ -403,9 +530,9 @@
               ${data.orders.slice(0, 5).map(order => `
                 <tr>
                   <td>#${order._id.toString().slice(-6)}</td>
-                  <td>${order.firmaAdi || order.email}</td>
+                  <td>${order.firmaAdi || order.email || '-'}</td>
                   <td>₺${order.toplam?.toFixed(2) || '0.00'}</td>
-                  <td><span class="badge ${order.status?.toLowerCase().replace(' ', '-')}">${order.status}</span></td>
+                  <td><span class="badge ${order.status?.toLowerCase().replace(/\s+/g, '-')}">${order.status}</span></td>
                   <td><button class="btn-sm" onclick="viewOrder('${order._id}')">Detay</button></td>
                 </tr>
               `).join('')}
@@ -423,6 +550,16 @@
     function viewOrder(id) {
       window.location.href = `orders.html?id=${id}`;
     }
+
+    // ESC tuşu ile menüyü kapat
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar.classList.contains('active')) {
+          toggleSidebar();
+        }
+      }
+    });
 
     loadDashboard();
   </script>

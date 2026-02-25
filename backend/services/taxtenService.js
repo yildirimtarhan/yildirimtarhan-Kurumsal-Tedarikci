@@ -20,11 +20,11 @@ class TaxtenService {
   }
   
   async sendInvoice(faturaData, gondericiBilgileri) {
+    let uuid;
     try {
-      const { xml, uuid } = await this.ublGenerator.generateInvoice(
-        faturaData, 
-        gondericiBilgileri
-      );
+      const result = await this.ublGenerator.generateInvoice(faturaData, gondericiBilgileri);
+      const xml = result.xml;
+      uuid = result.uuid;
       
       const zip = new AdmZip();
       zip.addFile(`${uuid}.xml`, Buffer.from(xml, 'utf-8'));

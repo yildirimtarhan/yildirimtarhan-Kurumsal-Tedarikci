@@ -40,7 +40,7 @@ async function sendResetEmail(toEmail, kod, userName) {
   }
 }
 
-// Register
+// Register - YENİ ADRES YAPISI
 router.post("/register", async (req, res) => {
   try {
     const {
@@ -48,51 +48,83 @@ router.post("/register", async (req, res) => {
       email,
       password,
       telefon,
-      firmaAdi,
+      tcNo,
+      uyelikTipi,
+      // Kurumsal bilgiler
+      firma,
       vergiNo,
+      vergiDairesi,
+      // Yeni adres yapısı
       faturaAdresi,
       teslimatAdresi,
+      // Eski alanlar (geriye uyumluluk)
       city,
-      district
+      district,
+      faturaAdresi: eskiFaturaAdresi,
+      teslimatAdresi: eskiTeslimatAdresi
     } = req.body;
 
     // Email kontrol
     const existing = await User.findOne({ email });
     if (existing) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Email zaten kayıtlı" });
+      return res.status(400).json({ 
+        success: false, 
+        message: "Email zaten kayıtlı" 
+      });
     }
 
     // Şifre hash
     const hashed = await bcrypt.hash(password, 10);
 
-    // ✅ Adres array oluştur
+    // ✅ YENİ: Fatura adresi objesi
+    const yeniFaturaAdresi = faturaAdresi || {
+      baslik: "Fatura Adresi",
+      sehir: city || "İstanbul",
+      ilce: district || "",
+      postaKodu: "",
+      acikAdres: eskiFaturaAdresi || "",
+      vergiDairesi: vergiDairesi || "",
+      vergiNo: vergiNo || ""
+    };
+
+    // ✅ YENİ: Teslimat adresi objesi
+    const yeniTeslimatAdresi = teslimatAdresi || {
+      baslik: "Teslimat Adresi",
+      adSoyad: ad,
+      telefon: telefon || "",
+      sehir: city || "İstanbul",
+      ilce: district || "",
+      postaKodu: "",
+      acikAdres: eskiTeslimatAdresi || eskiFaturaAdresi || ""
+    };
+
+    // Eski adres array (geriye uyumluluk için)
     const addresses = [];
-
+    
     // Fatura adresi ekle
-    if (faturaAdresi) {
-      addresses.push({
-        title: "Fatura Adresi",
-        fullName: ad,
-        phone: telefon || "",
-        city: city || "İstanbul",
-        district: district || "",
-        address: faturaAdresi,
-        isDefault: true,
-      });
-    }
+    addresses.push({
+      baslik: yeniFaturaAdresi.baslik || "Fatura Adresi",
+      fullName: ad,
+      phone: telefon || "",
+      city: yeniFaturaAdresi.sehir,
+      district: yeniFaturaAdresi.ilce,
+      address: yeniFaturaAdresi.acikAdres,
+      isDefault: true,
+      tip: 'fatura'
+    });
 
-    // Teslimat adresi farklıysa ekle
-    if (teslimatAdresi && teslimatAdresi !== faturaAdresi) {
+    // Teslimat adresi ekle (farklıysa)
+    const teslimatFarkli = JSON.stringify(yeniTeslimatAdresi) !== JSON.stringify(yeniFaturaAdresi);
+    if (teslimatFarkli || !yeniTeslimatAdresi.acikAdres) {
       addresses.push({
-        title: "Teslimat Adresi",
+        baslik: yeniTeslimatAdresi.baslik || "Teslimat Adresi",
         fullName: ad,
         phone: telefon || "",
-        city: city || "İstanbul",
-        district: district || "",
-        address: teslimatAdresi,
+        city: yeniTeslimatAdresi.sehir,
+        district: yeniTeslimatAdresi.ilce,
+        address: yeniTeslimatAdresi.acikAdres || yeniFaturaAdresi.acikAdres,
         isDefault: false,
+        tip: 'teslimat'
       });
     }
 
@@ -102,25 +134,54 @@ router.post("/register", async (req, res) => {
       email,
       password: hashed,
       telefon: telefon || "",
-      firmaAdi: firmaAdi || "",
+      tcNo: tcNo || "",
+      uyelikTipi: uyelikTipi || 'bireysel',
+      
+      // Kurumsal bilgiler
+      firma: firma || "",
       vergiNo: vergiNo || "",
+      vergiDairesi: vergiDairesi || "",
 
-      // eski alanlar
-      faturaAdresi: faturaAdresi || "",
-      teslimatAdresi: teslimatAdresi || faturaAdresi || "",
+      // YENİ: Detaylı adresler
+      faturaAdresi: yeniFaturaAdresi,
+      teslimatAdresi: yeniTeslimatAdresi,
 
-      // yeni sistem
+      // Eski alanlar (geriye uyumluluk)
+      faturaAdresi: yeniFaturaAdresi.acikAdres,
+      teslimatAdresi: yeniTeslimatAdresi.acikAdres,
+
+      // Adres array
       addresses: addresses,
 
       rol: "user",
     });
 
+    // Token oluştur
+    const token = jwt.sign(
+      { id: newUser._id, email: newUser.email, rol: newUser.rol },
+      JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+
     res.json({
       success: true,
       message: "Kayıt başarılı",
-      userId: newUser._id,
+      token,
+      user: {
+        id: newUser._id,
+        ad: newUser.ad,
+        email: newUser.email,
+        rol: newUser.rol,
+        uyelikTipi: newUser.uyelikTipi,
+        firma: newUser.firma,
+        telefon: newUser.telefon,
+        // Adresleri de gönder
+        faturaAdresi: newUser.faturaAdresi,
+        teslimatAdresi: newUser.teslimatAdresi
+      }
     });
   } catch (err) {
+    console.error("Register hatası:", err);
     res.status(500).json({
       success: false,
       message: "Register hatası: " + err.message,
@@ -128,7 +189,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// Login
+// Login - Adresleri de döndür
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -141,7 +202,6 @@ router.post("/login", async (req, res) => {
 
     const token = jwt.sign(
       { id: user._id, email: user.email, rol: user.rol },
-    
       JWT_SECRET,
       { expiresIn: "24h" }
     );
@@ -149,7 +209,21 @@ router.post("/login", async (req, res) => {
     res.json({
       success: true,
       token,
-      user: { id: user._id, ad: user.ad, email: user.email, rol: user.rol, firmaAdi: user.firmaAdi }
+      user: { 
+        id: user._id, 
+        ad: user.ad, 
+        email: user.email, 
+        rol: user.rol, 
+        uyelikTipi: user.uyelikTipi,
+        firma: user.firma,
+        telefon: user.telefon,
+        tcNo: user.tcNo,
+        vergiNo: user.vergiNo,
+        vergiDairesi: user.vergiDairesi,
+        // YENİ: Adresleri ekle
+        faturaAdresi: user.faturaAdresi,
+        teslimatAdresi: user.teslimatAdresi
+      }
     });
   } catch (err) {
     res.status(500).json({ success: false, message: "Login hatası" });
@@ -195,20 +269,126 @@ router.post("/reset-password", async (req, res) => {
   }
 });
 
-// Profil Getir
+// Profil Güncelle
+router.put("/profile", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ success: false, message: "Token gerekli" });
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const { uyelikTipi, firma, vergiNo, vergiDairesi, telefon } = req.body;
+
+    const updateData = {};
+    if (uyelikTipi) updateData.uyelikTipi = uyelikTipi;
+    if (firma !== undefined) updateData.firma = firma;
+    if (vergiNo !== undefined) updateData.vergiNo = vergiNo;
+    if (vergiDairesi !== undefined) updateData.vergiDairesi = vergiDairesi;
+    if (telefon !== undefined) updateData.telefon = telefon;
+
+    const user = await User.findByIdAndUpdate(decoded.id, { $set: updateData }, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı" });
+
+    res.json({ success: true, user });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Profil güncelleme hatası" });
+  }
+});
+
+// Profil Getir - Tüm adresleri döndür
 router.get("/profile", async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) return res.status(401).json({ success: false, message: "Token gerekli" });
 
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findById(decoded.id) .select('-password');
+    const user = await User.findById(decoded.id).select('-password');
     
     if (!user) return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı" });
     
-    res.json({ success: true, user });
+    res.json({ 
+      success: true, 
+      user: {
+        id: user._id,
+        ad: user.ad,
+        email: user.email,
+        rol: user.rol,
+        uyelikTipi: user.uyelikTipi,
+        firma: user.firma,
+        telefon: user.telefon,
+        tcNo: user.tcNo,
+        vergiNo: user.vergiNo,
+        vergiDairesi: user.vergiDairesi,
+        // YENİ: Detaylı adresler
+        faturaAdresi: user.faturaAdresi,
+        teslimatAdresi: user.teslimatAdresi,
+        addresses: user.addresses
+      }
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: "Profil hatası" });
+  }
+});
+
+// YENİ: Kullanıcı adreslerini getir (Ödeme için)
+router.get("/adreslerim", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ success: false, message: "Token gerekli" });
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await User.findById(decoded.id).select('faturaAdresi teslimatAdresi addresses firma vergiNo vergiDairesi tcNo ad telefon');
+    
+    if (!user) return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı" });
+    
+    res.json({
+      success: true,
+      faturaAdresi: user.faturaAdresi,
+      teslimatAdresi: user.teslimatAdresi,
+      addresses: user.addresses,
+      // Fatura bilgileri
+      faturaBilgisi: {
+        adSoyad: user.ad,
+        tcNo: user.tcNo,
+        firma: user.firma,
+        vergiNo: user.vergiNo,
+        vergiDairesi: user.vergiDairesi,
+        telefon: user.telefon
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Adres getirme hatası" });
+  }
+});
+
+// YENİ: Adres güncelle
+router.put("/adres-guncelle", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ success: false, message: "Token gerekli" });
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const { faturaAdresi, teslimatAdresi } = req.body;
+
+    const updateData = {};
+    if (faturaAdresi) updateData.faturaAdresi = faturaAdresi;
+    if (teslimatAdresi) updateData.teslimatAdresi = teslimatAdresi;
+
+    const user = await User.findByIdAndUpdate(
+      decoded.id,
+      { $set: updateData },
+      { new: true }
+    ).select('-password');
+
+    res.json({
+      success: true,
+      message: "Adresler güncellendi",
+      user: {
+        faturaAdresi: user.faturaAdresi,
+        teslimatAdresi: user.teslimatAdresi
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Adres güncelleme hatası" });
   }
 });
 
