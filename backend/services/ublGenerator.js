@@ -1,263 +1,230 @@
-const { v4: uuidv4 } = require('uuid');
-const xml2js = require('xml2js');
+// 📁 /services/ublGenerator.js
+const { randomUUID } = require('crypto'); // Node.js native crypto modülü
 
-class UBLGenerator {
-  constructor() {
-    this.builder = new xml2js.Builder({
-      headless: false,
-      renderOpts: { pretty: true, indent: '  ' }
-    });
-  }
+/**
+ * UBL (Universal Business Language) XML formatında e-fatura oluşturur
+ * @param {Object} invoiceData - Fatura verileri
+ * @returns {String} XML formatında fatura
+ */
+function generateUBL(invoiceData) {
+  const {
+    faturaNo,
+    tarih,
+    musteri,
+    urunler,
+    araToplam,
+    kdvOrani = 20,
+    kdvTutari,
+    genelToplam,
+    paraBirimi = 'TRY',
+    notlar
+  } = invoiceData;
 
-  async generateInvoice(faturaData, gondericiBilgileri) {
-    const uuid = uuidv4();
-    const now = new Date();
-    const tarih = now.toISOString().split('T')[0];
-    const saat = now.toTimeString().split(' ')[0];
-    
-    const ubl = {
-      'Invoice': {
-        '$': {
-          'xmlns': 'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2',
-          'xmlns:cac': 'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2',
-          'xmlns:cbc': 'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2',
-          'xmlns:ext': 'urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2'
-        },
-        'cbc:UBLVersionID': '2.1',
-        'cbc:CustomizationID': 'TR1.2',
-        'cbc:ProfileID': 'TEMELFATURA',
-        'cbc:ID': faturaData.faturaNo || 'TASLAK',
-        'cbc:CopyIndicator': 'false',
-        'cbc:UUID': uuid,
-        'cbc:IssueDate': tarih,
-        'cbc:IssueTime': saat,
-        'cbc:InvoiceTypeCode': 'SATIS',
-        'cbc:DocumentCurrencyCode': 'TRY',
-        'cbc:LineCountNumeric': faturaData.kalemler.length.toString(),
-        'cbc:Note': faturaData.aciklama || 'İş bu fatura muhteviyatına 7 gün içerisinde itiraz edilmediği taktirde aynen kabul edilmiş sayılır.',
-        
-        ...(faturaData.custInvId && {
-          'cac:AdditionalDocumentReference': {
-            'cbc:ID': faturaData.custInvId,
-            'cbc:IssueDate': tarih,
-            'cbc:DocumentTypeCode': 'CUST_INV_ID'
-          }
-        }),
-        
-        'cac:Signature': {
-          'cbc:ID': 'Signature_' + uuid.substring(0, 8),
-          'cac:SignatoryParty': {
-            'cac:PartyIdentification': {
-              'cbc:ID': {
-                '$': { 'schemeID': 'VKN' },
-                '_': gondericiBilgileri.vkn
-              }
-            },
-            'cac:PostalAddress': {
-              'cbc:StreetName': gondericiBilgileri.adres?.cadde || '',
-              'cbc:BuildingNumber': gondericiBilgileri.adres?.binaNo || '',
-              'cbc:CitySubdivisionName': gondericiBilgileri.adres?.ilce || '',
-              'cbc:CityName': gondericiBilgileri.adres?.il || '',
-              'cbc:PostalZone': gondericiBilgileri.adres?.postaKodu || '',
-              'cac:Country': { 'cbc:Name': 'Türkiye' }
-            }
-          },
-          'cac:DigitalSignatureAttachment': {
-            'cac:ExternalReference': { 'cbc:URI': '#' + uuid }
-          }
-        },
-        
-        'cac:AccountingSupplierParty': {
-          'cac:Party': {
-            'cbc:WebsiteURI': gondericiBilgileri.website || '',
-            'cac:PartyIdentification': {
-              'cbc:ID': {
-                '$': { 'schemeID': 'VKN' },
-                '_': gondericiBilgileri.vkn
-              }
-            },
-            'cac:PartyName': { 'cbc:Name': gondericiBilgileri.unvan },
-            'cac:PostalAddress': {
-              'cbc:ID': gondericiBilgileri.adresId || '',
-              'cbc:StreetName': gondericiBilgileri.adres?.cadde || '',
-              'cbc:BuildingNumber': gondericiBilgileri.adres?.binaNo || '',
-              'cbc:CitySubdivisionName': gondericiBilgileri.adres?.ilce || '',
-              'cbc:CityName': gondericiBilgileri.adres?.il || '',
-              'cbc:PostalZone': gondericiBilgileri.adres?.postaKodu || '',
-              'cac:Country': { 'cbc:Name': 'Türkiye' }
-            },
-            'cac:PartyTaxScheme': {
-              'cac:TaxScheme': { 'cbc:Name': gondericiBilgileri.vergiDairesi || '' }
-            },
-            'cac:Contact': {
-              'cbc:Telephone': gondericiBilgileri.telefon || '',
-              'cbc:ElectronicMail': gondericiBilgileri.email || ''
-            }
-          }
-        },
-        
-        'cac:AccountingCustomerParty': {
-          'cac:Party': {
-            'cac:PartyIdentification': {
-              'cbc:ID': {
-                '$': { 'schemeID': faturaData.aliciVkn.length === 11 ? 'TCKN' : 'VKN' },
-                '_': faturaData.aliciVkn
-              }
-            },
-            'cac:PartyName': { 'cbc:Name': faturaData.aliciUnvan },
-            'cac:PostalAddress': {
-              'cbc:StreetName': faturaData.aliciAdres?.cadde || '',
-              'cbc:BuildingNumber': faturaData.aliciAdres?.binaNo || '',
-              'cbc:CitySubdivisionName': faturaData.aliciAdres?.ilce || '',
-              'cbc:CityName': faturaData.aliciAdres?.il || '',
-              'cbc:PostalZone': faturaData.aliciAdres?.postaKodu || '',
-              'cac:Country': { 'cbc:Name': 'Türkiye' }
-            },
-            'cac:PartyTaxScheme': {
-              'cac:TaxScheme': { 'cbc:Name': faturaData.aliciVergiDairesi || '' }
-            },
-            'cac:Contact': {
-              'cbc:Telephone': faturaData.aliciTelefon || '',
-              'cbc:ElectronicMail': faturaData.aliciEmail || ''
-            }
-          }
-        },
-        
-        ...(faturaData.odemeSekli && {
-          'cac:PaymentMeans': {
-            'cbc:PaymentMeansCode': this.getPaymentCode(faturaData.odemeSekli),
-            'cbc:PaymentDueDate': faturaData.vadeTarihi || tarih,
-            'cbc:InstructionNote': faturaData.odemeNotu || ''
-          }
-        }),
-        
-        'cac:TaxTotal': {
-          'cbc:TaxAmount': {
-            '$': { 'currencyID': 'TRY' },
-            '_': faturaData.kdvTutari.toFixed(2)
-          },
-          'cac:TaxSubtotal': {
-            'cbc:TaxableAmount': {
-              '$': { 'currencyID': 'TRY' },
-              '_': faturaData.matrah.toFixed(2)
-            },
-            'cbc:TaxAmount': {
-              '$': { 'currencyID': 'TRY' },
-              '_': faturaData.kdvTutari.toFixed(2)
-            },
-            'cbc:Percent': faturaData.kdvOrani.toString(),
-            'cac:TaxCategory': {
-              'cac:TaxScheme': {
-                'cbc:Name': 'KDV',
-                'cbc:TaxTypeCode': '0015'
-              }
-            }
-          }
-        },
-        
-        'cac:LegalMonetaryTotal': {
-          'cbc:LineExtensionAmount': {
-            '$': { 'currencyID': 'TRY' },
-            '_': faturaData.matrah.toFixed(2)
-          },
-          'cbc:TaxExclusiveAmount': {
-            '$': { 'currencyID': 'TRY' },
-            '_': faturaData.matrah.toFixed(2)
-          },
-          'cbc:TaxInclusiveAmount': {
-            '$': { 'currencyID': 'TRY' },
-            '_': faturaData.toplamTutar.toFixed(2)
-          },
-          'cbc:PayableAmount': {
-            '$': { 'currencyID': 'TRY' },
-            '_': faturaData.toplamTutar.toFixed(2)
-          }
-        },
-        
-        'cac:InvoiceLine': faturaData.kalemler.map((kalem, index) => ({
-          'cbc:ID': (index + 1).toString(),
-          'cbc:InvoicedQuantity': {
-            '$': { 'unitCode': this.getUnitCode(kalem.birim) },
-            '_': kalem.miktar.toString()
-          },
-          'cbc:LineExtensionAmount': {
-            '$': { 'currencyID': 'TRY' },
-            '_': (kalem.miktar * kalem.birimFiyat).toFixed(2)
-          },
-          'cac:TaxTotal': {
-            'cbc:TaxAmount': {
-              '$': { 'currencyID': 'TRY' },
-              '_': kalem.kdvTutari.toFixed(2)
-            },
-            'cac:TaxSubtotal': {
-              'cbc:TaxableAmount': {
-                '$': { 'currencyID': 'TRY' },
-                '_': (kalem.miktar * kalem.birimFiyat).toFixed(2)
-              },
-              'cbc:TaxAmount': {
-                '$': { 'currencyID': 'TRY' },
-                '_': kalem.kdvTutari.toFixed(2)
-              },
-              'cbc:Percent': kalem.kdvOrani.toString(),
-              'cac:TaxCategory': {
-                'cac:TaxScheme': {
-                  'cbc:Name': 'KDV',
-                  'cbc:TaxTypeCode': '0015'
-                }
-              }
-            }
-          },
-          'cac:Item': {
-            'cbc:Name': kalem.malHizmet,
-            ...(kalem.urunKodu && {
-              'cac:SellersItemIdentification': {
-                'cbc:ID': kalem.urunKodu
-              }
-            })
-          },
-          'cac:Price': {
-            'cbc:PriceAmount': {
-              '$': { 'currencyID': 'TRY' },
-              '_': kalem.birimFiyat.toFixed(2)
-            }
-          }
-        }))
-      }
-    };
-    
-    return {
-      xml: this.builder.buildObject(ubl),
-      uuid: uuid,
-      faturaNo: faturaData.faturaNo
-    };
-  }
+  const uuid = randomUUID(); // Native crypto kullanımı
+  const issueDate = tarih ? new Date(tarih).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+  const issueTime = new Date().toTimeString().split(' ')[0];
+
+  // Toplam miktar hesapla
+  const toplamMiktar = urunler.reduce((sum, urun) => sum + (parseFloat(urun.miktar) || 0), 0);
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+         xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+         xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
   
-  getPaymentCode(odemeSekli) {
-    const kodlar = {
-      'NAKİT': '10',
-      'KREDİ_KARTI': '48',
-      'HAVALE_EFT': '30',
-      'ÇEK': '20',
-      'SENET': '21',
-      'KAPIDA_ODEME': '1'
-    };
-    return kodlar[odemeSekli] || '1';
-  }
+  <!-- Fatura Başlık Bilgileri -->
+  <cbc:UBLVersionID>2.1</cbc:UBLVersionID>
+  <cbc:CustomizationID>TR1.2</cbc:CustomizationID>
+  <cbc:ProfileID>TEMELFATURA</cbc:ProfileID>
+  <cbc:ID>${faturaNo}</cbc:ID>
+  <cbc:CopyIndicator>false</cbc:CopyIndicator>
+  <cbc:UUID>${uuid}</cbc:UUID>
+  <cbc:IssueDate>${issueDate}</cbc:IssueDate>
+  <cbc:IssueTime>${issueTime}</cbc:IssueTime>
+  <cbc:InvoiceTypeCode>SATIS</cbc:InvoiceTypeCode>
+  <cbc:DocumentCurrencyCode>${paraBirimi}</cbc:DocumentCurrencyCode>
+  <cbc:LineCountNumeric>${urunler.length}</cbc:LineCountNumeric>
   
-  getUnitCode(birim) {
-    const kodlar = {
-      'ADET': 'C62',
-      'KG': 'KGM',
-      'LT': 'LTR',
-      'MT': 'MTR',
-      'M2': 'MTK',
-      'M3': 'MTQ',
-      'PAKET': 'PA',
-      'KOLİ': 'CT',
-      'PALET': 'D97'
-    };
-    return kodlar[birim] || 'C62';
-  }
+  <!-- Notlar -->
+  ${notlar ? `<cbc:Note>${escapeXml(notlar)}</cbc:Note>` : ''}
+  
+  <!-- Sipariş Bilgileri -->
+  <cac:OrderReference>
+    <cbc:ID>${faturaNo}</cbc:ID>
+    <cbc:IssueDate>${issueDate}</cbc:IssueDate>
+  </cac:OrderReference>
+  
+  <!-- Satıcı Bilgileri (Tedarikçi) -->
+  <cac:AccountingSupplierParty>
+    <cac:Party>
+      <cac:PartyIdentification>
+        <cbc:ID schemeID="VKN">${process.env.COMPANY_VKN || '1234567890'}</cbc:ID>
+      </cac:PartyIdentification>
+      <cac:PartyName>
+        <cbc:Name>${escapeXml(process.env.COMPANY_NAME || 'Şirket Adı')}</cbc:Name>
+      </cac:PartyName>
+      <cac:PostalAddress>
+        <cbc:StreetName>${escapeXml(process.env.COMPANY_ADDRESS || 'Adres')}</cbc:StreetName>
+        <cbc:CitySubdivisionName>${escapeXml(process.env.COMPANY_DISTRICT || 'İlçe')}</cbc:CitySubdivisionName>
+        <cbc:CityName>${escapeXml(process.env.COMPANY_CITY || 'İl')}</cbc:CityName>
+        <cbc:Country>
+          <cbc:Name>Türkiye</cbc:Name>
+        </cbc:Country>
+      </cac:PostalAddress>
+      <cac:PartyTaxScheme>
+        <cac:TaxScheme>
+          <cbc:Name>${escapeXml(process.env.COMPANY_TAX_OFFICE || 'Vergi Dairesi')}</cbc:Name>
+        </cac:TaxScheme>
+      </cac:PartyTaxScheme>
+      <cac:Contact>
+        <cbc:Telephone>${process.env.COMPANY_PHONE || ''}</cbc:Telephone>
+        <cbc:ElectronicMail>${process.env.COMPANY_EMAIL || ''}</cbc:ElectronicMail>
+      </cac:Contact>
+    </cac:Party>
+  </cac:AccountingSupplierParty>
+  
+  <!-- Alıcı Bilgileri (Müşteri) -->
+  <cac:AccountingCustomerParty>
+    <cac:Party>
+      <cac:PartyIdentification>
+        <cbc:ID schemeID="${musteri.tcNo ? 'TCKN' : 'VKN'}">${musteri.tcNo || musteri.vkn || '11111111111'}</cbc:ID>
+      </cac:PartyIdentification>
+      <cac:PartyName>
+        <cbc:Name>${escapeXml(musteri.unvan || musteri.ad + ' ' + musteri.soyad)}</cbc:Name>
+      </cac:PartyName>
+      <cac:PostalAddress>
+        <cbc:StreetName>${escapeXml(musteri.adres || '')}</cbc:StreetName>
+        <cbc:CitySubdivisionName>${escapeXml(musteri.ilce || '')}</cbc:CitySubdivisionName>
+        <cbc:CityName>${escapeXml(musteri.il || '')}</cbc:CityName>
+        <cbc:Country>
+          <cbc:Name>Türkiye</cbc:Name>
+        </cbc:Country>
+      </cac:PostalAddress>
+      ${musteri.vergiDairesi ? `
+      <cac:PartyTaxScheme>
+        <cac:TaxScheme>
+          <cbc:Name>${escapeXml(musteri.vergiDairesi)}</cbc:Name>
+        </cac:TaxScheme>
+      </cac:PartyTaxScheme>
+      ` : ''}
+      <cac:Contact>
+        <cbc:Telephone>${musteri.telefon || ''}</cbc:Telephone>
+        <cbc:ElectronicMail>${musteri.email || ''}</cbc:ElectronicMail>
+      </cac:Contact>
+    </cac:Party>
+  </cac:AccountingCustomerParty>
+  
+  <!-- Ödeme Koşulları -->
+  <cac:PaymentTerms>
+    <cbc:Note>Peşin</cbc:Note>
+    <cbc:PaymentDueDate>${issueDate}</cbc:PaymentDueDate>
+  </cac:PaymentTerms>
+  
+  <!-- Toplam Tutarlar -->
+  <cac:LegalMonetaryTotal>
+    <cbc:LineExtensionAmount currencyID="${paraBirimi}">${formatMoney(araToplam)}</cbc:LineExtensionAmount>
+    <cbc:TaxExclusiveAmount currencyID="${paraBirimi}">${formatMoney(araToplam)}</cbc:TaxExclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="${paraBirimi}">${formatMoney(genelToplam)}</cbc:TaxInclusiveAmount>
+    <cbc:PayableAmount currencyID="${paraBirimi}">${formatMoney(genelToplam)}</cbc:PayableAmount>
+  </cac:LegalMonetaryTotal>
+  
+  <!-- KDV Bilgisi -->
+  <cac:TaxTotal>
+    <cbc:TaxAmount currencyID="${paraBirimi}">${formatMoney(kdvTutari)}</cbc:TaxAmount>
+    <cac:TaxSubtotal>
+      <cbc:TaxableAmount currencyID="${paraBirimi}">${formatMoney(araToplam)}</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="${paraBirimi}">${formatMoney(kdvTutari)}</cbc:TaxAmount>
+      <cac:TaxCategory>
+        <cbc:Percent>${kdvOrani}</cbc:Percent>
+        <cac:TaxScheme>
+          <cbc:Name>KDV</cbc:Name>
+          <cbc:TaxTypeCode>0015</cbc:TaxTypeCode>
+        </cac:TaxScheme>
+      </cac:TaxCategory>
+    </cac:TaxSubtotal>
+  </cac:TaxTotal>
+  
+  <!-- Fatura Kalemleri -->
+  ${urunler.map((urun, index) => `
+  <cac:InvoiceLine>
+    <cbc:ID>${index + 1}</cbc:ID>
+    <cbc:InvoicedQuantity unitCode="${urun.birim || 'C62'}">${formatMoney(urun.miktar)}</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="${paraBirimi}">${formatMoney(urun.toplamFiyat || urun.birimFiyat * urun.miktar)}</cbc:LineExtensionAmount>
+    <cac:Item>
+      <cbc:Name>${escapeXml(urun.adi)}</cbc:Name>
+      <cac:SellersItemIdentification>
+        <cbc:ID>${urun.kodu || urun._id || index + 1}</cbc:ID>
+      </cac:SellersItemIdentification>
+    </cac:Item>
+    <cac:Price>
+      <cbc:PriceAmount currencyID="${paraBirimi}">${formatMoney(urun.birimFiyat)}</cbc:PriceAmount>
+    </cac:Price>
+    <cac:TaxTotal>
+      <cbc:TaxAmount currencyID="${paraBirimi}">${formatMoney((urun.toplamFiyat || urun.birimFiyat * urun.miktar) * kdvOrani / 100)}</cbc:TaxAmount>
+      <cac:TaxSubtotal>
+        <cbc:TaxableAmount currencyID="${paraBirimi}">${formatMoney(urun.toplamFiyat || urun.birimFiyat * urun.miktar)}</cbc:TaxableAmount>
+        <cbc:TaxAmount currencyID="${paraBirimi}">${formatMoney((urun.toplamFiyat || urun.birimFiyat * urun.miktar) * kdvOrani / 100)}</cbc:TaxAmount>
+        <cac:TaxCategory>
+          <cbc:Percent>${kdvOrani}</cbc:Percent>
+          <cac:TaxScheme>
+            <cbc:Name>KDV</cbc:Name>
+            <cbc:TaxTypeCode>0015</cbc:TaxTypeCode>
+          </cac:TaxScheme>
+        </cac:TaxCategory>
+      </cac:TaxSubtotal>
+    </cac:TaxTotal>
+  </cac:InvoiceLine>
+  `).join('')}
+  
+</Invoice>`;
+
+  return xml.trim();
 }
 
-module.exports = UBLGenerator;
+/**
+ * XML için özel karakterleri escape et
+ */
+function escapeXml(str) {
+  if (!str) return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+/**
+ * Para formatını düzenle (2 ondalık)
+ */
+function formatMoney(amount) {
+  return parseFloat(amount || 0).toFixed(2);
+}
+
+/**
+ * XML validasyonu (basit kontrol)
+ */
+function validateUBL(xml) {
+  const requiredFields = [
+    'cbc:ID',
+    'cbc:UUID',
+    'cbc:IssueDate',
+    'cac:AccountingSupplierParty',
+    'cac:AccountingCustomerParty',
+    'cac:LegalMonetaryTotal'
+  ];
+  
+  const missing = requiredFields.filter(field => !xml.includes(`<${field}>`));
+  
+  return {
+    valid: missing.length === 0,
+    missing: missing
+  };
+}
+
+module.exports = {
+  generateUBL,
+  validateUBL,
+  escapeXml,
+  formatMoney
+};
