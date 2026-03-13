@@ -1,6 +1,11 @@
 // 1) HER ŞEYDEN ÖNCE
 require("dotenv").config();
 
+// ✅ DNS AYARLARI - MONGOOSE'DAN ÖNCE
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first');
+dns.setServers(['8.8.8.8', '8.8.4.4']);
+console.log('✅ Google DNS ayarlandı');
 // (İsteğe bağlı) Sadece var mı diye kontrol et, secret'ı basma!
 console.log("ENV OK:", {
   MONGODB_URI: !!process.env.MONGODB_URI,
@@ -17,8 +22,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const path = require("path");
-const SibApiV3Sdk = require("sib-api-v3-sdk");  // ✅ EKLENDİ
+const SibApiV3Sdk = require("sib-api-v3-sdk");
 
+// ... gerisi aynı kalacak
 // ✅ ERP Service Import
 const { createCariInERP, createSaleInERP } = require('./services/erpService');
 // Modeller
@@ -34,7 +40,7 @@ const app = express();
 const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017/kurumsal-tedarikci";
 
 mongoose
-  .connect(mongoUri)
+  .connect(mongoUri, { family: 4 })
   .then(() => console.log("✅ MongoDB bağlandı"))
   .catch((err) => console.error("❌ MongoDB bağlantı hatası:", err));
 
@@ -59,8 +65,10 @@ app.get("/api/test/log", (req, res) => {
   console.log("🧪 TEST LOG:", new Date().toISOString());
   console.log("🧪 Bu log Render'da görünmeli!");
   res.json({ success: true, message: "Log testi", time: new Date().toISOString() });
-});
 
+  });
+
+ 
 // ===================== ROUTES =====================
 // Önce route'ları import et
 const authRoutes = require("./routes/auth");
@@ -72,6 +80,8 @@ const productRoutes = require("./routes/products");
 const cariRoutes = require('./routes/cari');
 const faturaRoutes = require('./routes/fatura');
 const tahsilatRoutes = require('./routes/tahsilat');
+const adresRoutes = require('./routes/adres');
+const supportRoutes = require('./routes/support');
 
 
 // Sonra kullan
@@ -85,6 +95,24 @@ app.use('/api/cari', cariRoutes);
 app.use('/api/fatura', faturaRoutes);
 app.use('/api/faturalar', faturaRoutes);
 app.use('/api/tahsilat', tahsilatRoutes);
+app.use('/api/adres', adresRoutes);
+app.use('/api/support', supportRoutes);
+
+/* ======================================================
+   Teklif Al - Form gönderimi
+====================================================== */
+app.post("/api/teklif", (req, res) => {
+  try {
+    const { ad, firma, email, telefon, hizmetler, kullaniciSayisi, mesaj } = req.body;
+    if (!ad || !email || !telefon) {
+      return res.status(400).json({ success: false, message: "Ad, e-posta ve telefon zorunludur." });
+    }
+    console.log("📋 Teklif talebi:", { ad, firma, email, telefon, hizmetler, kullaniciSayisi });
+    res.json({ success: true, message: "Teklif talebiniz alındı. En kısa sürede size dönüş yapacağız." });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Bir hata oluştu." });
+  }
+});
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -311,36 +339,57 @@ app.post("/api/auth/register", async (req, res) => {
     // Şifreyi hashle
     const hashed = await bcrypt.hash(password, 10);
 
-    // Adres array'ini oluştur
+    // Adres array'ini oluştur (kayıt formundan gelen obje yapısı)
     const addresses = [];
-    
-    // Fatura adresi varsa ekle
-    if (faturaAdresi) {
+    const faturaObj = (faturaAdresi && typeof faturaAdresi === 'object') ? faturaAdresi : null;
+    const teslimatObj = (teslimatAdresi && typeof teslimatAdresi === 'object') ? teslimatAdresi : null;
+
+    if (faturaObj) {
       addresses.push({
-        title: "Fatura Adresi",
-        fullName: ad,
-        phone: telefon || "",
-        city: city || "İstanbul",
-        district: district || "",
-        address: faturaAdresi,
-        isDefault: true
+        baslik: faturaObj.baslik || "Fatura Adresi",
+        adSoyad: ad,
+        telefon: telefon || "",
+        sehir: faturaObj.sehir || city || "İstanbul",
+        ilce: faturaObj.ilce || district || "",
+        mahalle: faturaObj.mahalle || "",
+        sokak: faturaObj.sokak || "",
+        postaKodu: faturaObj.postaKodu || "",
+        acikAdres: faturaObj.acikAdres || "",
+        tip: 'fatura',
+        varsayilan: true
       });
     }
-    
-    // Teslimat adresi varsa ve faturadan farklıysa ekle
-    if (teslimatAdresi && teslimatAdresi !== faturaAdresi) {
+    if (teslimatObj && JSON.stringify(teslimatObj) !== JSON.stringify(faturaObj)) {
       addresses.push({
-        title: "Teslimat Adresi",
-        fullName: ad,
-        phone: telefon || "",
-        city: city || "İstanbul",
-        district: district || "",
-        address: teslimatAdresi,
-        isDefault: false
+        baslik: teslimatObj.baslik || "Teslimat Adresi",
+        adSoyad: ad,
+        telefon: telefon || "",
+        sehir: teslimatObj.sehir || city || "İstanbul",
+        ilce: teslimatObj.ilce || district || "",
+        mahalle: teslimatObj.mahalle || "",
+        sokak: teslimatObj.sokak || "",
+        postaKodu: teslimatObj.postaKodu || "",
+        acikAdres: teslimatObj.acikAdres || (faturaObj?.acikAdres || ""),
+        tip: 'teslimat',
+        varsayilan: false
+      });
+    } else if (faturaObj && addresses.length) {
+      addresses.push({
+        baslik: "Teslimat Adresi",
+        adSoyad: ad,
+        telefon: telefon || "",
+        sehir: faturaObj.sehir || city || "İstanbul",
+        ilce: faturaObj.ilce || district || "",
+        mahalle: faturaObj.mahalle || "",
+        sokak: faturaObj.sokak || "",
+        postaKodu: faturaObj.postaKodu || "",
+        acikAdres: faturaObj.acikAdres || "",
+        tip: 'teslimat',
+        varsayilan: false
       });
     }
 
-    // Kullanıcı oluştur
+    // Kullanıcı oluştur - faturaAdresi ve teslimatAdresi objeleri (profil sayfası için)
     const newUser = await User.create({
       ad,
       email,
@@ -352,8 +401,8 @@ app.post("/api/auth/register", async (req, res) => {
       vergiNo: vergiNo || "",
       vergiDairesi: vergiDairesi || "",
       tcNo: tcNo || "",
-      faturaAdresi: faturaAdresi || "",
-      teslimatAdresi: teslimatAdresi || faturaAdresi || "",
+      faturaAdresi: faturaObj || (typeof faturaAdresi === 'string' ? { acikAdres: faturaAdresi, sehir: city, ilce: district } : {}),
+      teslimatAdresi: teslimatObj || faturaObj || (typeof teslimatAdresi === 'string' ? { acikAdres: teslimatAdresi, sehir: city, ilce: district } : {}),
       addresses: addresses
     });
 
@@ -1050,7 +1099,7 @@ app.use(express.static(publicPath));
 /* ======================================================
    ✅ HTML Sayfa Route Garantisi
 ====================================================== */
-const htmlPages = ['index', 'sepet', 'profil', 'odeme', 'siparisler', 'giris', 'kayit', 'sifremi-unuttum', 'hakkimizda', 'hizmetlerimiz', 'urunler', 'referanslarimiz', 'iletisim', 'teklif-al'];
+const htmlPages = ['index', 'sepet', 'profil', 'odeme', 'siparisler', 'giris', 'kayit', 'sifremi-unuttum', 'hakkimizda', 'hizmetlerimiz', 'urunler', 'referanslarimiz', 'iletisim', 'teklif-al', 'destek-sorularim', 'kargo-takip'];
 htmlPages.forEach(page => {
   app.get(`/${page}.html`, (req, res) => {
     res.sendFile(path.join(publicPath, `${page}.html`));

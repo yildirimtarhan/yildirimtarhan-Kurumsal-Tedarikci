@@ -1,15 +1,92 @@
-// 📁 /services/erpService.js
 const axios = require("axios");
 
-// YENİ API: satistakip.online
-const ERP_API_URL = process.env.ERP_API_URL || "https://satistakip.online/api/integration/sales";
-const ERP_API_KEY = process.env.ERP_API_KEY; // SADECE env'den al, fallback YOK
+const ERP_BASE_URL = "https://satistakip.online/api/integration";
+const ERP_API_KEY = process.env.ERP_API_KEY || "";
+
+const ERP_HEADERS = {
+  'x-api-key': ERP_API_KEY,
+  'Content-Type': 'application/json'
+};
+
+function getUserName(userData) {
+  let fullName = '';
+
+  if (userData.uyelikTipi === 'kurumsal' && userData.firma) {
+    fullName = userData.firma.trim();
+  } else {
+    const raw = (userData.ad || '').trim();
+    // Email adresiyse veya boşsa email'den türet
+    fullName = (raw && !raw.includes('@')) ? raw : '';
+  }
+
+  if (!fullName) fullName = userData.email.split('@')[0];
+
+  const parts = fullName.split(' ');
+  return {
+    ad: parts[0] || fullName,
+    soyad: parts.slice(1).join(' ') || '',
+    fullName
+  };
+}
+
+function getUserAdres(userData) {
+  return userData.faturaAdresi?.acikAdres ||
+    (typeof userData.faturaAdresi === 'string' ? userData.faturaAdresi : '') ||
+    userData.teslimatAdresi?.acikAdres ||
+    (typeof userData.teslimatAdresi === 'string' ? userData.teslimatAdresi : '') ||
+    'Belirtilmedi';
+}
 
 /**
- * Siparişi ERP'ye gönder (YENİ API)
- * @param {Object} orderData - Sipariş bilgileri
- * @param {Object} userData - Kullanıcı bilgileri
- * @returns {Object} ERP yanıtı
+ * Cariyi ERP'ye kaydet (YENİ endpoint)
+ */
+async function sendCustomerToERP(userData) {
+  console.log("========== ERP CARİ GÖNDERME BAŞLADI ==========");
+  console.log("👤 Müşteri:", userData.email);
+
+  try {
+    const { ad, soyad, fullName } = getUserName(userData);
+    const payload = {
+      ad,
+      soyad,
+      name: fullName,
+      email: userData.email,
+      phone: userData.telefon || '05000000000',
+      adres: getUserAdres(userData)
+    };
+
+    console.log("📤 Gönderilen veri:", JSON.stringify(payload, null, 2));
+
+    const response = await axios.post(`${ERP_BASE_URL}/customers`, payload, {
+      headers: ERP_HEADERS,
+      timeout: 15000
+    });
+
+    console.log("✅ ERP Cari Yanıtı:", JSON.stringify(response.data, null, 2));
+    console.log("========== ERP CARİ GÖNDERME BAŞARILI ==========");
+
+    return {
+      success: true,
+      erpCariId: response.data._id || response.data.id || response.data.cariId || '',
+      data: response.data
+    };
+
+  } catch (err) {
+    console.error("❌ ERP Cari Gönderim Hatası:");
+    console.error("   HTTP Status:", err.response?.status);
+    console.error("   Hata:", err.response?.data?.message || err.message);
+    console.log("========== ERP CARİ GÖNDERME BAŞARISIZ ==========");
+
+    return {
+      success: false,
+      error: err.response?.data?.message || err.message,
+      status: err.response?.status
+    };
+  }
+}
+
+/**
+ * Siparişi ERP'ye gönder
  */
 async function sendOrderToERP(orderData, userData) {
   console.log("========== ERP SİPARİŞ GÖNDERME BAŞLADI ==========");
@@ -17,22 +94,26 @@ async function sendOrderToERP(orderData, userData) {
   console.log("👤 Müşteri:", userData.email);
 
   try {
-    // API formatına dönüştür
+    const { ad, soyad } = getUserName(userData);
+
     const erpPayload = {
       customer: {
-        ad: userData.ad?.split(' ')[0] || userData.ad || '',
-        soyad: userData.ad?.split(' ').slice(1).join(' ') || '',
+        ad,
+        soyad,
         email: userData.email,
-        phone: userData.telefon || '',
-        adres: userData.faturaAdresi?.acikAdres || 
-               userData.faturaAdresi || 
-               userData.teslimatAdresi?.acikAdres || 
-               userData.teslimatAdresi || ''
+        phone: userData.telefon || '05000000000',
+        adres: getUserAdres(userData)
       },
       items: orderData.items.map(item => ({
-        code: item.ad?.substring(0, 20).replace(/\s+/g, '-') || 'URUN',
-        quantity: parseInt(item.adet || 1),
-        unitPrice: parseFloat(item.fiyat || 0)
+        code: item.urunKodu
+                ? item.urunKodu.trim()
+                : (item.ad || 'URUN')
+                    .substring(0, 20)
+                    .replace(/\s+/g, '-')
+                    .replace(/[^a-zA-Z0-9\-_]/g, '')
+                    .toUpperCase() || 'URUN',
+        quantity: parseInt(item.adet ?? 1),
+        unitPrice: parseFloat(item.fiyat || 1)
       })),
       payment: {
         method: getPaymentMethod(orderData.paymentMethod),
@@ -41,15 +122,10 @@ async function sendOrderToERP(orderData, userData) {
     };
 
     console.log("📤 Gönderilen veri:", JSON.stringify(erpPayload, null, 2));
-    console.log("🌐 Endpoint:", ERP_API_URL);
 
-    // API çağrısı (x-api-key header, Bearer YOK)
-    const response = await axios.post(ERP_API_URL, erpPayload, {
-      headers: {
-        'x-api-key': ERP_API_KEY,
-        'Content-Type': 'application/json'
-      },
-      timeout: 15000 // 15 saniye timeout
+    const response = await axios.post(`${ERP_BASE_URL}/sales`, erpPayload, {
+      headers: ERP_HEADERS,
+      timeout: 15000
     });
 
     console.log("✅ ERP Yanıtı:", JSON.stringify(response.data, null, 2));
@@ -65,7 +141,6 @@ async function sendOrderToERP(orderData, userData) {
     console.error("❌ ERP Gönderim Hatası:");
     console.error("   HTTP Status:", err.response?.status);
     console.error("   Hata Mesajı:", err.response?.data?.message || err.message);
-    console.error("   Hata Detayı:", JSON.stringify(err.response?.data, null, 2));
     console.log("========== ERP SİPARİŞ GÖNDERME BAŞARISIZ ==========");
 
     return {
@@ -76,9 +151,6 @@ async function sendOrderToERP(orderData, userData) {
   }
 }
 
-/**
- * Ödeme yöntemini ERP formatına çevir
- */
 function getPaymentMethod(paymentMethod) {
   const methodMap = {
     'Kredi Kartı': 'credit_card',
@@ -90,25 +162,18 @@ function getPaymentMethod(paymentMethod) {
     'Açık Hesap': 'open_account',
     'open': 'open_account'
   };
-  
   return methodMap[paymentMethod] || 'open_account';
 }
 
-/**
- * Ödeme durumunu belirle (paid/unpaid)
- */
 function getPaymentStatus(paymentMethod) {
-  // Kredi kartı = ödendi, diğerleri = ödenmedi
   const paidMethods = ['Kredi Kartı', 'credit_card'];
   return paidMethods.includes(paymentMethod) ? 'paid' : 'unpaid';
 }
 
-/**
- * Toplu sipariş senkronizasyonu (manuel tetikleme için)
- */
 async function syncPendingOrders() {
   const Order = require('../models/Order');
-  
+  const User = require('../models/User');
+
   const pendingOrders = await Order.find({
     erpStatus: { $in: [null, 'pending', 'failed'] }
   }).limit(10);
@@ -116,12 +181,9 @@ async function syncPendingOrders() {
   console.log(`🔄 ${pendingOrders.length} sipariş senkronize edilecek...`);
 
   for (const order of pendingOrders) {
-    const User = require('../models/User');
     const user = await User.findById(order.userId);
-    
     if (user) {
       const result = await sendOrderToERP(order, user);
-      
       if (result.success) {
         order.erpStatus = 'synced';
         order.erpOrderId = result.erpOrderId;
@@ -131,13 +193,13 @@ async function syncPendingOrders() {
         order.erpStatus = 'failed';
         order.erpError = result.error;
       }
-      
       await order.save();
     }
   }
 }
 
 module.exports = {
+  sendCustomerToERP,
   sendOrderToERP,
   syncPendingOrders,
   getPaymentMethod,

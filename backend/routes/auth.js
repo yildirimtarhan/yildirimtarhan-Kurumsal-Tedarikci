@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const SibApiV3Sdk = require('sib-api-v3-sdk');
+const { sendCustomerToERP } = require('../services/erpService');
 
 const JWT_SECRET = process.env.JWT_SECRET || "kurumsal-tedarikci-secret-key";
 
@@ -13,6 +14,47 @@ const apiKey = defaultClient.authentications["api-key"];
 apiKey.apiKey = process.env.BREVO_API_KEY;
 
 const resetCodes = new Map();
+
+// Hoşgeldin e-postası
+async function sendWelcomeEmail(toEmail, userName, uyelikTipi) {
+  try {
+    const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+    sendSmtpEmail.subject = "Hoş Geldiniz - Kurumsal Tedarikçi";
+    sendSmtpEmail.htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 30px; text-align: center; color: white;">
+          <h1>Kurumsal Tedarikçi'ye Hoş Geldiniz!</h1>
+        </div>
+        <div style="padding: 30px; background: #f9fafb;">
+          <h2 style="color: #1f2937;">Merhaba ${userName},</h2>
+          <p style="color: #6b7280; font-size: 16px; line-height: 1.6;">
+            ${uyelikTipi === 'kurumsal' ? 'Kurumsal' : 'Bireysel'} üyeliğiniz başarıyla oluşturuldu.
+          </p>
+          <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h3 style="color: #6366f1; margin-bottom: 15px;">🎁 Avantajlarınız:</h3>
+            <ul style="color: #374151; line-height: 2;">
+              <li>Online sipariş takibi</li>
+              <li>Geçmiş alışverişlerinize erişim</li>
+              <li>Özel indirim ve kampanyalar</li>
+              <li>7/24 destek erişimi</li>
+            </ul>
+          </div>
+          <a href="https://tedarikci.org.tr/urunler.html" style="display: inline-block; background: #6366f1; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: 600;">Alışverişe Başla</a>
+          <p style="color: #9ca3af; font-size: 12px; margin-top: 30px;">Bu e-posta otomatik olarak gönderilmiştir.</p>
+        </div>
+      </div>
+    `;
+    sendSmtpEmail.sender = { name: "Kurumsal Tedarikçi", email: process.env.SMTP_FROM_EMAIL || "noreply@tedarikci.org.tr" };
+    sendSmtpEmail.to = [{ email: toEmail }];
+    await apiInstance.sendTransacEmail(sendSmtpEmail);
+    console.log("✅ Hoşgeldin e-postası gönderildi:", toEmail);
+    return true;
+  } catch (err) {
+    console.error("Hoşgeldin e-postası hatası:", err.message);
+    return false;
+  }
+}
 
 // Reset Mail Gönderme
 async function sendResetEmail(toEmail, kod, userName) {
@@ -98,37 +140,43 @@ router.post("/register", async (req, res) => {
       acikAdres: eskiTeslimatAdresi || eskiFaturaAdresi || ""
     };
 
-    // Eski adres array (geriye uyumluluk için)
+    // Adres dizisi - AddressSchema formatında (baslik, adSoyad, telefon, sehir, ilce, mahalle, sokak, postaKodu, acikAdres, tip)
     const addresses = [];
     
     // Fatura adresi ekle
     addresses.push({
       baslik: yeniFaturaAdresi.baslik || "Fatura Adresi",
-      fullName: ad,
-      phone: telefon || "",
-      city: yeniFaturaAdresi.sehir,
-      district: yeniFaturaAdresi.ilce,
-      address: yeniFaturaAdresi.acikAdres,
-      isDefault: true,
-      tip: 'fatura'
+      adSoyad: ad,
+      telefon: telefon || "",
+      sehir: yeniFaturaAdresi.sehir || "",
+      ilce: yeniFaturaAdresi.ilce || "",
+      mahalle: yeniFaturaAdresi.mahalle || "",
+      sokak: yeniFaturaAdresi.sokak || "",
+      postaKodu: yeniFaturaAdresi.postaKodu || "",
+      acikAdres: yeniFaturaAdresi.acikAdres || "",
+      tip: 'fatura',
+      varsayilan: true
     });
 
-    // Teslimat adresi ekle (farklıysa)
+    // Teslimat adresi ekle (farklıysa veya fatura ile aynı olsa bile ikisi de olsun - adreslerim sayfası için)
     const teslimatFarkli = JSON.stringify(yeniTeslimatAdresi) !== JSON.stringify(yeniFaturaAdresi);
     if (teslimatFarkli || !yeniTeslimatAdresi.acikAdres) {
       addresses.push({
         baslik: yeniTeslimatAdresi.baslik || "Teslimat Adresi",
-        fullName: ad,
-        phone: telefon || "",
-        city: yeniTeslimatAdresi.sehir,
-        district: yeniTeslimatAdresi.ilce,
-        address: yeniTeslimatAdresi.acikAdres || yeniFaturaAdresi.acikAdres,
-        isDefault: false,
-        tip: 'teslimat'
+        adSoyad: ad,
+        telefon: telefon || "",
+        sehir: yeniTeslimatAdresi.sehir || "",
+        ilce: yeniTeslimatAdresi.ilce || "",
+        mahalle: yeniTeslimatAdresi.mahalle || "",
+        sokak: yeniTeslimatAdresi.sokak || "",
+        postaKodu: yeniTeslimatAdresi.postaKodu || "",
+        acikAdres: (yeniTeslimatAdresi.acikAdres || yeniFaturaAdresi.acikAdres) || "",
+        tip: 'teslimat',
+        varsayilan: false
       });
     }
 
-    // ✅ Kullanıcı oluştur
+    // ✅ Kullanıcı oluştur - adresler tekil objeler + adres dizisi
     const newUser = await User.create({
       ad,
       email,
@@ -142,19 +190,37 @@ router.post("/register", async (req, res) => {
       vergiNo: vergiNo || "",
       vergiDairesi: vergiDairesi || "",
 
-      // YENİ: Detaylı adresler
+      // Detaylı adres objeleri (schema ile birebir uyumlu)
       faturaAdresi: yeniFaturaAdresi,
       teslimatAdresi: yeniTeslimatAdresi,
 
-      // Eski alanlar (geriye uyumluluk)
-      faturaAdresi: yeniFaturaAdresi.acikAdres,
-      teslimatAdresi: yeniTeslimatAdresi.acikAdres,
-
-      // Adres array
+      // Çoklu adres listesi (eski yapı ile uyumluluk için)
       addresses: addresses,
 
       rol: "user",
     });
+
+    // Hoşgeldin e-postası gönder
+    sendWelcomeEmail(newUser.email, newUser.ad || 'Değerli Üyemiz', newUser.uyelikTipi || 'bireysel').catch(err => {
+      console.warn("Hoşgeldin e-postası gönderilemedi:", err.message);
+    });
+
+    // ERP'ye otomatik cari kaydı
+    try {
+      const erpResult = await sendCustomerToERP(newUser);
+      if (erpResult.success) {
+        newUser.erpSynced = true;
+        newUser.erpCariId = erpResult.erpCariId || '';
+        newUser.erpSyncDate = new Date();
+        await newUser.save();
+        console.log('✅ Müşteri ERP\'ye aktarıldı:', newUser.email);
+      } else {
+        console.warn('⚠️ ERP aktarım başarısız (kayıt devam etti):', erpResult.error);
+      }
+    } catch (erpErr) {
+      console.warn('⚠️ ERP hatası (kayıt devam etti):', erpErr.message);
+      // Kayıt başarılı sayılır, ERP hatası kullanıcıyı engellemez
+    }
 
     // Token oluştur
     const token = jwt.sign(
@@ -175,9 +241,10 @@ router.post("/register", async (req, res) => {
         uyelikTipi: newUser.uyelikTipi,
         firma: newUser.firma,
         telefon: newUser.telefon,
-        // Adresleri de gönder
         faturaAdresi: newUser.faturaAdresi,
-        teslimatAdresi: newUser.teslimatAdresi
+        teslimatAdresi: newUser.teslimatAdresi,
+        erpSynced: newUser.erpSynced,
+        erpCariId: newUser.erpCariId
       }
     });
   } catch (err) {
@@ -285,7 +352,8 @@ router.put("/profile", async (req, res) => {
     if (vergiDairesi !== undefined) updateData.vergiDairesi = vergiDairesi;
     if (telefon !== undefined) updateData.telefon = telefon;
 
-    const user = await User.findByIdAndUpdate(decoded.id, { $set: updateData }, { new: true }).select('-password');
+    const userId = decoded.userId || decoded.id;
+    const user = await User.findByIdAndUpdate(userId, { $set: updateData }, { new: true }).select('-password');
     if (!user) return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı" });
 
     res.json({ success: true, user });
@@ -301,7 +369,8 @@ router.get("/profile", async (req, res) => {
     if (!token) return res.status(401).json({ success: false, message: "Token gerekli" });
 
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findById(decoded.id).select('-password');
+    const userId = decoded.userId || decoded.id;
+    const user = await User.findById(userId).select('-password');
     
     if (!user) return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı" });
     
@@ -336,14 +405,54 @@ router.get("/adreslerim", async (req, res) => {
     if (!token) return res.status(401).json({ success: false, message: "Token gerekli" });
 
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findById(decoded.id).select('faturaAdresi teslimatAdresi addresses firma vergiNo vergiDairesi tcNo ad telefon');
+    const userId = decoded.userId || decoded.id;
+    const user = await User.findById(userId).select('faturaAdresi teslimatAdresi addresses firma vergiNo vergiDairesi tcNo ad telefon');
     
     if (!user) return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı" });
-    
+
+    // Adres fallback: fatura/teslimat boş veya anlamsızsa addresses dizisinden üret
+    const isEmptyAddr = (a) =>
+      !a || (typeof a === 'string' && !a.trim()) ||
+      (typeof a === 'object' && !(a.acikAdres || a.sehir || a.ilce || a.mahalle || a.sokak));
+
+    let faturaAdresi = user.faturaAdresi;
+    let teslimatAdresi = user.teslimatAdresi;
+    const addrList = user.addresses || [];
+
+    if (isEmptyAddr(faturaAdresi) && addrList.length) {
+      const fAddr = addrList.find(a => a.tip === 'fatura') || addrList[0];
+      if (fAddr) {
+        faturaAdresi = {
+          baslik: fAddr.baslik || fAddr.title || 'Fatura Adresi',
+          sehir: fAddr.sehir || fAddr.city || '',
+          ilce: fAddr.ilce || fAddr.district || '',
+          mahalle: fAddr.mahalle || '',
+          sokak: fAddr.sokak || '',
+          postaKodu: fAddr.postaKodu || fAddr.postalCode || '',
+          acikAdres: fAddr.acikAdres || fAddr.address || ''
+        };
+      }
+    }
+
+    if (isEmptyAddr(teslimatAdresi) && addrList.length) {
+      const tAddr = addrList.find(a => a.tip === 'teslimat') || addrList[1] || addrList[0];
+      if (tAddr) {
+        teslimatAdresi = {
+          baslik: tAddr.baslik || tAddr.title || 'Teslimat Adresi',
+          sehir: tAddr.sehir || tAddr.city || '',
+          ilce: tAddr.ilce || tAddr.district || '',
+          mahalle: tAddr.mahalle || '',
+          sokak: tAddr.sokak || '',
+          postaKodu: tAddr.postaKodu || tAddr.postalCode || '',
+          acikAdres: tAddr.acikAdres || tAddr.address || ''
+        };
+      }
+    }
+
     res.json({
       success: true,
-      faturaAdresi: user.faturaAdresi,
-      teslimatAdresi: user.teslimatAdresi,
+      faturaAdresi,
+      teslimatAdresi,
       addresses: user.addresses,
       // Fatura bilgileri
       faturaBilgisi: {
@@ -367,6 +476,7 @@ router.put("/adres-guncelle", async (req, res) => {
     if (!token) return res.status(401).json({ success: false, message: "Token gerekli" });
 
     const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId || decoded.id;
     const { faturaAdresi, teslimatAdresi } = req.body;
 
     const updateData = {};
@@ -374,7 +484,7 @@ router.put("/adres-guncelle", async (req, res) => {
     if (teslimatAdresi) updateData.teslimatAdresi = teslimatAdresi;
 
     const user = await User.findByIdAndUpdate(
-      decoded.id,
+      userId,
       { $set: updateData },
       { new: true }
     ).select('-password');

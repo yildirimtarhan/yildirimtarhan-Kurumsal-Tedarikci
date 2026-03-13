@@ -3,8 +3,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Kullanıcı alanı
   const navArea = document.getElementById("navUserArea");
 
-  // LocalStorage'dan user al
-  const userData = localStorage.getItem("user");
+  // LocalStorage veya sessionStorage'dan user al (Beni hatırla işaretlenmemişse sessionStorage kullanılır)
+  const userData = localStorage.getItem("user") || sessionStorage.getItem("user");
 
   // Kullanıcı giriş yaptıysa navbar değiştir
   if (userData && navArea) {
@@ -48,6 +48,8 @@ document.addEventListener("DOMContentLoaded", () => {
 function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
+  sessionStorage.removeItem("token");
+  sessionStorage.removeItem("user");
   alert("Çıkış yapıldı");
   window.location.href = "index.html";
 }

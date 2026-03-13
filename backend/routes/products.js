@@ -35,7 +35,21 @@ function adminOnly(req, res, next) {
 }
 
 // ============================================
-// TÜM ÜRÜNLERİ GETİR
+// MÜŞTERİ İÇİN ÜRÜN LİSTESİ (Auth gerektirmez)
+// ============================================
+router.get("/public", async (req, res) => {
+  try {
+    const products = await Product.find({ isActive: { $ne: false } })
+      .sort({ createdAt: -1 })
+      .select("name sku price category description unit");
+    res.json({ success: true, products });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ============================================
+// TÜM ÜRÜNLERİ GETİR (Admin)
 // ============================================
 router.get("/", adminOnly, async (req, res) => {
   try {

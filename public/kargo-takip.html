@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -490,6 +490,16 @@
             document.getElementById('trackingInput').value = number;
             trackShipment();
         }
+
+        // URL'de ?track=TAKIPNO varsa otomatik doldur ve sorgula
+        (function initFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const track = params.get('track');
+            if (track && track.trim()) {
+                document.getElementById('trackingInput').value = track.trim();
+                trackShipment();
+            }
+        })();
 
         async function trackShipment() {
             const input = document.getElementById('trackingInput').value.trim();

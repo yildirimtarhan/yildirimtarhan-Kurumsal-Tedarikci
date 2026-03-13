@@ -1,7 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>Profilim - Kurumsal Tedarikçi</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -148,6 +149,86 @@
       background: #dc2626;
     }
 
+    /* Aktif Kargolarım */
+    .kargo-section {
+      margin-top: 28px;
+      padding-top: 25px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .kargo-section h3 {
+      margin: 0 0 16px;
+      font-size: 17px;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .kargo-section h3 i {
+      color: #6366f1;
+    }
+
+    .kargo-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .kargo-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .kargo-item .info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .kargo-item .info strong {
+      display: block;
+      font-size: 14px;
+      color: #1f2937;
+      margin-bottom: 4px;
+    }
+
+    .kargo-item .info span {
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .kargo-item .btn-track {
+      padding: 8px 16px;
+      background: #6366f1;
+      color: white;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: 0.2s;
+    }
+
+    .kargo-item .btn-track:hover {
+      background: #4f46e5;
+    }
+
+    .kargo-empty {
+      text-align: center;
+      padding: 24px;
+      background: #f9fafb;
+      border-radius: 12px;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
     @media(max-width: 700px) {
       .grid {
         grid-template-columns: 1fr;
@@ -198,6 +279,14 @@
 
     </div>
 
+    <!-- AKTİF KARGOLARIM (admin kargo girdiğinde burada görünür) -->
+    <div class="kargo-section" id="kargoSection">
+      <h3><i class="fas fa-shipping-fast"></i> Aktif Kargolarım</h3>
+      <div class="kargo-list" id="kargoList">
+        <div class="kargo-empty">Yükleniyor...</div>
+      </div>
+    </div>
+
     <!-- BUTONLAR -->
     <div class="buttons">
       <a href="urunler.html" class="btn btn-primary">🛒 Alışverişe Başla</a>
@@ -205,8 +294,14 @@
       <a href="siparisler.html" class="btn btn-secondary">📦 Siparişlerim</a>
       <a href="musteri/faturalarim.html" class="btn btn-info" style="background: #17a2b8; color: white;">
         <i class="fas fa-file-invoice"></i> Faturalarım
-    </a>
-          <button onclick="logout()" class="btn btn-danger">🚪 Çıkış Yap</button>
+      </a>
+      <a href="destek-sorularim.html" class="btn btn-secondary">
+        <i class="fas fa-headset"></i> Destek Sorularım
+      </a>
+      <a href="kargo-takip.html" class="btn btn-secondary">
+        <i class="fas fa-shipping-fast"></i> Kargo Takip
+      </a>
+      <button onclick="logout()" class="btn btn-danger">🚪 Çıkış Yap</button>
     </div>
 
   </div>
@@ -246,7 +341,7 @@
   const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : 'https://backend-api-7s13.onrender.com/api';
 
   function showEditModal() {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
     document.getElementById('editUyelikTipi').value = user.uyelikTipi || 'bireysel';
     document.getElementById('editFirma').value = user.firma || '';
     document.getElementById('editVergiNo').value = user.vergiNo || '';
@@ -259,7 +354,7 @@
   }
 
   async function saveProfile() {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     const uyelikTipi = document.getElementById('editUyelikTipi').value;
     const firma = document.getElementById('editFirma').value.trim();
     const vergiNo = document.getElementById('editVergiNo').value.trim();
@@ -283,84 +378,135 @@
       alert('Güncelleme başarısız');
     }
   }
-  // Kullanıcı bilgilerini getir
+  // Kullanıcı + adres bilgilerini backend'den oku
   async function loadUserProfile() {
-    const token = localStorage.getItem("token");
-    const userData = localStorage.getItem("user");
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
-    if (!token || !userData) {
+    if (!token) {
       alert("Giriş yapmanız gerekiyor!");
       window.location.href = "giris.html";
       return;
     }
 
-    const user = JSON.parse(userData);
-
-    // Avatar Harfi
-    document.getElementById("avatarLetter").innerText =
-      user.ad ? user.ad.charAt(0).toUpperCase() : "U";
-
-    // Üst bilgiler
-    document.getElementById("userName").innerText = user.ad || "Kullanıcı";
-    document.getElementById("userEmail").innerText = user.email || "";
-    
-    // Üyelik tipi badge'i
-    const userTypeEl = document.getElementById("userType");
-    if (user.uyelikTipi === 'kurumsal') {
-      userTypeEl.innerText = "Kurumsal Üye";
-      userTypeEl.classList.add('kurumsal');
-    } else {
-      userTypeEl.innerText = "Bireysel Üye";
-    }
-
-    // Detaylar
-    document.getElementById("userPhone").innerText = user.telefon || "-";
-    document.getElementById("userCompany").innerText = user.firma || (user.uyelikTipi === 'kurumsal' ? "-" : "Bireysel Üye");
-    
-    document.getElementById("invoiceAddress").innerText = 
-      user.faturaAdresi || "Adres yok";
-
-    document.getElementById("deliveryAddress").innerText = 
-      user.teslimatAdresi || user.faturaAdresi || "Adres yok";
-
-    // Güncel kullanıcı bilgilerini API'den çek (opsiyonel)
     try {
-      const response = await fetch(`${API_URL}/auth/profile`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          // LocalStorage'ı güncelle
-          localStorage.setItem("user", JSON.stringify(data.user));
-          
-          // Ekranı güncelle
-          document.getElementById("userPhone").innerText = data.user.telefon || "-";
-          document.getElementById("userCompany").innerText = data.user.firma || "-";
-          document.getElementById("invoiceAddress").innerText =
-            (data.user.faturaAdresi && data.user.faturaAdresi.acikAdres)
-              ? data.user.faturaAdresi.acikAdres
-              : (data.user.faturaAdresi || "Adres yok");
-          document.getElementById("deliveryAddress").innerText =
-            (data.user.teslimatAdresi && data.user.teslimatAdresi.acikAdres)
-              ? data.user.teslimatAdresi.acikAdres
-              : (data.user.teslimatAdresi || "Adres yok");
+      // Profil, adresler ve siparişleri paralel çek
+      const [profileRes, adresRes, ordersRes] = await Promise.all([
+        fetch(`${API_URL}/auth/profile`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        fetch(`${API_URL}/auth/adreslerim`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        fetch(`${API_URL}/orders/my-orders`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      ]);
 
-          // Badge'i API verisinden güncelle
-          const typeEl = document.getElementById("userType");
-          if (data.user.uyelikTipi === 'kurumsal') {
-            typeEl.innerText = "Kurumsal Üye";
-            typeEl.classList.add('kurumsal');
-          } else {
-            typeEl.innerText = "Bireysel Üye";
-            typeEl.classList.remove('kurumsal');
-          }
-          document.getElementById("userName").innerText = data.user.ad || "Kullanıcı";
-        }
+      const profileData = profileRes.ok ? await profileRes.json() : null;
+      const adresData = adresRes.ok ? await adresRes.json() : null;
+      const ordersData = ordersRes.ok ? await ordersRes.json() : null;
+
+      if (!profileData?.success) {
+        alert("Profil bilgileri alınamadı, lütfen tekrar giriş yapın.");
+        window.location.href = "giris.html";
+        return;
       }
-    } catch (error) {
-      console.log("Profil güncelleme hatası:", error);
+
+      const user = profileData.user;
+      // Profil verisini hafızada da güncelle
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // Avatar ve üst bilgiler
+      document.getElementById("avatarLetter").innerText =
+        user.ad ? user.ad.charAt(0).toUpperCase() : "U";
+      document.getElementById("userName").innerText = user.ad || "Kullanıcı";
+      document.getElementById("userEmail").innerText = user.email || "";
+
+      // Üyelik tipi badge
+      const userTypeEl = document.getElementById("userType");
+      if (user.uyelikTipi === "kurumsal") {
+        userTypeEl.innerText = "Kurumsal Üye";
+        userTypeEl.classList.add("kurumsal");
+      } else {
+        userTypeEl.innerText = "Bireysel Üye";
+        userTypeEl.classList.remove("kurumsal");
+      }
+
+      // Diğer detaylar
+      document.getElementById("userPhone").innerText = user.telefon || "-";
+      document.getElementById("userCompany").innerText =
+        user.firma || (user.uyelikTipi === "kurumsal" ? "-" : "Bireysel Üye");
+
+      // Adresleri işleme (adreslerim endpoint'i üzerinden)
+      if (adresData?.success) {
+        const fatura = adresData.faturaAdresi;
+        const teslimat = adresData.teslimatAdresi || adresData.faturaAdresi;
+
+        const formatAdres = (a) => {
+          if (!a) return "";
+          if (typeof a === "string" && a.trim()) return a;
+          if (typeof a === "object") {
+            const mahalle = (a.mahalle || "").trim();
+            const sokak = (a.sokak || "").trim();
+            const acik = (a.acikAdres || a.address || "").trim();
+            const ilce = (a.ilce || a.district || "").trim();
+            const sehir = (a.sehir || a.city || "").trim();
+            const postaKodu = (a.postaKodu || "").trim();
+            const parts = [
+              mahalle,
+              sokak,
+              acik,
+              [ilce, sehir].filter(Boolean).join(" / "),
+              postaKodu
+            ].filter(Boolean);
+            return parts.length ? parts.join(", ") : "";
+          }
+          return "";
+        };
+
+        const faturaMetin = formatAdres(fatura);
+        const teslimatMetin = formatAdres(teslimat);
+
+        document.getElementById("invoiceAddress").innerText =
+          faturaMetin || "Adres yok";
+        document.getElementById("deliveryAddress").innerText =
+          teslimatMetin || "Adres yok";
+      } else {
+        document.getElementById("invoiceAddress").innerText = "Adres yok";
+        document.getElementById("deliveryAddress").innerText = "Adres yok";
+      }
+
+      // Aktif kargolar (admin takip bilgisi girmiş siparişler)
+      const orders = ordersData?.orders || [];
+      const kargoOrders = orders.filter(o => 
+        (o.kargoBilgisi?.takipNo || o.trackingNumber) && 
+        (o.kargoBilgisi?.takipNo || o.trackingNumber).trim()
+      );
+      const kargoListEl = document.getElementById("kargoList");
+      if (kargoOrders.length === 0) {
+        kargoListEl.innerHTML = '<div class="kargo-empty">Henüz takip bilgisi girilmiş kargonuz yok.<br>Admin kargo bilgisi girdiğinde burada görünecektir.</div>';
+      } else {
+        kargoListEl.innerHTML = kargoOrders.map(o => {
+          const takipNo = o.kargoBilgisi?.takipNo || o.trackingNumber;
+          const firma = o.kargoBilgisi?.firma || o.cargoCompany || 'Kargo';
+          const siparisNo = o.orderNumber || o._id?.slice(-6).toUpperCase() || '-';
+          const trackUrl = `kargo-takip.html?track=${encodeURIComponent(takipNo)}`;
+          return `
+            <div class="kargo-item">
+              <div class="info">
+                <strong>Sipariş #${siparisNo}</strong>
+                <span>${firma} • ${takipNo}</span>
+              </div>
+              <a href="${trackUrl}" target="_blank" class="btn-track">
+                <i class="fas fa-external-link-alt"></i> Takip Et
+              </a>
+            </div>
+          `;
+        }).join('');
+      }
+    } catch (err) {
+      console.error("Profil yükleme hatası:", err);
+      alert("Profil bilgileri yüklenirken hata oluştu.");
     }
   }
 

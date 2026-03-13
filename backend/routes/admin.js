@@ -334,6 +334,29 @@ router.put("/orders/:id/kargo", adminOnly, async (req, res) => {
 
     await order.save();
 
+    // Takip no girilmişse otomatik e-posta bildirimi gönder
+    if (order.kargoBilgisi.takipNo && order.email) {
+      try {
+        let userName = order.firmaAdi || order.shippingAddress?.fullName || 'Müşteri';
+        const user = await User.findById(order.userId).select('ad firma');
+        if (user) userName = user.ad || user.firma || userName;
+        const emailService = require('../services/emailService');
+        await emailService.sendShipmentNotification(
+          order.email,
+          userName,
+          {
+            siparisNo: order.orderNumber || order._id.toString().slice(-8).toUpperCase(),
+            kargoFirma: order.kargoBilgisi.firma,
+            takipNo: order.kargoBilgisi.takipNo,
+            tahminiTeslimat: '2-3 iş günü'
+          }
+        );
+        console.log('✅ Kargo bildirim e-postası gönderildi (otomatik):', order.email);
+      } catch (e) {
+        console.warn('Kargo e-posta gönderilemedi:', e.message);
+      }
+    }
+
     res.json({
       success: true,
       message: "Kargo bilgisi güncellendi ✅",
@@ -384,13 +407,37 @@ if (!hasKargo) {
     message: "Önce kargo bilgisi ekleyin"
   });
 }
-    // Email gönderme fonksiyonu (basit versiyon)
-    // TODO: Gerçek email entegrasyonu eklenecek
-    
+
+    // Kullanıcı bilgisini al (siparişte veya User'dan)
+    let userName = order.firmaAdi || order.shippingAddress?.fullName || 'Müşteri';
+    if (order.userId) {
+      const user = await User.findById(order.userId).select('ad firma');
+      if (user) userName = user.ad || user.firma || userName;
+    }
+
+    const orderData = {
+      siparisNo: order.orderNumber || order._id.toString().slice(-8).toUpperCase(),
+      kargoFirma: order.kargoBilgisi.firma,
+      takipNo: order.kargoBilgisi.takipNo,
+      tahminiTeslimat: order.kargoBilgisi.kargolamaTarihi
+        ? new Date(order.kargoBilgisi.kargolamaTarihi.getTime() + 2 * 24 * 60 * 60 * 1000).toLocaleDateString('tr-TR')
+        : '2-3 iş günü'
+    };
+
+    let emailSent = false;
+    try {
+      const emailService = require('../services/emailService');
+      await emailService.sendShipmentNotification(order.email, userName, orderData);
+      emailSent = true;
+      console.log('✅ Kargo bildirim e-postası gönderildi:', order.email);
+    } catch (emailErr) {
+      console.error('Kargo e-posta hatası:', emailErr.message);
+    }
+
     res.json({
       success: true,
       message: "Kargo bildirimi gönderildi",
-      email: true,
+      email: emailSent,
       sms: false,
       details: {
         siparisId: order._id,
@@ -694,19 +741,13 @@ if (syncERP !== false) {
     console.log('🚀 ERP\'ye gönderiliyor...');
     
     // GEÇİCİ: sendOrderToERP kullan (sendCustomerToERP yerine)
-    const { sendOrderToERP } = require('../services/erpService');
+    const { sendCustomerToERP } = require('../services/erpService');
     
-    const fakeOrder = {
-      _id: newUser._id,
-      items: [{ ad: 'Cari Aktarım', fiyat: 0, adet: 1 }],
-      paymentMethod: 'open_account'
-    };
-    
-    erpResult = await sendOrderToERP(fakeOrder, newUser);
+    erpResult = await sendCustomerToERP(newUser);
         
         if (erpResult.success) {
           newUser.erpSynced = true;
-          newUser.erpCariId = erpResult.erpCustomerId || '';
+          newUser.erpCariId = erpResult.erpCariId || '';
           newUser.erpSyncDate = new Date();
           await newUser.save();
           console.log('✅ ERP\'ye aktarıldı:', erpResult.erpCustomerId);
@@ -753,32 +794,25 @@ if (syncERP !== false) {
 router.post("/cari-sync-erp/:id", adminOnly, async (req, res) => {
   try {
     console.log('🔄 Manuel ERP sync:', req.params.id);
+
+    if (!req.params.id || req.params.id === 'unknown' || req.params.id.length !== 24) {
+      return res.status(400).json({ success: false, message: "Geçersiz cari ID" });
+    }
     
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ success: false, message: "Cari bulunamadı" });
     }
 
-    // GEÇİCİ ÇÖZÜM: sendOrderToERP kullan (sendCustomerToERP yerine)
-    
-    const { sendOrderToERP } = require('../services/erpService');
-    
-    
-    // Sahte sipariş oluştur (sadece cari aktarımı için)
-    const fakeOrder = {
-      _id: user._id,
-      items: [{ ad: 'Cari Aktarım', fiyat: 0, adet: 1 }],
-      paymentMethod: 'open_account'
-    };
-    
-    const erpResult = await sendOrderToERP(fakeOrder, user);
+    const { sendCustomerToERP } = require('../services/erpService');
+    const erpResult = await sendCustomerToERP(user);
 
     if (erpResult.success) {
       user.erpSynced = true;
-      user.erpCariId = erpResult.erpOrderId || '';
+      user.erpCariId = erpResult.erpCariId || '';
       user.erpSyncDate = new Date();
       await user.save();
-      console.log('✅ ERP sync başarılı:', erpResult.erpOrderId);
+      console.log('✅ ERP sync başarılı:', erpResult.erpCariId);
     } else {
       console.error('❌ ERP sync başarısız:', erpResult.error);
     }

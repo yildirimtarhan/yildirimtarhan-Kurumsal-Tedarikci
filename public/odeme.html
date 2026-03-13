@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -750,26 +750,32 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label>İl *</label>
-                                <select id="newCity">
-                                    <option value="">Seçiniz</option>
-                                    <option value="İstanbul">İstanbul</option>
-                                    <option value="Ankara">Ankara</option>
-                                    <option value="İzmir">İzmir</option>
-                                    <option value="Bursa">Bursa</option>
-                                    <option value="Antalya">Antalya</option>
-                                    <option value="Adana">Adana</option>
-                                    <option value="Konya">Konya</option>
-                                    <option value="Gaziantep">Gaziantep</option>
+                                <select id="newCity" required onchange="odemeIlDegisti(this.value)">
+                                    <option value="">İl Seçiniz</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>İlçe *</label>
-                                <input type="text" id="newDistrict" placeholder="İlçe">
+                                <select id="newDistrict" required disabled>
+                                    <option value="">Önce İl Seçiniz</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Mahalle *</label>
+                                <input type="text" id="newMahalle" list="newMahalleList" placeholder="Mahalle adı veya listeden seçin" onfocus="odemeIlceDegisti()">
+                                <datalist id="newMahalleList"></datalist>
+                            </div>
+                            <div class="form-group">
+                                <label>Sokak</label>
+                                <input type="text" id="newSokak" list="newSokakList" placeholder="Sokak, cadde veya listeden seçin" onfocus="odemeMahalleDegisti()">
+                                <datalist id="newSokakList"></datalist>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Açık Adres *</label>
-                            <textarea id="newAddress" placeholder="Mahalle, sokak, bina no, daire no..."></textarea>
+                            <label>Açık Adres (Bina No, Daire No) *</label>
+                            <input type="text" id="newAddress" placeholder="Bina no, daire no, kat...">
                         </div>
                         <div class="form-group">
                             <label>Posta Kodu *</label>
@@ -930,9 +936,74 @@
         <span id="toastMessage">İşlem başarılı!</span>
     </div>
 
+    <script src="js/turkiye-adresler.js"></script>
     <script>
         // ==================== DEĞİŞKENLER ====================
         const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : 'https://backend-api-7s13.onrender.com/api';
+        window.ADRES_API_BASE = (API_URL || '').replace(/\/api\/?$/, '') || window.location.origin;
+
+        // Türkiye il/ilçe - ödeme sayfası yeni adres formu
+        async function initOdemeAdresDropdowns() {
+            const citySelect = document.getElementById('newCity');
+            if (!citySelect) return;
+            const iller = (typeof getIllerAsync === 'function')
+                ? await getIllerAsync()
+                : (typeof getIller === 'function' ? getIller() : Object.keys(typeof TURKIYE_ADRESLER !== 'undefined' ? TURKIYE_ADRESLER : {}).sort());
+            if (iller.length && citySelect.options.length <= 1) {
+                citySelect.innerHTML = '<option value="">İl Seçiniz</option>';
+                iller.forEach(il => {
+                    const opt = document.createElement('option');
+                    opt.value = il;
+                    opt.textContent = il;
+                    citySelect.appendChild(opt);
+                });
+            }
+        }
+        async function odemeIlDegisti(ilAdi) {
+            const districtSelect = document.getElementById('newDistrict');
+            if (!districtSelect) return;
+            districtSelect.innerHTML = ilAdi ? '<option value="">İlçe Seçiniz</option>' : '<option value="">Önce İl Seçiniz</option>';
+            districtSelect.disabled = !ilAdi;
+            districtSelect.removeAttribute('onchange');
+            if (ilAdi) districtSelect.setAttribute('onchange', 'odemeIlceDegisti()');
+            const ilceler = (typeof getIlcelerAsync === 'function')
+                ? await getIlcelerAsync(ilAdi)
+                : (typeof getIlceler === 'function' ? getIlceler(ilAdi) : (TURKIYE_ADRESLER && TURKIYE_ADRESLER[ilAdi]) ? [...TURKIYE_ADRESLER[ilAdi]].sort() : []);
+            if (ilAdi && ilceler.length) {
+                ilceler.forEach(ilce => {
+                    const opt = document.createElement('option');
+                    opt.value = ilce;
+                    opt.textContent = ilce;
+                    districtSelect.appendChild(opt);
+                });
+            }
+            districtSelect.value = '';
+            odemeMahalleSokakListesiGuncelle();
+        }
+        function odemeIlceDegisti() {
+            odemeMahalleSokakListesiGuncelle();
+        }
+        function odemeMahalleDegisti() {
+            odemeMahalleSokakListesiGuncelle(true);
+        }
+        async function odemeMahalleSokakListesiGuncelle(sokakOnly) {
+            const il = document.getElementById('newCity')?.value;
+            const ilce = document.getElementById('newDistrict')?.value;
+            const mahalle = document.getElementById('newMahalle')?.value?.trim();
+            const mList = document.getElementById('newMahalleList');
+            const sList = document.getElementById('newSokakList');
+            if (!mList || !sList) return;
+            if (!sokakOnly && il && ilce) {
+                const mahalleler = (typeof getMahallelerAsync === 'function')
+                    ? await getMahallelerAsync(il, ilce)
+                    : (typeof getMahalleler === 'function' ? getMahalleler(il, ilce) : []);
+                mList.innerHTML = (mahalleler || []).map(m => `<option value="${(m||'').replace(/"/g,'&quot;')}">`).join('');
+            }
+            if (il && ilce && mahalle && typeof getSokaklar === 'function') {
+                const sokaklar = getSokaklar(il, ilce, mahalle);
+                sList.innerHTML = (sokaklar || []).map(s => `<option value="${(s||'').replace(/"/g,'&quot;')}">`).join('');
+            }
+        }
         let cart = [];
         let addresses = [];
         let selectedAddressId = null;
@@ -946,8 +1017,8 @@
        // ==================== BAŞLANGIÇ ====================
 document.addEventListener("DOMContentLoaded", async () => {
 
-    authToken = localStorage.getItem("token");
-    const userStr = localStorage.getItem("user");
+    authToken = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const userStr = localStorage.getItem("user") || sessionStorage.getItem("user");
     
      loadCart(); // ✅ SEPETİ MUTLAKA YÜKLE
 
@@ -1023,23 +1094,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         // YENİ: Otomatik adresleri ekrana yaz
         function displayAutoAddresses() {
             if (!userAddresses) return;
+            initOdemeAdresDropdowns();
             
             // Teslimat adresi
             const teslimat = userAddresses.teslimatAdresi;
             if (teslimat && teslimat.acikAdres) {
                 document.getElementById('autoTeslimatAdresi').style.display = 'block';
                 document.getElementById('manualAddressSection').style.display = 'none';
-                
+                const teslimatSatirlar = [teslimat.mahalle, teslimat.sokak, teslimat.acikAdres].filter(Boolean).join(', ');
                 document.getElementById('teslimatAdresContent').innerHTML = `
                     <strong>${teslimat.baslik || 'Teslimat Adresi'}</strong><br>
-                    ${teslimat.acikAdres}<br>
+                    ${teslimatSatirlar || teslimat.acikAdres}<br>
                     ${teslimat.ilce || ''} / ${teslimat.sehir || ''} ${teslimat.postaKodu || ''}<br>
                     <strong>Telefon:</strong> ${currentUser?.telefon || ''}
                 `;
                 
                 // Yeni adres formunu otomatik doldur (değiştirme durumu için)
                 document.getElementById('newCity').value = teslimat.sehir || '';
+                odemeIlDegisti(teslimat.sehir || '');
                 document.getElementById('newDistrict').value = teslimat.ilce || '';
+                if (typeof odemeMahalleSokakListesiGuncelle === 'function') odemeMahalleSokakListesiGuncelle();
+                const mEl = document.getElementById('newMahalle'); if (mEl) mEl.value = teslimat.mahalle || '';
+                const sEl = document.getElementById('newSokak'); if (sEl) sEl.value = teslimat.sokak || '';
                 document.getElementById('newAddress').value = teslimat.acikAdres || '';
                 document.getElementById('newPostalCode').value = teslimat.postaKodu || '';
                 document.getElementById('newAddressTitle').value = teslimat.baslik || '';
@@ -1055,10 +1131,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             
             if (fatura && fatura.acikAdres) {
                 document.getElementById('autoFaturaAdresi').style.display = 'block';
-                
+                const faturaSatirlar = [fatura.mahalle, fatura.sokak, fatura.acikAdres].filter(Boolean).join(', ');
                 let faturaHTML = `
                     <strong>${fatura.baslik || 'Fatura Adresi'}</strong><br>
-                    ${fatura.acikAdres}<br>
+                    ${faturaSatirlar || fatura.acikAdres}<br>
                     ${fatura.ilce || ''} / ${fatura.sehir || ''} ${fatura.postaKodu || ''}
                 `;
                 
@@ -1102,7 +1178,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     manualSection.style.display = 'none';
                 }
             } else {
-                // Değiştir modu
+                // Değiştir modu - il/ilçe dropdown'larını doldur
+                initOdemeAdresDropdowns();
                 form.classList.add('show');
                 autoCard.style.display = 'none';
                 manualSection.style.display = 'block';
@@ -1313,7 +1390,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             ${index === 0 ? '<span class="badge">Varsayılan</span>' : ''}
                         </h4>
                         <p><strong>${addr.fullName || addr.adSoyad || ''}</strong> | ${addr.phone || addr.telefon || ''}</p>
-                        <p>${addr.address || addr.acikAdres || ''}, ${addr.district || addr.ilce || ''}/${addr.city || addr.sehir || ''}</p>
+                        <p>${[addr.mahalle, addr.sokak, addr.address || addr.acikAdres].filter(Boolean).join(', ') || (addr.address || addr.acikAdres || '')}, ${addr.district || addr.ilce || ''}/${addr.city || addr.sehir || ''}</p>
                     </div>
                     <button type="button" style="margin-left:10px;padding:6px 12px;font-size:12px;background:#6366f1;color:white;border:none;border-radius:8px;cursor:pointer;white-space:nowrap;" onclick="event.stopPropagation(); editAddress(${index})">
                         <i class="fas fa-edit"></i> Düzenle
@@ -1340,7 +1417,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <div class="address-info" style="flex:1;">
                         <h4>${addr.title || addr.baslik || 'Adres'}</h4>
                         <p><strong>${addr.fullName || addr.adSoyad || ''}</strong> | ${addr.phone || addr.telefon || ''}</p>
-                        <p>${addr.address || addr.acikAdres || ''}, ${addr.district || addr.ilce || ''}/${addr.city || addr.sehir || ''}</p>
+                        <p>${[addr.mahalle, addr.sokak, addr.address || addr.acikAdres].filter(Boolean).join(', ') || (addr.address || addr.acikAdres || '')}, ${addr.district || addr.ilce || ''}/${addr.city || addr.sehir || ''}</p>
                     </div>
                     <button type="button" style="margin-left:10px;padding:6px 12px;font-size:12px;background:#6366f1;color:white;border:none;border-radius:8px;cursor:pointer;white-space:nowrap;" onclick="event.stopPropagation(); editAddress(${index})">
                         <i class="fas fa-edit"></i> Düzenle
@@ -1377,11 +1454,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             editingAddressId = addresses[index]?._id || null;
             const addr = addresses[index];
             if (!addr) return;
+            initOdemeAdresDropdowns();
 
             document.getElementById('newFullName').value = addr.fullName || addr.adSoyad || '';
             document.getElementById('newPhone').value = addr.phone || addr.telefon || '';
             document.getElementById('newCity').value = addr.city || addr.sehir || '';
+            odemeIlDegisti(addr.city || addr.sehir || '');
             document.getElementById('newDistrict').value = addr.district || addr.ilce || '';
+            const mEl = document.getElementById('newMahalle'); if (mEl) mEl.value = addr.mahalle || '';
+            const sEl = document.getElementById('newSokak'); if (sEl) sEl.value = addr.sokak || '';
             document.getElementById('newAddress').value = addr.address || addr.acikAdres || '';
             document.getElementById('newPostalCode').value = addr.postalCode || addr.postaKodu || '';
             document.getElementById('newAddressTitle').value = addr.title || addr.baslik || '';
@@ -1397,13 +1478,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             const fullName = document.getElementById('newFullName').value.trim();
             const phone = document.getElementById('newPhone').value.trim();
             const city = document.getElementById('newCity').value;
-            const district = document.getElementById('newDistrict').value.trim();
+            const districtEl = document.getElementById('newDistrict');
+            const district = districtEl ? (districtEl.value || '').trim() : '';
+            const mahalle = document.getElementById('newMahalle')?.value?.trim() || '';
+            const sokak = document.getElementById('newSokak')?.value?.trim() || '';
             const address = document.getElementById('newAddress').value.trim();
             const postalCode = document.getElementById('newPostalCode').value.trim();
             const title = document.getElementById('newAddressTitle').value.trim() || 'Yeni Adres';
 
-            if (!fullName || !phone || !city || !district || !address || !postalCode) {
-                showToast('Lütfen tüm zorunlu alanları doldurun', 'error');
+            if (!fullName || !phone || !city || !district || !mahalle || !address || !postalCode) {
+                showToast('Lütfen tüm zorunlu alanları doldurun (Ad Soyad, Telefon, İl, İlçe, Mahalle, Açık Adres, Posta Kodu)', 'error');
                 return;
             }
 
@@ -1419,8 +1503,17 @@ document.addEventListener("DOMContentLoaded", async () => {
                 phone,
                 city,
                 district,
+                mahalle,
+                sokak,
                 address,
                 postalCode,
+                baslik: title,
+                adSoyad: fullName,
+                telefon: phone,
+                sehir: city,
+                ilce: district,
+                acikAdres: address,
+                postaKodu: postalCode,
                 isDefault: addresses.length === 0
             };
 
@@ -1472,7 +1565,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 document.getElementById('newFullName').value = '';
                 document.getElementById('newPhone').value = '';
                 document.getElementById('newCity').value = '';
-                document.getElementById('newDistrict').value = '';
+                document.getElementById('newDistrict').innerHTML = '<option value="">Önce İl Seçiniz</option>';
+                document.getElementById('newDistrict').disabled = true;
+                const m = document.getElementById('newMahalle'); if (m) m.value = '';
+                const s = document.getElementById('newSokak'); if (s) s.value = '';
                 document.getElementById('newAddress').value = '';
                 document.getElementById('newPostalCode').value = '';
                 document.getElementById('newAddressTitle').value = '';
@@ -1583,7 +1679,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // ==================== AUTH KONTROL ====================
 async function ensureAuth() {
-    authToken = localStorage.getItem("token");
+    authToken = localStorage.getItem("token") || sessionStorage.getItem("token");
 
     if (!authToken) return false;
 

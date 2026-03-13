@@ -8,8 +8,8 @@ class MusteriFaturaService {
         this.baseUrl = window.location.origin.includes('localhost') 
             ? 'http://localhost:3000/api' 
             : 'https://your-render-backend.onrender.com/api';
-        this.token = localStorage.getItem('token');
-        this.musteriId = localStorage.getItem('musteriId');
+        this.token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        this.musteriId = localStorage.getItem('musteriId') || sessionStorage.getItem('musteriId');
     }
 
     async request(endpoint, options = {}) {

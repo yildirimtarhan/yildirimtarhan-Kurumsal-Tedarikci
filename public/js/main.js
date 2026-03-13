@@ -44,8 +44,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // 2) Sepet sayısı (adet toplamı)
   // -------------------------
   function getCartCount() {
-    const cart = JSON.parse(localStorage.getItem("kurumsalSepet") || "[]");
-    // qty / adet alanlarına uyumlu
+    // Hem eski hem yeni anahtarları destekle
+    let cart = [];
+    try {
+      const legacy = JSON.parse(localStorage.getItem("kurumsalSepet") || "[]");
+      const modern = JSON.parse(localStorage.getItem("cart") || "[]");
+      cart = Array.isArray(modern) && modern.length ? modern : legacy;
+    } catch (_) {
+      cart = [];
+    }
+
     return cart.reduce((sum, item) => {
       const q = Number(item.qty ?? item.adet ?? 1);
       return sum + (isNaN(q) ? 1 : q);
@@ -58,81 +66,118 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -------------------------
-  // 3) Navbar kullanıcı alanı (tüm sayfalarda)
+  // 3) Navbar kullanıcı alanı (tüm sayfalarda, dropdown'lı)
   // -------------------------
+  function showLoginButton() {
+    const navArea = document.getElementById("navUserArea");
+    if (!navArea) return;
+    navArea.innerHTML = `
+      <a class="login-btn" href="giris.html">Giriş Yap</a>
+      <a class="register-btn" href="kayit.html">Kayıt Ol</a>
+      <a class="cart-btn" href="odeme.html">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count" id="cart-count">0</span>
+      </a>
+    `;
+  }
+
   function logout() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    // istersen sepeti silme: sipariş öncesi lazım olabilir
-    // localStorage.removeItem("kurumsalSepet");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+    alert("Çıkış yapıldı");
     window.location.href = "index.html";
   }
-  window.logout = logout; // buton onclick için
+  window.logout = logout;
+
+  function toggleUserMenu() {
+    const dropdown = document.getElementById("userDropdown");
+    if (dropdown) dropdown.classList.toggle("show");
+  }
+  window.toggleUserMenu = toggleUserMenu;
 
   function renderNavbarUser() {
-    const token = localStorage.getItem("token");
-    const userStr = localStorage.getItem("user");
+    // Hem localStorage hem sessionStorage kontrol et (Beni hatırla işaretlenmemişse sessionStorage kullanılır)
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const userStr = localStorage.getItem("user") || sessionStorage.getItem("user");
+    const navArea = document.getElementById("navUserArea");
 
-    // Senin sayfalarında bazen "navUserArea" yok, bazen login-btn var.
-    const navArea = document.getElementById("navUserArea"); // önerilen
-    const loginBtn = document.querySelector(".login-btn, .btn-login"); // mevcut yapın
-    const navRight = document.querySelector(".nav-right"); // bazı sayfalarda var
-
-    let user = null;
-    try {
-      if (userStr) user = JSON.parse(userStr);
-    } catch (_) {}
-
-    const isLogged = Boolean(token && user && (user.ad || user.email));
-
-    // 1) Eğer navUserArea varsa onu doldur (en temiz yöntem)
-    if (navArea) {
-      if (!isLogged) {
-        navArea.innerHTML = `
-          <a class="login-btn" href="giris.html">Giriş Yap</a>
-          <a class="cart-btn" href="odeme.html">
-            <i class="fas fa-shopping-cart"></i>
-            <span class="cart-count" id="cart-count">0</span>
-          </a>
-        `;
-      } else {
-        const name = (user.ad || user.email || "Hesabım").toUpperCase();
-        navArea.innerHTML = `
-          <div style="display:flex; align-items:center; gap:10px;">
-            <a href="giris.html" class="login-btn" title="Hesabım">
-              👤 ${name}
-            </a>
-            <button onclick="logout()"
-              style="
-                background:#ef4444;color:#fff;border:none;
-                padding:8px 14px;border-radius:10px;
-                cursor:pointer;font-weight:600;
-              ">Çıkış</button>
-            <a class="cart-btn" href="odeme.html">
-              <i class="fas fa-shopping-cart"></i>
-              <span class="cart-count" id="cart-count">0</span>
-            </a>
-          </div>
-        `;
-      }
+    if (!navArea) {
       updateCartCount();
       return;
     }
 
-    // 2) navUserArea yoksa: mevcut login butonunu dönüştür (minimal müdahale)
-    if (isLogged && loginBtn) {
-      loginBtn.textContent = "👤 " + (user.ad || user.email);
-      loginBtn.setAttribute("href", "giris.html"); // profil.html yoksa hata vermesin
-      // Çıkış butonu ekle (yanına)
-      if (navRight && !document.getElementById("logoutBtn")) {
-        const btn = document.createElement("button");
-        btn.id = "logoutBtn";
-        btn.textContent = "Çıkış";
-        btn.onclick = logout;
-        btn.style.cssText =
-          "background:#ef4444;color:#fff;border:none;padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:600;";
-        navRight.insertBefore(btn, navRight.querySelector(".cart-btn"));
-      }
+    if (!token || !userStr) {
+      showLoginButton();
+      updateCartCount();
+      return;
+    }
+
+    try {
+      const user = JSON.parse(userStr);
+      const userInitial = user.ad ? user.ad.charAt(0).toUpperCase() : "U";
+      const userName = user.ad || "Kullanıcı";
+      const userEmail = user.email || "";
+
+      navArea.innerHTML = `
+        <div class="user-menu" id="userMenu">
+          <button class="user-btn" onclick="toggleUserMenu()">
+            <div class="user-avatar">${userInitial}</div>
+            <span>${userName}</span>
+            <i class="fas fa-chevron-down" style="font-size: 12px; margin-left: 5px;"></i>
+          </button>
+          
+          <div class="dropdown-menu" id="userDropdown">
+            <div class="dropdown-header">
+              <strong>${userName}</strong>
+              <span>${userEmail}</span>
+            </div>
+            <a href="profil.html">
+              <i class="fas fa-user"></i> Profilim
+            </a>
+            <a href="siparisler.html">
+              <i class="fas fa-box"></i> Siparişlerim
+            </a>
+            <a href="musteri/faturalarim.html">
+              <i class="fas fa-file-invoice"></i> Faturalarım
+            </a>
+            <a href="adreslerim.html">
+              <i class="fas fa-map-marker-alt"></i> Adreslerim
+            </a>
+            <a href="destek-sorularim.html">
+              <i class="fas fa-headset"></i> Destek Sorularım
+            </a>
+            <a href="kargo-takip.html">
+              <i class="fas fa-shipping-fast"></i> Kargo Takip
+            </a>
+            <a href="sifre-degistir.html">
+              <i class="fas fa-lock"></i> Şifre Değiştir
+            </a>
+            <div class="dropdown-divider"></div>
+            <button onclick="logout()">
+              <i class="fas fa-sign-out-alt"></i> Çıkış Yap
+            </button>
+          </div>
+        </div>
+
+        <a class="cart-btn" href="odeme.html">
+          <i class="fas fa-shopping-cart"></i>
+          <span class="cart-count" id="cart-count">0</span>
+        </a>
+      `;
+
+      // Dışarı tıklayınca menüyü kapat
+      document.addEventListener("click", (e) => {
+        const userMenu = document.getElementById("userMenu");
+        const dropdown = document.getElementById("userDropdown");
+        if (userMenu && dropdown && !userMenu.contains(e.target)) {
+          dropdown.classList.remove("show");
+        }
+      });
+    } catch (e) {
+      console.error("Kullanıcı verisi hatası:", e);
+      showLoginButton();
     }
 
     updateCartCount();

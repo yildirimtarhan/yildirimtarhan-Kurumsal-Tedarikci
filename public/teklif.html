@@ -119,6 +119,23 @@
         .btn-gonder { width: 100%; padding: 18px; background: #6366f1; color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
         .btn-gonder:hover { background: #4f46e5; transform: translateY(-2px); box-shadow: 0 10px 30px rgba(99,102,241,0.3); }
         
+        /* Kullanıcı menüsü (main.js ile doldurulur) */
+        .user-menu { position: relative; }
+        .user-btn { display: flex; align-items: center; gap: 8px; background: #f3f4f6; border: 2px solid #e5e7eb; padding: 8px 16px; border-radius: 25px; cursor: pointer; font-weight: 600; color: #374151; transition: all 0.3s; height: 44px; }
+        .user-btn:hover { border-color: #6366f1; background: #eef2ff; }
+        .user-avatar { width: 28px; height: 28px; background: #6366f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold; }
+        .dropdown-menu { display: none; position: absolute; top: 55px; right: 0; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); min-width: 220px; padding: 10px 0; z-index: 1001; border: 1px solid #e5e7eb; }
+        .dropdown-menu.show { display: block; }
+        .dropdown-header { padding: 12px 16px; border-bottom: 1px solid #f3f4f6; margin-bottom: 5px; }
+        .dropdown-header strong { display: block; color: #1f2937; font-size: 14px; }
+        .dropdown-header span { font-size: 12px; color: #6b7280; }
+        .dropdown-menu a, .dropdown-menu button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 16px; text-decoration: none; color: #374151; font-size: 14px; background: none; border: none; cursor: pointer; text-align: left; transition: background 0.2s; font-family: inherit; }
+        .dropdown-menu a:hover, .dropdown-menu button:hover { background: #f9fafb; color: #6366f1; }
+        .dropdown-menu i { width: 20px; text-align: center; color: #6b7280; }
+        .dropdown-divider { height: 1px; background: #e5e7eb; margin: 8px 0; }
+        .cart-btn { background: #6366f1; color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; position: relative; }
+        .cart-count { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; font-size: 11px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+        
         footer { background: #1f2937; color: white; padding: 40px 5%; text-align: center; margin-top: 60px; }
         
         @media (max-width: 768px) {
@@ -174,7 +191,7 @@
 <p>İhtiyaçlarınıza özel çözüm ve fiyatlandırma için formu doldurun.</p>
 </section>
 <div class="form-container">
-<form id="teklifForm" onsubmit="event.preventDefault(); gonderTeklif();">
+<form id="teklifForm">
 <div class="form-grid">
 <div class="form-group">
 <label>Ad Soyad *</label>
@@ -283,6 +300,60 @@
     if (e.key === 'Escape') toggleMenu(true);
   });
 })();
+
+  // Teklif formu gönderimi
+  document.getElementById('teklifForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    gonderTeklif();
+  });
+
+  async function gonderTeklif() {
+    const ad = document.getElementById('ad')?.value?.trim();
+    const firma = document.getElementById('firma')?.value?.trim() || '';
+    const email = document.getElementById('email')?.value?.trim();
+    const telefon = document.getElementById('telefon')?.value?.trim();
+    const mesaj = document.getElementById('mesaj')?.value?.trim() || '';
+    const kullaniciSayisi = document.getElementById('kullaniciSayisi')?.value || '';
+
+    const hizmetChecks = document.querySelectorAll('input[name="hizmet"]:checked');
+    const hizmetler = Array.from(hizmetChecks).map(cb => cb.value);
+
+    if (!ad || !email || !telefon) {
+      alert('Lütfen Ad Soyad, E-posta ve Telefon alanlarını doldurun.');
+      return;
+    }
+    if (hizmetler.length === 0) {
+      alert('Lütfen en az bir hizmet seçin.');
+      return;
+    }
+
+    const btn = document.querySelector('.btn-gonder');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gönderiliyor...'; }
+
+    try {
+      const API_URL = (window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : window.location.origin + '/api');
+      const res = await fetch(API_URL + '/teklif', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ad, firma, email, telefon, hizmetler, kullaniciSayisi, mesaj })
+      });
+      let data = {};
+      try { data = await res.json(); } catch (_) { data = { success: false, message: 'Sunucu yanıtı işlenemedi.' }; }
+
+      if (res.ok && data.success) {
+        alert('Teşekkürler! Teklif talebiniz alındı. En kısa sürede size dönüş yapacağız.');
+        document.getElementById('teklifForm')?.reset();
+      } else {
+        alert(data.message || 'Gönderim sırasında bir hata oluştu.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Bağlantı hatası. Lütfen tekrar deneyin.');
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Teklif İste'; }
+    }
+  }
+  window.gonderTeklif = gonderTeklif;
 </script>
 <script src="js/main.js"></script>
 </body>

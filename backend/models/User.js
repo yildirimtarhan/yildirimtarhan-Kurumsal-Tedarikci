@@ -7,6 +7,8 @@ const AddressSchema = new mongoose.Schema({
   telefon: { type: String, default: "" },
   sehir: { type: String, default: "" },
   ilce: { type: String, default: "" },
+  mahalle: { type: String, default: "" },
+  sokak: { type: String, default: "" },
   postaKodu: { type: String, default: "" },
   acikAdres: { type: String, default: "" },
   vergiDairesi: { type: String, default: "" }, // Kurumsal için
@@ -56,6 +58,8 @@ const UserSchema = new mongoose.Schema({
     baslik: { type: String, default: "" },
     sehir: { type: String, default: "" },
     ilce: { type: String, default: "" },
+    mahalle: { type: String, default: "" },
+    sokak: { type: String, default: "" },
     postaKodu: { type: String, default: "" },
     acikAdres: { type: String, default: "" },
     vergiDairesi: { type: String, default: "" },
@@ -68,6 +72,8 @@ const UserSchema = new mongoose.Schema({
     telefon: { type: String, default: "" },
     sehir: { type: String, default: "" },
     ilce: { type: String, default: "" },
+    mahalle: { type: String, default: "" },
+    sokak: { type: String, default: "" },
     postaKodu: { type: String, default: "" },
     acikAdres: { type: String, default: "" }
   },

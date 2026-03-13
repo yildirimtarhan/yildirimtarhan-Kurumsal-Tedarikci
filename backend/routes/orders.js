@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const Order = require("../models/Order");
 const { sendOrderToERP } = require("../services/erpService");
+const emailService = require("../services/emailService");
 const JWT_SECRET = process.env.JWT_SECRET;
 
 function authMiddleware(req, res, next) {
@@ -95,7 +96,17 @@ router.post("/", authMiddleware, async (req, res) => {
       createdAt: new Date(),
     });
 
-    // 🚀 YENİ: Otomatik ERP'ye gönder (async, kullanıcıyı bekleme)
+    // Sipariş onay e-postası gönder
+    const orderDataForEmail = {
+      siparisNo: newOrder._id.toString().slice(-8).toUpperCase(),
+      items: orderItems,
+      toplam: toplam
+    };
+    emailService.sendOrderConfirmation(user.email, user.ad || user.firma || 'Müşteri', orderDataForEmail).catch(err => {
+      console.warn("Sipariş onay e-postası gönderilemedi:", err.message);
+    });
+
+    // 🚀 Otomatik ERP'ye gönder (async, kullanıcıyı bekleme)
     sendOrderToERP(newOrder, user).then(async (erpResult) => {
       if (erpResult.success) {
         newOrder.erpStatus = 'synced';
