@@ -34,52 +34,10 @@
 <h1 style="font-size: 3rem; margin-bottom: 15px; font-weight: 800;">Fiyatlandırma Paketleri</h1>
 <p style="font-size: 1.2rem; opacity: 0.9;">İşletmenizin büyüklüğüne uygun esnek çözümler</p>
 </section>
-<!-- Paketler -->
+<!-- Paketler (API'den yüklenir) -->
 <section style="padding: 60px 5%; max-width: 1200px; margin: 0 auto;">
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
-<!-- Başlangıç Paketi -->
-<div style="background: white; border-radius: 20px; padding: 40px 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border: 2px solid #e5e7eb; text-align: center;">
-<h3 style="color: #6b7280; font-size: 1.2rem; margin-bottom: 10px;">Başlangıç</h3>
-<div style="font-size: 3rem; font-weight: 800; color: #1f2937; margin-bottom: 20px;">₺749<span style="font-size: 1rem; color: #6b7280; font-weight: 400;">/ay</span></div>
-<p style="color: #6b7280; margin-bottom: 30px;">Küçük işletmeler için ideal</p>
-<ul style="list-style: none; padding: 0; margin-bottom: 30px; text-align: left;">
-<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> 100 E-Fatura/ay</li>
-<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> E-İrsaliye (50 adet)</li>
-<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> E-Defter (Aylık)</li>
-<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> Teknik Destek (Haftaiçi)</li>
-<li style="padding: 10px 0; color: #9ca3af;"><i class="fas fa-times" style="margin-right: 10px;"></i> Mali Mühür</li>
-</ul>
-<button onclick="addToCart({name: 'Başlangıç Paketi', price: 749})" style="width: 100%; padding: 15px; background: #6366f1; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer;">Sepete Ekle</button>
-</div>
-<!-- Profesyonel Paket (Önerilen) -->
-<div style="background: white; border-radius: 20px; padding: 40px 30px; box-shadow: 0 20px 60px rgba(99,102,241,0.2); border: 3px solid #6366f1; text-align: center; position: relative; transform: scale(1.05);">
-<div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: #6366f1; color: white; padding: 5px 20px; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">En Popüler</div>
-<h3 style="color: #6366f1; font-size: 1.2rem; margin-bottom: 10px;">Profesyonel</h3>
-<div style="font-size: 3rem; font-weight: 800; color: #1f2937; margin-bottom: 20px;">₺1.499<span style="font-size: 1rem; color: #6b7280; font-weight: 400;">/ay</span></div>
-<p style="color: #6b7280; margin-bottom: 30px;">Orta ölçekli işletmeler için</p>
-<ul style="list-style: none; padding: 0; margin-bottom: 30px; text-align: left;">
-<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> Sınırsız E-Fatura</li>
-<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> E-İrsaliye (Sınırsız)</li>
-<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> E-Defter + Arşiv</li>
-<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> 7/24 Teknik Destek</li>
-<li style="padding: 10px 0; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> 1 Adet Mali Mühür</li>
-</ul>
-<button onclick="addToCart({name: 'Profesyonel Paketi', price: 1499})" style="width: 100%; padding: 15px; background: #6366f1; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(99,102,241,0.4);">Sepete Ekle</button>
-</div>
-<!-- Kurumsal Paket -->
-<div style="background: white; border-radius: 20px; padding: 40px 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border: 2px solid #e5e7eb; text-align: center;">
-<h3 style="color: #f59e0b; font-size: 1.2rem; margin-bottom: 10px;">Kurumsal</h3>
-<div style="font-size: 3rem; font-weight: 800; color: #1f2937; margin-bottom: 20px;">₺2.999<span style="font-size: 1rem; color: #6b7280; font-weight: 400;">/ay</span></div>
-<p style="color: #6b7280; margin-bottom: 30px;">Büyük işletmeler için</p>
-<ul style="list-style: none; padding: 0; margin-bottom: 30px; text-align: left;">
-<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> Her Şey Dahil (Sınırsız)</li>
-<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> Özel Entegrasyonlar</li>
-<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> Öncelikli Destek</li>
-<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> 3 Mali Mühür</li>
-<li style="padding: 10px 0; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> API Erişimi</li>
-</ul>
-<button onclick="addToCart({name: 'Kurumsal Paketi', price: 2999})" style="width: 100%; padding: 15px; background: #f59e0b; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer;">Sepete Ekle</button>
-</div>
+<div id="paketlerGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+<!-- Yükleniyor - JS ile doldurulacak -->
 </div>
 <!-- Özel Teklif -->
 <div style="margin-top: 60px; background: linear-gradient(135deg, #1f2937 0%, #374151 100%); color: white; padding: 50px; border-radius: 20px; text-align: center;">
@@ -92,7 +50,51 @@
 <p>© 2025 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
 </footer>
 <script src="js/sepet.js"></script>
+<script>
+(function() {
+  const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:3000/api' : 'https://backend-api-7s13.onrender.com/api';
 
+  const STATIK_PAKETLER = [
+    { name: 'Başlangıç', subtitle: 'Küçük işletmeler için ideal', price: 749, period: 'ay', accentColor: '#6b7280', features: ['100 E-Fatura/ay', 'E-İrsaliye (50 adet)', 'E-Defter (Aylık)', 'Teknik Destek (Haftaiçi)'], featuresExcluded: ['Mali Mühür'], isPopular: false },
+    { name: 'Profesyonel', subtitle: 'Orta ölçekli işletmeler için', price: 1499, period: 'ay', accentColor: '#6366f1', features: ['Sınırsız E-Fatura', 'E-İrsaliye (Sınırsız)', 'E-Defter + Arşiv', '7/24 Teknik Destek', '1 Adet Mali Mühür'], featuresExcluded: [], isPopular: true },
+    { name: 'Kurumsal', subtitle: 'Büyük işletmeler için', price: 2999, period: 'ay', accentColor: '#f59e0b', features: ['Her Şey Dahil (Sınırsız)', 'Özel Entegrasyonlar', 'Öncelikli Destek', '3 Mali Mühür', 'API Erişimi'], featuresExcluded: [], isPopular: false }
+  ];
+
+  function paketKartiHTML(p) {
+    const per = p.period || 'ay';
+    const accent = p.accentColor || '#6366f1';
+    const borderStyle = p.isPopular ? 'border: 3px solid ' + accent + '; position: relative; transform: scale(1.05);' : 'border: 2px solid #e5e7eb;';
+    const badge = p.isPopular ? '<div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: ' + accent + '; color: white; padding: 5px 20px; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">En Popüler</div>' : '';
+    const featuresHtml = (p.features || []).map(f => '<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> ' + (f || '').replace(/</g,'&lt;') + '</li>').join('');
+    const excludedHtml = (p.featuresExcluded || []).map(f => '<li style="padding: 10px 0; color: #9ca3af;"><i class="fas fa-times" style="margin-right: 10px;"></i> ' + (f || '').replace(/</g,'&lt;') + '</li>').join('');
+    const cartName = (p.name || 'Paket') + ' Paketi';
+    const priceVal = parseFloat(p.price) || 0;
+    return '<div style="background: white; border-radius: 20px; padding: 40px 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); ' + borderStyle + ' text-align: center;">' + badge +
+      '<h3 style="color: ' + accent + '; font-size: 1.2rem; margin-bottom: 10px;">' + (p.name || 'Paket').replace(/</g,'&lt;') + '</h3>' +
+      '<div style="font-size: 3rem; font-weight: 800; color: #1f2937; margin-bottom: 20px;">₺' + priceVal.toLocaleString('tr-TR') + '<span style="font-size: 1rem; color: #6b7280; font-weight: 400;">/' + per + '</span></div>' +
+      '<p style="color: #6b7280; margin-bottom: 30px;">' + (p.subtitle || '').replace(/</g,'&lt;') + '</p>' +
+      '<ul style="list-style: none; padding: 0; margin-bottom: 30px; text-align: left;">' + featuresHtml + excludedHtml + '</ul>' +
+      '<button onclick="addToCart({name: \'' + cartName.replace(/'/g,"\\'") + '\', price: ' + priceVal + '})" style="width: 100%; padding: 15px; background: ' + accent + '; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer;">Sepete Ekle</button>' +
+      '</div>';
+  }
+
+  async function paketleriYukle() {
+    const grid = document.getElementById('paketlerGrid');
+    if (!grid) return;
+    try {
+      const res = await fetch(API_URL + '/packages/public');
+      const data = await res.json();
+      if (data.success && data.packages && data.packages.length > 0) {
+        grid.innerHTML = data.packages.map(p => paketKartiHTML(p)).join('');
+        return;
+      }
+    } catch (e) { console.warn('Paket API yüklenemedi, varsayılan gösteriliyor.'); }
+    grid.innerHTML = STATIK_PAKETLER.map(p => paketKartiHTML(p)).join('');
+  }
+  document.addEventListener('DOMContentLoaded', paketleriYukle);
+})();
+</script>
 <script>
 (function() {
   function setOpen(next) {

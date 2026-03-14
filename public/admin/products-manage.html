@@ -493,6 +493,7 @@
             <a href="raporlar.html"><i class="fas fa-chart-bar"></i> Raporlar</a>
             <a href="products.html"><i class="fas fa-cubes"></i> Ürünler (ERP)</a>
             <a href="products-manage.html" class="active"><i class="fas fa-warehouse"></i> Stok Yönetimi</a>
+            <a href="paket-yonetim.html"><i class="fas fa-box-open"></i> Paket Yönetimi</a>
             <a href="kargo-bildirim.html"><i class="fas fa-truck"></i> Kargo Bildirim</a>
             <a href="#" class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</a>
         </nav>
@@ -681,9 +682,9 @@
     </div>
 
     <script>
-        const API_URL = window.location.hostname.includes("localhost") 
-            ? "http://localhost:3000/api" 
-            : "http://localhost:3000/api";
+        const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+            ? 'http://localhost:3000/api'
+            : 'https://backend-api-7s13.onrender.com/api';
 
         const token = localStorage.getItem("adminToken");
         if (!token) window.location.href = "login.html";

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paket Yönetimi - Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f6fa; min-height: 100vh; }
+        .sidebar { width: 260px; min-height: 100vh; background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%); position: fixed; left: 0; top: 0; color: white; padding: 1.5rem 0; z-index: 1000; overflow-y: auto; }
+        .sidebar .logo { text-align: center; padding: 0 1rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar .logo h2 { font-size: 1.3rem; }
+        .sidebar .logo span { color: #3498db; }
+        .sidebar nav { margin-top: 1rem; }
+        .sidebar a { display: flex; align-items: center; gap: 12px; padding: 1rem 1.5rem; color: #bdc3c7; text-decoration: none; transition: all 0.3s; border-left: 3px solid transparent; font-size: 0.95rem; }
+        .sidebar a:hover, .sidebar a.active { background: rgba(255,255,255,0.05); color: white; border-left-color: #3498db; }
+        .sidebar a i { width: 20px; text-align: center; }
+        .sidebar .logout { margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; }
+        .menu-toggle { display: none; position: fixed; top: 1rem; left: 1rem; z-index: 1001; background: #2c3e50; color: white; border: none; padding: 0.75rem; border-radius: 8px; cursor: pointer; }
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; }
+        .overlay.active { display: block; }
+        .main-content { margin-left: 260px; padding: 1.5rem; min-height: 100vh; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+        .header h1 { color: #2c3e50; font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .btn { padding: 0.875rem 1.25rem; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-sm { padding: 0.5rem 0.75rem; font-size: 0.85rem; }
+        .table-container { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #34495e; color: white; padding: 1rem; text-align: left; font-weight: 600; font-size: 0.85rem; }
+        td { padding: 1rem; border-bottom: 1px solid #ecf0f1; font-size: 0.9rem; }
+        tr:hover { background: #f8f9fa; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 12px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; }
+        .modal-header { padding: 1.25rem; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { font-size: 1.25rem; }
+        .close { font-size: 1.5rem; cursor: pointer; color: #666; }
+        .modal form { padding: 1.25rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .form-group small { color: #6b7280; font-size: 0.8rem; margin-top: 0.25rem; display: block; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .actions { display: flex; gap: 0.5rem; }
+        .empty-state { text-align: center; padding: 3rem; color: #6b7280; }
+        .empty-state i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .menu-toggle { display: block; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="logo"><h2>Kurumsal<span>Tedarikçi</span></h2><small>Admin Paneli</small></div>
+        <nav>
+            <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="users.html"><i class="fas fa-users"></i> Kullanıcılar</a>
+            <a href="orders.html"><i class="fas fa-box"></i> Siparişler</a>
+            <a href="fatura-yonetim.html"><i class="fas fa-file-invoice-dollar"></i> Faturalar</a>
+            <a href="cari-yonetim.html"><i class="fas fa-users"></i> Cari Hesaplar</a>
+            <a href="tahsilat-yonetim.html"><i class="fas fa-money-bill-wave"></i> Tahsilatlar</a>
+            <a href="raporlar.html"><i class="fas fa-chart-bar"></i> Raporlar</a>
+            <a href="products.html"><i class="fas fa-cubes"></i> Ürünler (ERP)</a>
+            <a href="products-manage.html"><i class="fas fa-warehouse"></i> Stok Yönetimi</a>
+            <a href="paket-yonetim.html" class="active"><i class="fas fa-box-open"></i> Paket Yönetimi</a>
+            <a href="kargo-bildirim.html"><i class="fas fa-truck"></i> Kargo Bildirim</a>
+            <a href="#" class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1><i class="fas fa-box-open"></i> Paket Yönetimi</h1>
+            <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> Yeni Paket</button>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Paket Adı</th>
+                        <th>Fiyat</th>
+                        <th>Özellikler</th>
+                        <th>Durum</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody id="packagesTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal" id="packageModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Yeni Paket Ekle</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="packageForm" onsubmit="savePackage(event)">
+                <input type="hidden" id="packageId">
+                <div class="form-group">
+                    <label>Paket Adı *</label>
+                    <input type="text" id="packageName" required placeholder="Örn: Başlangıç">
+                </div>
+                <div class="form-group">
+                    <label>Alt Başlık</label>
+                    <input type="text" id="packageSubtitle" placeholder="Örn: Küçük işletmeler için ideal">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Fiyat *</label>
+                        <input type="number" id="packagePrice" step="0.01" required placeholder="749">
+                    </div>
+                    <div class="form-group">
+                        <label>Dönem</label>
+                        <select id="packagePeriod">
+                            <option value="ay">Aylık</option>
+                            <option value="yıl">Yıllık</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Özellikler (Her satıra bir özellik)</label>
+                    <textarea id="packageFeatures" placeholder="100 E-Fatura/ay&#10;E-İrsaliye (50 adet)&#10;E-Defter (Aylık)"></textarea>
+                    <small>Her özellik ayrı satırda yazılacak. ✓ ile gösterilir.</small>
+                </div>
+                <div class="form-group">
+                    <label>Olmayan Özellikler (Opsiyonel)</label>
+                    <textarea id="packageFeaturesExcluded" placeholder="Mali Mühür"></textarea>
+                    <small>Her öğe ayrı satırda. ✗ ile gösterilir.</small>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Vurgu Rengi</label>
+                        <input type="text" id="packageAccentColor" value="#6366f1" placeholder="#6366f1">
+                    </div>
+                    <div class="form-group">
+                        <label>Sıra No</label>
+                        <input type="number" id="packageSortOrder" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="packageIsPopular"> En Popüler (Önerilen) olarak işaretle</label>
+                </div>
+                <div class="form-group" id="activeGroup">
+                    <label><input type="checkbox" id="packageIsActive" checked> Aktif (Siteye göster)</label>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-save"></i> Kaydet</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+            ? 'http://localhost:3000/api'
+            : 'https://backend-api-7s13.onrender.com/api';
+
+        const token = localStorage.getItem("adminToken");
+        if (!token) window.location.href = "login.html";
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+        function logout() { localStorage.removeItem("adminToken"); window.location.href = "login.html"; }
+
+        async function loadPackages() {
+            const tbody = document.getElementById('packagesTable');
+            try {
+                const res = await fetch(`${API_URL}/packages`, { headers: { Authorization: `Bearer ${token}` } });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message || 'Yüklenemedi');
+
+                if (!data.packages || data.packages.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="fas fa-box-open"></i><p>Henüz paket yok. "Yeni Paket" ile ekleyin.</p></div></td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = data.packages.map(p => `
+                    <tr>
+                        <td><strong>${p.name}</strong>${p.isPopular ? ' <span class="badge badge-warning">Popüler</span>' : ''}<br><small style="color:#6b7280">${p.subtitle || ''}</small></td>
+                        <td>₺${parseFloat(p.price).toLocaleString('tr-TR')}/${p.period || 'ay'}</td>
+                        <td><small>${(p.features || []).length} özellik</small></td>
+                        <td><span class="badge ${p.isActive ? 'badge-success' : 'badge-warning'}">${p.isActive ? 'Aktif' : 'Pasif'}</span></td>
+                        <td>
+                            <div class="actions">
+                                <button class="btn btn-sm btn-primary" onclick="editPackage('${p._id}')" title="Düzenle"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-sm btn-danger" onclick="deletePackage('${p._id}')" title="Sil"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state" style="color:red"><i class="fas fa-exclamation-triangle"></i><p>Hata: ${err.message}</p></div></td></tr>`;
+            }
+        }
+
+        function openModal() {
+            document.getElementById('packageModal').classList.add('active');
+            document.getElementById('packageForm').reset();
+            document.getElementById('packageId').value = '';
+            document.getElementById('packageAccentColor').value = '#6366f1';
+            document.getElementById('packageSortOrder').value = '0';
+            document.getElementById('packageIsPopular').checked = false;
+            document.getElementById('packageIsActive').checked = true;
+            document.getElementById('modalTitle').textContent = 'Yeni Paket Ekle';
+        }
+
+        function closeModal() { document.getElementById('packageModal').classList.remove('active'); }
+
+        async function savePackage(e) {
+            e.preventDefault();
+            const id = document.getElementById('packageId').value;
+            const featuresText = document.getElementById('packageFeatures').value;
+            const featuresExcludedText = document.getElementById('packageFeaturesExcluded').value;
+
+            const body = {
+                name: document.getElementById('packageName').value.trim(),
+                subtitle: document.getElementById('packageSubtitle').value.trim(),
+                price: parseFloat(document.getElementById('packagePrice').value),
+                period: document.getElementById('packagePeriod').value,
+                features: featuresText ? featuresText.split('\n').map(s => s.trim()).filter(Boolean) : [],
+                featuresExcluded: featuresExcludedText ? featuresExcludedText.split('\n').map(s => s.trim()).filter(Boolean) : [],
+                accentColor: document.getElementById('packageAccentColor').value || '#6366f1',
+                sortOrder: parseInt(document.getElementById('packageSortOrder').value) || 0,
+                isPopular: document.getElementById('packageIsPopular').checked,
+                isActive: document.getElementById('packageIsActive').checked
+            };
+
+            try {
+                const url = id ? `${API_URL}/packages/${id}` : `${API_URL}/packages`;
+                const method = id ? 'PUT' : 'POST';
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message || 'Kayıt başarısız');
+                alert(id ? 'Paket güncellendi' : 'Paket eklendi');
+                closeModal();
+                loadPackages();
+            } catch (err) {
+                alert('Hata: ' + err.message);
+            }
+        }
+
+        async function editPackage(id) {
+            try {
+                const res = await fetch(`${API_URL}/packages/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message);
+                const p = data.package;
+
+                document.getElementById('packageId').value = p._id;
+                document.getElementById('packageName').value = p.name;
+                document.getElementById('packageSubtitle').value = p.subtitle || '';
+                document.getElementById('packagePrice').value = p.price;
+                document.getElementById('packagePeriod').value = p.period || 'ay';
+                document.getElementById('packageFeatures').value = (p.features || []).join('\n');
+                document.getElementById('packageFeaturesExcluded').value = (p.featuresExcluded || []).join('\n');
+                document.getElementById('packageAccentColor').value = p.accentColor || '#6366f1';
+                document.getElementById('packageSortOrder').value = p.sortOrder || 0;
+                document.getElementById('packageIsPopular').checked = !!p.isPopular;
+                document.getElementById('packageIsActive').checked = p.isActive !== false;
+
+                document.getElementById('modalTitle').textContent = 'Paket Düzenle';
+                document.getElementById('packageModal').classList.add('active');
+            } catch (err) {
+                alert('Paket yüklenemedi: ' + err.message);
+            }
+        }
+
+        async function deletePackage(id) {
+            if (!confirm('Bu paketi silmek istediğinize emin misiniz?')) return;
+            try {
+                const res = await fetch(`${API_URL}/packages/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message);
+                alert('Paket silindi');
+                loadPackages();
+            } catch (err) {
+                alert('Hata: ' + err.message);
+            }
+        }
+
+        loadPackages();
+    </script>
+</body>
+</html>

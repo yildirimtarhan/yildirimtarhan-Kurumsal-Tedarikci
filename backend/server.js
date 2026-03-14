@@ -76,6 +76,7 @@ const addressRoutes = require("./routes/addresses");
 const orderRoutes = require("./routes/orders");
 const adminRoutes = require("./routes/admin");
 const productRoutes = require("./routes/products");
+const packageRoutes = require("./routes/packages");
 // ==================== YENİ ROUTE IMPORTLARI ====================
 const cariRoutes = require('./routes/cari');
 const faturaRoutes = require('./routes/fatura');
@@ -90,6 +91,7 @@ app.use("/api/addresses", addressRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/packages", packageRoutes);
 // ==================== YENİ ROUTE KULLANIMLARI ====================
 app.use('/api/cari', cariRoutes);
 app.use('/api/fatura', faturaRoutes);
