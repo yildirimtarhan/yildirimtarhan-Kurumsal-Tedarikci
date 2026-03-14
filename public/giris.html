@@ -350,9 +350,10 @@
 
     
          <script>
-        // API BASE URL - BURAYI KENDİ SERVERINIZA GÖRE DEĞİŞTİRİN
-        const API_URL ='http://localhost:3000/api';
-        // Yayına alırken: const API_URL ='https://www.tedarikci.org.tr/api';
+        // API BASE URL - Ortama göre otomatik seçim
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000/api'
+            : (window.location.origin + '/api');
 
         // Türkiye Şehir ve İlçe Verileri
         const cityData = {
