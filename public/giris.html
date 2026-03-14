@@ -350,10 +350,10 @@
 
     
          <script>
-        // API BASE URL - Ortama göre otomatik seçim
+        // API BASE URL - Backend Render'da (backend-api-7s13)
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3000/api'
-            : (window.location.origin + '/api');
+            : 'https://backend-api-7s13.onrender.com/api';
 
         // Türkiye Şehir ve İlçe Verileri
         const cityData = {
