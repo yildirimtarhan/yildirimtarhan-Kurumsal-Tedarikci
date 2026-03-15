@@ -6,7 +6,7 @@ const User = require('../models/User');
 const SibApiV3Sdk = require('sib-api-v3-sdk');
 const { sendCustomerToERP } = require('../services/erpService');
 
-const JWT_SECRET = process.env.JWT_SECRET || "kurumsal-tedarikci-secret-key";
+const { JWT_SECRET } = require('../config/jwt');
 
 // Brevo Setup
 const defaultClient = SibApiV3Sdk.ApiClient.instance;
@@ -256,12 +256,13 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// Login - Adresleri de döndür
+// Login - Sadece gerekli alanlar çekilir (hızlı yanıt)
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email })
+      .select("password ad email rol uyelikTipi firma telefon tcNo vergiNo vergiDairesi faturaAdresi teslimatAdresi addresses");
     if (!user) return res.status(400).json({ success: false, message: "Email veya şifre yanlış" });
 
     const match = await bcrypt.compare(password, user.password);
@@ -287,9 +288,9 @@ router.post("/login", async (req, res) => {
         tcNo: user.tcNo,
         vergiNo: user.vergiNo,
         vergiDairesi: user.vergiDairesi,
-        // YENİ: Adresleri ekle
         faturaAdresi: user.faturaAdresi,
-        teslimatAdresi: user.teslimatAdresi
+        teslimatAdresi: user.teslimatAdresi,
+        addresses: user.addresses || []
       }
     });
   } catch (err) {

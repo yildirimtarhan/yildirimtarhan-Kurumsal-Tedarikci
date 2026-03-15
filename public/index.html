@@ -584,45 +584,6 @@
             transform: translateY(-3px);
         }
         
-        .footer-login-btn {
-            background: transparent;
-            color: white;
-            padding: 10px 20px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .footer-login-btn:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: white;
-        }
-        
-        .footer-register-btn {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .footer-register-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-        }
-        
         /* MOBİL DÜZENLEMELER */
         @media (max-width: 768px) {
             body { padding-top: 60px; }
@@ -749,7 +710,6 @@
             .cards-grid { grid-template-columns: 1fr; gap: 20px; }
             
             .social-links { gap: 15px; }
-            .footer-login-btn, .footer-register-btn { padding: 8px 16px; font-size: 13px; }
         }
         
         @media (max-width: 480px) {
@@ -793,6 +753,8 @@
 <li><a href="urunler.html">Ürünler</a></li>
 <li><a href="referanslar.html">Referanslar</a></li>
 <li><a href="teklif.html" style="color: #f59e0b;">Teklif Al</a></li>
+<li><a href="bayilik-basvuru.html">Bayilik Başvurusu</a></li>
+<li><a href="bayi-giris.html">Bayi Girişi</a></li>
 <li><a href="iletisim.html">İletişim</a></li>
 </ul>
 <div class="nav-right" id="navUserArea">
@@ -805,7 +767,7 @@
   </a>
 </div>
 
-</nav><div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a class="active" href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
+</nav><div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a class="active" href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="bayilik-basvuru.html">Bayilik Başvurusu</a></li><li><a href="bayi-giris.html">Bayi Girişi</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
 
 <!-- ================= HERO SECTION ================= -->
 <section class="hero">
@@ -937,8 +899,6 @@
   <div class="social-links">
   <a href="https://wa.me/905059112749"><i class="fab fa-whatsapp"></i></a>
   <a href="#"><i class="fab fa-instagram"></i></a>
-  <a href="giris.html" class="footer-login-btn"><i class="fas fa-sign-in-alt"></i> Giriş Yap</a>
-  <a href="kayit.html" class="footer-register-btn"><i class="fas fa-user-plus"></i> Kayıt Ol</a>
   <a href="#"><i class="fab fa-linkedin"></i></a>
   <a href="mailto:iletisim@tedarikci.org.tr"><i class="fas fa-envelope"></i></a>
 </div>

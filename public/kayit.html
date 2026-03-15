@@ -910,9 +910,12 @@
                     localStorage.setItem('token', result.token);
                     localStorage.setItem('user', JSON.stringify(result.user));
                     
-                    // Yönlendir
+                    // returnTo varsa (örn. bayilik-basvuru) oraya yönlendir
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const returnTo = urlParams.get('returnTo');
+                    const redirectUrl = (returnTo && /^[a-zA-Z0-9_.-]+\.html$/.test(returnTo)) ? returnTo : 'index.html';
                     setTimeout(() => {
-                        window.location.href = 'index.html';
+                        window.location.href = redirectUrl;
                     }, 2500);
                 } else {
                     msgDiv.className = 'message error';

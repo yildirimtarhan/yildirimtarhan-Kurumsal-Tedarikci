@@ -4,23 +4,24 @@ const ProductSchema = new mongoose.Schema({
   // Temel bilgiler
   name: { type: String, required: true },
   sku: { type: String, required: true, unique: true },
+  barcode: { type: String, default: "", unique: true, sparse: true },
   description: { type: String, default: "" },
   
-  // Fiyat
+  // Fiyat (artı KDV = fiyat KDV hariç)
   price: { type: Number, required: true, default: 0 },
+  wholesalePrice: { type: Number, default: null }, // Bayi/toptan fiyat (B2B); yoksa perakende kullanılır
+  minQuantityWholesale: { type: Number, default: 1 }, // Toptan için min adet
   costPrice: { type: Number, default: 0 },
+  kdvDahil: { type: Boolean, default: false },   // false = fiyat KDV hariç (artı KDV)
+  kdvOrani: { type: Number, default: 20 },       // % (18, 20 vb.)
   
   // Stok
   stock: { type: Number, required: true, default: 0 },
   minStock: { type: Number, default: 10 },
   maxStock: { type: Number, default: 1000 },
   
-  // Kategori
-  category: { 
-    type: String, 
-    enum: ['E-Fatura', 'E-İrsaliye', 'Mali Mühür', 'E-Defter', 'Diğer'],
-    default: 'Diğer'
-  },
+  // Kategori (serbest metin; frontend dropdown ile gelir, Unicode farkları nedeniyle enum kaldırıldı)
+  category: { type: String, default: 'Diğer', trim: true },
   
   unit: { type: String, default: 'Adet' },
   isActive: { type: Boolean, default: true },

@@ -109,6 +109,7 @@
         <a href="tahsilat-yonetim.html"><i class="fas fa-money-bill-wave"></i> Tahsilatlar</a>
         <a href="raporlar.html"><i class="fas fa-chart-bar"></i> Raporlar</a>
         <a href="products.html">Ürünler (ERP)</a>
+        <a href="bayilik-basvurulari.html"><i class="fas fa-store"></i> Bayilik Başvuruları</a>
         <a href="kargo-bildirim.html"><i class="fas fa-truck"></i> Kargo Bildirim</a>
         <a href="products-manage.html"><i class="fas fa-warehouse"></i> Stok Yönetimi</a>
         <a href="paket-yonetim.html"><i class="fas fa-box-open"></i> Paket Yönetimi</a>
@@ -125,13 +126,14 @@
                         <th>Firma Adı</th>
                         <th>E-posta</th>
                         <th>Telefon</th>
+                        <th>Rol</th>
                         <th>Kayıt Tarihi</th>
                         <th>İşlemler</th>
                     </tr>
                 </thead>
                 <tbody id="usersBody">
                     <tr>
-                        <td colspan="5" class="loading">Yükleniyor...</td>
+                        <td colspan="6" class="loading">Yükleniyor...</td>
                     </tr>
                 </tbody>
             </table>
@@ -182,18 +184,27 @@
       if (!users || users.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="5" style="text-align:center; padding: 2rem;">
+            <td colspan="6" style="text-align:center; padding: 2rem;">
               Henüz kullanıcı yok
             </td>
           </tr>`;
         return;
       }
 
-      tbody.innerHTML = users.map((user) => `
+      tbody.innerHTML = users.map((user) => {
+        const rol = user.rol || 'user';
+        return `
         <tr>
           <td>${user.firma || user.ad || "-"}</td>
           <td>${user.email}</td>
           <td>${user.telefon || "-"}</td>
+          <td>
+            <select class="rol-select" data-user-id="${user._id}" onchange="updateUserRol('${user._id}', this.value)" style="padding:4px 8px;border-radius:4px;">
+              <option value="user" ${rol === 'user' ? 'selected' : ''}>Müşteri</option>
+              <option value="bayi" ${rol === 'bayi' ? 'selected' : ''}>Bayi (Toptan)</option>
+              <option value="admin" ${rol === 'admin' ? 'selected' : ''}>Admin</option>
+            </select>
+          </td>
           <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString('tr-TR') : "-"}</td>
           <td>
             <button class="btn btn-primary" onclick="syncToERP('${user._id}')">
@@ -201,16 +212,40 @@
             </button>
           </td>
         </tr>
-      `).join("");
+      `;
+      }).join("");
 
     } catch (err) {
       console.error("Hata:", err);
       tbody.innerHTML = `
         <tr>
-          <td colspan="5" style="color:red; text-align:center; padding: 2rem;">
+          <td colspan="6" style="color:red; text-align:center; padding: 2rem;">
             Hata: ${err.message}
           </td>
         </tr>`;
+    }
+  }
+
+  // Rol güncelle (Bayi / Müşteri / Admin)
+  async function updateUserRol(userId, rol) {
+    try {
+      const res = await fetch(`${API_URL}/admin/users/${userId}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ rol }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Rol güncellendi.");
+        loadUsers();
+      } else {
+        alert(data.message || "Güncellenemedi");
+      }
+    } catch (err) {
+      alert("Hata: " + err.message);
     }
   }
 

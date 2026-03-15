@@ -43,6 +43,8 @@ const OrderSchema = new mongoose.Schema({
 
   paymentMethod: { type: String, default: "Kapida Odeme" },
 
+  orderType: { type: String, enum: ['b2c', 'b2b'], default: 'b2c' }, // b2b = toptan/bayi
+
   status: {
     type: String,
     default: "Hazirlaniyor",
@@ -60,22 +62,10 @@ const OrderSchema = new mongoose.Schema({
 
   kargoBilgisi: {
     takipNo: { type: String, default: null },
-    firma: {
-      type: String,
-      enum: [
-        'Yurtici Kargo', 'Aras Kargo', 'MNG Kargo', 'PTT Kargo',
-        'Surat Kargo', 'UPS', 'DHL', 'FedEx', 'Kolay Gelsin',
-        'HepsiJET', 'Trendyol Express', null
-      ],
-      default: null
-    },
+    firma: { type: String, default: null },
     agirlik: { type: String, default: null },
     parcaSayisi: { type: Number, default: 1 },
-    durum: {
-      type: String,
-      enum: ['Hazirlaniyor', 'Kargoya Verildi', 'Yolda', 'Dagitimda', 'Teslim Edildi', null],
-      default: null
-    },
+    durum: { type: String, default: null },
     kargolamaTarihi: { type: Date, default: null },
     teslimTarihi: { type: Date, default: null }
   },

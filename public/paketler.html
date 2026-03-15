@@ -39,6 +39,22 @@
 <div id="paketlerGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
 <!-- Yükleniyor - JS ile doldurulacak -->
 </div>
+
+<!-- Paket detay modal (tıklanınca ayrı açılır) -->
+<div id="paketModal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; padding: 20px;" onclick="if(event.target===this) closePaketModal()">
+<div id="paketModalContent" style="background: white; border-radius: 20px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.25); padding: 30px; position: relative;" onclick="event.stopPropagation()">
+<button type="button" onclick="closePaketModal()" style="position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border: none; background: #f3f4f6; border-radius: 50%; cursor: pointer; font-size: 1.2rem; color: #6b7280;">&times;</button>
+<h2 id="paketModalTitle" style="margin: 0 0 8px; font-size: 1.5rem; color: #1f2937;"></h2>
+<p id="paketModalSubtitle" style="color: #6b7280; margin-bottom: 20px;"></p>
+<div id="paketModalFiyat" style="font-size: 2rem; font-weight: 800; color: #1f2937; margin-bottom: 20px;"></div>
+<ul id="paketModalFeatures" style="list-style: none; padding: 0; margin-bottom: 24px; text-align: left;"></ul>
+<div style="display: flex; gap: 10px;">
+<button type="button" id="paketModalBtnSepet" style="flex:1; padding: 14px; background: #6366f1; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;"><i class="fas fa-cart-plus"></i> Sepete Ekle</button>
+<button type="button" id="paketModalBtnHemen" style="flex:1; padding: 14px; background: white; color: #6366f1; border: 2px solid #6366f1; border-radius: 10px; font-weight: 600; cursor: pointer;"><i class="fas fa-bolt"></i> Hemen Al</button>
+</div>
+</div>
+</div>
+
 <!-- Özel Teklif -->
 <div style="margin-top: 60px; background: linear-gradient(135deg, #1f2937 0%, #374151 100%); color: white; padding: 50px; border-radius: 20px; text-align: center;">
 <h2 style="font-size: 2rem; margin-bottom: 15px;">Özel İhtiyaçlarınız mı var?</h2>
@@ -61,38 +77,93 @@
     { name: 'Kurumsal', subtitle: 'Büyük işletmeler için', price: 2999, period: 'ay', accentColor: '#f59e0b', features: ['Her Şey Dahil (Sınırsız)', 'Özel Entegrasyonlar', 'Öncelikli Destek', '3 Mali Mühür', 'API Erişimi'], featuresExcluded: [], isPopular: false }
   ];
 
-  function paketKartiHTML(p) {
+  window.paketListesi = [];
+
+  function paketKartiHTML(p, index) {
     const per = p.period || 'ay';
     const accent = p.accentColor || '#6366f1';
+    const priceVal = parseFloat(p.effectivePrice != null ? p.effectivePrice : p.price) || 0;
+    const toptanBadge = p.isWholesale ? '<span style="display:inline-block;background:#059669;color:white;font-size:10px;padding:2px 8px;border-radius:10px;margin-left:6px;">Toptan</span>' : '';
     const borderStyle = p.isPopular ? 'border: 3px solid ' + accent + '; position: relative; transform: scale(1.05);' : 'border: 2px solid #e5e7eb;';
     const badge = p.isPopular ? '<div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: ' + accent + '; color: white; padding: 5px 20px; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">En Popüler</div>' : '';
     const featuresHtml = (p.features || []).map(f => '<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> ' + (f || '').replace(/</g,'&lt;') + '</li>').join('');
     const excludedHtml = (p.featuresExcluded || []).map(f => '<li style="padding: 10px 0; color: #9ca3af;"><i class="fas fa-times" style="margin-right: 10px;"></i> ' + (f || '').replace(/</g,'&lt;') + '</li>').join('');
     const cartName = (p.name || 'Paket') + ' Paketi';
-    const priceVal = parseFloat(p.price) || 0;
-    return '<div style="background: white; border-radius: 20px; padding: 40px 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); ' + borderStyle + ' text-align: center;">' + badge +
-      '<h3 style="color: ' + accent + '; font-size: 1.2rem; margin-bottom: 10px;">' + (p.name || 'Paket').replace(/</g,'&lt;') + '</h3>' +
-      '<div style="font-size: 3rem; font-weight: 800; color: #1f2937; margin-bottom: 20px;">₺' + priceVal.toLocaleString('tr-TR') + '<span style="font-size: 1rem; color: #6b7280; font-weight: 400;">/' + per + '</span></div>' +
+    const artiKdv = (p.kdvDahil !== true);
+    const kdvHtml = artiKdv ? '<div style="font-size: 0.85rem; color: #059669; font-weight: 600; margin-top: 4px;">+ KDV</div>' : '';
+    return '<div class="paket-kart" data-paket-index="' + index + '" onclick="openPaketModal(' + index + ')" style="background: white; border-radius: 20px; padding: 40px 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); ' + borderStyle + ' text-align: center; cursor: pointer;">' + badge +
+      '<h3 style="color: ' + accent + '; font-size: 1.2rem; margin-bottom: 10px;">' + (p.name || 'Paket').replace(/</g,'&lt;') + toptanBadge + '</h3>' +
+      '<div style="font-size: 3rem; font-weight: 800; color: #1f2937; margin-bottom: 4px;">₺' + priceVal.toLocaleString('tr-TR') + '<span style="font-size: 1rem; color: #6b7280; font-weight: 400;">/' + per + '</span></div>' + kdvHtml +
+      '<div style="margin-bottom: 20px;"></div>' +
       '<p style="color: #6b7280; margin-bottom: 30px;">' + (p.subtitle || '').replace(/</g,'&lt;') + '</p>' +
       '<ul style="list-style: none; padding: 0; margin-bottom: 30px; text-align: left;">' + featuresHtml + excludedHtml + '</ul>' +
-      '<button onclick="addToCart({name: \'' + cartName.replace(/'/g,"\\'") + '\', price: ' + priceVal + '})" style="width: 100%; padding: 15px; background: ' + accent + '; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer;">Sepete Ekle</button>' +
+      '<div onclick="event.stopPropagation()"><button onclick="addToCart({name: \'' + cartName.replace(/'/g,"\\'") + '\', price: ' + priceVal + (window.isBayi ? ', qty: 3, itemType: \'package\'' : '') + '})" style="width: 100%; padding: 15px; background: ' + accent + '; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer;">Sepete Ekle</button></div>' +
       '</div>';
   }
 
+  function openPaketModal(index) {
+    var list = window.paketListesi;
+    if (!list || !list[index]) return;
+    var p = list[index];
+    var per = p.period || 'ay';
+    var priceVal = parseFloat(p.effectivePrice != null ? p.effectivePrice : p.price) || 0;
+    var cartName = (p.name || 'Paket') + ' Paketi';
+    var accent = p.accentColor || '#6366f1';
+    document.getElementById('paketModalTitle').textContent = p.name || 'Paket';
+    document.getElementById('paketModalSubtitle').textContent = p.subtitle || '';
+    document.getElementById('paketModalFiyat').innerHTML = '₺' + priceVal.toLocaleString('tr-TR') + ' <span style="font-size: 1rem; color: #6b7280;">/' + per + '</span> <span style="font-size: 0.9rem; color: #059669; font-weight: 600;">+ KDV</span>' + (p.isWholesale ? ' <span style="display:inline-block;background:#059669;color:white;font-size:10px;padding:2px 8px;border-radius:10px;margin-left:6px;">Toptan</span>' : '');
+    var ul = document.getElementById('paketModalFeatures');
+    ul.innerHTML = '';
+    (p.features || []).forEach(function(f) {
+      var li = document.createElement('li');
+      li.style.cssText = 'padding: 8px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;';
+      li.innerHTML = '<i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> ' + (f || '');
+      ul.appendChild(li);
+    });
+    (p.featuresExcluded || []).forEach(function(f) {
+      var li = document.createElement('li');
+      li.style.cssText = 'padding: 8px 0; color: #9ca3af;';
+      li.innerHTML = '<i class="fas fa-times" style="margin-right: 10px;"></i> ' + (f || '');
+      ul.appendChild(li);
+    });
+    var cartOpts = { name: cartName, price: priceVal };
+    if (window.isBayi) { cartOpts.qty = 3; cartOpts.itemType = 'package'; }
+    document.getElementById('paketModalBtnSepet').onclick = function() {
+      addToCart(cartOpts);
+      closePaketModal();
+    };
+    document.getElementById('paketModalBtnHemen').onclick = function() {
+      addToCart(cartOpts);
+      closePaketModal();
+      setTimeout(function() { window.location.href = 'odeme.html'; }, 300);
+    };
+    document.getElementById('paketModal').style.display = 'flex';
+  }
+  function closePaketModal() {
+    document.getElementById('paketModal').style.display = 'none';
+  }
+
   async function paketleriYukle() {
-    const grid = document.getElementById('paketlerGrid');
+    var grid = document.getElementById('paketlerGrid');
     if (!grid) return;
+    var token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    var headers = token ? { Authorization: 'Bearer ' + token } : {};
     try {
-      const res = await fetch(API_URL + '/packages/public');
-      const data = await res.json();
+      var res = await fetch(API_URL + '/packages/public', { headers: headers });
+      var data = await res.json();
       if (data.success && data.packages && data.packages.length > 0) {
-        grid.innerHTML = data.packages.map(p => paketKartiHTML(p)).join('');
+        window.paketListesi = data.packages;
+        window.isBayi = data.isBayi === true;
+        grid.innerHTML = data.packages.map(function(p, i) { return paketKartiHTML(p, i); }).join('');
         return;
       }
     } catch (e) { console.warn('Paket API yüklenemedi, varsayılan gösteriliyor.'); }
-    grid.innerHTML = STATIK_PAKETLER.map(p => paketKartiHTML(p)).join('');
+    window.isBayi = false;
+    window.paketListesi = STATIK_PAKETLER;
+    grid.innerHTML = STATIK_PAKETLER.map(function(p, i) { return paketKartiHTML(p, i); }).join('');
   }
   document.addEventListener('DOMContentLoaded', paketleriYukle);
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closePaketModal(); });
 })();
 </script>
 <script>

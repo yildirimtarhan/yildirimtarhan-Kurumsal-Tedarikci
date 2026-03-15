@@ -3,7 +3,7 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const { JWT_SECRET } = require('../config/jwt');
 
 // ==========================
 // AUTH MIDDLEWARE

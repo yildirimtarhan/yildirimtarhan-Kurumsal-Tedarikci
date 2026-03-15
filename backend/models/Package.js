@@ -2,9 +2,13 @@ const mongoose = require("mongoose");
 
 const PackageSchema = new mongoose.Schema({
   name: { type: String, required: true },
+  barcode: { type: String, default: "", unique: true, sparse: true },
   subtitle: { type: String, default: "" },
   price: { type: Number, required: true },
-  period: { type: String, default: "ay" }, // ay, yıl
+  wholesalePrice: { type: Number, default: null }, // Bayi/toptan fiyat (B2B)
+  kdvDahil: { type: Boolean, default: false },   // false = fiyat KDV hariç (artı KDV)
+  kdvOrani: { type: Number, default: 20 },       // %
+  period: { type: String, default: "ay" },      // ay, yıl
   features: [{ type: String }],
   featuresExcluded: [{ type: String }],
   isPopular: { type: Boolean, default: false },

@@ -6,7 +6,7 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const SupportTicket = require("../models/SupportTicket");
 
-const JWT_SECRET = process.env.JWT_SECRET || "kurumsal-tedarikci-secret-key";
+const { JWT_SECRET } = require('../config/jwt');
 
 function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;

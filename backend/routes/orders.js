@@ -5,7 +5,7 @@ const User = require("../models/User");
 const Order = require("../models/Order");
 const { sendOrderToERP } = require("../services/erpService");
 const emailService = require("../services/emailService");
-const JWT_SECRET = process.env.JWT_SECRET;
+const { JWT_SECRET } = require('../config/jwt');
 
 function authMiddleware(req, res, next) {
   try {
@@ -38,6 +38,32 @@ router.post("/", authMiddleware, async (req, res) => {
       return res.status(400).json({ success: false, message: "Sepet boş olamaz" });
     }
 
+    // Bayi alt limit: ürün en az 5, paket en az 3 adet
+    const BAYI_MIN_URUN = 5;
+    const BAYI_MIN_PAKET = 3;
+    if (user.rol === 'bayi') {
+      for (let i = 0; i < items.length; i++) {
+        const it = items[i];
+        const adet = parseInt(it.quantity || it.qty || it.adet || 1);
+        const tip = (it.itemType || it.tip || '').toLowerCase();
+        if (tip === 'package' || tip === 'paket') {
+          if (adet < BAYI_MIN_PAKET) {
+            return res.status(400).json({
+              success: false,
+              message: `Bayi için paket alımında en az ${BAYI_MIN_PAKET} adet olmalıdır. (${it.name || it.ad || 'Ürün'})`
+            });
+          }
+        } else {
+          if (adet < BAYI_MIN_URUN) {
+            return res.status(400).json({
+              success: false,
+              message: `Bayi için ürün alımında en az ${BAYI_MIN_URUN} adet olmalıdır. (${it.name || it.ad || 'Ürün'})`
+            });
+          }
+        }
+      }
+    }
+
     // Adres doğrulama
     let shippingAddress = shippingAddressId ? user.addresses.id(shippingAddressId) : null;
     let invoiceAddress = invoiceAddressId ? user.addresses.id(invoiceAddressId) : null;
@@ -59,17 +85,19 @@ router.post("/", authMiddleware, async (req, res) => {
         ad: item.name || item.ad || 'Ürün',
         fiyat: fiyat,
         adet: adet,
+        itemType: item.itemType || item.tip || null,
       };
     });
 
     const kdv = subtotal * 0.2;
     const toplam = subtotal + kdv;
 
-    // Sipariş oluştur
+    const orderType = (user.rol === 'bayi') ? 'b2b' : 'b2c';
     const newOrder = await Order.create({
       userId: user._id,
       email: user.email,
       firmaAdi: user.firma || '',
+      orderType,
       items: orderItems,
       shippingAddress: {
         title: shippingAddress.baslik || shippingAddress.title || 'Teslimat Adresi',

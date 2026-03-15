@@ -3,7 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const Order = require('../models/Order');
 
-const JWT_SECRET = process.env.JWT_SECRET || "kurumsal-tedarikci-secret-key";
+const { JWT_SECRET } = require('../config/jwt');
 
 // Auth middleware
 function authenticateToken(req, res, next) {

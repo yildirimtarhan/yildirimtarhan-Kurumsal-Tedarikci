@@ -89,14 +89,33 @@
             margin: 0 auto;
         }
         
-        /* Ürün Grid */
+        /* Kategorilere göre bölümler (görseldeki gibi) */
+        .urunler-icerik {
+            padding: 60px 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .kategori-bolum {
+            margin-bottom: 3rem;
+        }
+        .kategori-baslik {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #6366f1;
+            margin-bottom: 1.25rem;
+            padding: 0 4px;
+        }
         .urun-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 30px;
-            padding: 60px 5%;
-            max-width: 1200px;
-            margin: 0 auto;
+        }
+        .urun-grid-tek {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
         }
         
         .urun-kart {
@@ -111,6 +130,49 @@
             transform: translateY(-5px);
             box-shadow: 0 20px 40px rgba(0,0,0,0.12);
         }
+        .urun-kart { cursor: pointer; }
+        
+        /* Ürün detay modal - navbar üstünde görünsün */
+        .urun-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 10002;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .urun-modal-overlay.active { display: flex; }
+        .urun-modal {
+            background: white;
+            border-radius: 20px;
+            max-width: 520px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+        }
+        .urun-modal-header {
+            padding: 24px 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .urun-modal-header h2 { font-size: 1.5rem; color: #1f2937; margin: 0; }
+        .urun-modal-close {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: #f3f4f6;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #6b7280;
+        }
+        .urun-modal-body { padding: 20px 24px 24px; }
+        .urun-modal-body .urun-fiyat { margin-bottom: 16px; }
+        .urun-modal-body .btn-group { margin-top: 20px; }
         
         .urun-gorsel {
             height: 200px;
@@ -131,6 +193,15 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 8px;
+        }
+        .toptan-badge {
+            display: inline-block;
+            background: #059669;
+            color: white;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 6px;
         }
         
         .urun-baslik {
@@ -158,6 +229,12 @@
             font-size: 14px;
             color: #9ca3af;
             font-weight: 600;
+        }
+        
+        .urun-fiyat .kdv-notice {
+            font-size: 16px;
+            color: #059669;
+            font-weight: 700;
         }
         
         /* Butonlar - Düzeltilmiş */
@@ -244,10 +321,30 @@
 <h1>E-Dönüşüm Ürünleri</h1>
 <p>İşletmenizi dijitalleştiren tüm yazılım ve entegrasyon çözümleri. E-fatura, e-arşiv, e-irsaliye ve daha fazlası.</p>
 </section>
-<!-- Ürünler Grid - API'den yüklenir veya varsayılan gösterilir -->
-<section class="urun-grid" id="urunGrid">
-<p style="grid-column:1/-1;text-align:center;color:#6b7280;padding:40px;">Ürünler yükleniyor...</p>
+<!-- Ürünler - Kategorilere göre gruplu (E-Dönüşüm Ürünleri altında) -->
+<section class="urunler-icerik" id="urunlerIcerik">
+<p style="text-align:center;color:#6b7280;padding:40px;">Ürünler yükleniyor...</p>
 </section>
+
+<!-- Ürün detay modal (tıklanınca ayrı açılır) -->
+<div class="urun-modal-overlay" id="urunModal" onclick="if(event.target===this) closeUrunModal()">
+<div class="urun-modal" onclick="event.stopPropagation()">
+<div class="urun-modal-header">
+<h2 id="urunModalTitle">Ürün</h2>
+<button type="button" class="urun-modal-close" onclick="closeUrunModal()" aria-label="Kapat">&times;</button>
+</div>
+<div class="urun-modal-body">
+<p class="urun-kategori" id="urunModalKategori"></p>
+<p id="urunModalAciklama" style="color:#6b7280;line-height:1.6;margin-bottom:16px;"></p>
+<div class="urun-fiyat" id="urunModalFiyat"></div>
+<div class="btn-group">
+<button type="button" class="btn-sepet" id="urunModalBtnSepet"><i class="fas fa-cart-plus"></i> Sepete Ekle</button>
+<button type="button" class="btn-hemen" id="urunModalBtnHemen"><i class="fas fa-bolt"></i> Hemen Al</button>
+</div>
+</div>
+</div>
+</div>
+
 <!-- Footer -->
 <footer>
 <p>© 2025 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
@@ -266,43 +363,151 @@
             { name: 'Bulut Yedekleme', price: 399, category: 'Yedekleme', description: 'Tüm finansal verilerinizin günlük otomatik yedeklemesi ve 7 yıl saklama.', icon: '☁️', birim: '/yıl' }
         ];
 
-        const KATEGORI_ICON = { 'E-Fatura': '📄', 'E-İrsaliye': '📦', 'Mali Mühür': '🔐', 'E-Defter': '📋', 'Diğer': '📦', 'Raporlama': '📊', 'Entegrasyon': '🔐', 'Pazaryeri': '🛒', 'Yedekleme': '☁️' };
+        // Stok Yönetimi ile aynı sıra: müşteri sayfasında kategoriler bu şekilde görünür
+            const KATEGORI_SIRASI = [
+                'E-Dönüşüm (E-Fatura Köntörü) Paketleri',
+                'E-İmza Paketleri',
+                'E-İrsaliye Paketleri',
+                'E-Defter Paketleri',
+                'KEP Paketleri',
+                'Mali Mühür Paketleri',
+                'Zaman Damgası Paketleri',
+                'Diğer',
+                'E-Fatura',
+                'E-İrsaliye',
+                'E-Defter',
+                'Mali Mühür'
+            ];
+            const KATEGORI_ICON = {
+                'E-Dönüşüm (E-Fatura Köntörü) Paketleri': '📄',
+                'E-İmza Paketleri': '✒️',
+                'E-İrsaliye Paketleri': '📦',
+                'E-Defter Paketleri': '📋',
+                'KEP Paketleri': '📧',
+                'Mali Mühür Paketleri': '🔐',
+                'Zaman Damgası Paketleri': '⏱️',
+                'Diğer': '📦',
+                'E-Fatura': '📄', 'E-İrsaliye': '📦', 'Mali Mühür': '🔐', 'E-Defter': '📋',
+                'Raporlama': '📊', 'Entegrasyon': '🔐', 'Pazaryeri': '🛒', 'Yedekleme': '☁️'
+            };
 
-        function urunKartiHTML(p, id) {
+        function urunKartiHTML(p, id, index) {
             const icon = p.icon || KATEGORI_ICON[p.category] || '📦';
             const birim = p.birim || '/' + (p.unit || 'Adet');
+            const fiyat = (p.effectivePrice != null ? p.effectivePrice : p.price) || 0;
+            const toptanEtiket = (p.isWholesale === true) ? '<span class="toptan-badge">Toptan</span>' : '';
             const name = (p.name || 'Ürün').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const idStr = String(id).replace(/'/g, "\\'");
+            const bayiExtra = (window.isBayi) ? ', 5, \'product\'' : '';
             return `
-<div class="urun-kart">
+<div class="urun-kart" data-urun-index="${index}">
 <div class="urun-gorsel">${icon}</div>
 <div class="urun-icerik">
-<div class="urun-kategori">${(p.category || 'Diğer').replace(/</g,'&lt;')}</div>
+<div class="urun-kategori">${(p.category || 'Diğer').replace(/</g,'&lt;')} ${toptanEtiket}</div>
 <h3 class="urun-baslik">${(p.name || 'Ürün').replace(/</g,'&lt;')}</h3>
 <p class="urun-aciklama">${(p.description || '').replace(/</g,'&lt;')}</p>
-<div class="urun-fiyat">₺${parseFloat(p.price || 0).toLocaleString('tr-TR')}<span>${birim}</span></div>
-<div class="btn-group">
-<button class="btn-sepet" onclick="sepeteEkle('${name}', ${p.price}, '${String(id).replace(/'/g,"\\'")}')"><i class="fas fa-cart-plus"></i> Sepete Ekle</button>
-<button class="btn-hemen" onclick="hemenSatınAl('${name}', ${p.price}, '${String(id).replace(/'/g,"\\'")}')"><i class="fas fa-bolt"></i> Hemen Al</button>
+<div class="urun-fiyat">₺${parseFloat(fiyat).toLocaleString('tr-TR')} <span class="kdv-notice">+ KDV</span> <span>${birim}</span></div>
+<div class="btn-group" onclick="event.stopPropagation()">
+<button class="btn-sepet" onclick="sepeteEkle('${name}', ${fiyat}, '${idStr}'${bayiExtra})"><i class="fas fa-cart-plus"></i> Sepete Ekle</button>
+<button class="btn-hemen" onclick="hemenSatınAl('${name}', ${fiyat}, '${idStr}'${bayiExtra})"><i class="fas fa-bolt"></i> Hemen Al</button>
 </div>
 </div>
 </div>`;
         }
 
-        async function urunleriYukle() {
-            const grid = document.getElementById('urunGrid');
-            if (!grid) return;
-            try {
-                const res = await fetch(API_URL + '/products/public');
-                const data = await res.json();
-                if (data.success && data.products && data.products.length > 0) {
-                    grid.innerHTML = data.products.map(p => urunKartiHTML(p, p._id || p.sku || p.name)).join('');
-                    return;
-                }
-            } catch (e) { console.warn('API ürünleri yüklenemedi, varsayılan gösteriliyor.'); }
-            grid.innerHTML = STATIK_URUNLER.map((p, i) => urunKartiHTML(p, 'urun-' + i)).join('');
+        window.urunListesi = [];
+
+        function openUrunModal(index) {
+            const list = window.urunListesi;
+            if (!list || typeof index !== 'number' || isNaN(index) || !list[index]) return;
+            const p = list[index];
+            const id = p._id || p.sku || p.name || ('urun-' + index);
+            const birim = p.birim || '/' + (p.unit || 'Adet');
+            const name = (p.name || 'Ürün').replace(/"/g, '&quot;');
+            document.getElementById('urunModalTitle').textContent = p.name || 'Ürün';
+            document.getElementById('urunModalKategori').textContent = (p.category || 'Diğer').toUpperCase();
+            document.getElementById('urunModalAciklama').textContent = p.description || '';
+            const fiyat = (p.effectivePrice != null ? p.effectivePrice : p.price) || 0;
+            document.getElementById('urunModalFiyat').innerHTML = '₺' + parseFloat(fiyat).toLocaleString('tr-TR') + ' <span class="kdv-notice">+ KDV</span> <span>' + birim + '</span>' + (p.isWholesale ? ' <span class="toptan-badge">Toptan</span>' : '');
+            const btnSepet = document.getElementById('urunModalBtnSepet');
+            const btnHemen = document.getElementById('urunModalBtnHemen');
+            var adet = (window.isBayi) ? 5 : 1;
+            var tip = (window.isBayi) ? 'product' : null;
+            btnSepet.onclick = function() { sepeteEkle(p.name || 'Ürün', fiyat, id, adet, tip); closeUrunModal(); };
+            btnHemen.onclick = function() { sepeteEkle(p.name || 'Ürün', fiyat, id, adet, tip); closeUrunModal(); setTimeout(function() { window.location.href = 'odeme.html'; }, 300); };
+            document.getElementById('urunModal').classList.add('active');
+        }
+        function closeUrunModal() {
+            document.getElementById('urunModal').classList.remove('active');
         }
 
-        document.addEventListener('DOMContentLoaded', urunleriYukle);
+        async function urunleriYukle() {
+            const container = document.getElementById('urunlerIcerik');
+            if (!container) return;
+            let products = [];
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            const headers = token ? { Authorization: 'Bearer ' + token } : {};
+            try {
+                const res = await fetch(API_URL + '/products/public', { headers });
+                const data = await res.json();
+                if (data.success && data.products && data.products.length > 0) {
+                    products = data.products;
+                    window.isBayi = data.isBayi === true;
+                } else {
+                    window.isBayi = false;
+                }
+            } catch (e) { console.warn('API yüklenemedi.', e); window.isBayi = false; }
+
+            if (products.length === 0) {
+                window.isBayi = false;
+                window.urunListesi = STATIK_URUNLER;
+                container.innerHTML = '<div class="kategori-bolum"><div class="kategori-baslik">Ürünler</div><div class="urun-grid-tek">' +
+                    STATIK_URUNLER.map((p, i) => urunKartiHTML(p, 'urun-' + i, i)).join('') + '</div></div>';
+                return;
+            }
+
+            // Stok Yönetimi ile aynı kategori listesi ve sırası
+            const kategoriUrunleri = {};
+            products.forEach(p => {
+                const cat = (p.category || '').trim() || 'Diğer';
+                const listedeVar = KATEGORI_SIRASI.indexOf(cat) !== -1;
+                const atanacak = listedeVar ? cat : 'Diğer';
+                if (!kategoriUrunleri[atanacak]) kategoriUrunleri[atanacak] = [];
+                kategoriUrunleri[atanacak].push(p);
+            });
+
+            const flatList = [];
+            const parts = [];
+            let globalIndex = 0;
+            KATEGORI_SIRASI.forEach(function(name) {
+                const list = kategoriUrunleri[name] || [];
+                if (list.length === 0) return;
+                const baslik = name.toUpperCase().replace(/</g, '&lt;');
+                let cards = '';
+                list.forEach(function(p) {
+                    cards += urunKartiHTML(p, p._id || p.sku || p.name, globalIndex);
+                    flatList.push(p);
+                    globalIndex++;
+                });
+                parts.push('<div class="kategori-bolum"><div class="kategori-baslik">' + baslik + '</div><div class="urun-grid-tek">' + cards + '</div></div>');
+            });
+            window.urunListesi = flatList;
+            container.innerHTML = parts.join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            urunleriYukle();
+            var container = document.getElementById('urunlerIcerik');
+            if (container) {
+                container.addEventListener('click', function(e) {
+                    var kart = e.target.closest('.urun-kart');
+                    if (!kart || e.target.closest('.btn-group')) return;
+                    var idx = kart.getAttribute('data-urun-index');
+                    if (idx !== null && idx !== '') openUrunModal(parseInt(idx, 10));
+                });
+            }
+        });
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeUrunModal(); });
 
         // Sepet sayısını güncelle
 function updateCartCount() {
@@ -316,9 +521,9 @@ function updateCartCount() {
 }
 updateCartCount();
 
-// Hemen satın al fonksiyonu
-function hemenSatınAl(name, price, id) {
-    sepeteEkle(name, price, id);
+// Hemen satın al fonksiyonu (bayi: 5 adet ürün)
+function hemenSatınAl(name, price, id, adet, itemType) {
+    sepeteEkle(name, price, id, adet != null ? adet : 1, itemType || null);
     setTimeout(() => {
         window.location.href = 'odeme.html';
     }, 500);

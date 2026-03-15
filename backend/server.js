@@ -18,11 +18,14 @@ console.log("ENV OK:", {
 const nodemailer = require("nodemailer");
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const path = require("path");
 const SibApiV3Sdk = require("sib-api-v3-sdk");
+const { JWT_SECRET } = require("./config/jwt");
 
 // ... gerisi aynı kalacak
 // ✅ ERP Service Import
@@ -45,9 +48,9 @@ mongoose
   .catch((err) => console.error("❌ MongoDB bağlantı hatası:", err));
 
 /* ======================================================
-   ✅ JWT Secret
+   ✅ Güvenlik: Helmet (HTTP başlıkları)
 ====================================================== */
-const JWT_SECRET = process.env.JWT_SECRET || "kurumsal-tedarikci-secret-key";
+app.use(helmet({ contentSecurityPolicy: false }));
 
 /* ======================================================
    ✅ Middleware
@@ -59,6 +62,29 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+/* ======================================================
+   ✅ Rate limiting: Genel API (brute-force / spam azaltma)
+====================================================== */
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  message: { success: false, message: "Çok fazla istek. Lütfen biraz sonra tekrar deneyin." },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+app.use("/api/", apiLimiter);
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { success: false, message: "Çok fazla giriş denemesi. Lütfen 15 dakika sonra tekrar deneyin." },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+app.use("/api/auth/login", authLimiter);
+app.use("/api/auth/forgot-password", authLimiter);
+app.use("/api/auth/register", authLimiter);
 
 // TEST: Basit log testi
 app.get("/api/test/log", (req, res) => {
@@ -83,7 +109,8 @@ const faturaRoutes = require('./routes/fatura');
 const tahsilatRoutes = require('./routes/tahsilat');
 const adresRoutes = require('./routes/adres');
 const supportRoutes = require('./routes/support');
-
+const categoryRoutes = require('./routes/categories');
+const bayiBasvuruRoutes = require('./routes/bayiBasvuru');
 
 // Sonra kullan
 app.use("/api/auth", authRoutes);
@@ -99,6 +126,8 @@ app.use('/api/faturalar', faturaRoutes);
 app.use('/api/tahsilat', tahsilatRoutes);
 app.use('/api/adres', adresRoutes);
 app.use('/api/support', supportRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/bayi-basvuru', bayiBasvuruRoutes);
 
 /* ======================================================
    Teklif Al - Form gönderimi
@@ -1005,6 +1034,7 @@ app.put("/api/orders/:orderId/status", authenticateToken, async (req, res) => {
       "Hazırlanıyor",
       "Kargoya Verildi",
       "Teslim Edildi",
+      "İptal Edildi",
     ];
 
     if (!allowedStatuses.includes(status)) {
@@ -1110,6 +1140,28 @@ htmlPages.forEach(page => {
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(publicPath, "index.html"));
+});
+
+/* ======================================================
+   ✅ 404 - Bulunamayan route (API ve sayfa)
+====================================================== */
+app.use((req, res) => {
+  if (req.path.startsWith("/api")) {
+    return res.status(404).json({ success: false, message: "Endpoint bulunamadı" });
+  }
+  res.status(404).sendFile(path.join(publicPath, "index.html"));
+});
+
+/* ======================================================
+   ✅ Merkezi hata middleware (son sırada)
+====================================================== */
+app.use((err, req, res, next) => {
+  console.error("[HATA]", err.message);
+  if (process.env.NODE_ENV === "production") {
+    res.status(500).json({ success: false, message: "Bir hata oluştu." });
+  } else {
+    res.status(500).json({ success: false, message: err.message, stack: err.stack });
+  }
 });
 
 // ==================== TAXTEN OTOMATIK SENKRONIZASYON ====================

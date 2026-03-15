@@ -264,6 +264,16 @@ router.post('/create', authMiddleware, async (req, res) => {
 // Fatura gönder (Taxten'e)
 router.post('/:id/send', authMiddleware, adminMiddleware, async (req, res) => {
   try {
+    // Taxten test hesabı kontrolü
+    const hasAuth = (process.env.TAXTEN_USERNAME || process.env.TAXTEN_TEST_CLIENT_ID) && 
+      (process.env.TAXTEN_PASSWORD || process.env.TAXTEN_TEST_API_KEY);
+    if (!hasAuth) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Taxten hesabı tanımlı değil. .env dosyasına TAXTEN_TEST_CLIENT_ID ve TAXTEN_TEST_API_KEY ekleyin.' 
+      });
+    }
+
     const fatura = await Fatura.findById(req.params.id).populate('cariHesapId');
     
     if (!fatura) return res.status(404).json({ success: false, message: 'Fatura bulunamadı' });
@@ -272,28 +282,36 @@ router.post('/:id/send', authMiddleware, adminMiddleware, async (req, res) => {
     }
     
     const gondericiBilgileri = {
-      vkn: process.env.FIRMA_VKN,
-      unvan: process.env.FIRMA_UNVAN,
+      vkn: process.env.FIRMA_VKN || process.env.TAXTEN_TEST_CLIENT_ID || process.env.TAXTEN_VKN,
+      unvan: process.env.FIRMA_UNVAN || 'Test Firma',
       adres: {
-        il: process.env.FIRMA_IL,
-        ilce: process.env.FIRMA_ILCE,
-        cadde: process.env.FIRMA_ADRES,
-        binaNo: process.env.FIRMA_BINA_NO,
-        postaKodu: process.env.FIRMA_POSTA_KODU
+        il: process.env.FIRMA_IL || 'İstanbul',
+        ilce: process.env.FIRMA_ILCE || 'Kadıköy',
+        cadde: process.env.FIRMA_ADRES || 'Test Cad.',
+        binaNo: process.env.FIRMA_BINA_NO || '1',
+        postaKodu: process.env.FIRMA_POSTA_KODU || '34000'
       },
-      telefon: process.env.FIRMA_TELEFON,
-      email: process.env.FIRMA_EMAIL,
-      website: process.env.FIRMA_WEBSITE,
-      vergiDairesi: process.env.FIRMA_VERGI_DAIRESI
+      telefon: process.env.FIRMA_TELEFON || '',
+      email: process.env.FIRMA_EMAIL || 'test@test.com',
+      website: process.env.FIRMA_WEBSITE || '',
+      vergiDairesi: process.env.FIRMA_VERGI_DAIRESI || 'Kadıköy'
     };
     
+    const cariAdres = fatura.cariHesapId?.adres;
+    const aliciAdresObj = typeof fatura.aliciAdres === 'object' && fatura.aliciAdres
+      ? fatura.aliciAdres
+      : (cariAdres && typeof cariAdres === 'object')
+        ? { cadde: cariAdres.cadde || '', il: cariAdres.il || '', ilce: cariAdres.ilce || '', postaKodu: cariAdres.postaKodu || '', binaNo: cariAdres.binaNo || '' }
+        : { cadde: (fatura.aliciAdres || '').toString(), il: '', ilce: '', postaKodu: '', binaNo: '' };
+
     const faturaData = {
       faturaNo: fatura.faturaNo,
       custInvId: fatura.custInvId,
       aliciVkn: fatura.aliciVkn,
-      aliciEtiket: fatura.aliciEtiket,
+      aliciEtiket: fatura.aliciEtiket || (fatura.aliciVkn?.length === 11 ? '' : fatura.aliciVkn),
       aliciUnvan: fatura.aliciUnvan,
-      aliciAdres: fatura.aliciAdres,
+      aliciAdres: aliciAdresObj,
+      aliciVergiDairesi: fatura.cariHesapId?.adres?.ilce || '',
       aliciTelefon: fatura.aliciTelefon,
       aliciEmail: fatura.aliciEmail,
       kalemler: fatura.kalemler,
@@ -326,10 +344,11 @@ router.post('/:id/send', authMiddleware, adminMiddleware, async (req, res) => {
       });
     } else {
       fatura.durum = 'HATA';
-      fatura.taxtenHata = JSON.stringify(result.error);
+      fatura.taxtenHata = typeof result.error === 'object' ? JSON.stringify(result.error) : String(result.error);
       await fatura.save();
       
-      res.status(400).json({ success: false, message: 'Fatura gönderilemedi', error: result.error });
+      const errMsg = result.errorMessage || (typeof result.error === 'object' ? (result.error?.Message || result.error?.message || JSON.stringify(result.error)) : result.error);
+      res.status(400).json({ success: false, message: 'Fatura gönderilemedi: ' + (errMsg || 'Bilinmeyen hata'), error: result.error });
     }
     
   } catch (error) {

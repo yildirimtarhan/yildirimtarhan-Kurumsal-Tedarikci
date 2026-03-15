@@ -439,16 +439,15 @@
                     const data = await response.json();
                     updateSummaryCards(data);
                 } else {
-                    // Mock data for testing
                     updateSummaryCards({
-                        toplamSatis: 150000,
-                        satisArtis: 15,
-                        toplamFatura: 145000,
-                        faturaAdet: 45,
-                        toplamTahsilat: 120000,
-                        tahsilatOrani: 82,
-                        bekleyenAlacak: 30000,
-                        vadeGecmis: 5000
+                        toplamSatis: 0,
+                        satisArtis: 0,
+                        toplamFatura: 0,
+                        faturaAdet: 0,
+                        toplamTahsilat: 0,
+                        tahsilatOrani: 0,
+                        bekleyenAlacak: 0,
+                        vadeGecmis: 0
                     });
                 }
             } catch (error) {
@@ -481,17 +480,9 @@
                 if (response.ok) {
                     data = await response.json();
                 } else {
-                    // Mock data
                     data = {
-                        aylik: [
-                            { ay: 'Ocak', siparis: 25, tutar: 45000, ortalama: 1800 },
-                            { ay: 'Şubat', siparis: 30, tutar: 52000, ortalama: 1733 },
-                            { ay: 'Mart', siparis: 35, tutar: 61000, ortalama: 1742 }
-                        ],
-                        odemeYontemleri: {
-                            labels: ['Kredi Kartı', 'Havale', 'Kapıda Ödeme', 'Taksit'],
-                            data: [40, 30, 20, 10]
-                        }
+                        aylik: [],
+                        odemeYontemleri: { labels: [], data: [] }
                     };
                 }
                 

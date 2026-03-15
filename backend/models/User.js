@@ -39,7 +39,7 @@ const UserSchema = new mongoose.Schema({
   },
   rol: { 
     type: String, 
-    enum: ['user', 'admin'], 
+    enum: ['user', 'bayi', 'admin'], 
     default: 'user' 
   },
   

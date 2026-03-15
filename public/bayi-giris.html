@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bayi Girişi - Kurumsal Tedarikçi</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #047857 0%, #059669 50%, #10b981 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            max-width: 420px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            padding: 32px 24px;
+            text-align: center;
+        }
+        .card-header h1 { font-size: 1.75rem; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 12px; }
+        .card-header p { font-size: 0.95rem; opacity: 0.95; }
+        .card-body { padding: 28px 24px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; font-size: 14px; }
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        .form-group input:focus { border-color: #059669; outline: none; }
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            margin-top: 8px;
+        }
+        .btn:hover { opacity: 0.95; transform: translateY(-1px); }
+        .btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+        .links { text-align: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
+        .links a { color: #059669; text-decoration: none; font-weight: 600; font-size: 14px; }
+        .links a:hover { text-decoration: underline; }
+        .links .sep { color: #9ca3af; margin: 0 8px; }
+        .alert { padding: 14px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; display: none; }
+        .alert.show { display: block; }
+        .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .alert-info { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .back-home { display: inline-block; margin-bottom: 20px; color: white; text-decoration: none; font-size: 14px; opacity: 0.9; }
+        .back-home:hover { text-decoration: underline; }
+        @media (max-width: 768px) {
+            body { padding: 16px 12px; align-items: flex-start; padding-top: 50px; }
+            .card { max-width: 100%; margin-top: 10px; }
+            .card-header { padding: 24px 20px; }
+            .card-header h1 { font-size: 1.4rem; }
+            .card-header p { font-size: 0.9rem; }
+            .card-body { padding: 22px 20px; }
+            .back-home { position: absolute; top: 16px; left: 16px; font-size: 13px; z-index: 5; }
+        }
+        @media (max-width: 480px) {
+            body { padding: 12px 10px; padding-top: 44px; }
+            .card-header h1 { font-size: 1.25rem; flex-wrap: wrap; }
+            .card-body { padding: 18px 16px; }
+            .form-group input { padding: 12px 14px; font-size: 16px; }
+            .btn { padding: 14px; font-size: 15px; }
+            .links a { font-size: 13px; }
+            .back-home { top: 12px; left: 12px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-home" style="position:absolute;top:20px;left:20px;"><i class="fas fa-arrow-left"></i> Anasayfaya Dön</a>
+
+    <div class="card">
+        <div class="card-header">
+            <h1><i class="fas fa-store"></i> Bayi Girişi</h1>
+            <p>Toptan (B2B) fiyatlardan yararlanmak için giriş yapın</p>
+        </div>
+        <div class="card-body">
+            <div id="alertBox" class="alert"></div>
+            <form id="bayiLoginForm">
+                <div class="form-group">
+                    <label for="email">E-posta</label>
+                    <input type="email" id="email" required placeholder="ornek@firma.com" autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="password">Şifre</label>
+                    <input type="password" id="password" required placeholder="Şifreniz" autocomplete="current-password">
+                </div>
+                <div class="form-group">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                        <input type="checkbox" id="rememberMe">
+                        <span>Beni hatırla</span>
+                    </label>
+                </div>
+                <button type="submit" class="btn" id="submitBtn"><i class="fas fa-sign-in-alt"></i> Bayi Girişi</button>
+            </form>
+            <div class="links">
+                <a href="bayilik-basvuru.html">Bayilik başvurusu yap</a>
+                <span class="sep">|</span>
+                <a href="giris.html">Normal müşteri girişi</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                ? 'http://localhost:3000/api'
+                : 'https://backend-api-7s13.onrender.com/api';
+
+            function showAlert(msg, type) {
+                const box = document.getElementById('alertBox');
+                box.className = 'alert show alert-' + (type || 'info');
+                box.textContent = msg;
+            }
+            function hideAlert() {
+                document.getElementById('alertBox').classList.remove('show');
+            }
+
+            document.getElementById('bayiLoginForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                hideAlert();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const rememberMe = document.getElementById('rememberMe').checked;
+                const btn = document.getElementById('submitBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Giriş yapılıyor...';
+                try {
+                    const res = await fetch(API_URL + '/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email, password: password })
+                    });
+                    const data = await res.json();
+                    if (!res.ok || !data.token) {
+                        showAlert(data.message || 'E-posta veya şifre hatalı.', 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Bayi Girişi';
+                        return;
+                    }
+                    const storage = rememberMe ? localStorage : sessionStorage;
+                    storage.setItem('token', data.token);
+                    storage.setItem('user', JSON.stringify(data.user));
+                    const rol = (data.user && data.user.rol) ? data.user.rol : 'user';
+                    if (rol === 'bayi') {
+                        showAlert('Giriş başarılı. Yönlendiriliyorsunuz...', 'info');
+                        setTimeout(function() {
+                            window.location.href = 'urunler.html';
+                        }, 400);
+                    } else {
+                        showAlert('Bu sayfa sadece bayiler içindir. Hesabınız henüz bayi olarak onaylanmamış olabilir. Normal giriş için giris.html sayfasını kullanabilir veya bayilik başvurusu yapabilirsiniz.', 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Bayi Girişi';
+                    }
+                } catch (err) {
+                    showAlert('Bağlantı hatası. Lütfen tekrar deneyin.', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Bayi Girişi';
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

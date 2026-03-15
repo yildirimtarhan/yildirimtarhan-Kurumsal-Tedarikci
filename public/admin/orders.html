@@ -379,7 +379,7 @@
           <tr>
             <td>${order._id}</td>
             <td>${order.email}</td>
-            <td>₺${order.toplam ? order.toplam.toFixed(2) : '0.00'}</td>
+            <td>₺${order.toplam ? order.toplam.toFixed(2) : '0.00'} ${order.orderType === 'b2b' ? '<span class="badge" style="background:#059669;margin-left:4px;">B2B</span>' : ''}</td>
             <td><span class="badge ${order.status.replace(/\s+/g, '\\ ')}">${order.status}</span></td>
             <td>${new Date(order.createdAt).toLocaleDateString()}</td>
             <td>
@@ -598,8 +598,7 @@
   async function updateStatus(orderId) {
     try {
       const status = document.getElementById("statusSelect").value;
-
-      await fetch(`${API_URL}/orders/${orderId}/status`, {
+      const res = await fetch(`${API_URL}/orders/${orderId}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -607,22 +606,24 @@
         },
         body: JSON.stringify({ status })
       });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || 'Durum güncellenemedi');
 
       showToast("Durum güncellendi ✅", 'success');
       closeModal();
       loadOrders();
     } catch (error) {
-      showToast('Durum güncellenirken hata oluştu', 'error');
+      showToast('Durum: ' + (error.message || 'Hata oluştu'), 'error');
     }
   }
 
   async function updateKargo(orderId) {
     try {
       const firma = document.getElementById("kargoFirma").value;
-      const takipNo = document.getElementById("kargoTakipNo").value;
+      const takipNo = document.getElementById("kargoTakipNo").value.trim();
       const durum = document.getElementById("kargoDurum").value;
 
-      await fetch(`${API_URL}/admin/orders/${orderId}/kargo`, {
+      const res = await fetch(`${API_URL}/admin/orders/${orderId}/kargo`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -630,12 +631,14 @@
         },
         body: JSON.stringify({ firma, takipNo, durum })
       });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || 'Kargo kaydedilemedi');
 
       showToast("Kargo kaydedildi ✅", 'success');
       closeModal();
       loadOrders();
     } catch (error) {
-      showToast('Kargo kaydedilirken hata oluştu', 'error');
+      showToast('Kargo: ' + (error.message || 'Hata oluştu'), 'error');
     }
   }
 

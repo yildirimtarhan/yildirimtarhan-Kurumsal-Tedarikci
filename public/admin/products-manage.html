@@ -494,6 +494,7 @@
             <a href="products.html"><i class="fas fa-cubes"></i> Ürünler (ERP)</a>
             <a href="products-manage.html" class="active"><i class="fas fa-warehouse"></i> Stok Yönetimi</a>
             <a href="paket-yonetim.html"><i class="fas fa-box-open"></i> Paket Yönetimi</a>
+            <a href="kategori-yonetim.html"><i class="fas fa-folder-tree"></i> Kategori Yönetimi</a>
             <a href="kargo-bildirim.html"><i class="fas fa-truck"></i> Kargo Bildirim</a>
             <a href="#" class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</a>
         </nav>
@@ -545,11 +546,20 @@
             <input type="text" id="searchInput" placeholder="Ürün adı veya SKU ara..." onkeyup="loadProducts()">
             <select id="categoryFilter" onchange="loadProducts()">
                 <option value="all">Tüm Kategoriler</option>
-                <option value="E-Fatura">E-Fatura</option>
-                <option value="E-İrsaliye">E-İrsaliye</option>
-                <option value="Mali Mühür">Mali Mühür</option>
-                <option value="E-Defter">E-Defter</option>
+                <option value="E-Dönüşüm (E-Fatura Köntörü) Paketleri">E-Dönüşüm (E-Fatura Köntörü) Paketleri</option>
+                <option value="E-İmza Paketleri">E-İmza Paketleri</option>
+                <option value="E-İrsaliye Paketleri">E-İrsaliye Paketleri</option>
+                <option value="E-Defter Paketleri">E-Defter Paketleri</option>
+                <option value="KEP Paketleri">KEP Paketleri</option>
+                <option value="Mali Mühür Paketleri">Mali Mühür Paketleri</option>
+                <option value="Zaman Damgası Paketleri">Zaman Damgası Paketleri</option>
                 <option value="Diğer">Diğer</option>
+                <optgroup label="— Eski kategoriler —">
+                    <option value="E-Fatura">E-Fatura</option>
+                    <option value="E-İrsaliye">E-İrsaliye</option>
+                    <option value="E-Defter">E-Defter</option>
+                    <option value="Mali Mühür">Mali Mühür (eski)</option>
+                </optgroup>
             </select>
             <select id="stockFilter" onchange="loadProducts()">
                 <option value="all">Tüm Stoklar</option>
@@ -565,6 +575,7 @@
                     <tr>
                         <th>Ürün</th>
                         <th>SKU</th>
+                        <th>Barkod</th>
                         <th>Kategori</th>
                         <th>Fiyat</th>
                         <th>Stok</th>
@@ -573,7 +584,7 @@
                 </thead>
                 <tbody id="productsTable">
                     <tr>
-                        <td colspan="6" class="loading">
+                        <td colspan="7" class="loading">
                             <i class="fas fa-spinner fa-spin"></i> Yükleniyor...
                         </td>
                     </tr>
@@ -604,15 +615,28 @@
                         <input type="text" id="productSku" required>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label>Barkod</label>
+                    <input type="text" id="productBarcode" placeholder="Yeni kayıtta otomatik üretilir" readonly style="background: #f5f5f5;">
+                </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Kategori *</label>
                         <select id="productCategory" required>
-                            <option value="E-Fatura">E-Fatura</option>
-                            <option value="E-İrsaliye">E-İrsaliye</option>
-                            <option value="Mali Mühür">Mali Mühür</option>
-                            <option value="E-Defter">E-Defter</option>
+                            <option value="E-Dönüşüm (E-Fatura Köntörü) Paketleri">E-Dönüşüm (E-Fatura Köntörü) Paketleri</option>
+                            <option value="E-İmza Paketleri">E-İmza Paketleri</option>
+                            <option value="E-İrsaliye Paketleri">E-İrsaliye Paketleri</option>
+                            <option value="E-Defter Paketleri">E-Defter Paketleri</option>
+                            <option value="KEP Paketleri">KEP Paketleri</option>
+                            <option value="Mali Mühür Paketleri">Mali Mühür Paketleri</option>
+                            <option value="Zaman Damgası Paketleri">Zaman Damgası Paketleri</option>
                             <option value="Diğer">Diğer</option>
+                            <optgroup label="— Eski kategoriler —">
+                                <option value="E-Fatura">E-Fatura</option>
+                                <option value="E-İrsaliye">E-İrsaliye</option>
+                                <option value="E-Defter">E-Defter</option>
+                                <option value="Mali Mühür">Mali Mühür (eski)</option>
+                            </optgroup>
                         </select>
                     </div>
                     <div class="form-group">
@@ -624,10 +648,30 @@
                     <div class="form-group">
                         <label>Satış Fiyatı *</label>
                         <input type="number" id="productPrice" step="0.01" required>
+                        <small>Varsayılan: KDV hariç (artı KDV)</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Toptan (Bayi) Fiyatı</label>
+                        <input type="number" id="productWholesalePrice" step="0.01" placeholder="Boş = perakende">
+                        <small>Bayi rolündeki kullanıcılar bu fiyatı görür</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Min. Toptan Adet</label>
+                        <input type="number" id="productMinQuantityWholesale" min="1" value="1">
                     </div>
                     <div class="form-group">
                         <label>Maliyet Fiyatı</label>
                         <input type="number" id="productCost" step="0.01">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><input type="checkbox" id="productKdvDahil"> Fiyat KDV dahil</label>
+                        <small>İşaretli değilse fiyat KDV hariçtir (artı KDV).</small>
+                    </div>
+                    <div class="form-group">
+                        <label>KDV oranı %</label>
+                        <input type="number" id="productKdvOrani" value="20" min="0" max="100" step="0.01">
                     </div>
                 </div>
                 <div class="form-row">
@@ -789,8 +833,9 @@
                         ${p.description ? `<br><small style="color: #7f8c8d;">${p.description.substring(0, 50)}...</small>` : ''}
                     </td>
                     <td><code style="background: #f8f9fa; padding: 2px 6px; border-radius: 4px;">${p.sku}</code></td>
+                    <td><code style="background: #f0f9ff; padding: 2px 6px; border-radius: 4px;">${p.barcode || '—'}</code></td>
                     <td>${p.category}</td>
-                    <td>₺${p.price.toFixed(2)}</td>
+                    <td>₺${p.price.toFixed(2)}${(p.kdvDahil !== true) ? ' <small style="color:#059669;">+ KDV</small>' : ''}</td>
                     <td>
                         <span class="badge ${stockBadge}">${stockText}</span>
                         <div style="margin-top: 5px; font-size: 0.85rem;">
@@ -827,6 +872,7 @@
                         <div>
                             <h3>${p.name}</h3>
                             <span class="sku">${p.sku}</span>
+                            ${p.barcode ? `<span class="sku" style="margin-left:8px;">Barkod: ${p.barcode}</span>` : ''}
                         </div>
                         <span class="badge" style="background: ${stockColor}20; color: ${stockColor};">
                             ${stockStatus}
@@ -834,7 +880,7 @@
                     </div>
                     <div class="card-body">
                         <div><strong>Kategori:</strong> ${p.category}</div>
-                        <div><strong>Fiyat:</strong> ₺${p.price.toFixed(2)}</div>
+                        <div><strong>Fiyat:</strong> ₺${p.price.toFixed(2)}${(p.kdvDahil !== true) ? ' + KDV' : ''}</div>
                         <div><strong>Stok:</strong> ${p.stock} ${p.unit}</div>
                         <div><strong>Kritik:</strong> ${p.minStock} ${p.unit}</div>
                     </div>
@@ -857,6 +903,10 @@
             document.getElementById('productModal').classList.add('active');
             document.getElementById('productForm').reset();
             document.getElementById('productId').value = '';
+            document.getElementById('productBarcode').value = '';
+            document.getElementById('productBarcode').placeholder = 'Yeni kayıtta otomatik üretilir';
+            document.getElementById('productKdvDahil').checked = false;
+            document.getElementById('productKdvOrani').value = '20';
             document.getElementById('modalTitle').textContent = 'Yeni Ürün Ekle';
         }
 
@@ -884,7 +934,11 @@
                 category: document.getElementById('productCategory').value,
                 unit: document.getElementById('productUnit').value,
                 price: parseFloat(document.getElementById('productPrice').value),
+                wholesalePrice: document.getElementById('productWholesalePrice').value === '' ? null : parseFloat(document.getElementById('productWholesalePrice').value),
+                minQuantityWholesale: parseInt(document.getElementById('productMinQuantityWholesale').value) || 1,
                 costPrice: parseFloat(document.getElementById('productCost').value) || 0,
+                kdvDahil: document.getElementById('productKdvDahil').checked,
+                kdvOrani: parseFloat(document.getElementById('productKdvOrani').value) || 20,
                 stock: parseInt(document.getElementById('productStock').value),
                 minStock: parseInt(document.getElementById('productMinStock').value),
                 description: document.getElementById('productDesc').value
@@ -906,7 +960,8 @@
                 const result = await res.json();
                 
                 if (result.success) {
-                    alert(id ? 'Ürün güncellendi' : 'Ürün eklendi');
+                    const msg = id ? 'Ürün güncellendi' : (result.product && result.product.barcode ? `Ürün eklendi. Barkod: ${result.product.barcode}` : 'Ürün eklendi');
+                    alert(msg);
                     closeModal();
                     loadProducts();
                     loadStats();
@@ -931,10 +986,16 @@
                 document.getElementById('productId').value = p._id;
                 document.getElementById('productName').value = p.name;
                 document.getElementById('productSku').value = p.sku;
+                document.getElementById('productBarcode').value = p.barcode || '';
+                document.getElementById('productBarcode').placeholder = p.barcode ? '' : 'Yeni kayıtta otomatik üretilir';
                 document.getElementById('productCategory').value = p.category;
                 document.getElementById('productUnit').value = p.unit;
                 document.getElementById('productPrice').value = p.price;
+                document.getElementById('productWholesalePrice').value = p.wholesalePrice != null ? p.wholesalePrice : '';
+                document.getElementById('productMinQuantityWholesale').value = p.minQuantityWholesale != null ? p.minQuantityWholesale : 1;
                 document.getElementById('productCost').value = p.costPrice || '';
+                document.getElementById('productKdvDahil').checked = !!p.kdvDahil;
+                document.getElementById('productKdvOrani').value = p.kdvOrani !== undefined ? p.kdvOrani : 20;
                 document.getElementById('productStock').value = p.stock;
                 document.getElementById('productMinStock').value = p.minStock;
                 document.getElementById('productDesc').value = p.description || '';

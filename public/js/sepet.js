@@ -6,6 +6,10 @@ const KDV_ORANI = 0.20; // %20 KDV
 // Sepeti getir - GLOBAL değişken
 let sepet = [];
 
+// Bayi alt limitleri (ürün en az 5, paket en az 3)
+const BAYI_MIN_URUN = 5;
+const BAYI_MIN_PAKET = 3;
+
 // Sayfa yüklendiğinde sepeti yükle
 function initSepet() {
     const savedCart = localStorage.getItem("cart");
@@ -13,23 +17,29 @@ function initSepet() {
         try {
             sepet = JSON.parse(savedCart);
             // Eski format kontrolü ve düzeltme
-            sepet = sepet.map(item => ({
-                id: item.id || Date.now().toString(),
-                name: item.name || item.ad || 'Ürün',
-                ad: item.name || item.ad || 'Ürün', // Geriye uyumluluk
-                price: parseFloat(item.price || item.fiyat || 0),
-                fiyat: parseFloat(item.price || item.fiyat || 0),
-                qty: parseInt(item.qty || item.adet || 1),
-                adet: parseInt(item.qty || item.adet || 1),
-                category: item.category || 'Ürün',
-                kdvOrani: 20
-            }));
+            sepet = sepet.map(item => {
+                const qty = parseInt(item.qty || item.adet || 1);
+                const minQty = item.minQty != null ? parseInt(item.minQty) : null;
+                const adet = minQty != null && qty < minQty ? minQty : qty;
+                return {
+                    id: item.id || Date.now().toString(),
+                    name: item.name || item.ad || 'Ürün',
+                    ad: item.name || item.ad || 'Ürün',
+                    price: parseFloat(item.price || item.fiyat || 0),
+                    fiyat: parseFloat(item.price || item.fiyat || 0),
+                    qty: adet,
+                    adet: adet,
+                    category: item.category || 'Ürün',
+                    kdvOrani: 20,
+                    itemType: item.itemType || null,
+                    minQty: item.minQty != null ? parseInt(item.minQty) : null
+                };
+            });
         } catch (e) {
             console.error("Sepet yükleme hatası:", e);
             sepet = [];
         }
     }
-    // Eski anahtarı temizle
     localStorage.removeItem("kurumsalSepet");
     sepetiKaydet();
     sepetGuncelle();
@@ -62,18 +72,28 @@ function formatFiyat(fiyat) {
     });
 }
 
-// Sepete ürün ekle
-function sepeteEkle(urunAd, fiyat, id, adet = 1) {
-    // Fiyat KDV dahil olarak kaydedilir
+// Sepete ürün ekle (adet, itemType opsiyonel; bayi: itemType 'product' min 5, 'package' min 3)
+function sepeteEkle(urunAd, fiyat, id, adet, itemType) {
+    if (adet == null || adet === undefined) adet = 1;
+    adet = parseInt(adet) || 1;
+    let minQty = null;
+    if (itemType === 'product' || itemType === 'urun') {
+        minQty = BAYI_MIN_URUN;
+        if (adet < minQty) adet = minQty;
+    } else if (itemType === 'package' || itemType === 'paket') {
+        minQty = BAYI_MIN_PAKET;
+        if (adet < minQty) adet = minQty;
+    }
     const kdvDahilFiyat = parseFloat(fiyat);
-    
-    const mevcutIndex = sepet.findIndex(item => 
+    const mevcutIndex = sepet.findIndex(item =>
         (id && item.id === id) || item.name === urunAd || item.ad === urunAd
     );
-    
     if (mevcutIndex >= 0) {
-        sepet[mevcutIndex].qty += adet;
-        sepet[mevcutIndex].adet = sepet[mevcutIndex].qty;
+        let yeni = sepet[mevcutIndex].qty + adet;
+        if (sepet[mevcutIndex].minQty != null && yeni < sepet[mevcutIndex].minQty)
+            yeni = sepet[mevcutIndex].minQty;
+        sepet[mevcutIndex].qty = yeni;
+        sepet[mevcutIndex].adet = yeni;
     } else {
         sepet.push({
             id: id || Date.now().toString(),
@@ -84,40 +104,44 @@ function sepeteEkle(urunAd, fiyat, id, adet = 1) {
             qty: adet,
             adet: adet,
             category: 'Ürün',
-            kdvOrani: 20
+            kdvOrani: 20,
+            itemType: itemType || null,
+            minQty: minQty
         });
     }
-    
     sepetiKaydet();
     sepetGuncelle();
     bildirimGoster(`${urunAd} sepete eklendi!`);
-    
-    // Diğer sayfaları da güncelle
-    if (typeof loadCart === 'function') {
-        loadCart();
-    }
+    if (typeof loadCart === 'function') loadCart();
 }
 
-// Ürün adetini güncelle (artır/azalt)
+// Paket vb. için: addToCart({ name, price, id?, qty?, itemType? })
+function addToCart(obj) {
+    const name = obj.name || obj.ad || 'Ürün';
+    const price = parseFloat(obj.price || obj.fiyat || 0);
+    const id = obj.id || '';
+    const qty = obj.qty != null ? parseInt(obj.qty) : 1;
+    const itemType = obj.itemType || null;
+    sepeteEkle(name, price, id, qty, itemType);
+}
+
+// Ürün adetini güncelle (artır/azalt); bayi minQty altına inmez
 function adetGuncelle(urunAd, degisim) {
     const index = sepet.findIndex(item => item.name === urunAd || item.ad === urunAd);
     if (index === -1) return;
-    
-    const mevcutAdet = sepet[index].qty || sepet[index].adet || 1;
-    const yeniAdet = mevcutAdet + degisim;
-    
+    const item = sepet[index];
+    const mevcutAdet = item.qty || item.adet || 1;
+    let yeniAdet = mevcutAdet + degisim;
+    if (item.minQty != null && yeniAdet < item.minQty)
+        yeniAdet = item.minQty;
     if (yeniAdet <= 0) {
         urunSil(urunAd);
         return;
     }
-    
     sepet[index].qty = yeniAdet;
     sepet[index].adet = yeniAdet;
-    
     sepetiKaydet();
     sepetGuncelle();
-    
-    // Tüm sayfalarda güncelle
     broadcastUpdate();
 }
 

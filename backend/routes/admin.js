@@ -5,8 +5,9 @@ const bcrypt = require("bcryptjs");
 
 const User = require("../models/User");
 const Order = require("../models/Order");
+const BayiBasvuru = require("../models/BayiBasvuru");
 
-const JWT_SECRET = process.env.JWT_SECRET || "kurumsal-tedarikci-secret-key";
+const { JWT_SECRET } = require('../config/jwt');
 
 // ============================================
 // MIDDLEWARE: Admin Kontrolü
@@ -209,6 +210,79 @@ router.get("/users/:id", adminOnly, async (req, res) => {
       success: false,
       message: "Kullanıcı detay hatası: " + err.message
     });
+  }
+});
+
+// ============================================
+// KULLANICI GÜNCELLE (rol: user / bayi / admin)
+// ============================================
+router.put("/users/:id", adminOnly, async (req, res) => {
+  try {
+    const { rol } = req.body;
+    if (!rol || !['user', 'bayi', 'admin'].includes(rol)) {
+      return res.status(400).json({ success: false, message: "Geçerli rol: user, bayi, admin" });
+    }
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { rol },
+      { new: true }
+    ).select("-password");
+    if (!user) return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı" });
+    res.json({ success: true, message: "Kullanıcı güncellendi", user });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ============================================
+// BAYİLİK BAŞVURULARI LİSTE
+// ============================================
+router.get("/bayi-basvurulari", adminOnly, async (req, res) => {
+  try {
+    const { durum } = req.query;
+    let query = {};
+    if (durum && ["beklemede", "onaylandi", "reddedildi"].includes(durum)) query.durum = durum;
+    const basvurular = await BayiBasvuru.find(query)
+      .sort({ createdAt: -1 })
+      .populate("userId", "ad email telefon firma");
+    res.json({ success: true, basvurular });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ============================================
+// BAYİLİK BAŞVURUSU ONAYLA / REDDET
+// ============================================
+router.put("/bayi-basvurulari/:id", adminOnly, async (req, res) => {
+  try {
+    const { durum, adminNotu } = req.body;
+    if (!durum || !["onaylandi", "reddedildi"].includes(durum)) {
+      return res.status(400).json({ success: false, message: "Geçerli durum: onaylandi veya reddedildi" });
+    }
+    const basvuru = await BayiBasvuru.findById(req.params.id);
+    if (!basvuru) return res.status(404).json({ success: false, message: "Başvuru bulunamadı" });
+    if (basvuru.durum !== "beklemede") {
+      return res.status(400).json({ success: false, message: "Bu başvuru zaten işlenmiş." });
+    }
+    basvuru.durum = durum;
+    basvuru.adminNotu = adminNotu || "";
+    basvuru.onaylayanId = req.userId;
+    basvuru.onayTarihi = new Date();
+    basvuru.updatedAt = new Date();
+    await basvuru.save();
+    if (durum === "onaylandi") {
+      await User.findByIdAndUpdate(basvuru.userId, {
+        rol: "bayi",
+        vergiNo: basvuru.vergiNo,
+        vergiDairesi: basvuru.vergiDairesi,
+        tcNo: basvuru.tcNo,
+        firma: basvuru.firmaAdi || undefined,
+      });
+    }
+    res.json({ success: true, message: durum === "onaylandi" ? "Bayilik başvurusu onaylandı." : "Başvuru reddedildi.", basvuru });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
@@ -462,34 +536,11 @@ if (!hasKargo) {
 router.get("/erp-products", adminOnly, async (req, res) => {
   try {
     const mockProducts = [
-      { 
-        name: "E-Fatura Kontörü (1000 Adet)", 
-        sku: "EF-1000", 
-        price: 250.00, 
-        stock: 150,
-        category: "E-Fatura"
-      },
-      { 
-        name: "E-İrsaliye Kontörü (500 Adet)", 
-        sku: "EI-500", 
-        price: 180.00, 
-        stock: 80,
-        category: "E-İrsaliye"
-      },
-      { 
-        name: "Mali Mühür (Yeni)", 
-        sku: "MM-001", 
-        price: 450.00, 
-        stock: 25,
-        category: "Mali Mühür"
-      },
-      { 
-        name: "E-Defter Modülü (Aylık)", 
-        sku: "ED-A1", 
-        price: 99.90, 
-        stock: 999,
-        category: "E-Defter"
-      }
+      { name: "E-Fatura Köntörü (1000 Adet)", sku: "EF-1000", price: 250.00, stock: 150, category: "E-Dönüşüm (E-Fatura Köntörü) Paketleri" },
+      { name: "E-İmza Paketi (Yıllık)", sku: "EIMZA-1", price: 399.00, stock: 50, category: "E-İmza Paketleri" },
+      { name: "KEP Paketi (Kurumsal)", sku: "KEP-001", price: 599.00, stock: 30, category: "KEP Paketleri" },
+      { name: "Mali Mühür (Yeni)", sku: "MM-001", price: 450.00, stock: 25, category: "Mali Mühür Paketleri" },
+      { name: "Zaman Damgası Paketi (1000 Adet)", sku: "ZD-1000", price: 199.00, stock: 100, category: "Zaman Damgası Paketleri" }
     ];
 
     res.json({

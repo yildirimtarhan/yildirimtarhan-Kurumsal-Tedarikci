@@ -77,6 +77,8 @@
             <a href="products.html"><i class="fas fa-cubes"></i> Ürünler (ERP)</a>
             <a href="products-manage.html"><i class="fas fa-warehouse"></i> Stok Yönetimi</a>
             <a href="paket-yonetim.html" class="active"><i class="fas fa-box-open"></i> Paket Yönetimi</a>
+            <a href="kategori-yonetim.html"><i class="fas fa-folder-tree"></i> Kategori Yönetimi</a>
+            <a href="bayilik-basvurulari.html"><i class="fas fa-store"></i> Bayilik Başvuruları</a>
             <a href="kargo-bildirim.html"><i class="fas fa-truck"></i> Kargo Bildirim</a>
             <a href="#" class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</a>
         </nav>
@@ -93,6 +95,7 @@
                 <thead>
                     <tr>
                         <th>Paket Adı</th>
+                        <th>Barkod</th>
                         <th>Fiyat</th>
                         <th>Özellikler</th>
                         <th>Durum</th>
@@ -117,6 +120,10 @@
                     <input type="text" id="packageName" required placeholder="Örn: Başlangıç">
                 </div>
                 <div class="form-group">
+                    <label>Barkod</label>
+                    <input type="text" id="packageBarcode" placeholder="Yeni kayıtta otomatik üretilir" readonly style="background:#f5f5f5;">
+                </div>
+                <div class="form-group">
                     <label>Alt Başlık</label>
                     <input type="text" id="packageSubtitle" placeholder="Örn: Küçük işletmeler için ideal">
                 </div>
@@ -124,6 +131,7 @@
                     <div class="form-group">
                         <label>Fiyat *</label>
                         <input type="number" id="packagePrice" step="0.01" required placeholder="749">
+                        <small>Varsayılan: KDV hariç (artı KDV)</small>
                     </div>
                     <div class="form-group">
                         <label>Dönem</label>
@@ -131,6 +139,20 @@
                             <option value="ay">Aylık</option>
                             <option value="yıl">Yıllık</option>
                         </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Toptan (Bayi) Fiyatı</label>
+                    <input type="number" id="packageWholesalePrice" step="0.01" placeholder="Boş = perakende fiyat">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><input type="checkbox" id="packageKdvDahil"> Fiyat KDV dahil</label>
+                        <small>İşaretli değilse fiyat KDV hariçtir (artı KDV).</small>
+                    </div>
+                    <div class="form-group">
+                        <label>KDV oranı %</label>
+                        <input type="number" id="packageKdvOrani" value="20" min="0" max="100" step="0.01">
                     </div>
                 </div>
                 <div class="form-group">
@@ -186,14 +208,15 @@
                 if (!data.success) throw new Error(data.message || 'Yüklenemedi');
 
                 if (!data.packages || data.packages.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="fas fa-box-open"></i><p>Henüz paket yok. "Yeni Paket" ile ekleyin.</p></div></td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fas fa-box-open"></i><p>Henüz paket yok. "Yeni Paket" ile ekleyin.</p></div></td></tr>`;
                     return;
                 }
 
                 tbody.innerHTML = data.packages.map(p => `
                     <tr>
                         <td><strong>${p.name}</strong>${p.isPopular ? ' <span class="badge badge-warning">Popüler</span>' : ''}<br><small style="color:#6b7280">${p.subtitle || ''}</small></td>
-                        <td>₺${parseFloat(p.price).toLocaleString('tr-TR')}/${p.period || 'ay'}</td>
+                        <td><code style="background:#f0f9ff;padding:2px 6px;border-radius:4px;">${p.barcode || '—'}</code></td>
+                        <td>₺${parseFloat(p.price).toLocaleString('tr-TR')}/${p.period || 'ay'}${(p.kdvDahil !== true) ? ' <small style="color:#059669;">+ KDV</small>' : ''}</td>
                         <td><small>${(p.features || []).length} özellik</small></td>
                         <td><span class="badge ${p.isActive ? 'badge-success' : 'badge-warning'}">${p.isActive ? 'Aktif' : 'Pasif'}</span></td>
                         <td>
@@ -205,7 +228,7 @@
                     </tr>
                 `).join('');
             } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state" style="color:red"><i class="fas fa-exclamation-triangle"></i><p>Hata: ${err.message}</p></div></td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state" style="color:red"><i class="fas fa-exclamation-triangle"></i><p>Hata: ${err.message}</p></div></td></tr>`;
             }
         }
 
@@ -217,6 +240,10 @@
             document.getElementById('packageSortOrder').value = '0';
             document.getElementById('packageIsPopular').checked = false;
             document.getElementById('packageIsActive').checked = true;
+            document.getElementById('packageBarcode').value = '';
+            document.getElementById('packageBarcode').placeholder = 'Yeni kayıtta otomatik üretilir';
+            document.getElementById('packageKdvDahil').checked = false;
+            document.getElementById('packageKdvOrani').value = '20';
             document.getElementById('modalTitle').textContent = 'Yeni Paket Ekle';
         }
 
@@ -232,6 +259,9 @@
                 name: document.getElementById('packageName').value.trim(),
                 subtitle: document.getElementById('packageSubtitle').value.trim(),
                 price: parseFloat(document.getElementById('packagePrice').value),
+                wholesalePrice: document.getElementById('packageWholesalePrice').value === '' ? null : parseFloat(document.getElementById('packageWholesalePrice').value),
+                kdvDahil: document.getElementById('packageKdvDahil').checked,
+                kdvOrani: parseFloat(document.getElementById('packageKdvOrani').value) || 20,
                 period: document.getElementById('packagePeriod').value,
                 features: featuresText ? featuresText.split('\n').map(s => s.trim()).filter(Boolean) : [],
                 featuresExcluded: featuresExcludedText ? featuresExcludedText.split('\n').map(s => s.trim()).filter(Boolean) : [],
@@ -251,7 +281,8 @@
                 });
                 const data = await res.json();
                 if (!data.success) throw new Error(data.message || 'Kayıt başarısız');
-                alert(id ? 'Paket güncellendi' : 'Paket eklendi');
+                const msg = id ? 'Paket güncellendi' : (data.package && data.package.barcode ? `Paket eklendi. Barkod: ${data.package.barcode}` : 'Paket eklendi');
+                alert(msg);
                 closeModal();
                 loadPackages();
             } catch (err) {
@@ -268,8 +299,13 @@
 
                 document.getElementById('packageId').value = p._id;
                 document.getElementById('packageName').value = p.name;
+                document.getElementById('packageBarcode').value = p.barcode || '';
+                document.getElementById('packageBarcode').placeholder = p.barcode ? '' : 'Yeni kayıtta otomatik üretilir';
                 document.getElementById('packageSubtitle').value = p.subtitle || '';
                 document.getElementById('packagePrice').value = p.price;
+                document.getElementById('packageWholesalePrice').value = p.wholesalePrice != null ? p.wholesalePrice : '';
+                document.getElementById('packageKdvDahil').checked = !!p.kdvDahil;
+                document.getElementById('packageKdvOrani').value = p.kdvOrani !== undefined ? p.kdvOrani : 20;
                 document.getElementById('packagePeriod').value = p.period || 'ay';
                 document.getElementById('packageFeatures').value = (p.features || []).join('\n');
                 document.getElementById('packageFeaturesExcluded').value = (p.featuresExcluded || []).join('\n');

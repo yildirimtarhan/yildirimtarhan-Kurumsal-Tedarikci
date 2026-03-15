@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const Product = require("../models/Product");
+const { generateUniqueBarcode } = require("../utils/barcodeGenerator");
 
-const JWT_SECRET = process.env.JWT_SECRET || "kurumsal-tedarikci-secret-key";
+const { JWT_SECRET } = require('../config/jwt');
 
 // ============================================
 // MIDDLEWARE: Admin Kontrolü
@@ -35,14 +36,33 @@ function adminOnly(req, res, next) {
 }
 
 // ============================================
-// MÜŞTERİ İÇİN ÜRÜN LİSTESİ (Auth gerektirmez)
+// MÜŞTERİ İÇİN ÜRÜN LİSTESİ (Auth gerektirmez; Bayi token ile toptan fiyat döner)
 // ============================================
 router.get("/public", async (req, res) => {
   try {
+    let isBayi = false;
+    const authHeader = req.headers.authorization;
+    if (authHeader) {
+      try {
+        const token = authHeader.startsWith("Bearer ") ? authHeader.split(" ")[1] : authHeader;
+        const decoded = jwt.verify(token, JWT_SECRET);
+        isBayi = decoded.rol === "bayi";
+      } catch (_) {}
+    }
+    const select = "name sku price category description unit barcode kdvDahil kdvOrani";
+    const selectBayi = select + " wholesalePrice minQuantityWholesale";
     const products = await Product.find({ isActive: { $ne: false } })
       .sort({ createdAt: -1 })
-      .select("name sku price category description unit");
-    res.json({ success: true, products });
+      .select(isBayi ? selectBayi : select)
+      .lean();
+    if (isBayi && products.length) {
+      products.forEach((p) => {
+        const wholesale = p.wholesalePrice != null && p.wholesalePrice > 0 ? p.wholesalePrice : null;
+        p.effectivePrice = wholesale != null ? wholesale : p.price;
+        p.isWholesale = wholesale != null;
+      });
+    }
+    res.json({ success: true, products, isBayi: isBayi });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -104,7 +124,7 @@ router.get("/:id", adminOnly, async (req, res) => {
 // ============================================
 router.post("/", adminOnly, async (req, res) => {
   try {
-    const { name, sku, price, stock, minStock, category, description, unit } = req.body;
+    const { name, sku, price, stock, minStock, category, description, unit, kdvDahil, kdvOrani, wholesalePrice, minQuantityWholesale } = req.body;
 
     // SKU kontrolü
     const existing = await Product.findOne({ sku });
@@ -112,13 +132,24 @@ router.post("/", adminOnly, async (req, res) => {
       return res.status(400).json({ success: false, message: "Bu SKU zaten kullanılıyor" });
     }
 
+    const barcode = req.body.barcode && String(req.body.barcode).trim()
+      ? String(req.body.barcode).trim()
+      : await generateUniqueBarcode(Product);
+
+    const categoryStr = (category != null && String(category).trim()) ? String(category).trim() : 'Diğer';
+
     const product = await Product.create({
       name,
       sku,
+      barcode,
       price: parseFloat(price) || 0,
+      wholesalePrice: wholesalePrice != null && wholesalePrice !== '' ? parseFloat(wholesalePrice) : null,
+      minQuantityWholesale: minQuantityWholesale != null && minQuantityWholesale !== '' ? parseInt(minQuantityWholesale) : 1,
+      kdvDahil: req.body.kdvDahil === true || req.body.kdvDahil === 'true',
+      kdvOrani: Math.min(100, Math.max(0, parseFloat(kdvOrani) || 20)),
       stock: parseInt(stock) || 0,
       minStock: parseInt(minStock) || 10,
-      category: category || 'Diğer',
+      category: categoryStr,
       description: description || '',
       unit: unit || 'Adet',
       movements: [{
@@ -143,20 +174,27 @@ router.post("/", adminOnly, async (req, res) => {
 // ============================================
 router.put("/:id", adminOnly, async (req, res) => {
   try {
-    const { name, price, minStock, category, description, unit, isActive } = req.body;
+    const { name, price, minStock, category, description, unit, isActive, kdvDahil, kdvOrani, wholesalePrice, minQuantityWholesale } = req.body;
+
+    const updates = {
+      name,
+      price: parseFloat(price),
+      minStock: parseInt(minStock),
+      category,
+      description,
+      unit,
+      isActive,
+      updatedAt: new Date()
+    };
+    if (wholesalePrice !== undefined) updates.wholesalePrice = (wholesalePrice === '' || wholesalePrice == null) ? null : parseFloat(wholesalePrice);
+    if (minQuantityWholesale !== undefined) updates.minQuantityWholesale = minQuantityWholesale === '' || minQuantityWholesale == null ? 1 : parseInt(minQuantityWholesale);
+    if (kdvDahil !== undefined) updates.kdvDahil = kdvDahil === true || kdvDahil === 'true';
+    if (kdvOrani !== undefined) updates.kdvOrani = Math.min(100, Math.max(0, parseFloat(kdvOrani) || 20));
+    if (category !== undefined) updates.category = String(category).trim() || 'Diğer';
 
     const product = await Product.findByIdAndUpdate(
       req.params.id,
-      { 
-        name, 
-        price: parseFloat(price), 
-        minStock: parseInt(minStock), 
-        category, 
-        description, 
-        unit,
-        isActive,
-        updatedAt: new Date() 
-      },
+      updates,
       { new: true }
     );
 

@@ -4,17 +4,26 @@ const UBLGenerator = require('./ublGenerator');
 
 class TaxtenService {
   constructor() {
-    this.baseURL = process.env.TAXTEN_ENV === 'production' 
+    const isProd = process.env.TAXTEN_ENV === 'production';
+    this.baseURL = isProd 
       ? 'https://rest.taxten.com/api/v1'
       : 'https://devrest.taxten.com/api/v1';
     
+    // Test ortamı: TAXTEN_TEST_CLIENT_ID + TAXTEN_TEST_API_KEY kullan
     this.auth = {
-      username: process.env.TAXTEN_USERNAME,
-      password: process.env.TAXTEN_PASSWORD
+      username: process.env.TAXTEN_USERNAME || process.env.TAXTEN_TEST_CLIENT_ID,
+      password: process.env.TAXTEN_PASSWORD || process.env.TAXTEN_TEST_API_KEY
     };
     
-    this.vkn = process.env.TAXTEN_VKN;
-    this.gbEtiket = process.env.TAXTEN_GB_ETIKET;
+    this.vkn = process.env.TAXTEN_VKN || process.env.TAXTEN_TEST_CLIENT_ID;
+    this.gbEtiket = process.env.TAXTEN_GB_ETIKET || process.env.TAXTEN_TEST_CLIENT_ID;
+    
+    if (!this.auth.username || !this.auth.password) {
+      console.warn('[Taxten] UYARI: TAXTEN_USERNAME/PASSWORD veya TAXTEN_TEST_CLIENT_ID/TAXTEN_TEST_API_KEY tanımlı değil!');
+    }
+    if (!this.vkn || !this.gbEtiket) {
+      console.warn('[Taxten] UYARI: TAXTEN_VKN ve TAXTEN_GB_ETIKET gerekli. Test için TAXTEN_TEST_CLIENT_ID kullanılıyor.');
+    }
     
     this.ublGenerator = new UBLGenerator();
   }
@@ -61,10 +70,15 @@ class TaxtenService {
       };
       
     } catch (error) {
-      console.error('Taxten fatura gönderim hatası:', error);
+      const errData = error.response?.data;
+      const errMsg = typeof errData === 'object' 
+        ? (errData.Message || errData.message || JSON.stringify(errData))
+        : (errData || error.message);
+      console.error('Taxten fatura gönderim hatası:', errMsg, error.response?.status);
       return {
         success: false,
-        error: error.response?.data || error.message,
+        error: errData || error.message,
+        errorMessage: errMsg,
         uuid: uuid
       };
     }

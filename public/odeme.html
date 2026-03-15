@@ -1632,10 +1632,43 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
+    // Bayi alt limit kontrolü: ürün en az 5, paket en az 3 adet
+    if (currentUser && currentUser.rol === 'bayi') {
+        for (var i = 0; i < cart.length; i++) {
+            var it = cart[i];
+            var q = parseInt(it.qty || it.adet || 1);
+            var tip = (it.itemType || it.tip || '').toLowerCase();
+            if (tip === 'package' || tip === 'paket') {
+                if (q < 3) {
+                    showToast('Bayi için paket alımında en az 3 adet olmalıdır: ' + (it.name || it.ad), 'error');
+                    return;
+                }
+            } else {
+                if (q < 5) {
+                    showToast('Bayi için ürün alımında en az 5 adet olmalıdır: ' + (it.name || it.ad), 'error');
+                    return;
+                }
+            }
+        }
+    }
+
     showLoading(true);
 
-    const orderData = {
-        items: cart,
+    // Sipariş kalemleri: backend bayi için itemType bekliyor (ürün min 5, paket min 3)
+        const orderItems = cart.map(function(item) {
+            return {
+                name: item.name || item.ad,
+                ad: item.name || item.ad,
+                price: item.price || item.fiyat,
+                fiyat: item.price || item.fiyat,
+                quantity: item.qty || item.adet || 1,
+                qty: item.qty || item.adet || 1,
+                adet: item.qty || item.adet || 1,
+                itemType: item.itemType || null
+            };
+        });
+        const orderData = {
+        items: orderItems,
         shippingAddressId: addresses[selectedAddressId]?._id,
         invoiceAddressId: document.getElementById('sameAddress').checked
             ? addresses[selectedAddressId]?._id

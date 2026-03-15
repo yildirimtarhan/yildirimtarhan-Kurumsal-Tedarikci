@@ -137,6 +137,9 @@
                     <i class="fas fa-sign-in-alt"></i>
                     <span id="loginBtnText">Giriş Yap</span>
                 </button>
+                <p class="mt-4 text-center text-sm text-gray-500">
+                    <i class="fas fa-store text-green-600 mr-1"></i> Bayi (toptan B2B) iseniz <a href="bayi-giris.html" class="text-green-600 hover:underline font-medium">Bayi Girişi</a> yapın. Bayi değilseniz önce <a href="bayilik-basvuru.html" class="text-green-600 hover:underline font-medium">Bayilik Başvurusu</a> yapın.
+                </p>
             </form>
         </div>
         
@@ -658,7 +661,15 @@
                     
                     showToast('Giriş başarılı! Yönlendiriliyorsunuz...');
                     
-                    // Kullanıcı rolüne göre yönlendirme
+                    // returnTo varsa (örn. bayilik-basvuru) oraya yönlendir
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const returnTo = urlParams.get('returnTo');
+                    if (returnTo && /^[a-zA-Z0-9_.-]+\.html$/.test(returnTo)) {
+                        setTimeout(() => { window.location.href = returnTo; }, 350);
+                        return;
+                    }
+                    
+                    // Kullanıcı rolüne göre yönlendirme (kısa gecikme, hızlı yönlendirme)
                     setTimeout(() => {
                         const userRol = data.user?.rol || 'user';
                         const userTip = data.user?.uyelikTipi || 'bireysel';
@@ -674,7 +685,7 @@
                         }
                         
                         window.location.href = redirectPage;
-                    }, 1000);
+                    }, 350);
                 } else {
                     showToast(data.message || 'Giriş başarısız! E-posta veya şifre hatalı.', 'error');
                 }

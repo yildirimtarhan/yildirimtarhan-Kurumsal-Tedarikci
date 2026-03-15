@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bayilik Başvurusu - Kurumsal Tedarikçi</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <link href="css/style.css" rel="stylesheet"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f9fafb; padding-top: 70px; }
+    .navbar { position: fixed; top: 0; left: 0; width: 100%; background: white; box-shadow: 0 2px 20px rgba(0,0,0,0.1); z-index: 1000; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 24px; font-weight: 800; color: #1f2937; text-decoration: none; }
+    .logo span { color: #6366f1; }
+    .nav-links { display: flex; list-style: none; gap: 25px; }
+    .nav-links a { text-decoration: none; color: #374151; font-weight: 500; }
+    .nav-links a:hover { color: #6366f1; }
+    .nav-links a.active { color: #059669; font-weight: 700; }
+    .hero { padding: 60px 5%; background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; text-align: center; }
+    .hero h1 { font-size: 2.2rem; margin-bottom: 12px; }
+    .hero p { font-size: 1.1rem; opacity: 0.95; }
+    .form-container { max-width: 600px; margin: -30px auto 60px; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); position: relative; z-index: 10; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; color: #374151; font-weight: 600; font-size: 14px; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px; }
+.form-group select { cursor: pointer; background: white; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: #059669; outline: none; }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    .form-group small { color: #6b7280; font-size: 12px; margin-top: 4px; display: block; }
+    .btn-gonder { width: 100%; padding: 16px; background: #059669; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .btn-gonder:hover { background: #047857; }
+    .btn-gonder:disabled { background: #9ca3af; cursor: not-allowed; }
+    .giris-uyari { text-align: center; padding: 40px 20px; background: #fef3c7; border: 2px solid #f59e0b; border-radius: 16px; margin: 20px auto; max-width: 500px; }
+    .giris-uyari h3 { color: #92400e; margin-bottom: 15px; }
+    .giris-uyari a { display: inline-block; margin: 8px; padding: 12px 24px; background: #6366f1; color: white; text-decoration: none; border-radius: 10px; font-weight: 600; }
+    .giris-uyari a.secondary { background: #6b7280; }
+    .durum-kutusu { padding: 16px; border-radius: 10px; margin-bottom: 20px; }
+    .durum-beklemede { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; }
+    .durum-onaylandi { background: #d1fae5; border: 1px solid #059669; color: #065f46; }
+    .durum-reddedildi { background: #fee2e2; border: 1px solid #ef4444; color: #991b1b; }
+    footer { background: #1f2937; color: white; padding: 40px 5%; text-align: center; margin-top: 60px; }
+    .form-section { margin-top: 28px; padding-top: 24px; border-top: 2px solid #e5e7eb; }
+    .form-section-title { font-size: 16px; color: #047857; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .form-section-title i { color: #059669; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 600px) { .form-row-2 { grid-template-columns: 1fr; } }
+    .benim-basvurular { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
+    .benim-basvurular h4 { margin-bottom: 12px; color: #374151; }
+    .basvuru-item { padding: 12px; background: #f9fafb; border-radius: 8px; margin-bottom: 10px; font-size: 14px; }
+    .mobile-menu-btn { display: none; background: none; border: none; font-size: 22px; color: #374151; cursor: pointer; padding: 8px; }
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .form-container { margin: -20px 15px 40px; padding: 24px 20px; }
+      .hero h1 { font-size: 1.6rem; }
+      .hero p { font-size: 0.95rem; }
+      .mobile-menu-btn { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a class="logo" href="index.html">Kurumsal<span>Tedarikçi</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Anasayfa</a></li>
+      <li><a href="hizmetler.html">Hizmetler</a></li>
+      <li><a href="paketler.html">Paketler</a></li>
+      <li><a href="urunler.html">Ürünler</a></li>
+      <li><a href="referanslar.html">Referanslar</a></li>
+      <li><a href="teklif.html">Teklif Al</a></li>
+      <li><a href="bayilik-basvuru.html" class="active">Bayilik Başvurusu</a></li>
+      <li><a href="iletisim.html">İletişim</a></li>
+    </ul>
+    <button type="button" aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()"><i class="fas fa-bars" id="menuIcon"></i></button>
+    <div id="navUserArea">
+      <a href="giris.html" style="text-decoration:none;color:#6366f1;font-weight:600;padding:8px 16px;border:2px solid #6366f1;border-radius:20px;">Giriş Yap</a>
+      <a href="odeme.html" style="margin-left:10px;background:#6366f1;color:white;width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;"><i class="fas fa-shopping-cart"></i></a>
+    </div>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-panel">
+      <button type="button" aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button>
+      <ul class="mobile-nav-links">
+        <li><a href="index.html">Anasayfa</a></li>
+        <li><a href="hizmetler.html">Hizmetler</a></li>
+        <li><a href="paketler.html">Paketler</a></li>
+        <li><a href="urunler.html">Ürünler</a></li>
+        <li><a href="referanslar.html">Referanslar</a></li>
+        <li><a href="teklif.html">Teklif Al</a></li>
+        <li><a href="bayilik-basvuru.html" class="active">Bayilik Başvurusu</a></li>
+        <li><a href="bayi-giris.html">Bayi Girişi</a></li>
+        <li><a href="iletisim.html">İletişim</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <section class="hero">
+    <h1><i class="fas fa-store"></i> Bayilik Başvurusu</h1>
+    <p>Toptan (B2B) fiyatlardan yararlanmak için başvurunuzu yapın. Admin onayından sonra <a href="bayi-giris.html" style="color:rgba(255,255,255,0.95);text-decoration:underline;">Bayi Girişi</a> ile toptan fiyatlara erişebilirsiniz.</p>
+  </section>
+
+  <div class="form-container" id="formContainer">
+    <div id="girisUyari" class="giris-uyari" style="display:none;">
+      <h3><i class="fas fa-info-circle"></i> Başvuruyu göndermek için giriş gerekli</h3>
+      <p>Formu doldurduktan sonra başvuruyu gönderebilmek için giriş yapın. Hesabınız yoksa kayıt olun, ardından bu sayfaya dönüp formu gönderin.</p>
+      <a href="giris.html?returnTo=bayilik-basvuru.html">Giriş Yap</a>
+      <a href="kayit.html?returnTo=bayilik-basvuru.html" class="secondary">Kayıt Ol</a>
+    </div>
+
+    <div id="basvuruFormu">
+      <div id="mevcutDurum"></div>
+      <form id="bayiForm">
+        <div class="form-group">
+          <label>Firma Adı *</label>
+          <input type="text" id="firmaAdi" required placeholder="Firma / Şirket ünvanı"/>
+        </div>
+        <div class="form-group">
+          <label>Vergi Dairesi *</label>
+          <input type="text" id="vergiDairesi" required placeholder="Örn: Kadıköy"/>
+        </div>
+        <div class="form-group">
+          <label>Vergi Numarası (VKN) *</label>
+          <input type="text" id="vergiNo" required placeholder="10 haneli vergi numarası" maxlength="11" pattern="[0-9]{10,11}"/>
+          <small>Şahıs şirketi veya kurumsal vergi numarası (10 hane)</small>
+        </div>
+        <div class="form-group">
+          <label>TC Kimlik Numarası *</label>
+          <input type="text" id="tcNo" required placeholder="11 haneli TC kimlik no" maxlength="11" pattern="[0-9]{11}"/>
+          <small>Yetkili kişi TC kimlik numarası (11 hane)</small>
+        </div>
+        <div class="form-group">
+          <label>Telefon *</label>
+          <input type="tel" id="telefon" required placeholder="05XX XXX XX XX"/>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title"><i class="fas fa-file-invoice"></i> Fatura Adresi</div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>İl *</label>
+              <select id="faturaIl" required>
+                <option value="">İl seçiniz</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>İlçe *</label>
+              <select id="faturaIlce" required disabled>
+                <option value="">Önce il seçiniz</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Mahalle</label>
+              <input type="text" id="faturaMahalle" placeholder="Mahalle adı"/>
+            </div>
+            <div class="form-group">
+              <label>Sokak / Cadde</label>
+              <input type="text" id="faturaSokak" placeholder="Sokak veya cadde adı"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Açık Adres (Bina no, daire no, kat) *</label>
+            <textarea id="faturaAdres" required placeholder="Bina no, daire no, kat ve diğer adres detayları" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title"><i class="fas fa-truck"></i> Teslimat Adresi</div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>İl *</label>
+              <select id="teslimatIl" required>
+                <option value="">İl seçiniz</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>İlçe *</label>
+              <select id="teslimatIlce" required disabled>
+                <option value="">Önce il seçiniz</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Mahalle</label>
+              <input type="text" id="teslimatMahalle" placeholder="Mahalle adı"/>
+            </div>
+            <div class="form-group">
+              <label>Sokak / Cadde</label>
+              <input type="text" id="teslimatSokak" placeholder="Sokak veya cadde adı"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Açık Adres (Bina no, daire no, kat) *</label>
+            <textarea id="teslimatAdres" required placeholder="Bina no, daire no, kat ve diğer adres detayları" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Mesaj (Opsiyonel)</label>
+          <textarea id="mesaj" placeholder="Eklemek istedikleriniz..."></textarea>
+        </div>
+        <button type="submit" class="btn-gonder" id="submitBtn"><i class="fas fa-paper-plane"></i> Başvuruyu Gönder</button>
+      </form>
+      <div class="benim-basvurular" id="benimBasvurular" style="display:none;">
+        <h4><i class="fas fa-list"></i> Başvuru Geçmişim</h4>
+        <div id="benimBasvurularListe"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
+  </footer>
+
+  <script src="js/turkiye-adresler.js"></script>
+  <script>
+    (function() {
+      const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:3000/api'
+        : 'https://backend-api-7s13.onrender.com/api';
+      window.ADRES_API_BASE = (API_URL || '').replace(/\/api\/?$/, '') || window.location.origin;
+
+      function fillIlSelect(selectId) {
+        const sel = document.getElementById(selectId);
+        if (!sel || sel.options.length > 1) return;
+        const iller = typeof getIller === 'function' ? getIller() : (typeof TURKIYE_ADRESLER !== 'undefined' ? Object.keys(TURKIYE_ADRESLER).sort() : []);
+        iller.forEach(function(il) {
+          const opt = document.createElement('option');
+          opt.value = il;
+          opt.textContent = il;
+          sel.appendChild(opt);
+        });
+      }
+      function fillIlceSelect(ilAdi, ilceSelectId) {
+        const sel = document.getElementById(ilceSelectId);
+        if (!sel) return;
+        sel.innerHTML = ilAdi ? '<option value="">İlçe seçiniz</option>' : '<option value="">Önce il seçiniz</option>';
+        sel.disabled = !ilAdi;
+        if (!ilAdi) return;
+        const ilceler = typeof getIlceler === 'function' ? getIlceler(ilAdi) : (TURKIYE_ADRESLER && TURKIYE_ADRESLER[ilAdi] ? TURKIYE_ADRESLER[ilAdi].slice().sort() : []);
+        ilceler.forEach(function(ilce) {
+          const opt = document.createElement('option');
+          opt.value = ilce;
+          opt.textContent = ilce;
+          sel.appendChild(opt);
+        });
+      }
+      function initBayilikAdresDropdowns() {
+        fillIlSelect('faturaIl');
+        fillIlSelect('teslimatIl');
+        var faturaIl = document.getElementById('faturaIl');
+        var teslimatIl = document.getElementById('teslimatIl');
+        if (faturaIl) faturaIl.addEventListener('change', function() { fillIlceSelect(this.value, 'faturaIlce'); });
+        if (teslimatIl) teslimatIl.addEventListener('change', function() { fillIlceSelect(this.value, 'teslimatIlce'); });
+      }
+      initBayilikAdresDropdowns();
+
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      const girisUyari = document.getElementById('girisUyari');
+      const basvuruFormu = document.getElementById('basvuruFormu');
+
+      if (!token) {
+        girisUyari.style.display = 'block';
+        document.getElementById('bayiForm').addEventListener('submit', function(e) {
+          e.preventDefault();
+          window.location.href = 'giris.html?returnTo=bayilik-basvuru.html';
+        });
+        return;
+      }
+
+      girisUyari.style.display = 'none';
+
+      const headers = { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token };
+
+      async function benimBasvurulariGetir() {
+        try {
+          const res = await fetch(API_URL + '/bayi-basvuru/benim', { headers });
+          const data = await res.json();
+          if (!data.success) return;
+          const list = data.basvurular || [];
+          const durumDiv = document.getElementById('mevcutDurum');
+          const formEl = document.getElementById('bayiForm');
+          const submitBtn = document.getElementById('submitBtn');
+          const bekleyen = list.find(function(b) { return b.durum === 'beklemede'; });
+          const onayli = list.find(function(b) { return b.durum === 'onaylandi'; });
+          if (onayli) {
+            durumDiv.innerHTML = '<div class="durum-kutusu durum-onaylandi"><strong><i class="fas fa-check-circle"></i> Bayi üyeliğiniz onaylı.</strong> Ürünler ve Paketler sayfasında toptan fiyatları görebilirsiniz.</div>';
+            formEl.style.display = 'none';
+            submitBtn.style.display = 'none';
+          } else if (bekleyen) {
+            durumDiv.innerHTML = '<div class="durum-kutusu durum-beklemede"><strong><i class="fas fa-clock"></i> Başvurunuz inceleniyor.</strong> Admin onayından sonra toptan fiyatlara erişebilirsiniz.</div>';
+            formEl.style.display = 'none';
+            submitBtn.style.display = 'none';
+          } else {
+            durumDiv.innerHTML = '';
+            formEl.style.display = 'block';
+            submitBtn.style.display = 'block';
+          }
+          if (list.length > 0) {
+            document.getElementById('benimBasvurular').style.display = 'block';
+            const durumTr = { beklemede: 'Beklemede', onaylandi: 'Onaylandı', reddedildi: 'Reddedildi' };
+            document.getElementById('benimBasvurularListe').innerHTML = list.map(function(b) {
+              return '<div class="basvuru-item">' +
+                '<strong>' + (b.firmaAdi || '') + '</strong> — ' + (durumTr[b.durum] || b.durum) +
+                (b.onayTarihi ? ' — ' + new Date(b.onayTarihi).toLocaleDateString('tr-TR') : '') +
+                (b.adminNotu ? '<br><small>Not: ' + b.adminNotu + '</small>' : '') +
+                '</div>';
+            }).join('');
+          }
+        } catch (e) {
+          console.warn('Başvurular yüklenemedi', e);
+        }
+      }
+
+      benimBasvurulariGetir();
+
+      document.getElementById('bayiForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = ' Gönderiliyor...';
+        try {
+          const res = await fetch(API_URL + '/bayi-basvuru', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({
+              firmaAdi: document.getElementById('firmaAdi').value.trim(),
+              vergiDairesi: document.getElementById('vergiDairesi').value.trim(),
+              vergiNo: document.getElementById('vergiNo').value.trim(),
+              tcNo: document.getElementById('tcNo').value.trim(),
+              telefon: document.getElementById('telefon').value.trim(),
+              faturaIl: document.getElementById('faturaIl').value.trim(),
+              faturaIlce: document.getElementById('faturaIlce').value.trim(),
+              faturaMahalle: document.getElementById('faturaMahalle').value.trim(),
+              faturaSokak: document.getElementById('faturaSokak').value.trim(),
+              faturaAdres: document.getElementById('faturaAdres').value.trim(),
+              teslimatIl: document.getElementById('teslimatIl').value.trim(),
+              teslimatIlce: document.getElementById('teslimatIlce').value.trim(),
+              teslimatMahalle: document.getElementById('teslimatMahalle').value.trim(),
+              teslimatSokak: document.getElementById('teslimatSokak').value.trim(),
+              teslimatAdres: document.getElementById('teslimatAdres').value.trim(),
+              mesaj: document.getElementById('mesaj').value.trim()
+            })
+          });
+          const data = await res.json();
+          if (data.success) {
+            alert('Bayilik başvurunuz alındı. Admin onayından sonra toptan fiyatlara erişebilirsiniz.');
+            benimBasvurulariGetir();
+            document.getElementById('bayiForm').reset();
+          } else {
+            alert(data.message || 'Başvuru gönderilemedi.');
+          }
+        } catch (err) {
+          alert('Bağlantı hatası. Tekrar deneyin.');
+        }
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Başvuruyu Gönder';
+      });
+    })();
+  </script>
+  <script src="js/main.js"></script>
+</body>
+</html>
