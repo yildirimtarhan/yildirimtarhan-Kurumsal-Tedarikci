@@ -26,6 +26,7 @@
         .filters { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: center; }
         .filters select { padding: 0.5rem 1rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; }
         .btn { padding: 0.5rem 1rem; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: #3498db; color: white; }
         .btn-success { background: #059669; color: white; }
         .btn-danger { background: #e74c3c; color: white; }
         .btn-sm { padding: 0.4rem 0.6rem; font-size: 0.8rem; }
@@ -84,7 +85,12 @@
     <div class="main-content">
         <div class="header">
             <h1><i class="fas fa-store"></i> Bayilik Başvuruları</h1>
+            <div style="display:flex; align-items: center; gap: 0.5rem; margin-left: auto;">
+                <button type="button" class="btn" style="background:#6b7280; color:white;" onclick="checkBasvuruSayisi()" title="Veritabanındaki toplam başvuru sayısını kontrol et"><i class="fas fa-database"></i> Başvuru sayısı</button>
+                <button type="button" class="btn btn-primary" onclick="loadBasvurular()" title="Tüm başvuruları (eskiler dahil) yeniden getir"><i class="fas fa-sync-alt"></i> Yenile</button>
+            </div>
         </div>
+        <p style="color:#6b7280;font-size:14px;margin-bottom:12px;">Tüm başvurular listelenir (eskiler dahil). Durum filtresiyle sadeleştirebilirsiniz. <span id="basvuruSayisi" style="font-weight:600;color:#059669;"></span> <span id="countResult" style="font-size:12px;color:#3498db;"></span></p>
         <div class="filters">
             <label>Durum:</label>
             <select id="durumFilter" onchange="loadBasvurular()">
@@ -143,18 +149,39 @@
 
         let seciliBasvuruId = null;
 
+        async function checkBasvuruSayisi() {
+            var el = document.getElementById('countResult');
+            if (el) el.textContent = 'Kontrol ediliyor...';
+            try {
+                var url = API_URL + '/admin/bayi-basvurulari-count?_=' + Date.now();
+                var res = await fetch(url, { headers: { Authorization: 'Bearer ' + token }, cache: 'no-store' });
+                var data = await res.json().catch(function() { return {}; });
+                if (!res.ok) throw new Error(data.message || 'HTTP ' + res.status);
+                if (!data.success) throw new Error(data.message || 'Hata');
+                if (el) el.textContent = '(Veritabanı: toplam ' + (data.total || 0) + ' başvuru, beklemede ' + (data.beklemede || 0) + ')';
+            } catch (err) {
+                if (el) el.textContent = 'Hata: ' + err.message;
+            }
+        }
+
         async function loadBasvurular() {
             const tbody = document.getElementById('basvuruTable');
             const durum = document.getElementById('durumFilter').value;
             let url = API_URL + '/admin/bayi-basvurulari';
             if (durum) url += '?durum=' + encodeURIComponent(durum);
+            url += (url.indexOf('?') >= 0 ? '&' : '?') + '_=' + Date.now();
             try {
-                const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
-                const data = await res.json();
+                const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token }, cache: 'no-store' });
+                const data = await res.json().catch(function() { return {}; });
+                if (!res.ok) {
+                    throw new Error(data.message || 'HTTP ' + res.status);
+                }
                 if (!data.success) throw new Error(data.message || 'Yüklenemedi');
                 const list = data.basvurular || [];
                 if (list.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i><p>Bayilik başvurusu bulunamadı.</p></td></tr>';
+                    var sayac = document.getElementById('basvuruSayisi');
+                    if (sayac) sayac.textContent = '0 başvuru.';
+                    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i><p>Bayilik başvurusu bulunamadı.</p><p style="font-size:12px;margin-top:8px;">Yeni başvurular <strong>Bayilik Başvurusu</strong> sayfasından (giriş yapılmış kullanıcı) gelir. Backend logunda &quot;Bayilik başvuruları listelendi: X adet&quot; kontrol edin.</p></td></tr>';
                     return;
                 }
                 const durumBadge = function(d) {
@@ -170,9 +197,13 @@
                         ? '<button class="btn btn-success btn-sm" onclick="acIslemModal(\'' + b._id + '\', \'onayla\')">Onayla</button> ' +
                           '<button class="btn btn-danger btn-sm" onclick="acIslemModal(\'' + b._id + '\', \'reddet\')">Reddet</button>'
                         : (b.adminNotu ? '<small title="' + (b.adminNotu || '').replace(/"/g, '&quot;') + '">Not eklendi</small>' : '—');
+                    var emailEsc = (email || '').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+                    var emailCell = email
+                        ? '<a href="mailto:' + emailEsc + '" title="Kullanıcıya e-posta gönder" style="color:#6366f1;text-decoration:underline;">' + emailEsc + '</a> <i class="fas fa-envelope" style="font-size:0.85rem;color:#6b7280;" title="E-posta gönder"></i>'
+                        : '—';
                     return '<tr>' +
                         '<td><strong>' + (b.firmaAdi || '').replace(/</g, '&lt;') + '</strong></td>' +
-                        '<td>' + (email || '').replace(/</g, '&lt;') + '</td>' +
+                        '<td>' + emailCell + '</td>' +
                         '<td>' + (b.vergiDairesi || '').replace(/</g, '&lt;') + '</td>' +
                         '<td>' + (b.vergiNo || '').replace(/</g, '&lt;') + '</td>' +
                         '<td>' + (b.tcNo || '').replace(/</g, '&lt;') + '</td>' +
@@ -180,8 +211,11 @@
                         '<td>' + (b.createdAt ? new Date(b.createdAt).toLocaleDateString('tr-TR') : '') + '</td>' +
                         '<td>' + islemler + '</td></tr>';
                 }).join('');
+                document.getElementById('basvuruSayisi').textContent = list.length + ' başvuru listelendi';
             } catch (err) {
                 tbody.innerHTML = '<tr><td colspan="8" class="empty-state" style="color:red;">Hata: ' + err.message + '</td></tr>';
+                var sayac = document.getElementById('basvuruSayisi');
+                if (sayac) sayac.textContent = '';
             }
         }
 

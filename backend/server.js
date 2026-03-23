@@ -111,6 +111,7 @@ const adresRoutes = require('./routes/adres');
 const supportRoutes = require('./routes/support');
 const categoryRoutes = require('./routes/categories');
 const bayiBasvuruRoutes = require('./routes/bayiBasvuru');
+const uploadRoutes = require('./routes/upload');
 
 // Sonra kullan
 app.use("/api/auth", authRoutes);
@@ -128,6 +129,7 @@ app.use('/api/adres', adresRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/bayi-basvuru', bayiBasvuruRoutes);
+app.use('/api/upload', uploadRoutes);
 
 /* ======================================================
    Teklif Al - Form gönderimi

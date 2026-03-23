@@ -131,6 +131,11 @@
           <label>Telefon *</label>
           <input type="tel" id="telefon" required placeholder="05XX XXX XX XX"/>
         </div>
+        <div class="form-group">
+          <label>E-posta *</label>
+          <input type="email" id="basvuruEmail" required placeholder="ornek@firma.com"/>
+          <small>Başvuru sonucu ve bilgilendirmeler bu adrese gönderilir.</small>
+        </div>
 
         <div class="form-section">
           <div class="form-section-title"><i class="fas fa-file-invoice"></i> Fatura Adresi</div>
@@ -315,6 +320,18 @@
 
       benimBasvurulariGetir();
 
+      async function basvuruEmailDoldur() {
+        try {
+          const res = await fetch(API_URL + '/auth/profile', { headers });
+          const data = await res.json();
+          if (data.success && data.user && data.user.email) {
+            const el = document.getElementById('basvuruEmail');
+            if (el && !el.value) el.value = data.user.email;
+          }
+        } catch (e) { console.warn('Profil e-posta yüklenemedi', e); }
+      }
+      basvuruEmailDoldur();
+
       document.getElementById('bayiForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const submitBtn = document.getElementById('submitBtn');
@@ -330,6 +347,7 @@
               vergiNo: document.getElementById('vergiNo').value.trim(),
               tcNo: document.getElementById('tcNo').value.trim(),
               telefon: document.getElementById('telefon').value.trim(),
+              email: document.getElementById('basvuruEmail').value.trim(),
               faturaIl: document.getElementById('faturaIl').value.trim(),
               faturaIlce: document.getElementById('faturaIlce').value.trim(),
               faturaMahalle: document.getElementById('faturaMahalle').value.trim(),

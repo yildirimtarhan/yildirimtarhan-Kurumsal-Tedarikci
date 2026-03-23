@@ -97,6 +97,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   window.toggleUserMenu = toggleUserMenu;
 
+  window.toggleUrunlerMenu = function () {
+    const drop = document.getElementById("urunlerDropdown");
+    const item = document.getElementById("urunlerNavItem");
+    if (!drop || !item) return;
+    drop.classList.toggle("show");
+    item.classList.toggle("open");
+  };
+
   function renderNavbarUser() {
     // Hem localStorage hem sessionStorage kontrol et (Beni hatırla işaretlenmemişse sessionStorage kullanılır)
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -173,6 +181,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const dropdown = document.getElementById("userDropdown");
         if (userMenu && dropdown && !userMenu.contains(e.target)) {
           dropdown.classList.remove("show");
+        }
+        const urunlerItem = document.getElementById("urunlerNavItem");
+        const urunlerDrop = document.getElementById("urunlerDropdown");
+        if (urunlerDrop && urunlerItem && !urunlerItem.contains(e.target)) {
+          urunlerDrop.classList.remove("show");
+          urunlerItem.classList.remove("open");
         }
       });
     } catch (e) {

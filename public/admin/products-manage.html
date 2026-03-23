@@ -546,20 +546,7 @@
             <input type="text" id="searchInput" placeholder="Ürün adı veya SKU ara..." onkeyup="loadProducts()">
             <select id="categoryFilter" onchange="loadProducts()">
                 <option value="all">Tüm Kategoriler</option>
-                <option value="E-Dönüşüm (E-Fatura Köntörü) Paketleri">E-Dönüşüm (E-Fatura Köntörü) Paketleri</option>
-                <option value="E-İmza Paketleri">E-İmza Paketleri</option>
-                <option value="E-İrsaliye Paketleri">E-İrsaliye Paketleri</option>
-                <option value="E-Defter Paketleri">E-Defter Paketleri</option>
-                <option value="KEP Paketleri">KEP Paketleri</option>
-                <option value="Mali Mühür Paketleri">Mali Mühür Paketleri</option>
-                <option value="Zaman Damgası Paketleri">Zaman Damgası Paketleri</option>
-                <option value="Diğer">Diğer</option>
-                <optgroup label="— Eski kategoriler —">
-                    <option value="E-Fatura">E-Fatura</option>
-                    <option value="E-İrsaliye">E-İrsaliye</option>
-                    <option value="E-Defter">E-Defter</option>
-                    <option value="Mali Mühür">Mali Mühür (eski)</option>
-                </optgroup>
+                <option value="">— Kategoriler yükleniyor —</option>
             </select>
             <select id="stockFilter" onchange="loadProducts()">
                 <option value="all">Tüm Stoklar</option>
@@ -619,25 +606,20 @@
                     <label>Barkod</label>
                     <input type="text" id="productBarcode" placeholder="Yeni kayıtta otomatik üretilir" readonly style="background: #f5f5f5;">
                 </div>
+                <div class="form-group">
+                    <label>Ürün resmi</label>
+                    <input type="file" id="productImageInput" accept="image/jpeg,image/png,image/gif,image/webp">
+                    <input type="hidden" id="productImageUrl">
+                    <div id="productImagePreview" style="margin-top:8px;min-height:60px;"></div>
+                    <small style="display:block;margin-top:4px;color:#6b7280;">JPEG, PNG, GIF veya WebP. En fazla 5 MB.</small>
+                </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Kategori *</label>
                         <select id="productCategory" required>
-                            <option value="E-Dönüşüm (E-Fatura Köntörü) Paketleri">E-Dönüşüm (E-Fatura Köntörü) Paketleri</option>
-                            <option value="E-İmza Paketleri">E-İmza Paketleri</option>
-                            <option value="E-İrsaliye Paketleri">E-İrsaliye Paketleri</option>
-                            <option value="E-Defter Paketleri">E-Defter Paketleri</option>
-                            <option value="KEP Paketleri">KEP Paketleri</option>
-                            <option value="Mali Mühür Paketleri">Mali Mühür Paketleri</option>
-                            <option value="Zaman Damgası Paketleri">Zaman Damgası Paketleri</option>
-                            <option value="Diğer">Diğer</option>
-                            <optgroup label="— Eski kategoriler —">
-                                <option value="E-Fatura">E-Fatura</option>
-                                <option value="E-İrsaliye">E-İrsaliye</option>
-                                <option value="E-Defter">E-Defter</option>
-                                <option value="Mali Mühür">Mali Mühür (eski)</option>
-                            </optgroup>
+                            <option value="">— Kategoriler yükleniyor —</option>
                         </select>
+                        <small style="display:block;margin-top:4px;color:#6b7280;">Kategorileri <a href="kategori-yonetim.html" target="_blank">Kategori Yönetimi</a> sayfasından ekleyebilirsiniz.</small>
                     </div>
                     <div class="form-group">
                         <label>Birim</label>
@@ -759,6 +741,45 @@
             } catch (err) {
                 console.error("Stats error:", err);
             }
+        }
+
+        var kategorilerListesi = [];
+        async function loadCategories() {
+            var filterSel = document.getElementById('categoryFilter');
+            var formSel = document.getElementById('productCategory');
+            if (!filterSel || !formSel) return;
+            var fallback = [
+                'E-Dönüşüm (E-Fatura Köntörü) Paketleri', 'E-İmza Paketleri', 'E-İrsaliye Paketleri', 'E-Defter Paketleri',
+                'KEP Paketleri', 'Mali Mühür Paketleri', 'Zaman Damgası Paketleri', 'Diğer'
+            ];
+            try {
+                var res = await fetch(API_URL + '/categories', { headers: { Authorization: 'Bearer ' + token } });
+                var data = await res.json();
+                if (data.success && data.categories && data.categories.length > 0) {
+                    kategorilerListesi = data.categories.map(function(c) { return c.name || ''; }).filter(Boolean);
+                } else {
+                    kategorilerListesi = fallback.slice();
+                }
+            } catch (e) {
+                kategorilerListesi = fallback.slice();
+            }
+            var optHtml = kategorilerListesi.map(function(name) {
+                return '<option value="' + (name || '').replace(/"/g, '&quot;') + '">' + (name || '').replace(/</g, '&lt;') + '</option>';
+            }).join('');
+            filterSel.innerHTML = '<option value="all">Tüm Kategoriler</option>' + optHtml + '<option value="Diğer">Diğer</option>';
+            formSel.innerHTML = '<option value="">— Kategori seçiniz —</option>' + optHtml + '<option value="Diğer">Diğer</option>';
+        }
+        function ensureCategoryOption(categoryName) {
+            if (!categoryName) return;
+            var formSel = document.getElementById('productCategory');
+            if (!formSel) return;
+            for (var i = 0; i < formSel.options.length; i++) {
+                if (formSel.options[i].value === categoryName) return;
+            }
+            var opt = document.createElement('option');
+            opt.value = categoryName;
+            opt.textContent = categoryName;
+            formSel.appendChild(opt);
         }
 
         async function loadProducts() {
@@ -907,6 +928,12 @@
             document.getElementById('productBarcode').placeholder = 'Yeni kayıtta otomatik üretilir';
             document.getElementById('productKdvDahil').checked = false;
             document.getElementById('productKdvOrani').value = '20';
+            var imgUrl = document.getElementById('productImageUrl');
+            if (imgUrl) imgUrl.value = '';
+            var imgPrev = document.getElementById('productImagePreview');
+            if (imgPrev) imgPrev.innerHTML = '';
+            var imgInp = document.getElementById('productImageInput');
+            if (imgInp) imgInp.value = '';
             document.getElementById('modalTitle').textContent = 'Yeni Ürün Ekle';
         }
 
@@ -943,6 +970,22 @@
                 minStock: parseInt(document.getElementById('productMinStock').value),
                 description: document.getElementById('productDesc').value
             };
+
+            const imageInput = document.getElementById('productImageInput');
+            if (imageInput && imageInput.files && imageInput.files.length > 0) {
+                const formData = new FormData();
+                formData.append('image', imageInput.files[0]);
+                const upRes = await fetch(API_URL + '/upload/product-image', {
+                    method: 'POST',
+                    headers: { Authorization: 'Bearer ' + token },
+                    body: formData
+                });
+                const upData = await upRes.json();
+                if (upData.success && upData.url) data.image = upData.url;
+                else { alert('Resim yüklenemedi: ' + (upData.message || 'Bilinmeyen hata')); return; }
+            } else {
+                data.image = (document.getElementById('productImageUrl') && document.getElementById('productImageUrl').value) || '';
+            }
 
             try {
                 const url = id ? `${API_URL}/products/${id}` : `${API_URL}/products`;
@@ -988,6 +1031,7 @@
                 document.getElementById('productSku').value = p.sku;
                 document.getElementById('productBarcode').value = p.barcode || '';
                 document.getElementById('productBarcode').placeholder = p.barcode ? '' : 'Yeni kayıtta otomatik üretilir';
+                ensureCategoryOption(p.category);
                 document.getElementById('productCategory').value = p.category;
                 document.getElementById('productUnit').value = p.unit;
                 document.getElementById('productPrice').value = p.price;
@@ -999,7 +1043,17 @@
                 document.getElementById('productStock').value = p.stock;
                 document.getElementById('productMinStock').value = p.minStock;
                 document.getElementById('productDesc').value = p.description || '';
-                
+                var imgUrl = document.getElementById('productImageUrl');
+                if (imgUrl) imgUrl.value = p.image || '';
+                var imgPrev = document.getElementById('productImagePreview');
+                if (imgPrev) {
+                    if (p.image) {
+                        var src = p.image.startsWith('http') ? p.image : (window.location.origin + (p.image.startsWith('/') ? p.image : '/' + p.image));
+                        imgPrev.innerHTML = '<img src="' + src.replace(/"/g, '&quot;') + '" style="max-width:120px;max-height:120px;object-fit:contain;border-radius:8px;border:1px solid #e5e7eb;">';
+                    } else imgPrev.innerHTML = '';
+                }
+                var imgInp = document.getElementById('productImageInput');
+                if (imgInp) imgInp.value = '';
                 document.getElementById('modalTitle').textContent = 'Ürün Düzenle';
                 document.getElementById('productModal').classList.add('active');
             } catch (err) {
@@ -1066,8 +1120,19 @@
         }
 
         // Initialize
+        var productImageInput = document.getElementById('productImageInput');
+        if (productImageInput) {
+            productImageInput.addEventListener('change', function() {
+                var prev = document.getElementById('productImagePreview');
+                if (!prev) return;
+                if (this.files && this.files[0]) {
+                    var url = URL.createObjectURL(this.files[0]);
+                    prev.innerHTML = '<img src="' + url + '" style="max-width:120px;max-height:120px;object-fit:contain;border-radius:8px;border:1px solid #e5e7eb;">';
+                } else prev.innerHTML = '';
+            });
+        }
+        loadCategories().then(function() { loadProducts(); });
         loadStats();
-        loadProducts();
     </script>
 
 </body>

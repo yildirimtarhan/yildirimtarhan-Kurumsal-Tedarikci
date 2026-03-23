@@ -49,7 +49,7 @@ router.get("/public", async (req, res) => {
         isBayi = decoded.rol === "bayi";
       } catch (_) {}
     }
-    const select = "name sku price category description unit barcode kdvDahil kdvOrani";
+    const select = "name sku price category description unit barcode kdvDahil kdvOrani image";
     const selectBayi = select + " wholesalePrice minQuantityWholesale";
     const products = await Product.find({ isActive: { $ne: false } })
       .sort({ createdAt: -1 })
@@ -124,7 +124,7 @@ router.get("/:id", adminOnly, async (req, res) => {
 // ============================================
 router.post("/", adminOnly, async (req, res) => {
   try {
-    const { name, sku, price, stock, minStock, category, description, unit, kdvDahil, kdvOrani, wholesalePrice, minQuantityWholesale } = req.body;
+    const { name, sku, price, stock, minStock, category, description, unit, kdvDahil, kdvOrani, wholesalePrice, minQuantityWholesale, image } = req.body;
 
     // SKU kontrolü
     const existing = await Product.findOne({ sku });
@@ -152,6 +152,7 @@ router.post("/", adminOnly, async (req, res) => {
       category: categoryStr,
       description: description || '',
       unit: unit || 'Adet',
+      image: (image && String(image).trim()) || '',
       movements: [{
         type: 'giris',
         quantity: parseInt(stock) || 0,
@@ -174,7 +175,7 @@ router.post("/", adminOnly, async (req, res) => {
 // ============================================
 router.put("/:id", adminOnly, async (req, res) => {
   try {
-    const { name, price, minStock, category, description, unit, isActive, kdvDahil, kdvOrani, wholesalePrice, minQuantityWholesale } = req.body;
+    const { name, price, minStock, category, description, unit, isActive, kdvDahil, kdvOrani, wholesalePrice, minQuantityWholesale, image } = req.body;
 
     const updates = {
       name,
@@ -191,6 +192,7 @@ router.put("/:id", adminOnly, async (req, res) => {
     if (kdvDahil !== undefined) updates.kdvDahil = kdvDahil === true || kdvDahil === 'true';
     if (kdvOrani !== undefined) updates.kdvOrani = Math.min(100, Math.max(0, parseFloat(kdvOrani) || 20));
     if (category !== undefined) updates.category = String(category).trim() || 'Diğer';
+    if (image !== undefined) updates.image = String(image).trim() || '';
 
     const product = await Product.findByIdAndUpdate(
       req.params.id,

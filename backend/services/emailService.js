@@ -211,6 +211,143 @@ class EmailService {
             htmlContent
         });
     }
+
+    // Bayilik başvurusu alındı
+    async sendBayilikBasvuruAlindi(userEmail, firmaAdi) {
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+                    .header h1 { color: white; margin: 0; }
+                    .content { background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }
+                    .info-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #6366f1; }
+                    .footer { text-align: center; color: #6b7280; font-size: 12px; margin-top: 30px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>📋 Bayilik Başvurunuz Alındı</h1>
+                    </div>
+                    <div class="content">
+                        <p>Sayın <strong>${(firmaAdi || 'Müşteri').replace(/</g, '&lt;')}</strong>,</p>
+                        <p>Bayilik başvurunuz başarıyla tarafımıza ulaştı. İnceleme sürecinden sonra sonucu e-posta ile bildireceğiz.</p>
+                        <div class="info-box">
+                            <p><strong>Sonraki adım:</strong> Başvurunuz en kısa sürede değerlendirilecektir. Onay sonrası Bayi Girişi ile toptan fiyatlardan yararlanabileceksiniz.</p>
+                        </div>
+                        <p>Sorularınız için: <a href="https://tedarikci.org.tr/iletisim.html">İletişim</a></p>
+                    </div>
+                    <div class="footer">
+                        <p>© 2025 Kurumsal Tedarikçi. Bu e-posta otomatik olarak gönderilmiştir.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+        return await this.send({
+            to: userEmail,
+            subject: '📋 Bayilik Başvurunuz Alındı - Kurumsal Tedarikçi',
+            htmlContent
+        });
+    }
+
+    // Bayilik onaylandı
+    async sendBayilikOnaylandi(userEmail, firmaAdi) {
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: #10b981; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+                    .header h1 { color: white; margin: 0; }
+                    .content { background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }
+                    .btn { display: inline-block; padding: 14px 28px; background: #6366f1; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 15px 0; }
+                    .footer { text-align: center; color: #6b7280; font-size: 12px; margin-top: 30px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>✅ Bayilik Başvurunuz Onaylandı!</h1>
+                    </div>
+                    <div class="content">
+                        <p>Sayın <strong>${(firmaAdi || 'Müşteri').replace(/</g, '&lt;')}</strong>,</p>
+                        <p>Bayilik başvurunuz onaylanmıştır. Artık <strong>Bayi Girişi</strong> ile giriş yaparak toptan (B2B) fiyatlardan yararlanabilirsiniz.</p>
+                        <p><strong>Yapmanız gerekenler:</strong></p>
+                        <ul>
+                            <li>Siteye giriş yapın (mevcut hesabınızla)</li>
+                            <li>Menüden <strong>Bayi Girişi</strong> sayfasına giderek bayi olarak giriş yapın</li>
+                            <li>Ürünlerde toptan fiyatları görüntüleyebilirsiniz</li>
+                        </ul>
+                        <center>
+                            <a href="https://tedarikci.org.tr/bayi-giris.html" class="btn">Bayi Girişi Yap</a>
+                        </center>
+                    </div>
+                    <div class="footer">
+                        <p>© 2025 Kurumsal Tedarikçi. Bu e-posta otomatik olarak gönderilmiştir.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+        return await this.send({
+            to: userEmail,
+            subject: '✅ Bayilik Başvurunuz Onaylandı - Kurumsal Tedarikçi',
+            htmlContent
+        });
+    }
+
+    // Bayilik reddedildi
+    async sendBayilikReddedildi(userEmail, firmaAdi, adminNotu) {
+        const notHtml = (adminNotu && String(adminNotu).trim())
+            ? `<div style="background: #fef2f2; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #ef4444;"><strong>Not:</strong> ${String(adminNotu).replace(/</g, '&lt;')}</div>`
+            : '';
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: #6b7280; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+                    .header h1 { color: white; margin: 0; }
+                    .content { background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }
+                    .footer { text-align: center; color: #6b7280; font-size: 12px; margin-top: 30px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>Bayilik Başvurusu</h1>
+                    </div>
+                    <div class="content">
+                        <p>Sayın <strong>${(firmaAdi || 'Müşteri').replace(/</g, '&lt;')}</strong>,</p>
+                        <p>Bayilik başvurunuz değerlendirilmiş olup, şu an için olumlu sonuçlanamamıştır.</p>
+                        ${notHtml}
+                        <p>Yeni bir başvuru veya sorularınız için <a href="https://tedarikci.org.tr/iletisim.html">bizimle iletişime</a> geçebilirsiniz.</p>
+                    </div>
+                    <div class="footer">
+                        <p>© 2025 Kurumsal Tedarikçi. Bu e-posta otomatik olarak gönderilmiştir.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+        return await this.send({
+            to: userEmail,
+            subject: 'Bayilik Başvurusu - Kurumsal Tedarikçi',
+            htmlContent
+        });
+    }
 }
 
 module.exports = new EmailService();

@@ -234,19 +234,35 @@ router.put("/users/:id", adminOnly, async (req, res) => {
   }
 });
 
+// Bayilik başvuru sayısı (kontrol için)
+router.get("/bayi-basvurulari-count", adminOnly, async (req, res) => {
+  try {
+    const total = await BayiBasvuru.countDocuments({});
+    const beklemede = await BayiBasvuru.countDocuments({ durum: "beklemede" });
+    console.log("[Admin] Bayilik başvuru sayısı - toplam:", total, ", beklemede:", beklemede);
+    res.json({ success: true, total, beklemede });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // ============================================
-// BAYİLİK BAŞVURULARI LİSTE
+// BAYİLİK BAŞVURULARI LİSTE (tümü, eskiler dahil – limit yok)
 // ============================================
 router.get("/bayi-basvurulari", adminOnly, async (req, res) => {
   try {
     const { durum } = req.query;
-    let query = {};
+    const query = {};
     if (durum && ["beklemede", "onaylandi", "reddedildi"].includes(durum)) query.durum = durum;
     const basvurular = await BayiBasvuru.find(query)
       .sort({ createdAt: -1 })
-      .populate("userId", "ad email telefon firma");
-    res.json({ success: true, basvurular });
+      .populate("userId", "ad email telefon firma")
+      .limit(10000)
+      .lean();
+    console.log("[Admin] Bayilik başvuruları listelendi:", basvurular.length, "adet (tümü, eskiler dahil)");
+    res.json({ success: true, basvurular: Array.isArray(basvurular) ? basvurular : [] });
   } catch (err) {
+    console.error("[Admin] Bayilik başvuruları hatası:", err.message);
     res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -272,13 +288,49 @@ router.put("/bayi-basvurulari/:id", adminOnly, async (req, res) => {
     basvuru.updatedAt = new Date();
     await basvuru.save();
     if (durum === "onaylandi") {
-      await User.findByIdAndUpdate(basvuru.userId, {
-        rol: "bayi",
-        vergiNo: basvuru.vergiNo,
-        vergiDairesi: basvuru.vergiDairesi,
-        tcNo: basvuru.tcNo,
-        firma: basvuru.firmaAdi || undefined,
-      });
+      const user = await User.findByIdAndUpdate(
+        basvuru.userId,
+        {
+          rol: "bayi",
+          vergiNo: basvuru.vergiNo,
+          vergiDairesi: basvuru.vergiDairesi,
+          tcNo: basvuru.tcNo,
+          firma: basvuru.firmaAdi || undefined,
+        },
+        { new: true }
+      );
+      if (user) {
+        try {
+          const { sendCustomerToERP } = require("../services/erpService");
+          const erpResult = await sendCustomerToERP(user);
+          if (erpResult.success) {
+            user.erpSynced = true;
+            user.erpCariId = erpResult.erpCariId || "";
+            user.erpSyncDate = new Date();
+            await user.save();
+            console.log("✅ Bayi ERP'ye aktarıldı:", user.email);
+          } else {
+            console.warn("⚠️ Bayi ERP aktarımı başarısız:", erpResult.error);
+          }
+        } catch (erpErr) {
+          console.warn("⚠️ Bayi ERP hatası:", erpErr.message);
+        }
+        try {
+          const emailService = require("../services/emailService");
+          await emailService.sendBayilikOnaylandi(basvuru.email, basvuru.firmaAdi || basvuru.ad);
+          console.log("✅ Bayilik onay e-postası gönderildi:", basvuru.email);
+        } catch (emailErr) {
+          console.warn("Bayilik onay e-postası gönderilemedi:", emailErr.message);
+        }
+      }
+    } else if (durum === "reddedildi") {
+      try {
+        const emailService = require("../services/emailService");
+        await emailService.sendBayilikReddedildi(basvuru.email, basvuru.firmaAdi || basvuru.ad, basvuru.adminNotu);
+        console.log("✅ Bayilik red e-postası gönderildi:", basvuru.email);
+      } catch (emailErr) {
+        console.warn("Bayilik red e-postası gönderilemedi:", emailErr.message);
+      }
     }
     res.json({ success: true, message: durum === "onaylandi" ? "Bayilik başvurusu onaylandı." : "Başvuru reddedildi.", basvuru });
   } catch (err) {

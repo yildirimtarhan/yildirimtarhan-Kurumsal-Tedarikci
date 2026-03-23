@@ -24,6 +24,7 @@ const ProductSchema = new mongoose.Schema({
   category: { type: String, default: 'Diğer', trim: true },
   
   unit: { type: String, default: 'Adet' },
+  image: { type: String, default: '' }, // Ürün resmi URL (örn. /uploads/products/xxx.jpg)
   isActive: { type: Boolean, default: true },
   
   // ERP entegrasyonu

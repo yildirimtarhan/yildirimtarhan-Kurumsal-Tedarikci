@@ -131,6 +131,19 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.12);
         }
         .urun-kart { cursor: pointer; }
+
+        /* Ürünler: Paket kategorisi accordion (tıklanınca altında içerik çıkar) */
+        .paket-accordion { margin-bottom: 0; }
+        .paket-kategori-item { background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 12px; overflow: hidden; border: 2px solid #e5e7eb; }
+        .paket-kategori-item.acik { border-color: #6366f1; box-shadow: 0 4px 20px rgba(99,102,241,0.15); }
+        .paket-kategori-baslik { padding: 20px 24px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; font-weight: 700; font-size: 1.1rem; color: #1f2937; transition: background 0.2s; user-select: none; }
+        .paket-kategori-baslik:hover { background: #f9fafb; }
+        .paket-kategori-baslik .icon { font-size: 1.5rem; }
+        .paket-kategori-baslik .chevron { font-size: 1rem; color: #6b7280; transition: transform 0.25s; }
+        .paket-kategori-item.acik .chevron { transform: rotate(180deg); color: #6366f1; }
+        .paket-kategori-icerik { display: none; padding: 0 24px 24px; }
+        .paket-kategori-item.acik .paket-kategori-icerik { display: block; }
+        .paket-kategori-icerik .urun-grid-tek { margin-top: 8px; }
         
         /* Ürün detay modal - navbar üstünde görünsün */
         .urun-modal-overlay {
@@ -303,9 +316,23 @@
 <li><a href="index.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Anasayfa</a></li>
 <li><a href="hizmetler.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Hizmetler</a></li>
 <li><a href="paketler.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Paketler</a></li>
-<li><a href="urunler.html" style="text-decoration: none; color: #6366f1; font-weight: 700; font-size: 15px;">Ürünler</a></li>
+<li class="nav-item-dropdown" id="urunlerNavItem">
+<a href="urunler.html" class="nav-link-dropdown" style="text-decoration: none; color: #6366f1; font-weight: 700; font-size: 15px;" onclick="event.preventDefault(); toggleUrunlerMenu(); return false;">Ürünler <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="urunlerDropdown">
+<a href="urunler.html?kategori=e-imza"><i class="fas fa-pen-fancy"></i> Elektronik İmza (E-İmza) Paketleri</a>
+<a href="urunler.html?kategori=e-fatura"><i class="fas fa-file-invoice"></i> E-Fatura (Köntörü)</a>
+<a href="urunler.html?kategori=kep"><i class="fas fa-envelope"></i> KEP Paketleri</a>
+<a href="urunler.html?kategori=mali-muhur"><i class="fas fa-stamp"></i> Mali Mühür Paketleri</a>
+<a href="urunler.html?kategori=zaman-damgasi"><i class="fas fa-clock"></i> Zaman Damgası Paketleri</a>
+<a href="urunler.html?kategori=e-irsaliye"><i class="fas fa-truck-loading"></i> E-İrsaliye Paketleri</a>
+<a href="urunler.html?kategori=e-defter"><i class="fas fa-book"></i> E-Defter Paketleri</a>
+<a href="urunler.html"><i class="fas fa-th-list"></i> Tümünü göster</a>
+</div>
+</li>
 <li><a href="referanslar.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Referanslar</a></li>
 <li><a href="teklif.html" style="text-decoration: none; color: #f59e0b; font-weight: 600; font-size: 15px;">Teklif Al</a></li>
+<li><a href="bayilik-basvuru.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Bayilik Başvurusu</a></li>
+<li><a href="bayi-giris.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Bayi Girişi</a></li>
 <li><a href="iletisim.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">İletişim</a></li>
 </ul>
 <div id="navUserArea" style="display: flex; align-items: center; gap: 15px;">
@@ -315,15 +342,18 @@
 <span id="cart-count" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; border: 2px solid white;">0</span>
 </a>
 </div>
-</nav><div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a class="active" href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
+</nav><div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a class="active" href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="bayilik-basvuru.html">Bayilik Başvurusu</a></li><li><a href="bayi-giris.html">Bayi Girişi</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
 <!-- Hero -->
 <section class="urunler-hero">
 <h1>E-Dönüşüm Ürünleri</h1>
 <p>İşletmenizi dijitalleştiren tüm yazılım ve entegrasyon çözümleri. E-fatura, e-arşiv, e-irsaliye ve daha fazlası.</p>
 </section>
-<!-- Ürünler - Kategorilere göre gruplu (E-Dönüşüm Ürünleri altında) -->
-<section class="urunler-icerik" id="urunlerIcerik">
+<!-- Ürünler: Önce paket kategorileri listelenir, tıklanınca altında içerik (ürünler) açılır -->
+<section class="urunler-icerik">
+<p style="margin-bottom: 1rem; color: #6b7280; font-size: 0.95rem;">Paket kategorisine tıklayın, içeriğindeki ürünler listelensin.</p>
+<div id="paketAccordion" class="paket-accordion">
 <p style="text-align:center;color:#6b7280;padding:40px;">Ürünler yükleniyor...</p>
+</div>
 </section>
 
 <!-- Ürün detay modal (tıklanınca ayrı açılır) -->
@@ -334,6 +364,7 @@
 <button type="button" class="urun-modal-close" onclick="closeUrunModal()" aria-label="Kapat">&times;</button>
 </div>
 <div class="urun-modal-body">
+<div id="urunModalImage" style="margin-bottom:16px;text-align:center;"></div>
 <p class="urun-kategori" id="urunModalKategori"></p>
 <p id="urunModalAciklama" style="color:#6b7280;line-height:1.6;margin-bottom:16px;"></p>
 <div class="urun-fiyat" id="urunModalFiyat"></div>
@@ -341,6 +372,21 @@
 <button type="button" class="btn-sepet" id="urunModalBtnSepet"><i class="fas fa-cart-plus"></i> Sepete Ekle</button>
 <button type="button" class="btn-hemen" id="urunModalBtnHemen"><i class="fas fa-bolt"></i> Hemen Al</button>
 </div>
+</div>
+</div>
+</div>
+
+<!-- Paket detay modal -->
+<div id="paketModal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10002; align-items: center; justify-content: center; padding: 20px;" onclick="if(event.target===this) closePaketModal()">
+<div id="paketModalContent" style="background: white; border-radius: 20px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.25); padding: 30px; position: relative;" onclick="event.stopPropagation()">
+<button type="button" onclick="closePaketModal()" style="position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border: none; background: #f3f4f6; border-radius: 50%; cursor: pointer; font-size: 1.2rem; color: #6b7280;">&times;</button>
+<h2 id="paketModalTitle" style="margin: 0 0 8px; font-size: 1.5rem; color: #1f2937;"></h2>
+<p id="paketModalSubtitle" style="color: #6b7280; margin-bottom: 20px;"></p>
+<div id="paketModalFiyat" style="font-size: 2rem; font-weight: 800; color: #1f2937; margin-bottom: 20px;"></div>
+<ul id="paketModalFeatures" style="list-style: none; padding: 0; margin-bottom: 24px; text-align: left;"></ul>
+<div style="display: flex; gap: 10px;">
+<button type="button" id="paketModalBtnSepet" style="flex:1; padding: 14px; background: #6366f1; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;"><i class="fas fa-cart-plus"></i> Sepete Ekle</button>
+<button type="button" id="paketModalBtnHemen" style="flex:1; padding: 14px; background: white; color: #6366f1; border: 2px solid #6366f1; border-radius: 10px; font-weight: 600; cursor: pointer;"><i class="fas fa-bolt"></i> Hemen Al</button>
 </div>
 </div>
 </div>
@@ -390,9 +436,39 @@
                 'E-Fatura': '📄', 'E-İrsaliye': '📦', 'Mali Mühür': '🔐', 'E-Defter': '📋',
                 'Raporlama': '📊', 'Entegrasyon': '🔐', 'Pazaryeri': '🛒', 'Yedekleme': '☁️'
             };
+            // Ürünler: Paket kategorileri (tıklanınca altında içerik açılır) - sıra ve başlık
+            const PAKET_KATEGORI_SIRASI = [
+                { key: 'E-İmza Paketleri', baslik: 'Elektronik İmza (E-İmza) Paketleri' },
+                { key: 'E-Dönüşüm (E-Fatura Köntörü) Paketleri', baslik: 'E-Fatura (E Fatura Köntörü)', aliases: ['E-Fatura (Köntörü)', 'E-Fatura Köntörü', 'E Fatura Kontörü', 'E-Fatura'] },
+                { key: 'KEP Paketleri', baslik: 'KEP Paketleri' },
+                { key: 'Mali Mühür Paketleri', baslik: 'Mali Mühür Paketleri' },
+                { key: 'Zaman Damgası Paketleri', baslik: 'Zaman Damgası Paketleri' },
+                { key: 'E-İrsaliye Paketleri', baslik: 'E-İrsaliye Paketleri' },
+                { key: 'E-Defter Paketleri', baslik: 'E-Defter Paketleri' }
+            ];
+            function kategoriEslesiyorMu(urunKategori, paketKey) {
+                if (!urunKategori || !paketKey) return false;
+                var u = String(urunKategori).trim();
+                var p = String(paketKey).trim();
+                if (u === p) return true;
+                var uNorm = u.replace(/\u0130/g, 'i').replace(/ı/g, 'i').toLowerCase();
+                var pNorm = p.replace(/\u0130/g, 'i').replace(/ı/g, 'i').toLowerCase();
+                return uNorm === pNorm;
+            }
+            function urunKategoriPaketeDusuyorMu(urunKategori, item) {
+                if (kategoriEslesiyorMu(urunKategori, item.key)) return true;
+                if (item.aliases && item.aliases.length) {
+                    for (var a = 0; a < item.aliases.length; a++) {
+                        if (kategoriEslesiyorMu(urunKategori, item.aliases[a])) return true;
+                    }
+                }
+                return false;
+            }
 
         function urunKartiHTML(p, id, index) {
             const icon = p.icon || KATEGORI_ICON[p.category] || '📦';
+            const imgSrc = (p.image && String(p.image).trim()) ? (p.image.startsWith('http') ? p.image : (p.image.startsWith('/') ? p.image : '/' + p.image)).replace(/"/g, '&quot;') : '';
+            const gorselHtml = imgSrc ? '<img src="' + imgSrc + '" alt="" style="width:100%;height:100%;object-fit:contain;">' : icon;
             const birim = p.birim || '/' + (p.unit || 'Adet');
             const fiyat = (p.effectivePrice != null ? p.effectivePrice : p.price) || 0;
             const toptanEtiket = (p.isWholesale === true) ? '<span class="toptan-badge">Toptan</span>' : '';
@@ -401,7 +477,7 @@
             const bayiExtra = (window.isBayi) ? ', 5, \'product\'' : '';
             return `
 <div class="urun-kart" data-urun-index="${index}">
-<div class="urun-gorsel">${icon}</div>
+<div class="urun-gorsel">${gorselHtml}</div>
 <div class="urun-icerik">
 <div class="urun-kategori">${(p.category || 'Diğer').replace(/</g,'&lt;')} ${toptanEtiket}</div>
 <h3 class="urun-baslik">${(p.name || 'Ürün').replace(/</g,'&lt;')}</h3>
@@ -416,6 +492,73 @@
         }
 
         window.urunListesi = [];
+        window.paketListesi = [];
+
+        const STATIK_PAKETLER = [
+            { name: 'Başlangıç', subtitle: 'Küçük işletmeler için ideal', price: 749, period: 'ay', accentColor: '#6b7280', features: ['100 E-Fatura/ay', 'E-İrsaliye (50 adet)', 'E-Defter (Aylık)', 'Teknik Destek (Haftaiçi)'], featuresExcluded: ['Mali Mühür'], isPopular: false },
+            { name: 'Profesyonel', subtitle: 'Orta ölçekli işletmeler için', price: 1499, period: 'ay', accentColor: '#6366f1', features: ['Sınırsız E-Fatura', 'E-İrsaliye (Sınırsız)', 'E-Defter + Arşiv', '7/24 Teknik Destek', '1 Adet Mali Mühür'], featuresExcluded: [], isPopular: true },
+            { name: 'Kurumsal', subtitle: 'Büyük işletmeler için', price: 2999, period: 'ay', accentColor: '#f59e0b', features: ['Her Şey Dahil (Sınırsız)', 'Özel Entegrasyonlar', 'Öncelikli Destek', '3 Mali Mühür', 'API Erişimi'], featuresExcluded: [], isPopular: false }
+        ];
+
+        function paketKartiHTML(p, index) {
+            var per = p.period || 'ay';
+            var accent = p.accentColor || '#6366f1';
+            var priceVal = parseFloat(p.effectivePrice != null ? p.effectivePrice : p.price) || 0;
+            var toptanBadge = (p.isWholesale === true) ? '<span style="display:inline-block;background:#059669;color:white;font-size:10px;padding:2px 8px;border-radius:10px;margin-left:6px;">Toptan</span>' : '';
+            var borderStyle = p.isPopular ? 'border: 3px solid ' + accent + '; position: relative; transform: scale(1.02);' : 'border: 2px solid #e5e7eb;';
+            var badge = p.isPopular ? '<div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: ' + accent + '; color: white; padding: 4px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">En Popüler</div>' : '';
+            var featuresHtml = (p.features || []).map(function(f) { return '<li style="padding: 8px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> ' + (f || '').replace(/</g,'&lt;') + '</li>'; }).join('');
+            var excludedHtml = (p.featuresExcluded || []).map(function(f) { return '<li style="padding: 8px 0; color: #9ca3af;"><i class="fas fa-times" style="margin-right: 10px;"></i> ' + (f || '').replace(/</g,'&lt;') + '</li>'; }).join('');
+            var cartName = (p.name || 'Paket') + ' Paketi';
+            var artiKdv = (p.kdvDahil !== true);
+            var kdvHtml = artiKdv ? '<div style="font-size: 0.85rem; color: #059669; font-weight: 600; margin-top: 4px;">+ KDV</div>' : '';
+            return '<div class="urun-kart paket-kart" data-paket-index="' + index + '" onclick="openPaketModal(' + index + ')" style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); ' + borderStyle + ' text-align: center; cursor: pointer;">' + badge +
+                '<div class="urun-gorsel" style="height: 120px; font-size: 2.5rem;">📦</div><div class="urun-icerik" style="padding: 24px;">' +
+                '<h3 style="color: ' + accent + '; font-size: 1.15rem; margin-bottom: 8px;">' + (p.name || 'Paket').replace(/</g,'&lt;') + toptanBadge + '</h3>' +
+                '<div style="font-size: 1.75rem; font-weight: 800; color: #1f2937; margin-bottom: 4px;">₺' + priceVal.toLocaleString('tr-TR') + '<span style="font-size: 0.9rem; color: #6b7280; font-weight: 400;">/' + per + '</span></div>' + kdvHtml +
+                '<p style="color: #6b7280; font-size: 0.9rem; margin: 12px 0 16px;">' + (p.subtitle || '').replace(/</g,'&lt;') + '</p>' +
+                '<ul style="list-style: none; padding: 0; margin: 0 0 20px; text-align: left; font-size: 0.9rem;">' + featuresHtml + excludedHtml + '</ul>' +
+                '<div onclick="event.stopPropagation()"><button type="button" onclick="addToCart({name: \'' + cartName.replace(/'/g,"\\'") + '\', price: ' + priceVal + (window.isBayi ? ', qty: 3, itemType: \'package\'' : '') + '})" style="width: 100%; padding: 12px; background: ' + accent + '; color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer;"><i class="fas fa-cart-plus"></i> Sepete Ekle</button></div></div></div>';
+        }
+        function openPaketModal(index) {
+            var list = window.paketListesi;
+            if (!list || !list[index]) return;
+            var p = list[index];
+            var per = p.period || 'ay';
+            var priceVal = parseFloat(p.effectivePrice != null ? p.effectivePrice : p.price) || 0;
+            var cartName = (p.name || 'Paket') + ' Paketi';
+            document.getElementById('paketModalTitle').textContent = p.name || 'Paket';
+            document.getElementById('paketModalSubtitle').textContent = p.subtitle || '';
+            document.getElementById('paketModalFiyat').innerHTML = '₺' + priceVal.toLocaleString('tr-TR') + ' <span style="font-size: 1rem; color: #6b7280;">/' + per + '</span>' + (p.kdvDahil !== true ? ' <span style="font-size: 0.9rem; color: #059669; font-weight: 600;">+ KDV</span>' : '') + (p.isWholesale ? ' <span style="display:inline-block;background:#059669;color:white;font-size:10px;padding:2px 8px;border-radius:10px;margin-left:6px;">Toptan</span>' : '');
+            var ul = document.getElementById('paketModalFeatures');
+            ul.innerHTML = '';
+            (p.features || []).forEach(function(f) { var li = document.createElement('li'); li.style.cssText = 'padding: 8px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;'; li.innerHTML = '<i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> ' + (f || ''); ul.appendChild(li); });
+            (p.featuresExcluded || []).forEach(function(f) { var li = document.createElement('li'); li.style.cssText = 'padding: 8px 0; color: #9ca3af;'; li.innerHTML = '<i class="fas fa-times" style="margin-right: 10px;"></i> ' + (f || ''); ul.appendChild(li); });
+            var cartOpts = { name: cartName, price: priceVal };
+            if (window.isBayi) { cartOpts.qty = 3; cartOpts.itemType = 'package'; }
+            document.getElementById('paketModalBtnSepet').onclick = function() { addToCart(cartOpts); closePaketModal(); };
+            document.getElementById('paketModalBtnHemen').onclick = function() { addToCart(cartOpts); closePaketModal(); setTimeout(function() { window.location.href = 'odeme.html'; }, 300); };
+            document.getElementById('paketModal').style.display = 'flex';
+        }
+        function closePaketModal() { document.getElementById('paketModal').style.display = 'none'; }
+        async function paketleriYukle() {
+            var grid = document.getElementById('paketlerGrid');
+            if (!grid) return;
+            var token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            var headers = token ? { Authorization: 'Bearer ' + token } : {};
+            try {
+                var res = await fetch(API_URL + '/packages/public', { headers: headers });
+                var data = await res.json();
+                if (data.success && data.packages && data.packages.length > 0) {
+                    window.paketListesi = data.packages;
+                    if (data.isBayi === true) window.isBayi = true;
+                    grid.innerHTML = data.packages.map(function(p, i) { return paketKartiHTML(p, i); }).join('');
+                    return;
+                }
+            } catch (e) { console.warn('Paket API yüklenemedi, varsayılan gösteriliyor.'); }
+            window.paketListesi = STATIK_PAKETLER;
+            grid.innerHTML = STATIK_PAKETLER.map(function(p, i) { return paketKartiHTML(p, i); }).join('');
+        }
 
         function openUrunModal(index) {
             const list = window.urunListesi;
@@ -425,6 +568,14 @@
             const birim = p.birim || '/' + (p.unit || 'Adet');
             const name = (p.name || 'Ürün').replace(/"/g, '&quot;');
             document.getElementById('urunModalTitle').textContent = p.name || 'Ürün';
+            var modalImg = document.getElementById('urunModalImage');
+            if (modalImg) {
+                if (p.image && String(p.image).trim()) {
+                    var src = p.image.startsWith('http') ? p.image : (p.image.startsWith('/') ? p.image : '/' + p.image);
+                    modalImg.innerHTML = '<img src="' + src.replace(/"/g, '&quot;') + '" alt="" style="max-width:200px;max-height:200px;object-fit:contain;border-radius:12px;">';
+                    modalImg.style.display = '';
+                } else { modalImg.innerHTML = ''; modalImg.style.display = 'none'; }
+            }
             document.getElementById('urunModalKategori').textContent = (p.category || 'Diğer').toUpperCase();
             document.getElementById('urunModalAciklama').textContent = p.description || '';
             const fiyat = (p.effectivePrice != null ? p.effectivePrice : p.price) || 0;
@@ -442,8 +593,8 @@
         }
 
         async function urunleriYukle() {
-            const container = document.getElementById('urunlerIcerik');
-            if (!container) return;
+            const accordion = document.getElementById('paketAccordion');
+            if (!accordion) return;
             let products = [];
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
             const headers = token ? { Authorization: 'Bearer ' + token } : {};
@@ -458,56 +609,88 @@
                 }
             } catch (e) { console.warn('API yüklenemedi.', e); window.isBayi = false; }
 
-            if (products.length === 0) {
-                window.isBayi = false;
-                window.urunListesi = STATIK_URUNLER;
-                container.innerHTML = '<div class="kategori-bolum"><div class="kategori-baslik">Ürünler</div><div class="urun-grid-tek">' +
-                    STATIK_URUNLER.map((p, i) => urunKartiHTML(p, 'urun-' + i, i)).join('') + '</div></div>';
-                return;
-            }
+            if (products.length === 0) products = STATIK_URUNLER;
 
-            // Stok Yönetimi ile aynı kategori listesi ve sırası
+            // Ürünleri paket kategorisine eşleştir (E-İmza / E-imza gibi eşleşme)
             const kategoriUrunleri = {};
-            products.forEach(p => {
-                const cat = (p.category || '').trim() || 'Diğer';
-                const listedeVar = KATEGORI_SIRASI.indexOf(cat) !== -1;
-                const atanacak = listedeVar ? cat : 'Diğer';
+            PAKET_KATEGORI_SIRASI.forEach(function(item) { kategoriUrunleri[item.key] = []; });
+            products.forEach(function(p) {
+                const cat = (p.category || '').trim();
+                var atanacak = null;
+                for (var i = 0; i < PAKET_KATEGORI_SIRASI.length; i++) {
+                    if (urunKategoriPaketeDusuyorMu(cat, PAKET_KATEGORI_SIRASI[i])) { atanacak = PAKET_KATEGORI_SIRASI[i].key; break; }
+                }
+                if (!atanacak) atanacak = 'Diğer';
                 if (!kategoriUrunleri[atanacak]) kategoriUrunleri[atanacak] = [];
                 kategoriUrunleri[atanacak].push(p);
             });
 
             const flatList = [];
-            const parts = [];
-            let globalIndex = 0;
-            KATEGORI_SIRASI.forEach(function(name) {
-                const list = kategoriUrunleri[name] || [];
-                if (list.length === 0) return;
-                const baslik = name.toUpperCase().replace(/</g, '&lt;');
-                let cards = '';
-                list.forEach(function(p) {
-                    cards += urunKartiHTML(p, p._id || p.sku || p.name, globalIndex);
-                    flatList.push(p);
-                    globalIndex++;
-                });
-                parts.push('<div class="kategori-bolum"><div class="kategori-baslik">' + baslik + '</div><div class="urun-grid-tek">' + cards + '</div></div>');
+            var globalIndex = 0;
+            var slugs = ['e-imza','e-fatura','kep','mali-muhur','zaman-damgasi','e-irsaliye','e-defter'];
+            var urlKategori = (new URLSearchParams(window.location.search)).get('kategori');
+            if (urlKategori) urlKategori = urlKategori.toLowerCase().trim();
+            var accordionHtml = '';
+            PAKET_KATEGORI_SIRASI.forEach(function(item, idx) {
+                var slug = slugs[idx] || '';
+                // URL'de kategori seçiliyse sadece o kategoriyi göster (diğerleri çıkmasın)
+                if (urlKategori && slug !== urlKategori) return;
+                var list = kategoriUrunleri[item.key] || [];
+                var icon = KATEGORI_ICON[item.key] || '📦';
+                var baslikEsc = (item.baslik || item.key).replace(/</g, '&lt;');
+                var cards = '';
+                if (list.length > 0) {
+                    list.forEach(function(p) {
+                        cards += urunKartiHTML(p, p._id || p.sku || p.name, globalIndex);
+                        flatList.push(p);
+                        globalIndex++;
+                    });
+                } else {
+                    cards = '<p style="padding: 24px; text-align: center; color: #9ca3af;">Bu kategoride henüz ürün yok.</p>';
+                }
+                // URL'de kategori seçiliyse sadece ürünleri göster, kategori ismi/başlığı gösterme
+                if (urlKategori && slug === urlKategori) {
+                    accordionHtml += '<div class="urun-grid-tek">' + cards + '</div>';
+                } else {
+                    var acikClass = (!urlKategori && idx === 0) ? ' acik' : '';
+                    accordionHtml += '<div class="paket-kategori-item' + acikClass + '" data-paket-key="' + (item.key || '').replace(/"/g, '&quot;') + '" data-paket-slug="' + (slug || '').replace(/"/g, '&quot;') + '">' +
+                        '<div class="paket-kategori-baslik">' +
+                        '<span class="icon">' + icon + '</span><span>' + baslikEsc + '</span>' +
+                        '<i class="fas fa-chevron-down chevron"></i></div>' +
+                        '<div class="paket-kategori-icerik"><div class="urun-grid-tek">' + cards + '</div></div></div>';
+                }
             });
             window.urunListesi = flatList;
-            container.innerHTML = parts.join('');
+            accordion.innerHTML = accordionHtml;
+
+            // Accordion başlığa tıklanınca aç/kapa
+            accordion.querySelectorAll('.paket-kategori-baslik').forEach(function(el) {
+                el.addEventListener('click', function() {
+                    var item = el.closest('.paket-kategori-item');
+                    if (item) item.classList.toggle('acik');
+                });
+            });
+            // URL'de ?kategori= varsa ilgili bölüme scroll
+            if (urlKategori) {
+                var el = accordion.querySelector('[data-paket-slug="' + (urlKategori || '').toLowerCase().replace(/"/g, '&quot;') + '"]');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             urunleriYukle();
-            var container = document.getElementById('urunlerIcerik');
-            if (container) {
-                container.addEventListener('click', function(e) {
+            var accordion = document.getElementById('paketAccordion');
+            if (accordion) {
+                accordion.addEventListener('click', function(e) {
                     var kart = e.target.closest('.urun-kart');
                     if (!kart || e.target.closest('.btn-group')) return;
+                    if (kart.classList.contains('paket-kart')) return;
                     var idx = kart.getAttribute('data-urun-index');
                     if (idx !== null && idx !== '') openUrunModal(parseInt(idx, 10));
                 });
             }
         });
-        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeUrunModal(); });
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeUrunModal(); closePaketModal(); } });
 
         // Sepet sayısını güncelle
 function updateCartCount() {

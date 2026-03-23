@@ -750,7 +750,19 @@
 <li><a href="index.html">Anasayfa</a></li>
 <li><a href="hizmetler.html">Hizmetler</a></li>
 <li><a href="paketler.html">Paketler</a></li>
-<li><a href="urunler.html">Ürünler</a></li>
+<li class="nav-item-dropdown" id="urunlerNavItem">
+<a href="urunler.html" class="nav-link-dropdown" onclick="event.preventDefault(); toggleUrunlerMenu(); return false;">Ürünler <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="urunlerDropdown">
+<a href="urunler.html?kategori=e-imza"><i class="fas fa-pen-fancy"></i> Elektronik İmza (E-İmza) Paketleri</a>
+<a href="urunler.html?kategori=e-fatura"><i class="fas fa-file-invoice"></i> E-Fatura (Köntörü)</a>
+<a href="urunler.html?kategori=kep"><i class="fas fa-envelope"></i> KEP Paketleri</a>
+<a href="urunler.html?kategori=mali-muhur"><i class="fas fa-stamp"></i> Mali Mühür Paketleri</a>
+<a href="urunler.html?kategori=zaman-damgasi"><i class="fas fa-clock"></i> Zaman Damgası Paketleri</a>
+<a href="urunler.html?kategori=e-irsaliye"><i class="fas fa-truck-loading"></i> E-İrsaliye Paketleri</a>
+<a href="urunler.html?kategori=e-defter"><i class="fas fa-book"></i> E-Defter Paketleri</a>
+<a href="urunler.html"><i class="fas fa-th-list"></i> Tümünü göster</a>
+</div>
+</li>
 <li><a href="referanslar.html">Referanslar</a></li>
 <li><a href="teklif.html" style="color: #f59e0b;">Teklif Al</a></li>
 <li><a href="bayilik-basvuru.html">Bayilik Başvurusu</a></li>

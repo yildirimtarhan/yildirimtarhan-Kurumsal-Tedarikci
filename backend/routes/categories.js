@@ -46,12 +46,26 @@ router.get("/", adminOnly, async (req, res) => {
   }
 });
 
+// Kategori adı varyantları: E-imza / E-İmza yazım farkında eşleşme
+function categoryNameVariants(name) {
+  if (!name || typeof name !== "string") return [""];
+  const n = name.trim();
+  const variants = [n];
+  variants.push(n.replace(/E-İ/g, "E-i")); // E-İmza -> E-imza
+  variants.push(n.replace(/E-i/g, "E-İ")); // E-imza -> E-İmza
+  return [...new Set(variants)];
+}
+
 // Admin: Tek kategori + içindeki ürünler
 router.get("/:id", adminOnly, async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
     if (!category) return res.status(404).json({ success: false, message: "Kategori bulunamadı" });
-    const products = await Product.find({ category: category.name, isActive: { $ne: false } })
+    const nameVariants = categoryNameVariants(category.name);
+    const products = await Product.find({
+      category: { $in: nameVariants },
+      isActive: { $ne: false }
+    })
       .sort({ createdAt: -1 })
       .select("name sku price category stock");
     res.json({ success: true, category, products });

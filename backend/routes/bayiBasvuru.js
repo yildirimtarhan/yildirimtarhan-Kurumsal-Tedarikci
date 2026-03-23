@@ -24,7 +24,7 @@ function authMiddleware(req, res, next) {
 router.post("/", authMiddleware, async (req, res) => {
   try {
     const {
-      firmaAdi, vergiDairesi, vergiNo, tcNo, telefon, mesaj,
+      firmaAdi, vergiDairesi, vergiNo, tcNo, telefon, email, mesaj,
       faturaIl, faturaIlce, faturaMahalle, faturaSokak, faturaAdres,
       teslimatIl, teslimatIlce, teslimatMahalle, teslimatSokak, teslimatAdres,
     } = req.body;
@@ -42,6 +42,12 @@ router.post("/", authMiddleware, async (req, res) => {
     }
     const user = await User.findById(req.user.id).select("ad email telefon");
     if (!user) return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı." });
+    const basvuruEmail = (email && String(email).trim() && String(email).includes("@"))
+      ? String(email).trim()
+      : (user.email || "");
+    if (!basvuruEmail) {
+      return res.status(400).json({ success: false, message: "E-posta adresi zorunludur." });
+    }
     const bekleyen = await BayiBasvuru.findOne({ userId: user._id, durum: "beklemede" });
     if (bekleyen) {
       return res.status(400).json({ success: false, message: "Zaten beklemede bir bayilik başvurunuz var." });
@@ -52,7 +58,7 @@ router.post("/", authMiddleware, async (req, res) => {
     }
     const basvuru = await BayiBasvuru.create({
       userId: user._id,
-      email: user.email,
+      email: basvuruEmail,
       ad: user.ad || "",
       firmaAdi: firmaAdi.trim(),
       vergiDairesi: vergiDairesi.trim(),
@@ -72,8 +78,17 @@ router.post("/", authMiddleware, async (req, res) => {
       teslimatAdres: (teslimatAdres || "").trim(),
       durum: "beklemede",
     });
+    try {
+      const emailService = require("../services/emailService");
+      await emailService.sendBayilikBasvuruAlindi(basvuru.email, basvuru.firmaAdi || basvuru.ad);
+      console.log("✅ Bayilik başvuru e-postası gönderildi:", basvuru.email);
+    } catch (emailErr) {
+      console.warn("Bayilik başvuru e-postası gönderilemedi:", emailErr.message);
+    }
+    console.log("✅ Bayilik başvurusu kaydedildi, admin panelde listelenecek. ID:", basvuru._id);
     res.json({ success: true, message: "Bayilik başvurunuz alındı. Admin onayından sonra toptan fiyatlara erişebilirsiniz.", basvuru });
   } catch (err) {
+    console.error("Bayilik başvuru hatası:", err.message);
     res.status(500).json({ success: false, message: err.message });
   }
 });
