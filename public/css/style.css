@@ -164,23 +164,29 @@ body {
 }
 
 :root {
-    --primary: #2563eb;
-    --primary-dark: #1d4ed8;
-    --secondary: #10b981;
-    --accent: #f59e0b;
-    --dark: #1f2937;
-    --gray: #6b7280;
-    --light: #f3f4f6;
+    --primary: #0A192F;        /* Deep Navy Blue */
+    --primary-dark: #020C1B;   /* Darker Navy */
+    --secondary: #1E293B;      /* Slate border/secondary */
+    --accent: #2563EB;         /* Electric Blue Accent (Professional) */
+    --accent-hover: #1D4ED8;   /* Darker accent for hover states */
+    --dark: #1f2937;           /* Standard text dark */
+    --gray: #64748B;           /* Slate Gray */
+    --light-gray: #F8FAFC;     /* Extremely subtle gray background */
+    --light: #F1F5F9;          /* Slightly darker light gray borders */
     --white: #ffffff;
-    --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --shadow: 0 10px 40px rgba(0,0,0,0.1);
-    --shadow-hover: 0 20px 60px rgba(0,0,0,0.15);
+    --gradient: linear-gradient(135deg, #0A192F 0%, #1E293B 100%);
+    --gradient-accent: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --shadow: 0 10px 30px rgba(0,0,0,0.05);
+    --shadow-lg: 0 20px 40px rgba(0,0,0,0.08);
+    --shadow-hover: 0 20px 60px rgba(0,0,0,0.12);
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
     color: var(--dark);
+    background-color: var(--light-gray);
     overflow-x: hidden;
 }
 
