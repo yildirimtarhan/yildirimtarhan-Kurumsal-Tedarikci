@@ -67,7 +67,7 @@ router.post('/init', authMiddleware, async (req, res) => {
     const merchant_ok_url = process.env.PAYTR_OK_URL || `${baseFrontendUrl}/siparisler.html?paytr=success`;
     const merchant_fail_url = process.env.PAYTR_FAIL_URL || `${baseFrontendUrl}/siparisler.html?paytr=failed`;
 
-    const merchant_oid = order.paytr?.merchantOid || `ORD-${order._id}`;
+    const merchant_oid = order.paytr?.merchantOid || `ORD${String(order._id)}`;
 
     const basket = (order.items || []).map((it) => ([
       String(it.ad || 'Ürün'),
