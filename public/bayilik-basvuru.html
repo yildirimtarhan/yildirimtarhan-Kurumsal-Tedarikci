@@ -118,14 +118,19 @@
           <input type="text" id="vergiDairesi" required placeholder="Örn: Kadıköy"/>
         </div>
         <div class="form-group">
-          <label>Vergi Numarası (VKN) *</label>
-          <input type="text" id="vergiNo" required placeholder="10 haneli vergi numarası" maxlength="11" pattern="[0-9]{10,11}"/>
-          <small>Şahıs şirketi veya kurumsal vergi numarası (10 hane)</small>
-        </div>
-        <div class="form-group">
-          <label>TC Kimlik Numarası *</label>
-          <input type="text" id="tcNo" required placeholder="11 haneli TC kimlik no" maxlength="11" pattern="[0-9]{11}"/>
-          <small>Yetkili kişi TC kimlik numarası (11 hane)</small>
+          <label>Vergi No (VKN) veya TC Kimlik No *</label>
+          <div class="numara-turu-row" style="display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:500;">
+              <input type="radio" name="numaraTuru" value="vkn" id="numaraTuruVkn" checked/>
+              Vergi Numarası (Kurumsal)
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:500;">
+              <input type="radio" name="numaraTuru" value="tc" id="numaraTuruTc"/>
+              TC Kimlik No (Şahıs Şirketi)
+            </label>
+          </div>
+          <input type="text" id="vergiVeyaTcNo" required placeholder="10 haneli vergi numarası (VKN)" maxlength="10" pattern="[0-9]{10}" title="10 haneli vergi numarası"/>
+          <small id="numaraAciklama">Kurumsal şirketler için 10 haneli vergi numarası (VKN)</small>
         </div>
         <div class="form-group">
           <label>Telefon *</label>
@@ -261,6 +266,29 @@
       }
       initBayilikAdresDropdowns();
 
+      function numaraTuruDegistir() {
+        var vknRadio = document.getElementById('numaraTuruVkn');
+        var input = document.getElementById('vergiVeyaTcNo');
+        var aciklama = document.getElementById('numaraAciklama');
+        if (!input || !aciklama) return;
+        if (vknRadio && vknRadio.checked) {
+          input.placeholder = '10 haneli vergi numarası (VKN)';
+          input.pattern = '[0-9]{10}';
+          input.maxLength = 10;
+          input.title = '10 haneli vergi numarası';
+          aciklama.textContent = 'Kurumsal şirketler (Limited, A.Ş. vb.) için 10 haneli vergi numarası (VKN)';
+        } else {
+          input.placeholder = '11 haneli TC kimlik numarası';
+          input.pattern = '[0-9]{11}';
+          input.maxLength = 11;
+          input.title = '11 haneli TC kimlik numarası';
+          aciklama.textContent = 'Şahıs şirketleri için yetkili kişinin 11 haneli TC kimlik numarası';
+        }
+        input.value = '';
+      }
+      document.getElementById('numaraTuruVkn').addEventListener('change', numaraTuruDegistir);
+      document.getElementById('numaraTuruTc').addEventListener('change', numaraTuruDegistir);
+
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
       const girisUyari = document.getElementById('girisUyari');
       const basvuruFormu = document.getElementById('basvuruFormu');
@@ -344,8 +372,8 @@
             body: JSON.stringify({
               firmaAdi: document.getElementById('firmaAdi').value.trim(),
               vergiDairesi: document.getElementById('vergiDairesi').value.trim(),
-              vergiNo: document.getElementById('vergiNo').value.trim(),
-              tcNo: document.getElementById('tcNo').value.trim(),
+              vergiNo: document.getElementById('numaraTuruVkn').checked ? document.getElementById('vergiVeyaTcNo').value.trim() : '',
+              tcNo: document.getElementById('numaraTuruTc').checked ? document.getElementById('vergiVeyaTcNo').value.trim() : '',
               telefon: document.getElementById('telefon').value.trim(),
               email: document.getElementById('basvuruEmail').value.trim(),
               faturaIl: document.getElementById('faturaIl').value.trim(),
@@ -366,6 +394,8 @@
             alert('Bayilik başvurunuz alındı. Admin onayından sonra toptan fiyatlara erişebilirsiniz.');
             benimBasvurulariGetir();
             document.getElementById('bayiForm').reset();
+            document.getElementById('numaraTuruVkn').checked = true;
+            numaraTuruDegistir();
           } else {
             alert(data.message || 'Başvuru gönderilemedi.');
           }

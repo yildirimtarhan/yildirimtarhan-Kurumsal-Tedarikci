@@ -6,8 +6,8 @@ const BayiBasvuruSchema = new mongoose.Schema({
   ad: { type: String, default: "" },
   firmaAdi: { type: String, required: true, trim: true },
   vergiDairesi: { type: String, required: true, trim: true },
-  vergiNo: { type: String, required: true, trim: true },
-  tcNo: { type: String, required: true, trim: true },
+  vergiNo: { type: String, default: "", trim: true },
+  tcNo: { type: String, default: "", trim: true },
   telefon: { type: String, default: "" },
   mesaj: { type: String, default: "" },
   // Fatura adresi

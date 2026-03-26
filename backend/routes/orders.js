@@ -184,6 +184,17 @@ router.get('/my-orders', authMiddleware, async (req, res) => {
   }
 });
 
+// Geriye uyumluluk: eski frontend çağrıları için
+router.get('/my', authMiddleware, async (req, res) => {
+  req.url = '/my-orders';
+  return router.handle(req, res);
+});
+
+router.post('/create', authMiddleware, async (req, res) => {
+  req.url = '/';
+  return router.handle(req, res);
+});
+
 // ==========================
 // GET ALL ORDERS (Admin)
 // ==========================

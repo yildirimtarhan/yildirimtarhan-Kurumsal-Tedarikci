@@ -205,8 +205,8 @@
                         '<td><strong>' + (b.firmaAdi || '').replace(/</g, '&lt;') + '</strong></td>' +
                         '<td>' + emailCell + '</td>' +
                         '<td>' + (b.vergiDairesi || '').replace(/</g, '&lt;') + '</td>' +
-                        '<td>' + (b.vergiNo || '').replace(/</g, '&lt;') + '</td>' +
-                        '<td>' + (b.tcNo || '').replace(/</g, '&lt;') + '</td>' +
+                        '<td>' + (b.vergiNo ? (b.vergiNo + '').replace(/</g, '&lt;') : '—') + '</td>' +
+                        '<td>' + (b.tcNo ? (b.tcNo + '').replace(/</g, '&lt;') : '—') + '</td>' +
                         '<td>' + durumBadge(b.durum) + '</td>' +
                         '<td>' + (b.createdAt ? new Date(b.createdAt).toLocaleDateString('tr-TR') : '') + '</td>' +
                         '<td>' + islemler + '</td></tr>';

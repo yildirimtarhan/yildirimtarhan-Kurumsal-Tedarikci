@@ -34,11 +34,10 @@ router.post("/", authMiddleware, async (req, res) => {
     if (!vergiDairesi || !vergiDairesi.trim()) {
       return res.status(400).json({ success: false, message: "Vergi dairesi zorunludur." });
     }
-    if (!vergiNo || !String(vergiNo).trim()) {
-      return res.status(400).json({ success: false, message: "Vergi numarası (VKN) zorunludur." });
-    }
-    if (!tcNo || !String(tcNo).trim()) {
-      return res.status(400).json({ success: false, message: "TC kimlik numarası zorunludur." });
+    const vergiNoVal = vergiNo ? String(vergiNo).trim() : "";
+    const tcNoVal = tcNo ? String(tcNo).trim() : "";
+    if (!vergiNoVal && !tcNoVal) {
+      return res.status(400).json({ success: false, message: "Vergi numarası (VKN) veya TC kimlik numarası zorunludur." });
     }
     const user = await User.findById(req.user.id).select("ad email telefon");
     if (!user) return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı." });
@@ -62,8 +61,8 @@ router.post("/", authMiddleware, async (req, res) => {
       ad: user.ad || "",
       firmaAdi: firmaAdi.trim(),
       vergiDairesi: vergiDairesi.trim(),
-      vergiNo: String(vergiNo).trim(),
-      tcNo: String(tcNo).trim(),
+      vergiNo: vergiNoVal || "",
+      tcNo: tcNoVal || "",
       telefon: telefon || user.telefon || "",
       mesaj: mesaj || "",
       faturaIl: (faturaIl || "").trim(),
