@@ -1754,7 +1754,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 });
                 const data = await resp.json();
                 if (!resp.ok || !data.success) {
-                    throw new Error(data.message || data.reason || 'PayTR başlatılamadı');
+                    const reasonText = typeof data.reason === 'string'
+                        ? data.reason
+                        : (data.reason ? JSON.stringify(data.reason) : '');
+                    const fullMessage = [data.message, reasonText].filter(Boolean).join(' | ');
+                    throw new Error(fullMessage || 'PayTR başlatılamadı');
                 }
 
                 // PayTR iframe
