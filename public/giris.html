@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5">
     <title>Giriş Yap - Kurumsal Tedarikçi</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -71,30 +71,79 @@
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
+
+        .instagram-oauth-btn {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        }
+
+        /* Mobil: dokunma, güvenli alan, kompakt başlık */
+        .oauth-btn-mobile {
+            min-height: 48px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        @media (max-width: 639px) {
+            .login-header-mobile {
+                padding: 1.25rem !important;
+            }
+            .login-header-mobile h1 {
+                font-size: 1.35rem !important;
+                line-height: 1.3;
+            }
+            .login-header-mobile p {
+                font-size: 0.875rem !important;
+            }
+            .login-section-mobile {
+                padding: 1rem !important;
+            }
+            .login-tabs-mobile button {
+                padding-top: 0.85rem;
+                padding-bottom: 0.85rem;
+                font-size: 0.8125rem;
+            }
+            .oauth-info-mobile {
+                font-size: 0.75rem !important;
+                text-align: left !important;
+            }
+            .remember-row-mobile {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 0.75rem;
+            }
+        }
+
+        @supports (padding: max(0px)) {
+            body {
+                padding-left: max(12px, env(safe-area-inset-left));
+                padding-right: max(12px, env(safe-area-inset-right));
+                padding-bottom: max(12px, env(safe-area-inset-bottom));
+            }
+        }
     </style>
 </head>
-<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
-    <div class="glass-effect w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden animate-slide-in">
+<body class="gradient-bg min-h-screen flex items-center justify-center p-3 sm:p-4">
+    <div class="glass-effect w-full max-w-4xl rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden animate-slide-in">
         <!-- Header -->
-        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-center text-white">
-            <h1 class="text-3xl font-bold mb-2">Kurumsal Tedarikçi Portalı</h1>
-            <p class="text-indigo-100">Hesabınıza giriş yapın veya yeni hesap oluşturun</p>
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-center text-white login-header-mobile">
+            <h1 class="text-2xl sm:text-3xl font-bold mb-2">Kurumsal Tedarikçi Portalı</h1>
+            <p class="text-indigo-100 text-sm sm:text-base">Hesabınıza giriş yapın veya yeni hesap oluşturun</p>
         </div>
         
         <!-- Tabs -->
-        <div class="flex border-b border-gray-200">
-            <button onclick="switchTab('login')" id="tab-login" class="flex-1 py-4 px-6 font-medium text-sm transition-all duration-300 tab-active flex items-center justify-center gap-2">
+        <div class="flex border-b border-gray-200 login-tabs-mobile">
+            <button onclick="switchTab('login')" id="tab-login" class="flex-1 py-4 px-3 sm:px-6 font-medium text-sm transition-all duration-300 tab-active flex items-center justify-center gap-2">
                 <i class="fas fa-sign-in-alt"></i>
                 Giriş Yap
             </button>
-            <button onclick="switchTab('register')" id="tab-register" class="flex-1 py-4 px-6 font-medium text-sm transition-all duration-300 tab-inactive flex items-center justify-center gap-2">
+            <button onclick="switchTab('register')" id="tab-register" class="flex-1 py-4 px-3 sm:px-6 font-medium text-sm transition-all duration-300 tab-inactive flex items-center justify-center gap-2">
                 <i class="fas fa-user-plus"></i>
                 Üye Ol
             </button>
         </div>
         
         <!-- Login Form -->
-        <div id="login-section" class="p-8">
+        <div id="login-section" class="p-8 login-section-mobile">
             <form id="loginForm" class="space-y-6">
                 <div class="grid md:grid-cols-2 gap-6">
                     <div class="md:col-span-2">
@@ -122,13 +171,45 @@
                     </div>
                 </div>
                 
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between remember-row-mobile">
                     <label class="flex items-center">
                         <input type="checkbox" id="rememberMe" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                         <span class="ml-2 text-sm text-gray-600">Beni hatırla</span>
                     </label>
                     <a href="#" onclick="showForgotPassword()" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
                         Şifremi unuttum?
+                    </a>
+                </div>
+
+                <p class="text-sm text-gray-600 text-center leading-relaxed px-1 oauth-info-mobile">
+                    Sitede kayıtlı e-postanız ile <strong>Google</strong> veya <strong>Facebook</strong> hesabınızdaki e-posta <strong>aynıysa</strong>, tek üyeliğinize otomatik bağlanırsınız.
+                    <span class="block mt-1 text-gray-500">Instagram e-posta paylaşmadığı için yeni hesap açar; mevcut hesaba bağlamak için giriş yaptıktan sonra <a href="profil.html" class="text-indigo-600 hover:underline">Profil</a> sayfasından &quot;Instagram bağla&quot; kullanın.</span>
+                </p>
+
+                <div class="relative my-6">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">veya hızlı giriş</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <a id="oauthGoogleBtn" href="#"
+                        class="oauth-btn-mobile flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white text-gray-700 font-medium hover:border-gray-300 hover:bg-gray-50 transition-all text-sm sm:text-base">
+                        <i class="fab fa-google text-red-500 text-lg"></i>
+                        Google ile devam et
+                    </a>
+                    <a id="oauthFacebookBtn" href="#"
+                        class="oauth-btn-mobile flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-transparent text-white font-medium hover:opacity-95 transition-all text-sm sm:text-base"
+                        style="background-color: #1877F2;">
+                        <i class="fab fa-facebook-f text-lg"></i>
+                        Facebook ile devam et
+                    </a>
+                    <a id="oauthInstagramBtn" href="#"
+                        class="oauth-btn-mobile flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-transparent text-white font-medium hover:opacity-95 transition-all instagram-oauth-btn text-sm sm:text-base">
+                        <i class="fab fa-instagram text-lg"></i>
+                        Instagram ile devam et
                     </a>
                 </div>
                 
@@ -144,8 +225,41 @@
         </div>
         
         <!-- Register Form -->
-        <div id="register-section" class="p-8 hidden-tab">
+        <div id="register-section" class="p-8 hidden-tab login-section-mobile">
             <form id="registerForm" class="space-y-6">
+                <p class="text-sm text-gray-600 text-center leading-relaxed px-1 oauth-info-mobile">
+                    <strong>Hızlı üyelik:</strong> Google, Facebook veya Instagram ile tek tıkla hesap oluşturup giriş yapabilirsiniz. Google/Facebook’ta kullandığınız e-posta daha önce kayıtlıysa mevcut üyeliğinize bağlanır.
+                    <span class="block mt-1 text-gray-500">Detaylı kayıt (adres, vergi vb.) için aşağıdaki formu doldurun.</span>
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <a id="oauthGoogleBtnReg" href="#"
+                        class="oauth-btn-mobile flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white text-gray-700 font-medium hover:border-gray-300 hover:bg-gray-50 transition-all text-sm sm:text-base">
+                        <i class="fab fa-google text-red-500 text-lg"></i>
+                        Google ile üye ol
+                    </a>
+                    <a id="oauthFacebookBtnReg" href="#"
+                        class="oauth-btn-mobile flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-transparent text-white font-medium hover:opacity-95 transition-all text-sm sm:text-base"
+                        style="background-color: #1877F2;">
+                        <i class="fab fa-facebook-f text-lg"></i>
+                        Facebook ile üye ol
+                    </a>
+                    <a id="oauthInstagramBtnReg" href="#"
+                        class="oauth-btn-mobile flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-transparent text-white font-medium hover:opacity-95 transition-all instagram-oauth-btn text-sm sm:text-base">
+                        <i class="fab fa-instagram text-lg"></i>
+                        Instagram ile üye ol
+                    </a>
+                </div>
+
+                <div class="relative my-6">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">veya form ile kayıt</span>
+                    </div>
+                </div>
+
                 <!-- Üyelik Tipi -->
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-3">
@@ -438,6 +552,23 @@
             "Zonguldak": ["Alaplı", "Çaycuma", "Devrek", "Ereğli", "Gökçebey", "Kilimli", "Kozlu", "Merkez"]
         };
 
+        document.addEventListener('DOMContentLoaded', function() {
+            const API_ORIGIN = new URL(API_URL).origin;
+            const gBtn = document.getElementById('oauthGoogleBtn');
+            const fBtn = document.getElementById('oauthFacebookBtn');
+            const iBtn = document.getElementById('oauthInstagramBtn');
+            if (gBtn) gBtn.href = API_ORIGIN + '/api/auth/google';
+            if (fBtn) fBtn.href = API_ORIGIN + '/api/auth/facebook';
+            if (iBtn) iBtn.href = API_ORIGIN + '/api/auth/instagram';
+            const gReg = document.getElementById('oauthGoogleBtnReg');
+            const fReg = document.getElementById('oauthFacebookBtnReg');
+            const iReg = document.getElementById('oauthInstagramBtnReg');
+            if (gReg) gReg.href = API_ORIGIN + '/api/auth/google';
+            if (fReg) fReg.href = API_ORIGIN + '/api/auth/facebook';
+            if (iReg) iReg.href = API_ORIGIN + '/api/auth/instagram';
+            handleOAuthReturn();
+        });
+
         // Sayfa yüklendiğinde şehirleri doldur
         document.addEventListener('DOMContentLoaded', function() {
             const citySelect = document.getElementById('regCity');
@@ -555,6 +686,40 @@
             setTimeout(() => {
                 toast.classList.add('translate-y-20', 'opacity-0');
             }, 3000);
+        }
+
+        async function handleOAuthReturn() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('oauth_error')) {
+                const msg = params.get('message') || 'Sosyal giriş tamamlanamadı.';
+                showToast(decodeURIComponent(msg), 'error');
+                window.history.replaceState({}, document.title, window.location.pathname);
+                return;
+            }
+            const rawToken = params.get('oauth_token');
+            if (!rawToken) return;
+            const token = decodeURIComponent(rawToken);
+            localStorage.setItem('token', token);
+            try {
+                const r = await fetch(`${API_URL}/auth/profile`, {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await r.json();
+                if (data.success && data.user) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showToast('Giriş başarılı! Yönlendiriliyorsunuz...');
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    setTimeout(() => { window.location.href = 'index.html'; }, 400);
+                } else {
+                    localStorage.removeItem('token');
+                    showToast(data.message || 'Profil alınamadı', 'error');
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            } catch (e) {
+                localStorage.removeItem('token');
+                showToast('Bağlantı hatası', 'error');
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
         }
 
         // Buton loading durumu

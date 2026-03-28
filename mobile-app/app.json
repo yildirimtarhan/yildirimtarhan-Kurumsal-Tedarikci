@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "Kurumsal Tedarikci",
+    "slug": "kurumsal-tedarikci-mobile",
+    "version": "1.0.0",
+    "icon": "./assets/logo.png",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "platforms": [
+      "android",
+      "ios"
+    ],
+    "android": {
+      "package": "com.kurumsal.tedarikci",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/logo.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.kurumsal.tedarikci"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "9579deba-8256-4fe9-99c3-8ceb2e00e0ce"
+      }
+    }
+  }
+}

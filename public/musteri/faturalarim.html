@@ -300,8 +300,18 @@
                 renderPagination(response.toplamSayfa || 1);
             } catch (error) {
                 console.error('Fatura yükleme hatası:', error);
-                // Mock data for testing
-                renderMockData();
+                // Sadece localhost/development ortamında demo/mock göster
+                if (window.location.origin.includes('localhost')) {
+                    renderMockData();
+                } else {
+                    const container = document.getElementById('faturaListesi');
+                    container.innerHTML = `
+                        <div class="text-center py-12 bg-white rounded-xl">
+                            <i class="fas fa-exclamation-triangle text-4xl text-gray-300 mb-4"></i>
+                            <p class="text-gray-500">Faturalar şu an yüklenemedi. Lütfen daha sonra tekrar deneyin.</p>
+                        </div>
+                    `;
+                }
             }
         }
 

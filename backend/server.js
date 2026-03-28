@@ -37,6 +37,14 @@ const Order = require("./models/Order");
 
 const app = express();
 
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
+
+const session = require("express-session");
+const passport = require("passport");
+require("./config/passportStrategies")(passport);
+
 /* ======================================================
    ✅ MongoDB Bağlantısı
 ====================================================== */
@@ -62,6 +70,25 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  session({
+    secret:
+      process.env.SESSION_SECRET ||
+      process.env.JWT_SECRET ||
+      "oauth-session-dev-only",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 15 * 60 * 1000,
+    },
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
 
 /* ======================================================
    ✅ Rate limiting: Genel API (brute-force / spam azaltma)
@@ -113,8 +140,10 @@ const categoryRoutes = require('./routes/categories');
 const bayiBasvuruRoutes = require('./routes/bayiBasvuru');
 const uploadRoutes = require('./routes/upload');
 const paytrRoutes = require('./routes/paytr');
+const oauthRoutes = require('./routes/oauth');
 
-// Sonra kullan
+// Sonra kullan (OAuth önce)
+app.use("/api/auth", oauthRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/addresses", addressRoutes);
 app.use("/api/orders", orderRoutes);
@@ -547,6 +576,12 @@ app.post("/api/auth/login", async (req, res) => {
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
+      if (user.googleId || user.facebookId || user.instagramId) {
+        return res.status(400).json({
+          success: false,
+          message: "Bu hesap sosyal giriş ile kayıtlı (Google, Facebook veya Instagram). Lütfen ilgili yöntemi kullanın.",
+        });
+      }
       return res.status(400).json({ success: false, message: "Email veya şifre yanlış" });
     }
 

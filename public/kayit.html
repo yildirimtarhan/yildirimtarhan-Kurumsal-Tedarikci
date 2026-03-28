@@ -356,6 +356,86 @@
         opacity: 0.6;
     }
 
+    .social-oauth-wrap {
+        margin-bottom: 8px;
+    }
+    .social-oauth-text {
+        font-size: 14px;
+        color: #4b5563;
+        line-height: 1.65;
+        margin-bottom: 16px;
+        text-align: center;
+    }
+    .social-oauth-text strong { color: #1e3a8a; }
+    .social-oauth-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    @media (min-width: 640px) {
+        .social-oauth-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+    .social-oauth-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 48px;
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 14px;
+        text-decoration: none;
+        transition: transform 0.2s, box-shadow 0.2s;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        box-sizing: border-box;
+    }
+    .social-oauth-btn:hover {
+        transform: translateY(-1px);
+    }
+    .social-oauth-google {
+        border: 2px solid #e5e7eb;
+        background: #fff;
+        color: #374151;
+    }
+    .social-oauth-google .fab { color: #ea4335; font-size: 18px; }
+    .social-oauth-fb {
+        background: #1877F2;
+        color: #fff;
+        border: 2px solid transparent;
+    }
+    .social-oauth-fb .fab { font-size: 18px; }
+    .social-oauth-ig {
+        color: #fff;
+        border: 2px solid transparent;
+        background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #bc1888);
+    }
+    .social-oauth-ig .fab { font-size: 18px; }
+    .oauth-divider-kayit {
+        position: relative;
+        text-align: center;
+        margin: 24px 0 8px;
+    }
+    .oauth-divider-kayit::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        height: 1px;
+        background: #e5e7eb;
+    }
+    .oauth-divider-kayit span {
+        position: relative;
+        background: white;
+        padding: 0 14px;
+        font-size: 13px;
+        color: #9ca3af;
+    }
+
     </style>
 </head>
 <body>
@@ -374,6 +454,26 @@
                     <strong>Bireysel Üyelik:</strong> E-fatura, e-imza ve dijital hizmetler<br>
                     <strong>Kurumsal Üyelik:</strong> Mali mühür, e-defter, kurumsal çözümler ve özel fiyatlandırma
                 </p>
+            </div>
+
+            <div class="social-oauth-wrap">
+                <p class="social-oauth-text">
+                    <strong>Hızlı üyelik:</strong> Google, Facebook veya Instagram ile tek adımda hesap oluşturup giriş yapın.
+                    Sosyal hesaptaki e-posta sitede kayıtlıysa mevcut üyeliğinize bağlanır.
+                    <span style="display:block;margin-top:8px;font-size:13px;color:#6b7280;">Tam adres ve kurumsal bilgiler için aşağıdaki formu kullanın.</span>
+                </p>
+                <div class="social-oauth-grid">
+                    <a id="oauthGoogleBtnKayit" href="#" class="social-oauth-btn social-oauth-google">
+                        <i class="fab fa-google"></i> Google ile üye ol
+                    </a>
+                    <a id="oauthFacebookBtnKayit" href="#" class="social-oauth-btn social-oauth-fb">
+                        <i class="fab fa-facebook-f"></i> Facebook ile üye ol
+                    </a>
+                    <a id="oauthInstagramBtnKayit" href="#" class="social-oauth-btn social-oauth-ig">
+                        <i class="fab fa-instagram"></i> Instagram ile üye ol
+                    </a>
+                </div>
+                <div class="oauth-divider-kayit"><span>veya form ile kayıt</span></div>
             </div>
             
             <div class="tabs">
@@ -710,6 +810,77 @@
         ilceSelect.disabled = false;
     }
 
+    function getApiBase() {
+        return (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+            ? 'http://localhost:3000'
+            : 'https://backend-api-7s13.onrender.com';
+    }
+
+    function setupKayitSocialOAuth() {
+        const base = getApiBase();
+        [
+            ['oauthGoogleBtnKayit', '/api/auth/google'],
+            ['oauthFacebookBtnKayit', '/api/auth/facebook'],
+            ['oauthInstagramBtnKayit', '/api/auth/instagram']
+        ].forEach(function (pair) {
+            var el = document.getElementById(pair[0]);
+            if (el) el.href = base + pair[1];
+        });
+    }
+
+    async function handleKayitOAuthReturn() {
+        var params = new URLSearchParams(window.location.search);
+        var msg = document.getElementById('message');
+        if (params.get('oauth_error')) {
+            var errText = decodeURIComponent(params.get('message') || 'Sosyal giriş tamamlanamadı.');
+            if (msg) {
+                msg.className = 'message error';
+                msg.textContent = errText;
+                msg.style.display = 'block';
+            } else {
+                alert(errText);
+            }
+            window.history.replaceState({}, document.title, window.location.pathname);
+            return;
+        }
+        var raw = params.get('oauth_token');
+        if (!raw) return;
+        var token = decodeURIComponent(raw);
+        localStorage.setItem('token', token);
+        try {
+            var r = await fetch(getApiBase() + '/api/auth/profile', {
+                headers: { Authorization: 'Bearer ' + token }
+            });
+            var data = await r.json();
+            if (data.success && data.user) {
+                localStorage.setItem('user', JSON.stringify(data.user));
+                if (msg) {
+                    msg.className = 'message success';
+                    msg.innerHTML = '<strong>Hoş geldiniz!</strong> Ana sayfaya yönlendiriliyorsunuz...';
+                    msg.style.display = 'block';
+                }
+                window.history.replaceState({}, document.title, window.location.pathname);
+                setTimeout(function () { window.location.href = 'index.html'; }, 450);
+            } else {
+                localStorage.removeItem('token');
+                if (msg) {
+                    msg.className = 'message error';
+                    msg.textContent = data.message || 'Profil alınamadı';
+                    msg.style.display = 'block';
+                }
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        } catch (e) {
+            localStorage.removeItem('token');
+            if (msg) {
+                msg.className = 'message error';
+                msg.textContent = 'Bağlantı hatası';
+                msg.style.display = 'block';
+            }
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }
+
     // Sayfa yüklendiğinde illeri doldur
     document.addEventListener('DOMContentLoaded', function() {
         const faturaSehir = document.getElementById('faturaSehir');
@@ -727,6 +898,9 @@
             option2.textContent = il;
             teslimatSehir.appendChild(option2);
         });
+
+        setupKayitSocialOAuth();
+        handleKayitOAuthReturn();
     });
 
             const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')

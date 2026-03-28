@@ -86,6 +86,11 @@ const UserSchema = new mongoose.Schema({
   erpSynced: { type: Boolean, default: false },
   erpSyncDate: { type: Date },
 
+  // Sosyal giriş (OAuth) — seyrek indeks, aynı provider’da id tekil
+  googleId: { type: String, sparse: true, unique: true },
+  facebookId: { type: String, sparse: true, unique: true },
+  instagramId: { type: String, sparse: true, unique: true },
+
   createdAt: { type: Date, default: Date.now },
 });
 

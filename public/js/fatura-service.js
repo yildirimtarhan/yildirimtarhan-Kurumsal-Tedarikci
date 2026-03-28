@@ -5,9 +5,9 @@
 
 class FaturaService {
     constructor() {
-        this.baseUrl = window.location.origin.includes('localhost') 
-            ? 'http://localhost:3000/api' 
-            : 'https://your-render-backend.onrender.com/api';
+        this.baseUrl = window.location.origin.includes('localhost')
+            ? 'http://localhost:3000/api'
+            : `${window.location.origin}/api`;
         this.token = localStorage.getItem('token');
     }
 

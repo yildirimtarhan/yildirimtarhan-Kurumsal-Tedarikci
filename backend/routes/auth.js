@@ -262,11 +262,19 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body;
     
     const user = await User.findOne({ email })
-      .select("password ad email rol uyelikTipi firma telefon tcNo vergiNo vergiDairesi faturaAdresi teslimatAdresi addresses");
+      .select("password ad email rol uyelikTipi firma telefon tcNo vergiNo vergiDairesi faturaAdresi teslimatAdresi addresses googleId facebookId instagramId");
     if (!user) return res.status(400).json({ success: false, message: "Email veya şifre yanlış" });
 
     const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(400).json({ success: false, message: "Email veya şifre yanlış" });
+    if (!match) {
+      if (user.googleId || user.facebookId || user.instagramId) {
+        return res.status(400).json({
+          success: false,
+          message: "Bu hesap sosyal giriş ile kayıtlı (Google, Facebook veya Instagram). Lütfen ilgili yöntemi kullanın.",
+        });
+      }
+      return res.status(400).json({ success: false, message: "Email veya şifre yanlış" });
+    }
 
     const token = jwt.sign(
       { id: user._id, email: user.email, rol: user.rol },

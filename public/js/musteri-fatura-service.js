@@ -5,9 +5,11 @@
 
 class MusteriFaturaService {
     constructor() {
-        this.baseUrl = window.location.origin.includes('localhost') 
-            ? 'http://localhost:3000/api' 
-            : 'https://your-render-backend.onrender.com/api';
+        // Backend API'yi kendi domain'imizden çağırıyoruz.
+        // localhost geliştirme için port farklı olabiliyor.
+        this.baseUrl = window.location.origin.includes('localhost')
+            ? 'http://localhost:3000/api'
+            : `${window.location.origin}/api`;
         this.token = localStorage.getItem('token') || sessionStorage.getItem('token');
         this.musteriId = localStorage.getItem('musteriId') || sessionStorage.getItem('musteriId');
     }
