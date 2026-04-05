@@ -2,12 +2,7 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
 const User = require("../models/User");
 const { upsertOAuthUser } = require("../services/oauthUserService");
-
-function backendPublicUrl() {
-  const explicit = process.env.BACKEND_PUBLIC_URL || process.env.BACKEND_URL;
-  if (explicit) return explicit.replace(/\/$/, "");
-  return `http://localhost:${process.env.PORT || 3000}`;
-}
+const { backendPublicUrl } = require("./backendPublicUrl");
 
 module.exports = function configurePassport(passport) {
   passport.serializeUser((user, done) => {

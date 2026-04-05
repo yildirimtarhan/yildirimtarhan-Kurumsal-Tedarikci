@@ -5,6 +5,8 @@ const CariHesap = require('../models/CariHesap');
 const Order = require('../models/Order');
 const User = require('../models/User');
 const TaxtenService = require('../services/taxtenService');
+const DefterKaydi = require('../models/DefterKaydi');
+const KasaBanka = require('../models/KasaBanka');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 
 const taxtenService = new TaxtenService();
@@ -122,6 +124,7 @@ router.get('/list', authMiddleware, async (req, res) => {
     
     const query = {};
     if (durum) query.durum = durum;
+    if (req.query.tipo) query.faturaTipi = req.query.tipo; // Alış/Satış filtresi
     if (cariId) query.cariHesapId = cariId;
     if (startDate && endDate) {
       query.faturaTarihi = { $gte: new Date(startDate), $lte: new Date(endDate) };
@@ -459,6 +462,150 @@ router.post('/admin/sync-all', authMiddleware, adminMiddleware, async (req, res)
     
     res.json({ success: true, message: `${sonuclar.length} fatura senkronize edildi`, data: sonuclar });
     
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Taxten'den Gelen ve Giden Faturaları Eşitle
+router.post('/sync-taxten', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    console.log('[Sync DEBUG] Rota isteği alındı (Body):', req.body);
+    const { startDate, endDate, syncInbound = true, syncOutbound = true } = req.body;
+    const sonuclar = { inbound: 0, outbound: 0, errors: [] };
+
+    const processInvoices = async (type) => {
+      const result = await taxtenService.getInvoiceList(type, startDate, endDate);
+      console.log(`[Sync DEBUG] ${type} için bulunan toplam ham fatura sayısı:`, result.data?.length || 0);
+
+      if (!result.success) {
+        sonuclar.errors.push(`${type} listesi alınamadı: ${result.error}`);
+        return;
+      }
+
+      let invoices = result.data?.Items || result.data || [];
+      if (!Array.isArray(invoices)) {
+          // Eğer tek bir obje gelmişse veya beklenen formatta değilse boş dizi ata
+          invoices = [];
+      }
+      
+      for (const inv of invoices) {
+        try {
+          const uuid = inv.uuid || inv.UUID;
+          if (!uuid) continue;
+
+          const existing = await Fatura.findOne({ uuid });
+          if (existing) continue;
+
+          console.log(`[Sync DEBUG] Fatura detayı çekiliyor: ${uuid}`);
+
+          // Detaylı UBL verisini çek
+          const detailRes = await taxtenService.getUBL(uuid, type);
+          if (!detailRes.success) {
+            console.error(`[Sync ERROR] ${uuid} detayı alınamadı:`, detailRes.error);
+            sonuclar.errors.push(`${inv.id || uuid} detayı alınamadı.`);
+            continue;
+          }
+
+          // XML'den verileri ayıkla (Taxten service parseUBL artık type alıyor)
+          const data = taxtenService.parseUBL(detailRes.data, type);
+          if (!data) {
+            sonuclar.errors.push(`${uuid} ayrıştırılamadı.`);
+            continue;
+          }
+
+          const otherVkn = data.vkn;
+          const otherUnvan = data.unvan;
+
+          console.log(`[Sync DEBUG] İşlenen Cari: ${otherUnvan} (${otherVkn})`);
+
+          // Cari Hesabı bul veya oluştur
+          let cari = await CariHesap.findOne({ vknTckn: otherVkn });
+          if (!cari) {
+            cari = await CariHesap.create({
+              firmaUnvan: otherUnvan || 'Yeni Firma (Taxten)',
+              vknTckn: otherVkn,
+              bakiye: 0
+            });
+            console.log(`[Sync DEBUG] Yeni Cari Oluşturuldu: ${otherUnvan}`);
+          }
+
+          // Fatura Kaydı
+          const faturaData = {
+            uuid: uuid,
+            faturaNo: data.faturaNo || inv.id || inv.ID,
+            cariHesapId: cari._id,
+            aliciVkn: type === 'OUTBOUND' ? otherVkn : '34285822330', 
+            aliciUnvan: type === 'OUTBOUND' ? otherUnvan : 'Yıldırım Tarhan',
+            faturaTarihi: data.tarih ? new Date(data.tarih) : new Date(),
+            toplamTutar: data.tutar || 0,
+            matrah: (data.tutar || 0) - (data.kdv || 0),
+            kdvTutari: data.kdv || 0,
+            durum: '1300-BAŞARILI',
+            faturaTipi: type === 'OUTBOUND' ? 'SATIŞ' : 'ALIŞ',
+            aciklama: `Taxten Senkronizasyon (${type})`
+          };
+
+          // FaturaNo çakışmasını önle
+          const conflict = await Fatura.findOne({ faturaNo: faturaData.faturaNo });
+          if (conflict && conflict.uuid !== uuid) {
+             // Gerçek bir numara çakışması varsa UUID ekle
+             faturaData.faturaNo = `${faturaData.faturaNo}_${uuid.substring(0,4)}`;
+          }
+
+          const yeniFatura = await Fatura.create(faturaData);
+
+          // Muhasebe Defter Kaydı (İşletme Defteri)
+          try {
+            const fDate = yeniFatura.faturaTarihi;
+            const fYil = fDate.getFullYear();
+            const fAy = fDate.getMonth() + 1;
+            const fDonem = `${fYil}-${DefterKaydi.ayToDonem ? DefterKaydi.ayToDonem(fAy) : '01'}`;
+
+            await DefterKaydi.create({
+              tip: yeniFatura.faturaTipi === 'SATIŞ' ? 'gelir' : 'gider',
+              tarih: fDate,
+              aciklama: `${otherUnvan} - Fatura #${yeniFatura.faturaNo}`,
+              karsiTaraf: otherUnvan,
+              faturaNo: yeniFatura.faturaNo,
+              kdvHaricTutar: yeniFatura.matrah,
+              kdvTutari: yeniFatura.kdvTutari,
+              kdvDahilTutar: yeniFatura.toplamTutar,
+              yil: fYil,
+              ay: fAy,
+              donem: fDonem,
+              kaynak: 'manuel',
+              notlar: `Taxten UUID: ${uuid}`,
+              cariHesapId: cari._id
+            });
+            
+            // Cari bakiye güncelleme
+            if (type === 'OUTBOUND') cari.bakiye += yeniFatura.toplamTutar;
+            else cari.bakiye -= yeniFatura.toplamTutar;
+            await cari.save();
+
+            if (type === 'INBOUND') sonuclar.inbound++;
+            else sonuclar.outbound++;
+
+          } catch (defterErr) {
+            console.error('[Sync ERROR] Defter kaydı hatası:', defterErr.message);
+            sonuclar.errors.push(`${yeniFatura.faturaNo} muhasebeleşemedi.`);
+          }
+
+        } catch (innerErr) {
+          console.error(`[Sync ERROR] Fatura Yazma Hatası (${inv.id}):`, innerErr.message);
+          if (innerErr.errors) {
+            console.error('Validation Details:', JSON.stringify(innerErr.errors));
+          }
+          sonuclar.errors.push(`Fatura ${inv.id || 'N/A'} hatası: ${innerErr.message}`);
+        }
+      }
+    };
+
+    if (syncOutbound) await processInvoices('OUTBOUND');
+    if (syncInbound) await processInvoices('INBOUND');
+
+    res.json({ success: true, sonuclar });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

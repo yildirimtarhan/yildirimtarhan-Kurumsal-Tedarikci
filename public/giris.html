@@ -181,12 +181,13 @@
                     </a>
                 </div>
 
+                <div id="oauthBlockLogin" class="oauth-quick-block">
                 <p class="text-sm text-gray-600 text-center leading-relaxed px-1 oauth-info-mobile">
                     Sitede kayıtlı e-postanız ile <strong>Google</strong> veya <strong>Facebook</strong> hesabınızdaki e-posta <strong>aynıysa</strong>, tek üyeliğinize otomatik bağlanırsınız.
                     <span class="block mt-1 text-gray-500">Instagram e-posta paylaşmadığı için yeni hesap açar; mevcut hesaba bağlamak için giriş yaptıktan sonra <a href="profil.html" class="text-indigo-600 hover:underline">Profil</a> sayfasından &quot;Instagram bağla&quot; kullanın.</span>
                 </p>
 
-                <div class="relative my-6">
+                <div class="relative my-6 oauth-divider-wrap">
                     <div class="absolute inset-0 flex items-center">
                         <div class="w-full border-t border-gray-200"></div>
                     </div>
@@ -194,23 +195,30 @@
                         <span class="px-2 bg-white text-gray-500">veya hızlı giriş</span>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 oauth-buttons-grid">
+                    <div class="oauth-cell" data-oauth="google">
                     <a id="oauthGoogleBtn" href="#"
                         class="oauth-btn-mobile flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white text-gray-700 font-medium hover:border-gray-300 hover:bg-gray-50 transition-all text-sm sm:text-base">
                         <i class="fab fa-google text-red-500 text-lg"></i>
                         Google ile devam et
                     </a>
+                    </div>
+                    <div class="oauth-cell" data-oauth="facebook">
                     <a id="oauthFacebookBtn" href="#"
                         class="oauth-btn-mobile flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-transparent text-white font-medium hover:opacity-95 transition-all text-sm sm:text-base"
                         style="background-color: #1877F2;">
                         <i class="fab fa-facebook-f text-lg"></i>
                         Facebook ile devam et
                     </a>
+                    </div>
+                    <div class="oauth-cell" data-oauth="instagram">
                     <a id="oauthInstagramBtn" href="#"
                         class="oauth-btn-mobile flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-transparent text-white font-medium hover:opacity-95 transition-all instagram-oauth-btn text-sm sm:text-base">
                         <i class="fab fa-instagram text-lg"></i>
                         Instagram ile devam et
                     </a>
+                    </div>
+                </div>
                 </div>
                 
                 <button type="submit" id="loginBtn"
@@ -227,31 +235,39 @@
         <!-- Register Form -->
         <div id="register-section" class="p-8 hidden-tab login-section-mobile">
             <form id="registerForm" class="space-y-6">
+                <div id="oauthBlockRegister" class="oauth-quick-block">
                 <p class="text-sm text-gray-600 text-center leading-relaxed px-1 oauth-info-mobile">
                     <strong>Hızlı üyelik:</strong> Google, Facebook veya Instagram ile tek tıkla hesap oluşturup giriş yapabilirsiniz. Google/Facebook’ta kullandığınız e-posta daha önce kayıtlıysa mevcut üyeliğinize bağlanır.
                     <span class="block mt-1 text-gray-500">Detaylı kayıt (adres, vergi vb.) için aşağıdaki formu doldurun.</span>
                 </p>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 oauth-buttons-grid">
+                    <div class="oauth-cell" data-oauth="google">
                     <a id="oauthGoogleBtnReg" href="#"
                         class="oauth-btn-mobile flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white text-gray-700 font-medium hover:border-gray-300 hover:bg-gray-50 transition-all text-sm sm:text-base">
                         <i class="fab fa-google text-red-500 text-lg"></i>
                         Google ile üye ol
                     </a>
+                    </div>
+                    <div class="oauth-cell" data-oauth="facebook">
                     <a id="oauthFacebookBtnReg" href="#"
                         class="oauth-btn-mobile flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-transparent text-white font-medium hover:opacity-95 transition-all text-sm sm:text-base"
                         style="background-color: #1877F2;">
                         <i class="fab fa-facebook-f text-lg"></i>
                         Facebook ile üye ol
                     </a>
+                    </div>
+                    <div class="oauth-cell" data-oauth="instagram">
                     <a id="oauthInstagramBtnReg" href="#"
                         class="oauth-btn-mobile flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-transparent text-white font-medium hover:opacity-95 transition-all instagram-oauth-btn text-sm sm:text-base">
                         <i class="fab fa-instagram text-lg"></i>
                         Instagram ile üye ol
                     </a>
+                    </div>
+                </div>
                 </div>
 
-                <div class="relative my-6">
+                <div id="oauthDividerRegister" class="relative my-6">
                     <div class="absolute inset-0 flex items-center">
                         <div class="w-full border-t border-gray-200"></div>
                     </div>
@@ -552,6 +568,31 @@
             "Zonguldak": ["Alaplı", "Çaycuma", "Devrek", "Ereğli", "Gökçebey", "Kilimli", "Kozlu", "Merkez"]
         };
 
+        async function applyOAuthProviderVisibility() {
+            try {
+                const r = await fetch(API_URL + '/auth/oauth-providers');
+                const d = await r.json();
+                if (!d.success) return;
+                const on = { google: !!d.google, facebook: !!d.facebook, instagram: !!d.instagram };
+                document.querySelectorAll('.oauth-quick-block').forEach(function (block) {
+                    var showBlock = false;
+                    block.querySelectorAll('.oauth-cell').forEach(function (cell) {
+                        var key = cell.getAttribute('data-oauth');
+                        var vis = key && on[key];
+                        cell.style.display = vis ? '' : 'none';
+                        if (vis) showBlock = true;
+                    });
+                    block.style.display = showBlock ? '' : 'none';
+                });
+                var regDiv = document.getElementById('oauthDividerRegister');
+                if (regDiv) {
+                    regDiv.style.display = (on.google || on.facebook || on.instagram) ? '' : 'none';
+                }
+            } catch (e) {
+                console.warn('oauth-providers', e);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const API_ORIGIN = new URL(API_URL).origin;
             const gBtn = document.getElementById('oauthGoogleBtn');
@@ -566,7 +607,7 @@
             if (gReg) gReg.href = API_ORIGIN + '/api/auth/google';
             if (fReg) fReg.href = API_ORIGIN + '/api/auth/facebook';
             if (iReg) iReg.href = API_ORIGIN + '/api/auth/instagram';
-            handleOAuthReturn();
+            applyOAuthProviderVisibility().then(function () { handleOAuthReturn(); });
         });
 
         // Sayfa yüklendiğinde şehirleri doldur

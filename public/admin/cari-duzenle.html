@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cari Düzenle - Kurumsal Tedarikçi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="fixed left-0 top-0 h-full w-[260px] bg-slate-900 text-white z-50 overflow-y-auto">
+    <div class="p-4 flex items-center gap-3 border-b border-slate-700">
+      <i class="fas fa-building-columns text-2xl text-blue-400"></i>
+      <span class="font-bold text-lg">Kurumsal</span>
+    </div>
+    <nav class="mt-6 px-2">
+      <a href="cari-yonetim.html" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg mb-1"><i class="fas fa-address-book w-5"></i> Cari Hesaplar</a>
+      <a href="index.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 rounded-lg mb-1"><i class="fas fa-home w-5"></i> Dashboard</a>
+    </nav>
+  </div>
+
+  <div class="ml-[260px] p-6 max-w-4xl">
+    <div class="mb-6 flex items-center gap-4 flex-wrap">
+      <a id="linkDetay" href="#" class="text-blue-600 hover:text-blue-800"><i class="fas fa-eye"></i> Detay</a>
+      <a href="cari-yonetim.html" class="text-gray-600 hover:text-gray-800"><i class="fas fa-list"></i> Liste</a>
+    </div>
+
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Cari düzenle</h1>
+
+    <div id="loadBox" class="bg-white rounded-xl shadow p-8 text-center text-gray-500">
+      <i class="fas fa-spinner fa-spin text-2xl"></i>
+      <p class="mt-2">Yükleniyor...</p>
+    </div>
+
+    <form id="form" class="hidden bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-6">
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Ad soyad *</label>
+          <input type="text" id="ad" required class="w-full px-3 py-2 border rounded-lg" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
+          <input type="text" id="telefon" class="w-full px-3 py-2 border rounded-lg" />
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-1">E-posta *</label>
+          <input type="email" id="email" required class="w-full px-3 py-2 border rounded-lg" />
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Üyelik tipi</label>
+          <select id="uyelikTipi" class="w-full px-3 py-2 border rounded-lg">
+            <option value="bireysel">Bireysel</option>
+            <option value="kurumsal">Kurumsal</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+          <select id="rol" class="w-full px-3 py-2 border rounded-lg">
+            <option value="user">user</option>
+            <option value="bayi">bayi</option>
+            <option value="admin">admin</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="border-t pt-4 space-y-4">
+        <h2 class="font-semibold text-gray-800">Firma / vergi</h2>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Firma ünvanı</label>
+            <input type="text" id="firma" class="w-full px-3 py-2 border rounded-lg" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Vergi no</label>
+            <input type="text" id="vergiNo" class="w-full px-3 py-2 border rounded-lg" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Vergi dairesi</label>
+            <input type="text" id="vergiDairesi" class="w-full px-3 py-2 border rounded-lg" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">TC kimlik no</label>
+            <input type="text" id="tcNo" maxlength="11" class="w-full px-3 py-2 border rounded-lg" />
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t pt-4 space-y-4">
+        <h2 class="font-semibold text-gray-800">Fatura adresi</h2>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">İl</label>
+            <input type="text" id="fatSehir" class="w-full px-3 py-2 border rounded-lg" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">İlçe</label>
+            <input type="text" id="fatIlce" class="w-full px-3 py-2 border rounded-lg" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Açık adres</label>
+            <textarea id="fatAcik" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t pt-4 space-y-4">
+        <h2 class="font-semibold text-gray-800">Teslimat adresi</h2>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">İl</label>
+            <input type="text" id="tesSehir" class="w-full px-3 py-2 border rounded-lg" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">İlçe</label>
+            <input type="text" id="tesIlce" class="w-full px-3 py-2 border rounded-lg" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Açık adres</label>
+            <textarea id="tesAcik" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t pt-4 bg-amber-50 p-4 rounded-lg">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Yeni şifre (opsiyonel, min. 6 karakter)</label>
+        <input type="password" id="yeniSifre" autocomplete="new-password" class="w-full px-3 py-2 border rounded-lg" placeholder="Değiştirmeyecekseniz boş bırakın" />
+      </div>
+
+      <div id="formErr" class="hidden text-red-600 text-sm"></div>
+      <div class="flex gap-3">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium">
+          <i class="fas fa-save mr-1"></i> Kaydet
+        </button>
+        <a href="#" id="iptalDetay" class="px-6 py-2 border rounded-lg text-gray-700 hover:bg-gray-50">İptal</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const API_URL = window.location.origin + '/api';
+    function getToken() {
+      return localStorage.getItem('token') || localStorage.getItem('adminToken');
+    }
+
+    (function auth() {
+      const t = getToken();
+      if (!t) { window.location.href = 'login.html'; return; }
+      try {
+        const exp = JSON.parse(atob(t.split('.')[1])).exp * 1000;
+        if (Date.now() >= exp) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('adminToken');
+          window.location.href = 'login.html';
+        }
+      } catch (e) {
+        window.location.href = 'login.html';
+      }
+    })();
+
+    const id = new URLSearchParams(window.location.search).get('id');
+    if (!id || id.length !== 24) {
+      document.getElementById('loadBox').innerHTML = '<p class="text-red-600">Geçersiz cari.</p>';
+    } else {
+      document.getElementById('linkDetay').href = 'cari-detay.html?id=' + encodeURIComponent(id);
+      document.getElementById('iptalDetay').href = 'cari-detay.html?id=' + encodeURIComponent(id);
+
+      fetch(API_URL + '/admin/users/' + id, { headers: { Authorization: 'Bearer ' + getToken() } })
+        .then(r => { if (r.status === 401) { window.location.href = 'login.html'; throw new Error('auth'); } return r.json(); })
+        .then(data => {
+          if (!data.success || !data.user) {
+            document.getElementById('loadBox').innerHTML = '<p class="text-red-600">' + (data.message || 'Yüklenemedi') + '</p>';
+            return;
+          }
+          const u = data.user;
+          document.getElementById('ad').value = u.ad || '';
+          document.getElementById('email').value = u.email || '';
+          document.getElementById('telefon').value = u.telefon || '';
+          document.getElementById('uyelikTipi').value = u.uyelikTipi || 'bireysel';
+          document.getElementById('rol').value = u.rol || 'user';
+          document.getElementById('firma').value = u.firma || '';
+          document.getElementById('vergiNo').value = u.vergiNo || '';
+          document.getElementById('vergiDairesi').value = u.vergiDairesi || '';
+          document.getElementById('tcNo').value = u.tcNo || '';
+          const fat = u.faturaAdresi || {};
+          const tes = u.teslimatAdresi || {};
+          document.getElementById('fatSehir').value = fat.sehir || '';
+          document.getElementById('fatIlce').value = fat.ilce || '';
+          document.getElementById('fatAcik').value = fat.acikAdres || '';
+          document.getElementById('tesSehir').value = tes.sehir || '';
+          document.getElementById('tesIlce').value = tes.ilce || '';
+          document.getElementById('tesAcik').value = tes.acikAdres || '';
+
+          document.getElementById('loadBox').classList.add('hidden');
+          document.getElementById('form').classList.remove('hidden');
+        })
+        .catch(() => {
+          document.getElementById('loadBox').innerHTML = '<p class="text-red-600">Veri alınamadı.</p>';
+        });
+
+      document.getElementById('form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const errEl = document.getElementById('formErr');
+        errEl.classList.add('hidden');
+        const body = {
+          ad: document.getElementById('ad').value.trim(),
+          email: document.getElementById('email').value.trim(),
+          telefon: document.getElementById('telefon').value.trim(),
+          firma: document.getElementById('firma').value.trim(),
+          uyelikTipi: document.getElementById('uyelikTipi').value,
+          vergiNo: document.getElementById('vergiNo').value.trim(),
+          vergiDairesi: document.getElementById('vergiDairesi').value.trim(),
+          tcNo: document.getElementById('tcNo').value.trim(),
+          rol: document.getElementById('rol').value,
+          faturaAdresi: {
+            sehir: document.getElementById('fatSehir').value.trim(),
+            ilce: document.getElementById('fatIlce').value.trim(),
+            acikAdres: document.getElementById('fatAcik').value.trim(),
+          },
+          teslimatAdresi: {
+            sehir: document.getElementById('tesSehir').value.trim(),
+            ilce: document.getElementById('tesIlce').value.trim(),
+            acikAdres: document.getElementById('tesAcik').value.trim(),
+          },
+        };
+        const pw = document.getElementById('yeniSifre').value;
+        if (pw) {
+          if (pw.length < 6) {
+            errEl.textContent = 'Şifre en az 6 karakter olmalı.';
+            errEl.classList.remove('hidden');
+            return;
+          }
+          body.yeniSifre = pw;
+        }
+        try {
+          const res = await fetch(API_URL + '/admin/cari/' + id, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + getToken(),
+            },
+            body: JSON.stringify(body),
+          });
+          const data = await res.json();
+          if (res.status === 401) { window.location.href = 'login.html'; return; }
+          if (!data.success) {
+            errEl.textContent = data.message || 'Kayıt başarısız';
+            errEl.classList.remove('hidden');
+            return;
+          }
+          alert('Cari güncellendi.');
+          window.location.href = 'cari-detay.html?id=' + encodeURIComponent(id);
+        } catch (err) {
+          errEl.textContent = 'Bağlantı hatası';
+          errEl.classList.remove('hidden');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

@@ -456,24 +456,30 @@
                 </p>
             </div>
 
-            <div class="social-oauth-wrap">
+            <div id="oauthBlockKayitPage" class="social-oauth-wrap oauth-quick-block">
                 <p class="social-oauth-text">
                     <strong>Hızlı üyelik:</strong> Google, Facebook veya Instagram ile tek adımda hesap oluşturup giriş yapın.
                     Sosyal hesaptaki e-posta sitede kayıtlıysa mevcut üyeliğinize bağlanır.
                     <span style="display:block;margin-top:8px;font-size:13px;color:#6b7280;">Tam adres ve kurumsal bilgiler için aşağıdaki formu kullanın.</span>
                 </p>
                 <div class="social-oauth-grid">
+                    <div class="oauth-cell" data-oauth="google">
                     <a id="oauthGoogleBtnKayit" href="#" class="social-oauth-btn social-oauth-google">
                         <i class="fab fa-google"></i> Google ile üye ol
                     </a>
+                    </div>
+                    <div class="oauth-cell" data-oauth="facebook">
                     <a id="oauthFacebookBtnKayit" href="#" class="social-oauth-btn social-oauth-fb">
                         <i class="fab fa-facebook-f"></i> Facebook ile üye ol
                     </a>
+                    </div>
+                    <div class="oauth-cell" data-oauth="instagram">
                     <a id="oauthInstagramBtnKayit" href="#" class="social-oauth-btn social-oauth-ig">
                         <i class="fab fa-instagram"></i> Instagram ile üye ol
                     </a>
+                    </div>
                 </div>
-                <div class="oauth-divider-kayit"><span>veya form ile kayıt</span></div>
+                <div id="oauthDividerKayitPage" class="oauth-divider-kayit"><span>veya form ile kayıt</span></div>
             </div>
             
             <div class="tabs">
@@ -828,6 +834,28 @@
         });
     }
 
+    async function applyKayitPageOAuthVisibility() {
+        try {
+            var r = await fetch(getApiBase() + '/api/auth/oauth-providers');
+            var d = await r.json();
+            if (!d.success) return;
+            var on = { google: !!d.google, facebook: !!d.facebook, instagram: !!d.instagram };
+            var block = document.getElementById('oauthBlockKayitPage');
+            if (block) {
+                var showBlock = false;
+                block.querySelectorAll('.oauth-cell').forEach(function (cell) {
+                    var key = cell.getAttribute('data-oauth');
+                    var vis = key && on[key];
+                    cell.style.display = vis ? '' : 'none';
+                    if (vis) showBlock = true;
+                });
+                block.style.display = showBlock ? '' : 'none';
+            }
+        } catch (e) {
+            console.warn('oauth-providers', e);
+        }
+    }
+
     async function handleKayitOAuthReturn() {
         var params = new URLSearchParams(window.location.search);
         var msg = document.getElementById('message');
@@ -900,7 +928,9 @@
         });
 
         setupKayitSocialOAuth();
-        handleKayitOAuthReturn();
+        applyKayitPageOAuthVisibility().then(function () {
+            handleKayitOAuthReturn();
+        });
     });
 
             const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')

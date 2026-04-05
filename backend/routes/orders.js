@@ -5,6 +5,7 @@ const User = require("../models/User");
 const Order = require("../models/Order");
 const { sendOrderToERP } = require("../services/erpService");
 const emailService = require("../services/emailService");
+const notificationService = require("../services/notificationService");
 const { JWT_SECRET } = require('../config/jwt');
 
 function authMiddleware(req, res, next) {
@@ -134,6 +135,18 @@ router.post("/", authMiddleware, async (req, res) => {
       console.warn("Sipariş onay e-postası gönderilemedi:", err.message);
     });
 
+    // 🔔 YÖNETİCİYE BİLDİRİM (E-posta + SMS)
+    notificationService.notifyAdminOfNewOrder({
+      siparisNo: orderDataForEmail.siparisNo,
+      orderType,
+      musteriAd: user.ad || user.firma || 'Müşteri',
+      musteriEmail: user.email,
+      firmaAdi: user.firma || '',
+      paymentMethod: paymentMethod || 'Kapıda Ödeme',
+      toplam,
+      items: orderItems,
+    }).catch((err) => console.warn('Yönetici bildirimi hatası:', err.message));
+
     // 🚀 Otomatik ERP'ye gönder (async, kullanıcıyı bekleme)
     sendOrderToERP(newOrder, user).then(async (erpResult) => {
       if (erpResult.success) {
@@ -204,13 +217,24 @@ router.get("/", authMiddleware, async (req, res) => {
 
     const enrichedOrders = await Promise.all(orders.map(async (order) => {
       const o = order.toObject();
-      if (!o.email && o.userId) {
-        const user = await User.findById(o.userId).select('email firma telefon');
+      let musteriAdSoyad = '';
+      if (o.userId) {
+        const user = await User.findById(o.userId).select('email firma telefon ad');
         if (user) {
-          o.email = user.email;
+          if (!o.email) o.email = user.email;
           o.firmaAdi = o.firmaAdi || user.firma || '';
+          musteriAdSoyad = (user.ad || '').trim();
         }
       }
+      if (!musteriAdSoyad) {
+        musteriAdSoyad = (
+          o.shippingAddress?.fullName ||
+          o.invoiceAddress?.fullName ||
+          o.firmaAdi ||
+          ''
+        ).trim();
+      }
+      o.musteriAdSoyad = musteriAdSoyad || '—';
       if (!o.toplam && (o.total || o.subtotal)) {
         o.toplam = o.total || (o.subtotal + (o.kdv || 0));
       }
@@ -232,13 +256,41 @@ router.get("/:id", authMiddleware, async (req, res) => {
     if (!order) return res.status(404).json({ success: false, message: "Sipariş bulunamadı" });
 
     const o = order.toObject();
-    if (!o.email && o.userId) {
-      const user = await User.findById(o.userId).select('email firma telefon');
-      if (user) {
-        o.email = user.email;
-        o.firmaAdi = o.firmaAdi || user.firma || '';
-      }
+    let user = null;
+    if (o.userId) {
+      user = await User.findById(o.userId).select('email firma telefon ad');
     }
+    if (!user && o.email) {
+      user = await User.findOne({
+        email: String(o.email).toLowerCase().trim(),
+      }).select('email firma telefon ad');
+    }
+
+    let musteriAdSoyad = '';
+    if (user) {
+      if (!o.email) o.email = user.email;
+      const siparisFirma = (o.firmaAdi || '').trim();
+      o.firmaAdi = siparisFirma || (user.firma || '').trim() || '';
+      musteriAdSoyad = (user.ad || '').trim();
+    } else {
+      o.firmaAdi = (o.firmaAdi || '').trim() || '';
+    }
+
+    if (!musteriAdSoyad) {
+      musteriAdSoyad = (
+        o.shippingAddress?.fullName ||
+        o.invoiceAddress?.fullName ||
+        o.firmaAdi ||
+        ''
+      ).trim();
+    }
+    o.musteriAdSoyad = musteriAdSoyad || '—';
+
+    const telUser = user && user.telefon ? String(user.telefon).trim() : '';
+    const telShip = (o.shippingAddress?.phone || '').trim();
+    const telInv = (o.invoiceAddress?.phone || '').trim();
+    o.telefon = telUser || telShip || telInv || '';
+
     if (!o.toplam && (o.total || o.subtotal)) {
       o.toplam = o.total || (o.subtotal + (o.kdv || 0));
     }

@@ -177,6 +177,63 @@ class EmailService {
         });
     }
 
+    /** Yeni sipariş geldiğinde admin(ler)e bilgi maili (ADMIN_ORDER_NOTIFY_EMAIL) */
+    async sendNewOrderAdminNotification(adminEmails, orderData) {
+        if (!adminEmails || !adminEmails.length) return { skipped: true };
+        const esc = (s) => String(s == null ? '' : s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+        const baseUrl = (process.env.FRONTEND_URL || 'https://tedarikci.org.tr').replace(/\/$/, '');
+        const adminOrdersUrl = `${baseUrl}/admin/orders.html`;
+        const itemsRows = (orderData.items || []).map((item) => `
+            <tr>
+                <td style="padding:8px;border-bottom:1px solid #e5e7eb;">${esc(item.ad)}</td>
+                <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;">${esc(item.adet)}</td>
+                <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;">₺${Number(item.fiyat || 0).toFixed(2)}</td>
+            </tr>
+        `).join('');
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head><meta charset="UTF-8"></head>
+            <body style="font-family:Arial,sans-serif;line-height:1.5;color:#333;">
+                <div style="max-width:600px;margin:0 auto;padding:20px;">
+                    <div style="background:#1e40af;color:#fff;padding:20px;border-radius:8px 8px 0 0;">
+                        <h1 style="margin:0;font-size:20px;">Yeni sipariş</h1>
+                    </div>
+                    <div style="background:#f9fafb;padding:24px;border-radius:0 0 8px 8px;">
+                        <p><strong>Sipariş no:</strong> #${esc(orderData.siparisNo)}</p>
+                        <p><strong>Tip:</strong> ${esc(orderData.orderType === 'b2b' ? 'Bayi (B2B)' : 'Perakende (B2C)')}</p>
+                        <p><strong>Müşteri:</strong> ${esc(orderData.musteriAd)}</p>
+                        <p><strong>E-posta:</strong> ${esc(orderData.musteriEmail)}</p>
+                        ${orderData.firmaAdi ? `<p><strong>Firma:</strong> ${esc(orderData.firmaAdi)}</p>` : ''}
+                        <p><strong>Ödeme:</strong> ${esc(orderData.paymentMethod)}</p>
+                        <p><strong>Toplam:</strong> ₺${Number(orderData.toplam || 0).toFixed(2)}</p>
+                        <table style="width:100%;border-collapse:collapse;margin-top:16px;background:#fff;border-radius:8px;">
+                            <thead><tr style="background:#e5e7eb;">
+                                <th style="padding:8px;text-align:left;">Ürün</th>
+                                <th style="padding:8px;text-align:right;">Adet</th>
+                                <th style="padding:8px;text-align:right;">Birim</th>
+                            </tr></thead>
+                            <tbody>${itemsRows}</tbody>
+                        </table>
+                        <p style="margin-top:24px;">
+                            <a href="${esc(adminOrdersUrl)}" style="display:inline-block;padding:12px 24px;background:#2563eb;color:#fff;text-decoration:none;border-radius:8px;">Siparişleri aç</a>
+                        </p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+        const subjectName = String(orderData.musteriAd || 'Müşteri').replace(/[\r\n]/g, ' ').slice(0, 40);
+        return await this.send({
+            to: adminEmails,
+            subject: `Yeni sipariş #${orderData.siparisNo} — ${subjectName}`,
+            htmlContent
+        });
+    }
+
     // Şifre sıfırlama
     async sendPasswordReset(userEmail, userName, resetLink) {
         const htmlContent = `

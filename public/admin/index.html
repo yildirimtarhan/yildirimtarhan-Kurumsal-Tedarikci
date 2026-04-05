@@ -340,8 +340,10 @@
       
       <!-- YENİ: Finans Menüleri -->
       <a href="fatura-yonetim.html"><i class="fas fa-file-invoice-dollar"></i> Faturalar</a>
+      <a href="kasa-banka.html"><i class="fas fa-wallet"></i> Kasa & Banka</a>
       <a href="cari-yonetim.html"><i class="fas fa-users"></i> Cari Hesaplar</a>
       <a href="tahsilat-yonetim.html"><i class="fas fa-money-bill-wave"></i> Tahsilatlar</a>
+      <a href="muhasebe.html"><i class="fas fa-calculator"></i> Muhasebe & Beyan</a>
       <a href="raporlar.html"><i class="fas fa-chart-bar"></i> Raporlar</a>
       
       <a href="products.html"><i class="fas fa-cubes"></i> Ürünler (ERP)</a>
@@ -534,7 +536,7 @@
               ${data.orders.slice(0, 5).map(order => `
                 <tr>
                   <td>#${order._id.toString().slice(-6)}</td>
-                  <td>${order.firmaAdi || order.email || '-'}</td>
+                  <td>${order.musteriAdSoyad && order.musteriAdSoyad !== '—' ? order.musteriAdSoyad : (order.firmaAdi || order.email || '-')}</td>
                   <td>₺${order.toplam?.toFixed(2) || '0.00'}</td>
                   <td><span class="badge ${order.status?.toLowerCase().replace(/\s+/g, '-')}">${order.status}</span></td>
                   <td><button class="btn-sm" onclick="viewOrder('${order._id}')">Detay</button></td>

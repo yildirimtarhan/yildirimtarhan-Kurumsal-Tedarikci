@@ -413,7 +413,7 @@
             if (!token) {
                 console.error('❌ Token bulunamadı, login sayfasına yönlendiriliyor...');
                 alert('Oturum süreniz dolmuş veya giriş yapılmamış. Lütfen tekrar giriş yapın.');
-                window.location.href = 'giris.html';
+                window.location.href = 'login.html';
                 return;
             }
             
@@ -427,7 +427,7 @@
                     localStorage.removeItem('token');
                     localStorage.removeItem('adminToken');
                     alert('Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.');
-                    window.location.href = 'giris.html';
+                    window.location.href = 'login.html';
                     return;
                 }
                 
@@ -436,7 +436,7 @@
                 console.error('❌ Token parse hatası:', e);
                 localStorage.removeItem('token');
                 localStorage.removeItem('adminToken');
-                window.location.href = 'giris.html';
+                window.location.href = 'login.html';
             }
         })();
         
@@ -457,7 +457,7 @@
             alert('Oturum süreniz dolmuş veya yetkiniz yok. Lütfen tekrar giriş yapın.');
             localStorage.removeItem('token');
             localStorage.removeItem('adminToken');
-            window.location.href = 'giris.html';
+            window.location.href = 'login.html';
         }
 
         function toggleSidebar() {

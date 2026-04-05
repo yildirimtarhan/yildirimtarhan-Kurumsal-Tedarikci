@@ -300,18 +300,14 @@
                 renderPagination(response.toplamSayfa || 1);
             } catch (error) {
                 console.error('Fatura yükleme hatası:', error);
-                // Sadece localhost/development ortamında demo/mock göster
-                if (window.location.origin.includes('localhost')) {
-                    renderMockData();
-                } else {
-                    const container = document.getElementById('faturaListesi');
-                    container.innerHTML = `
-                        <div class="text-center py-12 bg-white rounded-xl">
-                            <i class="fas fa-exclamation-triangle text-4xl text-gray-300 mb-4"></i>
-                            <p class="text-gray-500">Faturalar şu an yüklenemedi. Lütfen daha sonra tekrar deneyin.</p>
-                        </div>
-                    `;
-                }
+                const container = document.getElementById('faturaListesi');
+                container.innerHTML = `
+                    <div class="text-center py-12 bg-white rounded-xl">
+                        <i class="fas fa-exclamation-triangle text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-700 font-medium">Faturalar şu an yüklenemedi</p>
+                        <p class="text-gray-500 mt-1">Lütfen daha sonra tekrar deneyin.</p>
+                    </div>
+                `;
             }
         }
 
@@ -537,32 +533,8 @@
             }
         }
 
-        function renderMockData() {
-            // Test için mock veri
-            const mockData = [
-                {
-                    _id: '1',
-                    faturaNo: 'F-2025-0001',
-                    faturaTarihi: '2025-02-15',
-                    vadeTarihi: '2025-03-01',
-                    genelToplam: 5000,
-                    odenenTutar: 0,
-                    kalanTutar: 5000,
-                    odemeDurumu: 'bekliyor',
-                    tip: 'efatura',
-                    kalemler: [
-                        { urunAdi: 'Test Ürün 1', miktar: 2, birim: 'Adet', birimFiyat: 2000, toplamTutar: 4000 },
-                        { urunAdi: 'Test Ürün 2', miktar: 1, birim: 'Adet', birimFiyat: 1000, toplamTutar: 1000 }
-                    ],
-                    araToplam: 5000,
-                    kdvOrani: 20,
-                    kdvTutari: 1000
-                }
-            ];
-            
-            renderFaturalar(mockData);
-            updateStats({ toplam: 1, odenen: 0, bekleyen: 1, vadeGecmis: 0 });
-        }
+        // Not: Daha önce burada demo/mock fatura gösteriliyordu.
+        // Tüm kullanıcılar demo veri görmesin diye kaldırıldı.
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {

@@ -139,7 +139,10 @@ const supportRoutes = require('./routes/support');
 const categoryRoutes = require('./routes/categories');
 const bayiBasvuruRoutes = require('./routes/bayiBasvuru');
 const uploadRoutes = require('./routes/upload');
-const paytrRoutes = require('./routes/paytr');
+const muhasebeRoutes = require('./routes/muhasebe');
+const kasaRoutes = require('./routes/kasa');
+
+
 const oauthRoutes = require('./routes/oauth');
 
 // Sonra kullan (OAuth önce)
@@ -160,7 +163,10 @@ app.use('/api/support', supportRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/bayi-basvuru', bayiBasvuruRoutes);
 app.use('/api/upload', uploadRoutes);
-app.use('/api/paytr', paytrRoutes);
+app.use('/api/muhasebe', muhasebeRoutes);
+app.use('/api/kasa', kasaRoutes);
+
+
 
 /* ======================================================
    Teklif Al - Form gönderimi

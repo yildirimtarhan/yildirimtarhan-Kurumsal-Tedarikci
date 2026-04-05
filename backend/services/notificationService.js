@@ -144,6 +144,47 @@ class NotificationService {
             throw error;
         }
     }
+
+    // Yöneticiye yeni sipariş bildirimi (E-posta + SMS)
+    async notifyAdminOfNewOrder(orderData) {
+        try {
+            console.log(`✉️ Yöneticiye bildirim gönderiliyor... Sipariş: #${orderData.siparisNo}`);
+
+            // 1. E-posta Bildirimi
+            const adminNotifyRaw = process.env.ADMIN_ORDER_NOTIFY_EMAIL;
+            const adminRecipients = adminNotifyRaw 
+                ? adminNotifyRaw.split(',').map(e => e.trim().toLowerCase()).filter(Boolean)
+                : [];
+
+            const emailPromise = adminRecipients.length > 0
+                ? emailService.sendNewOrderAdminNotification(adminRecipients, orderData)
+                : Promise.resolve({ skipped: true });
+
+            // 2. SMS Bildirimi
+            const smsPromise = smsService.sendAdminNewOrderSMS(orderData);
+
+            // 3. Sonuçları Bekle
+            const [emailResult, smsResult] = await Promise.allSettled([
+                emailPromise,
+                smsPromise
+            ]);
+
+            console.log('✅ Admin Bildirim Durumu:', {
+                email: emailResult.status === 'fulfilled' ? 'Başarılı' : 'Hata',
+                sms: smsResult.status === 'fulfilled' ? 'Başarılı' : 'Hata/Atlandı'
+            });
+
+            return {
+                email: emailResult.status === 'fulfilled',
+                sms: smsResult.status === 'fulfilled'
+            };
+
+        } catch (error) {
+            console.error('❌ Yönetici bildirimi hatası:', error.message);
+            // Hata olsa bile ana akışı bozmamak için fırlatmayabiliriz
+            return { error: error.message };
+        }
+    }
 }
 
 module.exports = new NotificationService();

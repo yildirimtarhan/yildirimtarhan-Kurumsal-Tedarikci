@@ -22,6 +22,11 @@ const faturaSchema = new mongoose.Schema({
     enum: ['TASLAK', 'BEKLİYOR', 'GÖNDERİLDİ', '1300-BAŞARILI', 'HATA', 'İPTAL'],
     default: 'TASLAK'
   },
+  faturaTipi: {
+    type: String,
+    enum: ['SATIŞ', 'ALIŞ'],
+    default: 'SATIŞ'
+  },
   sistemYanitKodu: { type: String },
   sistemYanitAciklama: { type: String },
   cariHesapId: { 

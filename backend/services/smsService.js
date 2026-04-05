@@ -15,7 +15,13 @@ class SMSService {
                 accountSid: process.env.TWILIO_SID,
                 authToken: process.env.TWILIO_TOKEN,
                 fromNumber: process.env.TWILIO_NUMBER
-            }
+            },
+            // Kendi hattınızı kullanmak için SMS Gateway (Android vb.)
+            gateway: {
+                url: process.env.SMS_GATEWAY_URL, // Örn: http://192.168.1.100:8080/send
+                apiKey: process.env.SMS_GATEWAY_API_KEY
+            },
+            adminPhone: process.env.ADMIN_PHONE || '' // Bildirimin gideceği numara
         };
     }
 
@@ -122,6 +128,48 @@ class SMSService {
             to: phone,
             message
         });
+    }
+
+    // Kendi hattınızı kullanmak için SMS Gateway (SMS-Gateway.app) gönderimi
+    async sendGatewaySMS({ to, message }) {
+        try {
+            if (!this.config.gateway.url) throw new Error('SMS Gateway URL tanımlı değil');
+            
+            const payload = {
+                to: this.formatPhone(to),
+                message: message
+            };
+
+            const response = await axios.post(`${this.config.gateway.url}/message/send`, payload, {
+                headers: {
+                    'Authorization': this.config.gateway.apiKey || '',
+                    'Content-Type': 'application/json'
+                },
+                timeout: 10000
+            });
+            
+            console.log('✅ Gateway SMS gönderildi:', to);
+            return { success: true, data: response.data };
+        } catch (error) {
+            console.error('❌ Gateway hatası:', error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    // Admin Yeni Sipariş Bildirimi
+    async sendAdminNewOrderSMS(orderData) {
+        if (!this.config.adminPhone) {
+            console.warn('⚠️ Admin telefonu tanımlı değil (.env: ADMIN_PHONE)');
+            return { skipped: true };
+        }
+
+        const message = `YENI SIPARIS: #${orderData.siparisNo}, Tutar: ₺${orderData.toplam}, Musteri: ${orderData.musteriAd}. Detaylar icin admine goz atin.`;
+        
+        // Eğer Gateway URL varsa onu kullan, yoksa Netgsm
+        if (this.config.gateway.url) {
+            return await this.sendGatewaySMS({ to: this.config.adminPhone, message });
+        }
+        return await this.send({ to: this.config.adminPhone, message });
     }
 
     // Toplu SMS gönder

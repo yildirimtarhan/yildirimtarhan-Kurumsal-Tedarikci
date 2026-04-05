@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cari Detay - Kurumsal Tedarikçi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-sans">
+  <div id="sidebar" class="fixed left-0 top-0 h-full w-[260px] bg-slate-900 text-white z-50 overflow-y-auto">
+    <div class="p-4 flex items-center gap-3 border-b border-slate-700">
+      <i class="fas fa-building-columns text-2xl text-blue-400"></i>
+      <span class="font-bold text-lg">Kurumsal</span>
+    </div>
+    <nav class="mt-6 px-2">
+      <a href="index.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1"><i class="fas fa-home w-5"></i> Dashboard</a>
+      <a href="users.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1"><i class="fas fa-users w-5"></i> Kullanıcılar</a>
+      <a href="orders.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1"><i class="fas fa-box w-5"></i> Siparişler</a>
+      <a href="cari-yonetim.html" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg mb-1"><i class="fas fa-address-book w-5"></i> Cari Hesaplar</a>
+      <a href="fatura-yonetim.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1"><i class="fas fa-file-invoice w-5"></i> Faturalar</a>
+    </nav>
+  </div>
+
+  <div id="content" class="ml-[260px] p-6 min-h-screen">
+    <div class="flex items-center gap-4 mb-6">
+      <a href="cari-yonetim.html" class="text-blue-600 hover:text-blue-800"><i class="fas fa-arrow-left"></i> Cari listesine dön</a>
+    </div>
+
+    <div id="loadState" class="bg-white rounded-xl shadow-sm p-8 text-center text-gray-500">
+      <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+      <p>Yükleniyor...</p>
+    </div>
+
+    <div id="mainState" class="hidden space-y-6">
+      <div class="flex flex-wrap justify-between items-start gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-800">Cari detay</h1>
+          <p class="text-gray-500 text-sm mt-1" id="cariKodu"></p>
+        </div>
+        <div class="flex gap-2">
+          <a id="btnDuzenle" href="#" class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+            <i class="fas fa-edit"></i> Düzenle
+          </a>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <h2 class="font-semibold text-gray-800 mb-4"><i class="fas fa-user text-blue-500 mr-2"></i>İletişim</h2>
+          <dl class="space-y-2 text-sm">
+            <div class="flex justify-between gap-4 border-b border-gray-50 py-2"><dt class="text-gray-500">Ad Soyad</dt><dd class="font-medium text-gray-900 text-right" id="fAd"></dd></div>
+            <div class="flex justify-between gap-4 border-b border-gray-50 py-2"><dt class="text-gray-500">E-posta</dt><dd class="font-medium text-gray-900 text-right break-all" id="fEmail"></dd></div>
+            <div class="flex justify-between gap-4 border-b border-gray-50 py-2"><dt class="text-gray-500">Telefon</dt><dd class="font-medium text-gray-900 text-right" id="fTel"></dd></div>
+            <div class="flex justify-between gap-4 border-b border-gray-50 py-2"><dt class="text-gray-500">Üyelik</dt><dd class="font-medium text-gray-900 text-right" id="fUyelik"></dd></div>
+            <div class="flex justify-between gap-4 border-b border-gray-50 py-2"><dt class="text-gray-500">Rol</dt><dd class="font-medium text-gray-900 text-right" id="fRol"></dd></div>
+          </dl>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <h2 class="font-semibold text-gray-800 mb-4"><i class="fas fa-building text-indigo-500 mr-2"></i>Firma & vergi</h2>
+          <dl class="space-y-2 text-sm">
+            <div class="flex justify-between gap-4 border-b border-gray-50 py-2"><dt class="text-gray-500">Firma</dt><dd class="font-medium text-gray-900 text-right" id="fFirma"></dd></div>
+            <div class="flex justify-between gap-4 border-b border-gray-50 py-2"><dt class="text-gray-500">Vergi no</dt><dd class="font-medium text-gray-900 text-right" id="fVergi"></dd></div>
+            <div class="flex justify-between gap-4 border-b border-gray-50 py-2"><dt class="text-gray-500">Vergi dairesi</dt><dd class="font-medium text-gray-900 text-right" id="fVD"></dd></div>
+            <div class="flex justify-between gap-4 border-b border-gray-50 py-2"><dt class="text-gray-500">TC No</dt><dd class="font-medium text-gray-900 text-right" id="fTc"></dd></div>
+            <div class="flex justify-between gap-4 border-b border-gray-50 py-2"><dt class="text-gray-500">ERP</dt><dd class="font-medium text-gray-900 text-right" id="fErp"></dd></div>
+          </dl>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <h2 class="font-semibold text-gray-800 mb-4"><i class="fas fa-map-marker-alt text-red-500 mr-2"></i>Adresler</h2>
+        <div class="grid md:grid-cols-2 gap-4 text-sm">
+          <div class="bg-gray-50 rounded-lg p-4">
+            <p class="font-medium text-gray-700 mb-2">Fatura adresi</p>
+            <p class="text-gray-600 whitespace-pre-wrap" id="fFatAdr"></p>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-4">
+            <p class="font-medium text-gray-700 mb-2">Teslimat adresi</p>
+            <p class="text-gray-600 whitespace-pre-wrap" id="fTesAdr"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 font-semibold text-gray-800">Son siparişler</div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="text-left px-4 py-3 text-gray-600">Sipariş</th>
+                <th class="text-left px-4 py-3 text-gray-600">Tarih</th>
+                <th class="text-right px-4 py-3 text-gray-600">Tutar</th>
+                <th class="text-left px-4 py-3 text-gray-600">Durum</th>
+              </tr>
+            </thead>
+            <tbody id="orderBody" class="divide-y divide-gray-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="errState" class="hidden bg-red-50 border border-red-200 text-red-800 rounded-xl p-6"></div>
+  </div>
+
+  <script>
+    const API_URL = window.location.origin + '/api';
+    function getToken() {
+      return localStorage.getItem('token') || localStorage.getItem('adminToken');
+    }
+    function esc(s) {
+      if (s == null || s === '') return '—';
+      const d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    (function auth() {
+      const t = getToken();
+      if (!t) { window.location.href = 'login.html'; return; }
+      try {
+        const exp = JSON.parse(atob(t.split('.')[1])).exp * 1000;
+        if (Date.now() >= exp) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('adminToken');
+          window.location.href = 'login.html';
+        }
+      } catch (e) {
+        window.location.href = 'login.html';
+      }
+    })();
+
+    const id = new URLSearchParams(window.location.search).get('id');
+    if (!id || id.length !== 24) {
+      document.getElementById('loadState').innerHTML = '<p class="text-red-600">Geçersiz cari referansı.</p>';
+    } else {
+      document.getElementById('btnDuzenle').href = 'cari-duzenle.html?id=' + encodeURIComponent(id);
+
+      (async () => {
+        try {
+          const res = await fetch(API_URL + '/admin/users/' + id, {
+            headers: { Authorization: 'Bearer ' + getToken() }
+          });
+          if (res.status === 401) { window.location.href = 'login.html'; return; }
+          const data = await res.json();
+          if (!data.success || !data.user) {
+            document.getElementById('loadState').classList.add('hidden');
+            document.getElementById('errState').classList.remove('hidden');
+            document.getElementById('errState').textContent = data.message || 'Cari yüklenemedi';
+            return;
+          }
+          const u = data.user;
+          const fat = u.faturaAdresi || {};
+          const tes = u.teslimatAdresi || {};
+          const fatLine = [fat.acikAdres, [fat.ilce, fat.sehir].filter(Boolean).join(' / ')].filter(Boolean).join('\n');
+          const tesLine = [tes.acikAdres, [tes.ilce, tes.sehir].filter(Boolean).join(' / ')].filter(Boolean).join('\n');
+
+          document.getElementById('cariKodu').textContent = 'Cari kodu: C-' + String(u._id).slice(-6).toUpperCase();
+          document.getElementById('fAd').textContent = u.ad || '—';
+          document.getElementById('fEmail').textContent = u.email || '—';
+          document.getElementById('fTel').textContent = u.telefon || '—';
+          document.getElementById('fUyelik').textContent = u.uyelikTipi === 'kurumsal' ? 'Kurumsal' : 'Bireysel';
+          document.getElementById('fRol').textContent = u.rol || '—';
+          document.getElementById('fFirma').textContent = u.firma || '—';
+          document.getElementById('fVergi').textContent = u.vergiNo || '—';
+          document.getElementById('fVD').textContent = u.vergiDairesi || '—';
+          document.getElementById('fTc').textContent = u.tcNo || '—';
+          document.getElementById('fErp').textContent = u.erpSynced ? ('Senkron — ' + (u.erpCariId || '')) : 'Bekliyor';
+
+          document.getElementById('fFatAdr').textContent = fatLine || '—';
+          document.getElementById('fTesAdr').textContent = tesLine || '—';
+
+          const orders = data.orders || [];
+          document.getElementById('orderBody').innerHTML = orders.length
+            ? orders.map(o => `
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 font-mono text-xs">${esc(String(o._id).slice(-8))}</td>
+                <td class="px-4 py-3">${o.createdAt ? new Date(o.createdAt).toLocaleString('tr-TR') : '—'}</td>
+                <td class="px-4 py-3 text-right">₺${(o.toplam != null ? Number(o.toplam) : 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
+                <td class="px-4 py-3">${esc(o.status)}</td>
+              </tr>`).join('')
+            : '<tr><td colspan="4" class="px-4 py-6 text-center text-gray-500">Sipariş yok</td></tr>';
+
+          document.getElementById('loadState').classList.add('hidden');
+          document.getElementById('mainState').classList.remove('hidden');
+        } catch (e) {
+          document.getElementById('loadState').classList.add('hidden');
+          document.getElementById('errState').classList.remove('hidden');
+          document.getElementById('errState').textContent = 'Bağlantı hatası: ' + e.message;
+        }
+      })();
+    }
+  </script>
+</body>
+</html>

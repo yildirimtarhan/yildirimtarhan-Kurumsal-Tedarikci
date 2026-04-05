@@ -292,6 +292,7 @@
         <thead>
           <tr>
             <th>ID</th>
+            <th>Ad Soyad</th>
             <th>Email</th>
             <th>Tutar</th>
             <th>Durum</th>
@@ -302,7 +303,7 @@
 
         <tbody id="ordersBody">
           <tr>
-            <td colspan="6" style="text-align:center;">Yükleniyor...</td>
+            <td colspan="7" style="text-align:center;">Yükleniyor...</td>
           </tr>
         </tbody>
       </table>
@@ -366,7 +367,7 @@
       const tbody = document.getElementById("ordersBody");
 
       if (!data.orders || data.orders.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Sipariş bulunamadı</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Sipariş bulunamadı</td></tr>';
         return;
       }
 
@@ -378,6 +379,7 @@
         return `
           <tr>
             <td>${order._id}</td>
+            <td>${order.musteriAdSoyad || '—'}</td>
             <td>${order.email}</td>
             <td>₺${order.toplam ? order.toplam.toFixed(2) : '0.00'} ${order.orderType === 'b2b' ? '<span class="badge" style="background:#059669;margin-left:4px;">B2B</span>' : ''}</td>
             <td><span class="badge ${order.status.replace(/\s+/g, '\\ ')}">${order.status}</span></td>
@@ -533,9 +535,10 @@
 
       document.getElementById("modalBody").innerHTML = `
         <p><b>Sipariş ID:</b> ${order._id}</p>
+        <p><b>Ad Soyad:</b> ${order.musteriAdSoyad || '—'}</p>
         <p><b>Email:</b> ${order.email}</p>
-        <p><b>Firma:</b> ${order.firmaAdi || '-'}</p>
-        <p><b>Telefon:</b> ${order.telefon || '-'}</p>
+        <p><b>Firma:</b> ${(order.firmaAdi && String(order.firmaAdi).trim()) || '-'}</p>
+        <p><b>Telefon:</b> ${(order.telefon && String(order.telefon).trim()) || (order.shippingAddress && order.shippingAddress.phone) || (order.invoiceAddress && order.invoiceAddress.phone) || '-'}</p>
         <p><b>Tarih:</b> ${new Date(order.createdAt).toLocaleString('tr-TR')}</p>
         
         ${faturaHtml}

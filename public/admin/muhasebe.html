@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muhasebe & Beyan - Kurumsal Tedarikçi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar { transition: all 0.3s; }
+        .sidebar-collapsed { width: 70px; }
+        .sidebar-expanded { width: 260px; }
+        .content-area { transition: margin-left 0.3s; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-btn.active { border-bottom-color: #2563eb; color: #2563eb; }
+        .tab-btn { border-bottom: 2px solid transparent; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar sidebar-expanded fixed left-0 top-0 h-full bg-slate-900 text-white z-50 overflow-y-auto">
+        <div class="p-4 flex items-center justify-between border-b border-slate-700">
+            <div class="flex items-center gap-3 logo-full">
+                <i class="fas fa-building-columns text-2xl text-blue-400"></i>
+                <span class="font-bold text-lg">Kurumsal</span>
+            </div>
+            <button onclick="toggleSidebar()" class="text-gray-400 hover:text-white">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <nav class="mt-6 px-2">
+            <a href="index.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-home w-5"></i>
+                <span class="menu-text">Dashboard</span>
+            </a>
+            <a href="orders.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-box w-5"></i>
+                <span class="menu-text">Siparişler</span>
+            </a>
+            <a href="fatura-yonetim.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-file-invoice w-5"></i>
+                <span class="menu-text">Faturalar</span>
+            </a>
+            <a href="cari-yonetim.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-address-book w-5"></i>
+                <span class="menu-text">Cari Hesaplar</span>
+            </a>
+            <a href="muhasebe.html" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg mb-1">
+                <i class="fas fa-calculator w-5"></i>
+                <span class="menu-text">Muhasebe & Beyan</span>
+            </a>
+             <a href="tahsilat-yonetim.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-money-bill-wave w-5"></i>
+                <span class="menu-text">Tahsilatlar</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div id="content" class="content-area ml-[260px] p-6">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Muhasebe & Beyan</h1>
+                <p class="text-gray-500">İşletme defteri ve vergi/beyan yönetimi</p>
+            </div>
+            <div class="flex gap-3 items-center">
+                <select id="globalYil" class="bg-white border border-gray-300 px-4 py-2 rounded-lg" onchange="initData()">
+                    <option value="2024">2024</option>
+                    <option value="2025" selected>2025</option>
+                    <option value="2026">2026</option>
+                </select>
+                <select id="globalDonem" class="bg-white border border-gray-300 px-4 py-2 rounded-lg" onchange="initData()">
+                    <option value="Q1">Ç1 (Oca-Mar)</option>
+                    <option value="Q2">Ç2 (Nis-Haz)</option>
+                    <option value="Q3">Ç3 (Tem-Eyl)</option>
+                    <option value="Q4">Ç4 (Eki-Ara)</option>
+                </select>
+                <button onclick="sistemiBaslat()" class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm">
+                    <i class="fas fa-cogs"></i> Yılı Başlat
+                </button>
+            </div>
+        </div>
+
+        <!-- Yıllık Özet Widget Kartları -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
+               <div class="bg-green-100 p-3 rounded-xl text-green-600"><i class="fas fa-arrow-up text-xl"></i></div>
+               <div>
+                   <p class="text-xs text-gray-500 font-semibold mb-1">YILLIK GELİR</p>
+                   <h3 class="text-xl font-bold text-gray-800" id="ozetYillikGelir">₺0.00</h3>
+               </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
+               <div class="bg-red-100 p-3 rounded-xl text-red-600"><i class="fas fa-arrow-down text-xl"></i></div>
+               <div>
+                   <p class="text-xs text-gray-500 font-semibold mb-1">YILLIK GİDER</p>
+                   <h3 class="text-xl font-bold text-gray-800" id="ozetYillikGider">₺0.00</h3>
+               </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
+               <div class="bg-blue-100 p-3 rounded-xl text-blue-600"><i class="fas fa-chart-line text-xl"></i></div>
+               <div>
+                   <p class="text-xs text-gray-500 font-semibold mb-1">NET KAR/ZARAR</p>
+                   <h3 class="text-xl font-bold text-gray-800" id="ozetNetKar">₺0.00</h3>
+               </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
+               <div class="bg-orange-100 p-3 rounded-xl text-orange-600"><i class="fas fa-calendar-check text-xl"></i></div>
+               <div>
+                   <p class="text-xs text-gray-500 font-semibold mb-1">YAKLAŞAN BEYAN</p>
+                   <h3 class="text-sm font-bold text-gray-800 mt-1" id="ozetYaklasanBeyan">-</h3>
+               </div>
+            </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+            <div class="flex border-b border-gray-200">
+                <button onclick="switchTab('tab-defter')" id="btn-tab-defter" class="tab-btn active px-6 py-4 text-sm font-medium text-gray-600 hover:text-blue-600 bg-gray-50 hover:bg-white focus:outline-none transition-colors">
+                    <i class="fas fa-book mr-2"></i>İşletme Defteri
+                </button>
+                <button onclick="switchTab('tab-kdv')" id="btn-tab-kdv" class="tab-btn px-6 py-4 text-sm font-medium text-gray-600 hover:text-blue-600 bg-gray-50 hover:bg-white focus:outline-none transition-colors">
+                    <i class="fas fa-file-invoice-dollar mr-2"></i>KDV Hazırlığı
+                </button>
+                <button onclick="switchTab('tab-gecici')" id="btn-tab-gecici" class="tab-btn px-6 py-4 text-sm font-medium text-gray-600 hover:text-blue-600 bg-gray-50 hover:bg-white focus:outline-none transition-colors">
+                    <i class="fas fa-percentage mr-2"></i>Geçici Vergi
+                </button>
+                <button onclick="switchTab('tab-takvim')" id="btn-tab-takvim" class="tab-btn px-6 py-4 text-sm font-medium text-gray-600 hover:text-blue-600 bg-gray-50 hover:bg-white focus:outline-none transition-colors">
+                    <i class="fas fa-calendar-alt mr-2"></i>Beyan Takvimi
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT: İŞLETME DEFTERİ -->
+        <div id="tab-defter" class="fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-gray-800">İşletme Defteri Kayıtları</h2>
+                <div class="flex gap-2">
+                    <button onclick="syncTaxten()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2">
+                        <i class="fas fa-sync"></i> Taxten'den Faturaları Aktar
+                    </button>
+                    <button onclick="importSiparisler()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2">
+                        <i class="fas fa-file-import"></i> Siparişleri Gelir Olarak Aktar
+                    </button>
+                    <button onclick="openKayitModal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2">
+                        <i class="fas fa-plus"></i> Yeni Kayıt Ekle
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-4 bg-gray-50 border-b flex flex-wrap gap-4 items-center">
+                    <select id="filterTip" class="border border-gray-300 px-3 py-1.5 rounded text-sm" onchange="loadDefter()">
+                        <option value="">Tümü (Gelir/Gider)</option>
+                        <option value="gelir">Gelirler</option>
+                        <option value="gider">Giderler</option>
+                    </select>
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-semibold text-gray-500">Tarih:</label>
+                        <input type="date" id="startDate" class="border border-gray-300 px-3 py-1.5 rounded text-sm" onchange="loadDefter()">
+                        <span class="text-gray-400">-</span>
+                        <input type="date" id="endDate" class="border border-gray-300 px-3 py-1.5 rounded text-sm" onchange="loadDefter()">
+                    </div>
+                </div>
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 text-xs uppercase border-b border-gray-200">
+                            <th class="px-4 py-3">Tarih</th>
+                            <th class="px-4 py-3">Tip / Kategori</th>
+                            <th class="px-4 py-3">Açıklama / Fatura No</th>
+                            <th class="px-4 py-3 text-right">KDV Hariç</th>
+                            <th class="px-4 py-3 text-right">KDV</th>
+                            <th class="px-4 py-3 text-right">Toplam</th>
+                            <th class="px-4 py-3 text-center">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="defterListesi" class="divide-y divide-gray-100 text-sm">
+                        <!-- JS ile dolar -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT: KDV BEYAN HAZIRLIĞI -->
+        <div id="tab-kdv" class="fade-in hidden">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">KDV Beyanname Özeti</h2>
+                    <p class="text-sm text-gray-500">Seçili Dönem: <span id="kdvDonemSpan" class="font-bold"></span></p>
+                </div>
+                <button onclick="printDiv('printKdv')" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm">
+                    <i class="fas fa-print"></i> PDF/Yazdır
+                </button>
+            </div>
+            
+            <div id="printKdv" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Hesaplanan KDV -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="bg-indigo-50 border-b border-indigo-100 p-4 rounded-t-xl">
+                        <h3 class="font-bold text-indigo-800"><i class="fas fa-arrow-up mr-2"></i>1. Hesaplanan KDV (Gelirler)</h3>
+                    </div>
+                    <div class="p-4">
+                        <table class="w-full text-sm mb-4">
+                            <thead>
+                                <tr class="text-gray-500 border-b border-gray-200"><th class="text-left pb-2">Oran</th><th class="text-right pb-2">Matrah</th><th class="text-right pb-2">KDV Tutarı</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-50"><td class="py-2">%20</td><td class="text-right py-2" id="kdv_matrah_gelir_20">-</td><td class="text-right py-2 text-indigo-600" id="kdv_tutar_gelir_20">-</td></tr>
+                                <tr class="border-b border-gray-50"><td class="py-2">%10</td><td class="text-right py-2" id="kdv_matrah_gelir_10">-</td><td class="text-right py-2 text-indigo-600" id="kdv_tutar_gelir_10">-</td></tr>
+                                <tr class="border-b border-gray-50"><td class="py-2">%1</td><td class="text-right py-2" id="kdv_matrah_gelir_1">-</td><td class="text-right py-2 text-indigo-600" id="kdv_tutar_gelir_1">-</td></tr>
+                                <tr><td class="py-2">%0</td><td class="text-right py-2" id="kdv_matrah_gelir_0">-</td><td class="text-right py-2 text-indigo-600" id="kdv_tutar_gelir_0">-</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="flex justify-between items-center pt-3 border-t border-gray-200">
+                            <span class="font-bold text-gray-700">Toplam Hesaplanan KDV:</span>
+                            <span class="font-bold text-indigo-700 text-lg" id="kdv_toplam_hesaplanan">₺0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- İndirilecek KDV -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="bg-teal-50 border-b border-teal-100 p-4 rounded-t-xl">
+                        <h3 class="font-bold text-teal-800"><i class="fas fa-arrow-down mr-2"></i>2. İndirilecek KDV (Giderler)</h3>
+                    </div>
+                    <div class="p-4">
+                        <table class="w-full text-sm mb-4">
+                            <thead>
+                                <tr class="text-gray-500 border-b border-gray-200"><th class="text-left pb-2">Oran</th><th class="text-right pb-2">Matrah</th><th class="text-right pb-2">KDV Tutarı</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-50"><td class="py-2">%20</td><td class="text-right py-2" id="kdv_matrah_gider_20">-</td><td class="text-right py-2 text-teal-600" id="kdv_tutar_gider_20">-</td></tr>
+                                <tr class="border-b border-gray-50"><td class="py-2">%10</td><td class="text-right py-2" id="kdv_matrah_gider_10">-</td><td class="text-right py-2 text-teal-600" id="kdv_tutar_gider_10">-</td></tr>
+                                <tr class="border-b border-gray-50"><td class="py-2">%1</td><td class="text-right py-2" id="kdv_matrah_gider_1">-</td><td class="text-right py-2 text-teal-600" id="kdv_tutar_gider_1">-</td></tr>
+                                <tr><td class="py-2">%0</td><td class="text-right py-2" id="kdv_matrah_gider_0">-</td><td class="text-right py-2 text-teal-600" id="kdv_tutar_gider_0">-</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="flex justify-between items-center pt-3 border-t border-gray-200 mb-2">
+                            <span class="font-bold text-gray-700">Dönem İçi İndirilecek KDV:</span>
+                            <span class="font-bold text-teal-700 text-base" id="kdv_donemici_indirilecek">₺0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm mb-3">
+                            <span class="text-gray-600">Önceki Dönemden Devreden:</span>
+                            <span class="text-gray-600" id="kdv_onceki_devreden">₺0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-3 border-t border-gray-200">
+                            <span class="font-bold text-gray-700">Toplam İndirilecek KDV:</span>
+                            <span class="font-bold text-teal-700 text-lg" id="kdv_toplam_indirilecek">₺0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sonuç -->
+                <div class="md:col-span-2 bg-slate-800 rounded-xl shadow-lg p-6 text-white flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div>
+                        <h3 class="text-slate-300 font-semibold mb-1">Dönem Sonucu</h3>
+                        <p class="text-sm text-slate-400">Ödenecek KDV vergi dairesine yatırılmalıdır.</p>
+                    </div>
+                    <div class="flex gap-8">
+                        <div class="text-center">
+                            <p class="text-slate-400 text-xs font-bold uppercase mb-1">Sonraki Döneme Devreden</p>
+                            <span class="text-2xl font-bold text-yellow-400" id="kdv_sonuc_devreden">₺0.00</span>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-slate-400 text-xs font-bold uppercase mb-1">ÖDENMESİ GEREKEN KDV</p>
+                            <span class="text-3xl font-bold text-red-400" id="kdv_sonuc_odenecek">₺0.00</span>
+                        </div>
+                    </div>
+                    <div>
+                        <button onclick="beyanDurumIsaretle('kdv')" class="bg-blue-600 hover:bg-blue-500 transition px-6 py-3 rounded-lg font-bold text-sm">
+                            <i class="fas fa-check-circle mr-2"></i> Verildi İşaretle
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT: GEÇİCİ VERGİ -->
+        <div id="tab-gecici" class="fade-in hidden">
+             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 max-w-4xl mx-auto">
+                 <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center"><i class="fas fa-file-invoice text-blue-500 mr-2"></i> Geçici Vergi Tahakkuku</h2>
+                 
+                 <div class="grid grid-cols-2 gap-6 mb-6">
+                     <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                         <p class="text-sm text-gray-500 font-semibold mb-2">Dönem Brüt Gelir (Kümülatif)</p>
+                         <h3 class="text-xl font-bold text-green-600" id="gecici_gelir">₺0.00</h3>
+                     </div>
+                     <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                         <p class="text-sm text-gray-500 font-semibold mb-2">Dönem Giderler (Kümülatif)</p>
+                         <h3 class="text-xl font-bold text-red-600" id="gecici_gider">₺0.00</h3>
+                     </div>
+                 </div>
+
+                 <div class="border-t border-gray-200 py-4">
+                     <div class="flex justify-between items-center mb-3">
+                         <span class="text-gray-700">Dönem Kazancı (Kâr):</span>
+                         <span class="font-semibold" id="gecici_kazanc">₺0.00</span>
+                     </div>
+                     <div class="flex justify-between items-center mb-3">
+                         <span class="text-gray-700 font-semibold">Vergi Matrahı (Mali Kâr):</span>
+                         <span class="font-bold text-lg" id="gecici_matrah">₺0.00</span>
+                     </div>
+                     <div class="flex justify-between items-center text-sm text-gray-500 mb-4 border-b pb-4">
+                         <span>Hesaplanan Gelir Vergisi (Dilimlere göre):</span>
+                         <span class="font-medium text-gray-800" id="gecici_vergi_tutar">₺0.00</span>
+                     </div>
+                     
+                     <div class="flex justify-between items-center text-red-500 mb-3 text-sm">
+                         <span>Eksi: Önceki Dönemlerde Ödenen Geçici Vergi (Mahsup)</span>
+                         <span id="gecici_mahsup">- ₺0.00</span>
+                     </div>
+
+                     <div class="flex justify-between items-center p-4 bg-blue-50 rounded-lg border border-blue-100">
+                         <span class="font-bold text-blue-900 text-lg">Ödenmesi Gereken Geçici Vergi:</span>
+                         <span class="font-bold text-blue-700 text-2xl" id="gecici_odenecek">₺0.00</span>
+                     </div>
+                 </div>
+                 
+                <div class="mt-4 text-right">
+                    <button onclick="beyanDurumIsaretle('geciciVergi')" class="bg-green-600 hover:bg-green-700 text-white transition px-6 py-2 border border-green-700 rounded-lg font-medium text-sm">
+                        <i class="fas fa-check mr-1"></i> Beyanname Verildi Olarak İşaretle
+                    </button>
+                </div>
+             </div>
+        </div>
+
+        <!-- TAB CONTENT: BEYAN TAKVİMİ -->
+        <div id="tab-takvim" class="fade-in hidden">
+             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                 <table class="w-full text-left border-collapse">
+                     <thead>
+                         <tr class="bg-gray-100 text-gray-600 text-xs uppercase border-b border-gray-200">
+                             <th class="px-4 py-3">Tür</th>
+                             <th class="px-4 py-3">Dönem</th>
+                             <th class="px-4 py-3">Son Geçecek Tarih</th>
+                             <th class="px-4 py-3">Durum</th>
+                             <th class="px-4 py-3 text-right">İşlem</th>
+                         </tr>
+                     </thead>
+                     <tbody id="takvimListesi" class="divide-y divide-gray-100 text-sm">
+                         <!-- JS ile Dolar -->
+                     </tbody>
+                 </table>
+             </div>
+        </div>
+
+    </div>
+
+    <!-- KAYIT EKLE MODAL -->
+    <div id="kayitModal" class="fixed inset-0 bg-black bg-opacity-50 z-[60] hidden flex items-center justify-center fade-in">
+        <div class="bg-white rounded-xl w-full max-w-lg shadow-xl overflow-hidden m-4">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                <h3 class="font-bold text-lg text-gray-800"><i class="fas fa-edit text-blue-500 mr-2"></i> Yeni Defter Kaydı</h3>
+                <button onclick="closeKayitModal()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form id="frmKayit" class="p-6" onsubmit="kayitKaydet(event)">
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Tip *</label>
+                        <select id="k_tip" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                            <option value="gelir">Gelir</option>
+                            <option value="gider" selected>Gider</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Tarih *</label>
+                        <input type="date" id="k_tarih" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Kategori</label>
+                    <select id="k_kategori" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                        <option value="Hammadde Alımı">Hammadde Alımı</option>
+                        <option value="Hizmet Alımı">Hizmet Alımı</option>
+                        <option value="Kargo/Nakliye">Kargo/Nakliye</option>
+                        <option value="Kırtasiye/Ofis">Kırtasiye/Ofis</option>
+                        <option value="Kira">Kira</option>
+                        <option value="Vergi/SGK">Vergi/SGK/Harç</option>
+                        <option value="Satış Geliri">Satış Geliri</option>
+                        <option value="Genel Giderler" selected>Genel Giderler</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Açıklama *</label>
+                    <input type="text" id="k_aciklama" class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Örn: Ayşe Kırtasiye Ofis Malz." required>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Karşı Taraf (Firma)</label>
+                        <input type="text" id="k_karsiTaraf" class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="...">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Fatura/Belge No</label>
+                        <input type="text" id="k_faturaNo" class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="...">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">KDV Hariç Tutar (₺) *</label>
+                        <input type="number" step="0.01" id="k_haric" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Ödeme Hesabı (Kasa/Banka)</label>
+                        <select id="k_kasaId" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                            <option value="">-- Sadece Deftere İşle --</option>
+                            <!-- JS ile dolacak -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">KDV Oranı (%)</label>
+                    <select id="k_oran" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                        <option value="20" selected>%20</option>
+                        <option value="10">%10</option>
+                        <option value="1">%1</option>
+                        <option value="0">%0</option>
+                    </select>
+                </div>
+
+                <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 flex justify-between items-center mb-6">
+                    <span class="text-blue-800 text-sm font-semibold">Hesaplanan Toplam:</span>
+                    <span class="text-blue-800 font-bold text-lg" id="k_hesaplanan">₺0.00</span>
+                </div>
+
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeKayitModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">İptal</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium shadow-sm">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- STATUS UPDATER MODAL -->
+    <div id="statusModal" class="fixed inset-0 bg-black bg-opacity-50 z-[60] hidden flex items-center justify-center fade-in">
+        <div class="bg-white rounded-xl w-full max-w-sm p-6">
+            <h3 class="font-bold text-lg mb-4 text-gray-800">Beyan Durumu Güncelle</h3>
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-600 mb-2">Durum</label>
+                <select id="s_durum" class="w-full border p-2 rounded">
+                    <option value="hazirlanmadi">Hazırlanmadı / Bekliyor</option>
+                    <option value="verildi">Verildi (Başarılı)</option>
+                    <option value="muaf">Muaf / Boş Beyan</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                 <label class="block text-sm font-semibold text-gray-600 mb-2">Tahakkuk / Notlar</label>
+                 <input type="text" id="s_not" placeholder="Tahakkuk Fiş No vb." class="w-full border p-2 rounded">
+            </div>
+            <div class="mb-5">
+                 <label class="block text-sm font-semibold text-gray-600 mb-2">Ödeme Hesabı (Kasa/Banka)</label>
+                 <select id="s_kasaId" class="w-full border p-2 rounded">
+                     <option value="">-- Ödeme Yapılmadı --</option>
+                 </select>
+                 <p class="text-[10px] text-gray-500 mt-1">Ödeme hesabı seçilirse kasadan otomatik para çıkışı yapılır.</p>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button onclick="document.getElementById('statusModal').classList.add('hidden')" class="px-4 py-2 bg-gray-200 rounded text-gray-700">İptal</button>
+                <button onclick="saveBeyanStatus()" class="px-4 py-2 bg-green-600 text-white rounded">Kaydet</button>
+            </div>
+            <input type="hidden" id="s_beyan_id">
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin + '/api';
+        let currentBeyanGuncelleId = null;
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            if(sidebar.classList.contains('sidebar-expanded')) {
+                sidebar.classList.replace('sidebar-expanded', 'sidebar-collapsed');
+                content.style.marginLeft = '70px';
+                document.querySelectorAll('.menu-text').forEach(el => el.style.display = 'none');
+            } else {
+                sidebar.classList.replace('sidebar-collapsed', 'sidebar-expanded');
+                content.style.marginLeft = '260px';
+                document.querySelectorAll('.menu-text').forEach(el => el.style.display = 'block');
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'bg-white'));
+            document.querySelectorAll('div[id^="tab-"]').forEach(div => div.classList.add('hidden'));
+            
+            document.getElementById('btn-' + tabId).classList.add('active', 'bg-white');
+            document.getElementById(tabId).classList.remove('hidden');
+        }
+
+        function getAuthHeaders() {
+            return {
+                'Authorization': `Bearer ${localStorage.getItem('adminToken') || localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            };
+        }
+
+        async function initData() {
+            await loadKasalar();
+            await loadOzet();
+            await loadDefter();
+            await loadKdvHesap();
+            await loadGeciciHesap();
+            await loadTakvim();
+        }
+
+        let allKasalar = [];
+        async function loadKasalar() {
+            try {
+                const res = await fetch(`${API_URL}/kasa/accounts`, { headers: getAuthHeaders() });
+                const data = await res.json();
+                if(data.success) {
+                    allKasalar = data.accounts;
+                    const selects = [document.getElementById('k_kasaId'), document.getElementById('s_kasaId')];
+                    selects.forEach(sel => {
+                        const currentVal = sel.value;
+                        sel.innerHTML = '<option value="">-- Seçiniz --</option>' + 
+                            allKasalar.map(k => `<option value="${k._id}">${k.hesapAdi} (${formatTL(k.bakiye)})</option>`).join('');
+                        sel.value = currentVal;
+                    });
+                }
+            } catch(e) { console.error('Kasalar yüklenemedi:', e); }
+        }
+
+        function getYilDonem() {
+            return { yil: document.getElementById('globalYil').value, donem: document.getElementById('globalDonem').value };
+        }
+
+        function formatTL(val) {
+            return '₺' + Number(val || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+
+        async function sistemiBaslat() {
+            const {yil} = getYilDonem();
+            if(!confirm(`${yil} Yılı için beyan takvimi sıfırdan oluşturulacak. Devam edilsin mi?`)) return;
+
+            try {
+                const res = await fetch(`${API_URL}/muhasebe/init-yil`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ yil })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    alert('Sistem başarıyla oluşturuldu/güncellendi.');
+                    initData();
+                } else alert(data.message);
+            } catch(e) { alert(e); }
+        }
+
+        // ================= OZET =================
+        async function loadOzet() {
+            const {yil} = getYilDonem();
+            try {
+                const res = await fetch(`${API_URL}/muhasebe/ozet?yil=${yil}`, { headers: getAuthHeaders() });
+                const data = await res.json();
+                if(data.success) {
+                    document.getElementById('ozetYillikGelir').textContent = formatTL(data.toplamGelir);
+                    document.getElementById('ozetYillikGider').textContent = formatTL(data.toplamGider);
+                    document.getElementById('ozetNetKar').textContent = formatTL(data.netKar);
+                    
+                    const takvimRes = await fetch(`${API_URL}/muhasebe/takvim?yil=${yil}`, { headers: getAuthHeaders() });
+                    const tdata = await takvimRes.json();
+                    if(tdata.success && tdata.takvim) {
+                        const yaklasan = tdata.takvim.find(t => t.yaklasiyor);
+                        const geciken = tdata.takvim.find(t => t.durum === 'gecikti');
+                        if(geciken) document.getElementById('ozetYaklasanBeyan').innerHTML = `<span class="text-red-600">GECİKTİ: ${geciken.tur.toUpperCase()} (${geciken.donem})</span>`;
+                        else if(yaklasan) document.getElementById('ozetYaklasanBeyan').innerHTML = `<span class="text-orange-600">${yaklasan.tur.toUpperCase()} (${yaklasan.donem})</span>`;
+                        else document.getElementById('ozetYaklasanBeyan').innerHTML = `<span class="text-green-600">Yaklaşan Yakın Beyan Yok</span>`;
+                    }
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        // ================= DEFTER =================
+        async function loadDefter() {
+            const {yil, donem} = getYilDonem();
+            const tip = document.getElementById('filterTip').value;
+            try {
+                let url = `${API_URL}/muhasebe/defter?yil=${yil}&donem=${donem}`;
+                if(tip) url += `&tip=${tip}`;
+
+                const res = await fetch(url, { headers: getAuthHeaders() });
+                const data = await res.json();
+                if(data.success) {
+                    const tbody = document.getElementById('defterListesi');
+                    tbody.innerHTML = data.kayitlar.map(k => `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-2">${new Date(k.tarih).toLocaleDateString('tr-TR')}</td>
+                            <td class="px-4 py-2">
+                                <span class="px-2 py-1 rounded text-xs font-bold ${k.tip==='gelir'?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${k.tip.toUpperCase()}</span>
+                                <br><span class="text-gray-500 text-xs">${k.kategori}</span>
+                            </td>
+                            <td class="px-4 py-2">
+                                ${k.aciklama}
+                                ${k.faturaNo ? `<br><span class="text-xs text-gray-400">Belge: ${k.faturaNo}</span>` : ''}
+                                ${k.karsiTaraf ? `<br><span class="text-xs text-gray-400">Cari: ${k.karsiTaraf}</span>` : ''}
+                            </td>
+                            <td class="px-4 py-2 text-right">₺${k.kdvHaricTutar.toFixed(2)}</td>
+                            <td class="px-4 py-2 text-right text-xs text-gray-500">%${k.kdvOrani}<br>₺${k.kdvTutari.toFixed(2)}</td>
+                            <td class="px-4 py-2 text-right font-medium text-gray-800">₺${k.kdvDahilTutar.toFixed(2)}</td>
+                            <td class="px-4 py-2 text-center">
+                                <button onclick="deleteKayit('${k._id}')" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function importSiparisler() {
+            const {yil, donem} = getYilDonem();
+            if(!confirm(`${yil} - ${donem} dönemi e-ticaret siparişleri deftere aktarılacak. Onaylıyor musunuz?`)) return;
+            try {
+                const res = await fetch(`${API_URL}/muhasebe/import-siparisler`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ yil, donem })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    alert(`${data.eklenen} yeni sipariş gelir olarak eklendi. (${data.atlanan} adet zaten aktarılmış atlandı).`);
+                    initData();
+                } else alert(data.message);
+            } catch(e) { alert(e); }
+        }
+
+        function openKayitModal() { 
+            const d = new Date(); document.getElementById('k_tarih').value = d.toISOString().split('T')[0];
+            document.getElementById('frmKayit').reset();
+            calTop();
+            document.getElementById('kayitModal').classList.remove('hidden'); 
+        }
+        function closeKayitModal() { document.getElementById('kayitModal').classList.add('hidden'); }
+
+        document.getElementById('k_haric').addEventListener('input', calTop);
+        document.getElementById('k_oran').addEventListener('change', calTop);
+        function calTop() {
+            const h = parseFloat(document.getElementById('k_haric').value || 0);
+            const o = parseFloat(document.getElementById('k_oran').value || 0);
+            document.getElementById('k_hesaplanan').textContent = formatTL(h + (h*o/100));
+        }
+
+        async function kayitKaydet(e) {
+            e.preventDefault();
+            const body = {
+                tip: document.getElementById('k_tip').value,
+                tarih: document.getElementById('k_tarih').value,
+                aciklama: document.getElementById('k_aciklama').value,
+                karsiTaraf: document.getElementById('k_karsiTaraf').value,
+                faturaNo: document.getElementById('k_faturaNo').value,
+                kategori: document.getElementById('k_kategori').value,
+                kdvHaricTutar: parseFloat(document.getElementById('k_haric').value),
+                kdvOrani: parseFloat(document.getElementById('k_oran').value),
+                kasaId: document.getElementById('k_kasaId').value || null
+            };
+            try {
+                const res = await fetch(`${API_URL}/muhasebe/defter`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(body)
+                });
+                const dat = await res.json();
+                if(dat.success) {
+                    closeKayitModal();
+                    initData();
+                } else alert(dat.message);
+            } catch(e) { alert(e); }
+        }
+
+        async function deleteKayit(id) {
+            if(!confirm("Kayıt silinecek!")) return;
+            try {
+                await fetch(`${API_URL}/muhasebe/defter/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+                initData();
+            } catch(e){}
+        }
+
+        // ================= KDV HESAPLARI =================
+        async function loadKdvHesap() {
+            const {yil, donem} = getYilDonem();
+            document.getElementById('kdvDonemSpan').textContent = `${yil} - ${donem}`;
+            try {
+                const res = await fetch(`${API_URL}/muhasebe/kdv-hesap?yil=${yil}&donem=${donem}`, { headers: getAuthHeaders() });
+                const data = await res.json();
+                if(data.success) {
+                    
+                    document.getElementById('kdv_matrah_gelir_20').textContent = formatTL(data.matrahlar.gelir_20);
+                    document.getElementById('kdv_tutar_gelir_20').textContent = formatTL(data.kdvler.hesaplanan_20);
+                    document.getElementById('kdv_matrah_gelir_10').textContent = formatTL(data.matrahlar.gelir_10);
+                    document.getElementById('kdv_tutar_gelir_10').textContent = formatTL(data.kdvler.hesaplanan_10);
+                    document.getElementById('kdv_matrah_gelir_1').textContent = formatTL(data.matrahlar.gelir_1);
+                    document.getElementById('kdv_tutar_gelir_1').textContent = formatTL(data.kdvler.hesaplanan_1);
+                    document.getElementById('kdv_matrah_gelir_0').textContent = formatTL(data.matrahlar.gelir_0);
+                    document.getElementById('kdv_tutar_gelir_0').textContent = formatTL(data.kdvler.hesaplanan_0);
+                    document.getElementById('kdv_toplam_hesaplanan').textContent = formatTL(data.hesaplananKdv);
+
+                    document.getElementById('kdv_matrah_gider_20').textContent = formatTL(data.matrahlar.gider_20);
+                    document.getElementById('kdv_tutar_gider_20').textContent = formatTL(data.kdvler.indirilecek_20);
+                    document.getElementById('kdv_matrah_gider_10').textContent = formatTL(data.matrahlar.gider_10);
+                    document.getElementById('kdv_tutar_gider_10').textContent = formatTL(data.kdvler.indirilecek_10);
+                    document.getElementById('kdv_matrah_gider_1').textContent = formatTL(data.matrahlar.gider_1);
+                    document.getElementById('kdv_tutar_gider_1').textContent = formatTL(data.kdvler.indirilecek_1);
+                    document.getElementById('kdv_matrah_gider_0').textContent = formatTL(data.matrahlar.gider_0);
+                    document.getElementById('kdv_tutar_gider_0').textContent = formatTL(data.kdvler.indirilecek_0);
+                    
+                    document.getElementById('kdv_donemici_indirilecek').textContent = formatTL(data.indirilecekKdv);
+                    document.getElementById('kdv_onceki_devreden').textContent = formatTL(data.devredenOnceki);
+                    document.getElementById('kdv_toplam_indirilecek').textContent = formatTL(data.indirilecekKdv + data.devredenOnceki);
+
+                    document.getElementById('kdv_sonuc_devreden').textContent = formatTL(data.devredenSonraki);
+                    document.getElementById('kdv_sonuc_odenecek').textContent = formatTL(data.odenmesiGereken);
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        // ================= GECİCİ VERGİ =================
+        async function loadGeciciHesap() {
+            const {yil, donem} = getYilDonem();
+            // Geçici vergi G1, G2, G3 olur. Q4 varsa geçici vergi olmaz, Yıllık gelir vergisi olur.
+            const gDonemMap = { Q1: 'G1', Q2: 'G2', Q3: 'G3', Q4: 'YILLIK' };
+            const gDonem = gDonemMap[donem] || 'G1';
+
+            try {
+                const res = await fetch(`${API_URL}/muhasebe/gecici-vergi?yil=${yil}&donem=${gDonem}`, { headers: getAuthHeaders() });
+                const data = await res.json();
+                if(data.success) {
+                    document.getElementById('gecici_gelir').textContent = formatTL(data.donemGelir);
+                    document.getElementById('gecici_gider').textContent = formatTL(data.donemGider);
+                    document.getElementById('gecici_kazanc').textContent = formatTL(data.kazanc);
+                    document.getElementById('gecici_matrah').textContent = formatTL(data.vergiMatrahi);
+                    document.getElementById('gecici_vergi_tutar').textContent = formatTL(data.vergiTutari);
+                    document.getElementById('gecici_mahsup').textContent = "- " + formatTL(data.mahsup);
+                    document.getElementById('gecici_odenecek').textContent = formatTL(data.odenmesiGereken);
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        // ================= TAKVİM =================
+        async function loadTakvim() {
+            const {yil} = getYilDonem();
+            try {
+                const res = await fetch(`${API_URL}/muhasebe/takvim?yil=${yil}`, { headers: getAuthHeaders() });
+                const data = await res.json();
+                if(data.success) {
+                    const tbody = document.getElementById('takvimListesi');
+                    tbody.innerHTML = data.takvim.map(t => {
+                        let badgeCss = "bg-gray-100 text-gray-600";
+                        if(t.durum === 'verildi') badgeCss = "bg-green-100 text-green-700";
+                        else if(t.durum === 'gecikti') badgeCss = "bg-red-100 text-red-700";
+                        else if(t.yaklasiyor) badgeCss = "bg-orange-100 text-orange-700";
+                        else if(t.durum === 'hazirlandi') badgeCss = "bg-blue-100 text-blue-700";
+
+                        return `
+                        <tr class="hover:bg-gray-50 ${t.yaklasiyor ? 'bg-orange-50' : ''}">
+                            <td class="px-4 py-3 font-bold">${t.tur.toUpperCase()}</td>
+                            <td class="px-4 py-3">${t.donem}</td>
+                            <td class="px-4 py-3 font-medium">${t.sonGun ? new Date(t.sonGun).toLocaleDateString('tr-TR') : '-'}</td>
+                            <td class="px-4 py-3">
+                                <span class="px-2 py-1 rounded text-xs font-bold ${badgeCss}">${t.durum.toUpperCase()}</span>
+                                ${t.notlar ? `<br><span class="text-xs text-gray-500">${t.notlar}</span>` : ''}
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                <button onclick="openStatusModal('${t._id}', '${t.durum}')" class="text-blue-500 hover:underline text-xs"><i class="fas fa-edit"></i> Durum</button>
+                            </td>
+                        </tr>
+                        `;
+                    }).join('');
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        function openStatusModal(id, currentDurum) {
+            document.getElementById('s_beyan_id').value = id;
+            document.getElementById('s_durum').value = currentDurum;
+            document.getElementById('s_not').value = '';
+            document.getElementById('s_kasaId').value = '';
+            document.getElementById('statusModal').classList.remove('hidden');
+        }
+
+        async function saveBeyanStatus() {
+            const id = document.getElementById('s_beyan_id').value;
+            const durum = document.getElementById('s_durum').value;
+            const notlar = document.getElementById('s_not').value;
+            const kasaId = document.getElementById('s_kasaId').value;
+            try {
+                const res = await fetch(`${API_URL}/muhasebe/beyanlar/${id}`, {
+                    method: 'PUT',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ 
+                        durum, 
+                        notlar, 
+                        kasaId: kasaId || null,
+                        verilmeTarihi: new Date() 
+                    })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    document.getElementById('statusModal').classList.add('hidden');
+                    loadTakvim();
+                } else alert(data.message);
+            } catch(e) { alert(e); }
+        }
+
+        async function beyanDurumIsaretle(tur) {
+            const {yil, donem} = getYilDonem();
+            let bDonem = donem;
+            if(tur === 'geciciVergi') {
+                const m = {Q1:'G1', Q2:'G2', Q3:'G3', Q4:'YILLIK'};
+                bDonem = m[donem];
+            }
+            if(bDonem === 'YILLIK' && tur === 'geciciVergi') { alert('Q4 için Geçici Vergi verilmez. Yıllık Gelir Vergisi Beyannamesi verilir.'); return; }
+
+            if(!confirm(`${yil} - ${bDonem} dönemi ${tur} beyannamesi VERİLDİ olarak işaretlenecek. Devam?`)) return;
+
+            try {
+                // Önce o beyanı bul (Takvimden / API'den bulabiliriz, biz backend'i çağıralım: önce takvimden get)
+                const resTr = await fetch(`${API_URL}/muhasebe/takvim?yil=${yil}`, { headers: getAuthHeaders() });
+                const datTr = await resTr.json();
+                const b = datTr.takvim.find(x => x.tur === tur && x.donem === bDonem);
+                if(b) {
+                     await fetch(`${API_URL}/muhasebe/beyanlar/${b._id}`, {
+                        method: 'PUT',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({ durum: 'verildi', verilmeTarihi: new Date() })
+                    });
+                    alert('Sistem güncellendi!');
+                    initData();
+                } else alert("Dönem için beyan kaydı bulunamadı. Lütfen yılı başlatın.");
+            }catch(e) { alert(e); }
+        }
+
+        async function syncTaxten() {
+            if(!confirm("Taxten üzerindeki faturalar taranıp muhasebe modülüne aktarılacak. Seçili tarih aralığı varsa sadece o tarihler çekilir. Onaylıyor musunuz?")) return;
+            
+            const btn = document.querySelector('button[onclick="syncTaxten()"]');
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Senkronize Ediliyor...';
+
+            const start = document.getElementById('startDate')?.value || '';
+            const end = document.getElementById('endDate')?.value || '';
+
+            try {
+                const res = await fetch(`${API_URL}/fatura/sync-taxten`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ 
+                        syncInbound: true, 
+                        syncOutbound: true,
+                        startDate: start || null,
+                        endDate: end || null
+                    })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    const s = data.sonuclar;
+                    alert(`İşlem Başarılı!\nGelen: ${s.inbound} yeni fatura\nGiden: ${s.outbound} yeni fatura\nHata: ${s.errors.length}`);
+                    if(s.errors.length > 0) console.warn('Senkronizasyon Hataları:', s.errors);
+                    initData();
+                } else {
+                    const errMsg = data.error || data.message || 'Senkronizasyon hatası';
+                    alert('Hata: ' + (typeof errMsg === 'object' ? JSON.stringify(errMsg) : errMsg));
+                }
+            } catch(e) { 
+                console.error(e);
+                alert('Senkronizasyon sırasında bir hata oluştu: ' + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        }
+
+        function printDiv(divId) {
+             const printContents = document.getElementById(divId).innerHTML;
+             const originalContents = document.body.innerHTML;
+             document.body.innerHTML = "<div><h2 style='text-align:center;'>KDV BEYAN ÖZETİ</h2>" + printContents + "</div>";
+             window.print();
+             document.body.innerHTML = originalContents;
+             window.location.reload();
+        }
+
+        // INIT
+        document.addEventListener('DOMContentLoaded', () => {
+             // Şimdiki yıla/aya göre varsayılan peryodu seçelim
+             const d = new Date();
+             document.getElementById('globalYil').value = d.getFullYear().toString();
+             const month = d.getMonth() + 1;
+             let m = 'Q1';
+             if(month>3) m = 'Q2'; if(month>6) m = 'Q3'; if(month>9) m = 'Q4';
+             document.getElementById('globalDonem').value = m;
+
+             initData();
+        });
+    </script>
+</body>
+</html>

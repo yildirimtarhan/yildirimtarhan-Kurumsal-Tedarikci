@@ -583,6 +583,57 @@
             background: var(--accent);
             transform: translateY(-3px);
         }
+
+        .etbis-wrap {
+            margin: 24px auto 12px;
+            max-width: 520px;
+            padding: 14px 18px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.06);
+        }
+        .etbis-wrap .etbis-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .etbis-wrap .etbis-badge i {
+            color: #93c5fd;
+            font-size: 1.1rem;
+        }
+        .etbis-wrap .etbis-text {
+            display: block;
+            font-size: 12px;
+            color: rgba(255,255,255,0.78);
+            line-height: 1.55;
+            text-align: center;
+        }
+        .etbis-wrap .etbis-links {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 8px 14px;
+            font-size: 12px;
+        }
+        .etbis-wrap .etbis-links a {
+            color: #93c5fd;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .etbis-wrap .etbis-links a:hover {
+            text-decoration: underline;
+        }
+        .etbis-wrap .etbis-links span {
+            color: rgba(255,255,255,0.35);
+            user-select: none;
+        }
         
         /* MOBİL DÜZENLEMELER */
         @media (max-width: 768px) {
@@ -914,6 +965,17 @@
   <a href="#"><i class="fab fa-linkedin"></i></a>
   <a href="mailto:iletisim@tedarikci.org.tr"><i class="fas fa-envelope"></i></a>
 </div>
+
+  <!-- ETBİS: Karekod dönemi sona erdi; resmi grafik logo yerine metin + Ticaret Bakanlığı bağlantıları. İsterseniz portalda size özel bilgi URL’si varsa etbis.ticaret.gov.tr linkini onunla değiştirin. -->
+  <div class="etbis-wrap">
+    <div class="etbis-badge"><i class="fas fa-shield-halved" aria-hidden="true"></i> ETBİS</div>
+    <span class="etbis-text">Bu site, T.C. Ticaret Bakanlığı Elektronik Ticaret Bilgi Sistemi (ETBİS) kapsamında kayıtlı bir elektronik ticaret ortamıdır.</span>
+    <div class="etbis-links">
+      <a href="https://www.eticaret.gov.tr" target="_blank" rel="noopener noreferrer">eticaret.gov.tr</a>
+      <span aria-hidden="true">|</span>
+      <a href="https://etbis.ticaret.gov.tr" target="_blank" rel="noopener noreferrer">ETBİS portalı</a>
+    </div>
+  </div>
 
   <p>© 2025 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
 </footer>

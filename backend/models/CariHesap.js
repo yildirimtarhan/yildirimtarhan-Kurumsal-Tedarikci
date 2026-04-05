@@ -4,8 +4,7 @@ const cariHesapSchema = new mongoose.Schema({
   kullaniciId: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'User', 
-    required: true,
-    unique: true 
+    sparse: true 
   },
   firmaUnvan: { type: String, required: true },
   vknTckn: { type: String, required: true },

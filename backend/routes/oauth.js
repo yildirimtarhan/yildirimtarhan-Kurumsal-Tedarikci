@@ -8,6 +8,34 @@ const { upsertOAuthUser } = require("../services/oauthUserService");
 
 const router = express.Router();
 
+function isOAuthDisabled() {
+  const v = process.env.OAUTH_DISABLED ?? process.env.DISABLE_OAUTH;
+  if (v == null) return false;
+  return ["1", "true", "yes", "on"].includes(String(v).trim().toLowerCase());
+}
+
+router.get("/oauth-providers", (req, res) => {
+  if (isOAuthDisabled()) {
+    return res.json({
+      success: true,
+      google: false,
+      facebook: false,
+      instagram: false,
+      disabled: true,
+    });
+  }
+  res.json({
+    success: true,
+    google: !!(
+      process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+    ),
+    facebook: !!(
+      process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET
+    ),
+    instagram: instagramOAuth.isConfigured(),
+  });
+});
+
 function frontendBase() {
   return (process.env.FRONTEND_URL || "http://127.0.0.1:5500").replace(
     /\/$/,
@@ -47,6 +75,9 @@ const googleFail = `${frontendBase()}/giris.html?oauth_error=1`;
 const facebookFail = `${frontendBase()}/giris.html?oauth_error=1`;
 
 router.get("/google", (req, res, next) => {
+  if (isOAuthDisabled()) {
+    return redirectFailure(res, "Sosyal giriş geçici olarak kapalı.");
+  }
   if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
     return redirectFailure(res, "Google girişi sunucuda yapılandırılmamış.");
   }
@@ -58,6 +89,10 @@ router.get("/google", (req, res, next) => {
 
 router.get(
   "/google/callback",
+  (req, res, next) => {
+    if (isOAuthDisabled()) return redirectFailure(res, "Sosyal giriş geçici olarak kapalı.");
+    next();
+  },
   passport.authenticate("google", {
     session: true,
     failureRedirect: googleFail,
@@ -75,6 +110,9 @@ router.get(
 );
 
 router.get("/facebook", (req, res, next) => {
+  if (isOAuthDisabled()) {
+    return redirectFailure(res, "Sosyal giriş geçici olarak kapalı.");
+  }
   if (!process.env.FACEBOOK_APP_ID || !process.env.FACEBOOK_APP_SECRET) {
     return redirectFailure(res, "Facebook girişi sunucuda yapılandırılmamış.");
   }
@@ -86,6 +124,10 @@ router.get("/facebook", (req, res, next) => {
 
 router.get(
   "/facebook/callback",
+  (req, res, next) => {
+    if (isOAuthDisabled()) return redirectFailure(res, "Sosyal giriş geçici olarak kapalı.");
+    next();
+  },
   passport.authenticate("facebook", {
     session: true,
     failureRedirect: facebookFail,
@@ -103,6 +145,11 @@ router.get(
 );
 
 router.post("/instagram/link-token", express.json(), (req, res) => {
+  if (isOAuthDisabled()) {
+    return res
+      .status(503)
+      .json({ success: false, message: "Sosyal giriş geçici olarak kapalı." });
+  }
   const authHeader = req.headers.authorization;
   const token =
     authHeader && authHeader.startsWith("Bearer ")
@@ -129,6 +176,9 @@ router.post("/instagram/link-token", express.json(), (req, res) => {
 });
 
 router.get("/instagram", (req, res) => {
+  if (isOAuthDisabled()) {
+    return redirectFailure(res, "Sosyal giriş geçici olarak kapalı.");
+  }
   if (!instagramOAuth.isConfigured()) {
     return redirectFailure(res, "Instagram girişi sunucuda yapılandırılmamış.");
   }
@@ -152,6 +202,9 @@ router.get("/instagram", (req, res) => {
 });
 
 router.get("/instagram/callback", async (req, res) => {
+  if (isOAuthDisabled()) {
+    return redirectFailure(res, "Sosyal giriş geçici olarak kapalı.");
+  }
   try {
     if (req.query.error) {
       const desc =

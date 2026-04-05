@@ -1,11 +1,6 @@
 const crypto = require("crypto");
 const axios = require("axios");
-
-function backendPublicUrl() {
-  const explicit = process.env.BACKEND_PUBLIC_URL || process.env.BACKEND_URL;
-  if (explicit) return explicit.replace(/\/$/, "");
-  return `http://localhost:${process.env.PORT || 3000}`;
-}
+const { backendPublicUrl } = require("../config/backendPublicUrl");
 
 function callbackRedirectUri() {
   const explicit = process.env.INSTAGRAM_CALLBACK_URL;

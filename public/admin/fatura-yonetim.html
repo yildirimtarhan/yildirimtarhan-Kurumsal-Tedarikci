@@ -91,10 +91,19 @@
                 <p class="text-gray-500">E-Fatura oluşturma, gönderme ve takip</p>
             </div>
             <div class="flex gap-3">
+                <button onclick="syncTaxten()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                    <i class="fas fa-sync"></i> Taxten'den Faturaları Çek
+                </button>
                 <button onclick="syncAllFaturalar()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                    <i class="fas fa-sync"></i> Tümünü Senkronize Et
+                    <i class="fas fa-history"></i> Durumları Güncelle
                 </button>
             </div>
+        </div>
+
+        <!-- Sekmeler -->
+        <div class="flex border-b border-gray-200 mb-6 px-1">
+            <button onclick="switchTab('SATIŞ')" id="tabSatis" class="px-6 py-2 border-b-2 border-blue-600 text-blue-600 font-bold transition-all">Satış Faturaları (Giden)</button>
+            <button onclick="switchTab('ALIŞ')" id="tabAlis" class="px-6 py-2 border-b-2 border-transparent text-gray-500 hover:text-blue-600 transition-all">Alış Faturaları (Gelen)</button>
         </div>
 
         <!-- Özet Kartlar -->
@@ -221,6 +230,14 @@
         const API_URL = window.location.origin + '/api';
         let currentPage = 1;
         let sidebarExpanded = true;
+        let activeTab = 'SATIŞ';
+
+        function switchTab(tipo) {
+            activeTab = tipo;
+            document.getElementById('tabSatis').className = tipo === 'SATIŞ' ? 'px-6 py-2 border-b-2 border-blue-600 text-blue-600 font-bold' : 'px-6 py-2 border-b-2 border-transparent text-gray-500 hover:text-blue-600';
+            document.getElementById('tabAlis').className = tipo === 'ALIŞ' ? 'px-6 py-2 border-b-2 border-blue-600 text-blue-600 font-bold' : 'px-6 py-2 border-b-2 border-transparent text-gray-500 hover:text-blue-600';
+            loadFaturalar();
+        }
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -272,10 +289,19 @@
                 const start = document.getElementById('startDate').value;
                 const end = document.getElementById('endDate').value;
                 
-                const params = new URLSearchParams({ page: currentPage, search, durum, startDate: start, endDate: end });
+                const params = new URLSearchParams({ 
+                    page: currentPage, 
+                    search, 
+                    durum, 
+                    startDate: start, 
+                    endDate: end,
+                    tipo: activeTab
+                });
                 
                 const response = await fetch(`${API_URL}/fatura/list?${params}`, {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                    headers: { 
+                        'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('adminToken')}` 
+                    }
                 });
                 
                 const data = await response.json();
@@ -301,8 +327,8 @@
                     </td>
                     <td class="px-4 py-3">
                         <div>
-                            <p class="font-medium text-gray-800">${f.aliciUnvan}</p>
-                            <p class="text-xs text-gray-500">${f.aliciVkn}</p>
+                            <p class="font-medium text-gray-800">${f.cariHesapId?.firmaUnvan || f.aliciUnvan}</p>
+                            <p class="text-xs text-gray-500">${f.cariHesapId?.vknTckn || f.aliciVkn}</p>
                         </div>
                     </td>
                     <td class="px-4 py-3 text-sm text-gray-600">${new Date(f.faturaTarihi).toLocaleDateString('tr-TR')}</td>
@@ -359,11 +385,10 @@
                                 </table>
                             </div>
                             <div>
-                                <h3 class="font-semibold text-gray-700 mb-2">Alıcı Bilgileri</h3>
+                                <h3 class="font-semibold text-gray-700 mb-2">Karşı Taraf (Cari) Bilgileri</h3>
                                 <table class="w-full text-sm">
-                                    <tr><td class="py-1 text-gray-500">Ünvan:</td><td class="py-1">${f.aliciUnvan}</td></tr>
-                                    <tr><td class="py-1 text-gray-500">VKN/TCKN:</td><td class="py-1">${f.aliciVkn}</td></tr>
-                                    <tr><td class="py-1 text-gray-500">Etiket:</td><td class="py-1">${f.aliciEtiket || '-'}</td></tr>
+                                    <tr><td class="py-1 text-gray-500">Ünvan:</td><td class="py-1">${f.cariHesapId?.firmaUnvan || f.aliciUnvan}</td></tr>
+                                    <tr><td class="py-1 text-gray-500">VKN/TCKN:</td><td class="py-1">${f.cariHesapId?.vknTckn || f.aliciVkn}</td></tr>
                                 </table>
                             </div>
                         </div>
@@ -439,7 +464,7 @@
             try {
                 const response = await fetch(`${API_URL}/fatura/${id}/sync`, {
                     method: 'POST',
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('adminToken')}` }
                 });
                 const data = await response.json();
                 
@@ -460,7 +485,7 @@
             try {
                 const response = await fetch(`${API_URL}/fatura/admin/sync-all`, {
                     method: 'POST',
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('adminToken')}` }
                 });
                 const data = await response.json();
                 
@@ -497,7 +522,74 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', loadFaturalar);
+        async function syncTaxten() {
+            if(!confirm("Taxten üzerindeki tüm gelen ve giden faturalar taranıp sisteme aktarılacak. Onaylıyor musunuz?")) return;
+            
+            const btn = document.querySelector('button[onclick="syncTaxten()"]');
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Çekiliyor...';
+
+            const startDateVal = document.getElementById('startDate').value;
+            const endDateVal = document.getElementById('endDate').value;
+            
+            if (!startDateVal || !endDateVal) {
+                alert('Lütfen faturaların çekileceği tarih aralığını seçin.');
+                return;
+            }
+
+            console.log('Sync Başlatıldı:', { startDateVal, endDateVal, activeTab });
+
+            try {
+                const res = await fetch(`${API_URL}/fatura/sync-taxten`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('adminToken')}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        syncInbound: activeTab === 'ALIŞ' || activeTab === 'INBOUND', 
+                        syncOutbound: activeTab === 'SATIŞ' || activeTab === 'OUTBOUND',
+                        startDate: startDateVal, 
+                        endDate: endDateVal
+                    })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    const s = data.sonuclar;
+                    alert(`İşlem Başarılı!\nGelen: ${s.inbound} yeni fatura\nGiden: ${s.outbound} yeni fatura\nHata: ${s.errors.length}`);
+                    loadFaturalar();
+                } else {
+                    const errMsg = data.error || data.message || 'Senkronizasyon hatası';
+                    alert('Hata: ' + (typeof errMsg === 'object' ? JSON.stringify(errMsg) : errMsg));
+                }
+            } catch(e) { alert('Bağlantı hatası: ' + e.message); }
+            finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Varsayılan tarihleri ayarla (Bu ayın başı - Bugün)
+            const now = new Date();
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+            
+            const formatDate = (date) => {
+                const y = date.getFullYear();
+                const m = String(date.getMonth() + 1).padStart(2, '0');
+                const d = String(date.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            };
+
+            const startInput = document.getElementById('startDate');
+            const endInput = document.getElementById('endDate');
+            
+            if (startInput && !startInput.value) startInput.value = formatDate(firstDay);
+            if (endInput && !endInput.value) endInput.value = formatDate(now);
+            
+            loadFaturalar();
+        });
     </script>
 </body>
 </html>

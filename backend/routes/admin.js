@@ -357,13 +357,24 @@ router.get("/orders", adminOnly, async (req, res) => {
     // Eski siparişlerde email/tutar yoksa userId'den kullanıcı bilgisi çek
     const enrichedOrders = await Promise.all(orders.map(async (order) => {
       const o = order.toObject();
-      if (!o.email && o.userId) {
-        const user = await User.findById(o.userId).select('email firma telefon');
+      let musteriAdSoyad = '';
+      if (o.userId) {
+        const user = await User.findById(o.userId).select('email firma telefon ad');
         if (user) {
-          o.email = user.email;
+          if (!o.email) o.email = user.email;
           o.firmaAdi = o.firmaAdi || user.firma || '';
+          musteriAdSoyad = (user.ad || '').trim();
         }
       }
+      if (!musteriAdSoyad) {
+        musteriAdSoyad = (
+          o.shippingAddress?.fullName ||
+          o.invoiceAddress?.fullName ||
+          o.firmaAdi ||
+          ''
+        ).trim();
+      }
+      o.musteriAdSoyad = musteriAdSoyad || '—';
       // toplam yoksa total veya subtotal+kdv'den hesapla
       if (!o.toplam && (o.total || o.subtotal)) {
         o.toplam = o.total || (o.subtotal + (o.kdv || 0));
@@ -758,6 +769,94 @@ router.get("/cariler", adminOnly, async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
+// Cari (User) güncelle — admin panel detay/düzenle
+router.put("/cari/:id", adminOnly, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Cari bulunamadı" });
+    }
+
+    const {
+      ad,
+      email,
+      telefon,
+      firma,
+      uyelikTipi,
+      vergiNo,
+      vergiDairesi,
+      tcNo,
+      rol,
+      faturaAdresi,
+      teslimatAdresi,
+      yeniSifre,
+    } = req.body;
+
+    if (email !== undefined) {
+      const nextEmail = String(email).toLowerCase().trim();
+      if (nextEmail !== user.email) {
+        const exists = await User.findOne({ email: nextEmail });
+        if (exists) {
+          return res.status(400).json({
+            success: false,
+            message: "Bu e-posta adresi başka bir kayıtta kullanılıyor",
+          });
+        }
+      }
+    }
+
+    const updates = {};
+    if (ad !== undefined) updates.ad = String(ad).trim();
+    if (email !== undefined) updates.email = String(email).toLowerCase().trim();
+    if (telefon !== undefined) updates.telefon = String(telefon).trim();
+    if (firma !== undefined) updates.firma = String(firma).trim();
+    if (uyelikTipi !== undefined && ["bireysel", "kurumsal"].includes(uyelikTipi)) {
+      updates.uyelikTipi = uyelikTipi;
+    }
+    if (vergiNo !== undefined) updates.vergiNo = String(vergiNo).trim();
+    if (vergiDairesi !== undefined) updates.vergiDairesi = String(vergiDairesi).trim();
+    if (tcNo !== undefined) updates.tcNo = String(tcNo).trim();
+    if (rol !== undefined && ["user", "bayi", "admin"].includes(rol)) updates.rol = rol;
+
+    if (faturaAdresi && typeof faturaAdresi === "object") {
+      const prev = user.faturaAdresi && user.faturaAdresi.toObject
+        ? user.faturaAdresi.toObject()
+        : user.faturaAdresi || {};
+      updates.faturaAdresi = { ...prev, ...faturaAdresi };
+    }
+    if (teslimatAdresi && typeof teslimatAdresi === "object") {
+      const prev = user.teslimatAdresi && user.teslimatAdresi.toObject
+        ? user.teslimatAdresi.toObject()
+        : user.teslimatAdresi || {};
+      updates.teslimatAdresi = { ...prev, ...teslimatAdresi };
+    }
+
+    if (yeniSifre && String(yeniSifre).length >= 6) {
+      updates.password = await bcrypt.hash(String(yeniSifre), 10);
+    }
+
+    const updated = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: updates },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    if (!updated) {
+      return res.status(404).json({ success: false, message: "Cari bulunamadı" });
+    }
+
+    res.json({
+      success: true,
+      message: "Cari güncellendi",
+      user: updated,
+    });
+  } catch (err) {
+    console.error("❌ Cari güncelleme hatası:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Yeni Cari Oluştur - adminOnly EKLENDİ, DETAYLI LOG
 // Yeni Cari Oluştur - adminOnly EKLENDİ, DETAYLI LOG
 // Yeni Cari Oluştur - adminOnly EKLENDİ, DETAYLI LOG

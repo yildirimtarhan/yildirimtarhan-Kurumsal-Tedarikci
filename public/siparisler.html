@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -496,17 +496,13 @@
     <script>
         const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : 'https://backend-api-7s13.onrender.com/api';
 
-        // PayTR dönüşü: başarılıysa sepeti temizle ve kısa bilgilendir
-        (function handlePaytrReturn() {
+        // Sipariş başarı bildirimi
+        (function handleOrderReturn() {
             try {
                 const params = new URLSearchParams(window.location.search || '');
-                const paytr = params.get('paytr');
-                if (!paytr) return;
-                if (paytr === 'success') {
+                if (params.get('success') === 'true') {
                     localStorage.removeItem('cart');
-                    alert('Ödemeniz başarılı. Siparişiniz işleme alındı.');
-                } else if (paytr === 'failed') {
-                    alert('Ödeme başarısız veya iptal edildi. Siparişiniz “beklemede” kalmış olabilir.');
+                    alert('Siparişiniz başarıyla alındı. Teşekkür ederiz!');
                 }
             } catch (_) {}
         })();

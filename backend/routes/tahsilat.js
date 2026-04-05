@@ -4,6 +4,8 @@ const Tahsilat = require('../models/Tahsilat');
 const CariHesap = require('../models/CariHesap');
 const Fatura = require('../models/Fatura');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
+const KasaIslem = require('../models/KasaIslem');
+const KasaBanka = require('../models/KasaBanka');
 
 // Tahsilat listesi
 router.get('/list', authMiddleware, async (req, res) => {
@@ -66,7 +68,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // Yeni tahsilat kaydet
 router.post('/create', authMiddleware, async (req, res) => {
   try {
-    const { cariHesapId, faturaId, tutar, tahsilatTipi, odemeDetay, aciklama, tahsilatTarihi } = req.body;
+    const { cariHesapId, faturaId, tutar, tahsilatTipi, odemeDetay, aciklama, tahsilatTarihi, kasaId } = req.body;
     
     const cari = await CariHesap.findById(cariHesapId);
     if (!cari) return res.status(404).json({ success: false, message: 'Cari hesap bulunamadı' });
@@ -103,6 +105,24 @@ router.post('/create', authMiddleware, async (req, res) => {
     await tahsilat.save();
     
     await cari.bakiyeGuncelle(0, tutar);
+    
+    // Kasa / Banka entegrasyonu
+    if (kasaId) {
+      const kasa = await KasaBanka.findById(kasaId);
+      if (kasa) {
+        await KasaIslem.create({
+          kasaId: kasa._id,
+          islemTipi: 'GİRİŞ',
+          tutar,
+          aciklama: aciklama || `${cari.firmaUnvan} firmasından tahsilat`,
+          ilgiliModul: 'TAHSİLAT',
+          referansId: tahsilat._id,
+          tarih: tahsilatTarihi || new Date(),
+          olusturanKullanici: req.user._id
+        });
+        await kasa.bakiyeGuncelle(tutar, 'GİRİŞ');
+      }
+    }
     
     if (fatura) {
       const tumTahsilatlar = await Tahsilat.find({ faturaId, durum: 'ONAYLANDI' });
