@@ -135,10 +135,11 @@ class SMSService {
         try {
             if (!this.config.gateway.url) throw new Error('SMS Gateway URL tanımlı değil');
             
-            const payload = {
-                to: this.formatPhone(to),
-                message: message
-            };
+        const payload = {
+            // Android Gateway genelde olduğu gibi (0'la birlikte) bekler
+            to: to.startsWith('0') ? to : '0' + this.formatPhone(to),
+            message: message
+        };
 
             const response = await axios.post(`${this.config.gateway.url}/message/send`, payload, {
                 headers: {

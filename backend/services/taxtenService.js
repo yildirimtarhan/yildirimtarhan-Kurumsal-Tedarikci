@@ -280,13 +280,31 @@ class TaxtenService {
       partyXml.match(/<[\w:]*?ID[^>]*?>(.*?)<\/[\w:]*?ID>/i)?.[1] // Fallback
     );
 
+    // Kalemleri (InvoiceLine) Ayıkla
+    const kalemler = [];
+    const lineRegex = /<[\w:]*?InvoiceLine[^>]*?>([\s\S]*?)<\/[\w:]*?InvoiceLine>/gi;
+    let match;
+    while ((match = lineRegex.exec(xml)) !== null) {
+      const lineXml = match[1];
+      kalemler.push({
+        malHizmet: clean(lineXml.match(/<[\w:]*?Item[\s\S]*?<[\w:]*?Name>(.*?)<\/[\w:]*?Name>/i)?.[1] || 'Ürün/Hizmet'),
+        miktar: parseFloat(lineXml.match(/<[\w:]*?InvoicedQuantity[^>]*?>(.*?)<\/[\w:]*?InvoicedQuantity>/i)?.[1] || 1),
+        birim: lineXml.match(/<[\w:]*?InvoicedQuantity[^>]*?unitCode="(.*?)">/i)?.[1] || 'ADET',
+        birimFiyat: parseFloat(lineXml.match(/<[\w:]*?Price[\s\S]*?<[\w:]*?PriceAmount.*?>(.*?)<\/[\w:]*?PriceAmount>/i)?.[1] || 0),
+        kdvOrani: parseInt(lineXml.match(/<[\w:]*?TaxCategory[\s\S]*?<[\w:]*?Percent>(.*?)<\/[\w:]*?Percent>/i)?.[1] || 20),
+        kdvTutari: parseFloat(lineXml.match(/<[\w:]*?TaxTotal[\s\S]*?<[\w:]*?TaxAmount.*?>(.*?)<\/[\w:]*?TaxAmount>/i)?.[1] || 0),
+        toplamTutar: parseFloat(lineXml.match(/<[\w:]*?LineExtensionAmount.*?>(.*?)<\/[\w:]*?LineExtensionAmount>/i)?.[1] || 0)
+      });
+    }
+
     return {
-      faturaNo: extract(/<cbc:ID[^>]*?>(.*?)<\/cbc:ID>/i) || extract(/<ID[^>]*?>(.*?)<\/ID>/i),
+      faturaNo: extract(/<cbc:ID[^>]*?>([A-Z0-9]{16})<\/cbc:ID>/i) || extract(/<cbc:ID[^>]*?>(?!2\.1)(.*?)<\/cbc:ID>/i) || extract(/<ID[^>]*?>(.*?)<\/ID>/i),
       tarih: extract(/<[\w:]*?IssueDate.*?>(.*?)<\/[\w:]*?IssueDate>/),
       tutar: parseFloat(extract(/<[\w:]*?PayableAmount.*?>(.*?)<\/[\w:]*?PayableAmount>/) || 0),
       kdv: parseFloat(extract(/<[\w:]*?TaxAmount.*?>(.*?)<\/[\w:]*?TaxAmount>/) || 0),
       unvan: name || 'Bilinmeyen Cari',
-      vkn: vkn ? vkn.trim() : '00000000000'
+      vkn: vkn ? vkn.trim() : '00000000000',
+      kalemler: kalemler
     };
   }
 
@@ -294,7 +312,7 @@ class TaxtenService {
     try {
       const payload = {
         UUID: uuid,
-        Identifier: this.gbEtiket,
+        Identifier: type === 'OUTBOUND' ? this.gbEtiket : this.pkEtiket,
         VKN_TCKN: this.vkn,
         Type: type,
         DocType: docType
@@ -310,9 +328,16 @@ class TaxtenService {
         }
       );
       
+      let docData = null;
+      if (response.data) {
+          const entity = response.data.entity || {};
+          docData = entity.DocData || entity.docData || response.data.DocData || response.data.docData;
+      }
+      
       return {
-        success: true,
-        data: response.data
+        success: !!docData,
+        data: docData,
+        error: !docData ? 'Dosya verisi (DocData) alınamadı' : null
       };
       
     } catch (error) {

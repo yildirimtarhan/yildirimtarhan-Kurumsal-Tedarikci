@@ -407,18 +407,41 @@ router.get('/:id/pdf', authMiddleware, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Fatura bulunamadı veya UUID yok' });
     }
     
-    const viewResult = await taxtenService.getInvoiceView(fatura.uuid, 'OUTBOUND', 'PDF');
+    // Fatura tipine göre INBOUND/OUTBOUND belirle
+    const type = fatura.faturaTipi === 'SATIŞ' ? 'OUTBOUND' : 'INBOUND';
+    const viewResult = await taxtenService.getInvoiceView(fatura.uuid, type, 'PDF');
     
-    if (viewResult.success) {
-      const pdfBuffer = Buffer.from(viewResult.data.DocData, 'base64');
+    if (viewResult.success && viewResult.data) {
+      const pdfBuffer = Buffer.from(viewResult.data, 'base64');
       
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename=\"${fatura.faturaNo || 'fatura'}.pdf\"`);
       res.send(pdfBuffer);
     } else {
-      res.status(400).json({ success: false, message: 'PDF alınamadı', error: viewResult.error });
+      res.status(400).json({ success: false, message: 'PDF verisi alınamadı', error: viewResult.error });
     }
     
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Fatura UBL (XML) indir
+router.get('/:id/ubl', authMiddleware, async (req, res) => {
+  try {
+    const fatura = await Fatura.findById(req.params.id);
+    if (!fatura || !fatura.uuid) {
+      return res.status(404).json({ success: false, message: 'Fatura bulunamadı veya UUID yok' });
+    }
+    const type = fatura.faturaTipi === 'SATIŞ' ? 'OUTBOUND' : 'INBOUND';
+    const ublResult = await taxtenService.getUBL(fatura.uuid, type);
+    if (ublResult.success) {
+      res.setHeader('Content-Type', 'application/xml');
+      res.setHeader('Content-Disposition', `attachment; filename=\"${fatura.faturaNo || 'fatura'}.xml\"`);
+      res.send(ublResult.data);
+    } else {
+      res.status(400).json({ success: false, message: 'UBL alınamadı', error: ublResult.error });
+    }
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -495,9 +518,20 @@ router.post('/sync-taxten', authMiddleware, adminMiddleware, async (req, res) =>
           if (!uuid) continue;
 
           const existing = await Fatura.findOne({ uuid });
-          if (existing) continue;
+          if (existing && existing.kalemler && existing.kalemler.length > 0) continue;
+          
+          if (existing) {
+            console.log(`[Sync DEBUG] Mevcut faturanın eksik kalemleri güncelleniyor: ${uuid}`);
+            const detailRes = await taxtenService.getUBL(uuid, type);
+            if (detailRes.success) {
+                const data = taxtenService.parseUBL(detailRes.data, type);
+                existing.kalemler = data.kalemler || [];
+                await existing.save();
+            }
+            continue;
+          }
 
-          console.log(`[Sync DEBUG] Fatura detayı çekiliyor: ${uuid}`);
+          console.log(`[Sync DEBUG] Yeni fatura detayı çekiliyor: ${uuid}`);
 
           // Detaylı UBL verisini çek
           const detailRes = await taxtenService.getUBL(uuid, type);
@@ -541,6 +575,7 @@ router.post('/sync-taxten', authMiddleware, adminMiddleware, async (req, res) =>
             toplamTutar: data.tutar || 0,
             matrah: (data.tutar || 0) - (data.kdv || 0),
             kdvTutari: data.kdv || 0,
+            kalemler: data.kalemler || [],
             durum: '1300-BAŞARILI',
             faturaTipi: type === 'OUTBOUND' ? 'SATIŞ' : 'ALIŞ',
             aciklama: `Taxten Senkronizasyon (${type})`

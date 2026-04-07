@@ -446,6 +446,44 @@ router.put("/orders/:id/status", adminOnly, async (req, res) => {
 
 
 // ============================================
+// SİPARİŞ SİL (YENİ - SADECE ADMİN)
+// ============================================
+router.delete("/orders/:id", adminOnly, async (req, res) => {
+  try {
+    const order = await Order.findByIdAndDelete(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Sipariş bulunamadı" });
+    }
+    console.log(`🗑️ Sipariş silindi: ${req.params.id}`);
+    res.json({ success: true, message: "Sipariş kalıcı olarak silindi" });
+  } catch (err) {
+    console.error("🗑️ Silme hatası:", err.message);
+    res.status(500).json({ success: false, message: "Silme hatası: " + err.message });
+  }
+});
+
+// ============================================
+// TEST SİPARİŞLERİNİ TEMİZLE (05.04.2026)
+// ============================================
+router.post("/orders/cleanup-tests", adminOnly, async (req, res) => {
+  try {
+    const today = new Date('2026-04-05');
+    today.setHours(0, 0, 0, 0);
+    const result = await Order.deleteMany({ createdAt: { $gte: today } });
+    console.log(`🧹 Toplu temizlik: ${result.deletedCount} test siparişi silindi.`);
+    res.json({ 
+      success: true, 
+      message: `${result.deletedCount} adet test siparişi başarıyla temizlendi.`, 
+      count: result.deletedCount 
+    });
+  } catch (err) {
+    console.error("🧹 Temizlik hatası:", err.message);
+    res.status(500).json({ success: false, message: "Temizlik hatası: " + err.message });
+  }
+});
+
+
+// ============================================
 // KARGO BİLGİSİ GÜNCELLE
 // ============================================
 router.put("/orders/:id/kargo", adminOnly, async (req, res) => {

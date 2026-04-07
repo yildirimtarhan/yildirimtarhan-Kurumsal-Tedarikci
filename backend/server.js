@@ -1,6 +1,16 @@
 // 1) HER ŞEYDEN ÖNCE
 require("dotenv").config();
 
+// 🛡️ GLOBAL HATA KALKANI (Sunucunun çökmesini engeller)
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('🚨 [Unhandled Rejection] Hata:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('🚨 [Uncaught Exception] Hata:', err.message);
+  // NOT: Kritik bir hata değilse sunucuyu açık tutmaya çalışıyoruz.
+});
+
 // ✅ DNS AYARLARI - MONGOOSE'DAN ÖNCE
 const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');

@@ -367,7 +367,9 @@
         async function viewFatura(id) {
             try {
                 const response = await fetch(`${API_URL}/fatura/${id}`, {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                    headers: { 
+                        'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('adminToken')}` 
+                    }
                 });
                 const data = await response.json();
                 
@@ -427,10 +429,25 @@
                         ${data.taxtenStatus ? `
                             <div class="mt-6 bg-blue-50 p-4 rounded-lg">
                                 <h3 class="font-semibold text-blue-800 mb-2">Taxten Durum Bilgisi</h3>
-                                <p class="text-sm"><strong>Kod:</strong> ${data.taxtenStatus.ResponseCode}</p>
-                                <p class="text-sm"><strong>Açıklama:</strong> ${data.taxtenStatus.Description}</p>
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <p><strong>Kod:</strong> ${data.taxtenStatus.ResponseCode}</p>
+                                    <p><strong>Açıklama:</strong> ${data.taxtenStatus.Description}</p>
+                                </div>
                             </div>
                         ` : ''}
+                        <div class="mt-8 flex justify-center flex-wrap gap-4">
+                            ${f.uuid ? `
+                                <button onclick="downloadPDF('${f._id}')" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full flex items-center gap-2 shadow-lg transition-transform hover:scale-105">
+                                    <i class="fas fa-file-pdf"></i> PDF Görüntüle
+                                </button>
+                                <button onclick="downloadUBL('${f._id}')" class="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-full flex items-center gap-2 shadow-lg transition-transform hover:scale-105">
+                                    <i class="fas fa-file-code"></i> UBL (XML) İndir
+                                </button>
+                            ` : ''}
+                            <button onclick="closeModal('faturaDetayModal')" class="border border-gray-300 hover:bg-gray-50 px-6 py-2 rounded-full transition-colors">
+                                Kapat
+                            </button>
+                        </div>
                     `;
                     openModal('faturaDetayModal');
                 }
@@ -498,10 +515,13 @@
             }
         }
 
-        async function downloadPDF(id) {
+        async function downloadPDF(id) { renderDownload(id, 'pdf'); }
+        async function downloadUBL(id) { renderDownload(id, 'ubl'); }
+
+        async function renderDownload(id, type) {
             try {
-                const response = await fetch(`${API_URL}/fatura/${id}/pdf`, {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                const response = await fetch(`${API_URL}/fatura/${id}/${type}`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('adminToken')}` }
                 });
                 
                 if (response.ok) {
@@ -509,13 +529,15 @@
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `fatura-${id}.pdf`;
+                    a.download = `fatura-${id}.${type === 'pdf' ? 'pdf' : 'xml'}`;
                     document.body.appendChild(a);
                     a.click();
                     window.URL.revokeObjectURL(url);
                     document.body.removeChild(a);
                 } else {
-                    alert('PDF indirilemedi');
+                    const err = await response.json();
+                    const detail = err.message || err.error || 'Bilinmeyen hata';
+                    alert(`${type.toUpperCase()} indirilemedi: ` + detail);
                 }
             } catch (error) {
                 alert('İndirme hatası: ' + error.message);

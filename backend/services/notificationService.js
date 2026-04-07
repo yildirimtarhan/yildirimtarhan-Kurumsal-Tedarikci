@@ -149,6 +149,11 @@ class NotificationService {
     async notifyAdminOfNewOrder(orderData) {
         try {
             console.log(`✉️ Yöneticiye bildirim gönderiliyor... Sipariş: #${orderData.siparisNo}`);
+            
+            if (!process.env.ADMIN_PHONE && !process.env.ADMIN_ORDER_NOTIFY_EMAIL) {
+                console.warn('⚠️ Bildirim için hedef (email veya telefon) tanımlı değil!');
+                return { skipped: true };
+            }
 
             // 1. E-posta Bildirimi
             const adminNotifyRaw = process.env.ADMIN_ORDER_NOTIFY_EMAIL;
@@ -156,27 +161,38 @@ class NotificationService {
                 ? adminNotifyRaw.split(',').map(e => e.trim().toLowerCase()).filter(Boolean)
                 : [];
 
-            const emailPromise = adminRecipients.length > 0
-                ? emailService.sendNewOrderAdminNotification(adminRecipients, orderData)
-                : Promise.resolve({ skipped: true });
+            let emailPromise = Promise.resolve({ skipped: true });
+            if (adminRecipients.length > 0) {
+                console.log(`📧 E-posta hazırlanıyor: ${adminRecipients.join(', ')}`);
+                emailPromise = emailService.sendNewOrderAdminNotification(adminRecipients, orderData)
+                    .catch(err => {
+                        console.error('❌ Admin e-posta bildirim hatası:', err.message);
+                        return { error: err.message };
+                    });
+            }
 
             // 2. SMS Bildirimi
-            const smsPromise = smsService.sendAdminNewOrderSMS(orderData);
+            let smsPromise = Promise.resolve({ skipped: true });
+            if (process.env.ADMIN_PHONE) {
+                console.log(`📱 SMS hazırlanıyor: ${process.env.ADMIN_PHONE}`);
+                smsPromise = smsService.sendAdminNewOrderSMS(orderData)
+                    .catch(err => {
+                        console.error('❌ Admin SMS bildirim hatası:', err.message);
+                        return { error: err.message };
+                    });
+            }
 
-            // 3. Sonuçları Bekle
-            const [emailResult, smsResult] = await Promise.allSettled([
+            // 3. Teslimatı Bekle (Biri hata olsa bile diğeri etkilenmez)
+            const [emailResult, smsResult] = await Promise.all([
                 emailPromise,
                 smsPromise
             ]);
 
-            console.log('✅ Admin Bildirim Durumu:', {
-                email: emailResult.status === 'fulfilled' ? 'Başarılı' : 'Hata',
-                sms: smsResult.status === 'fulfilled' ? 'Başarılı' : 'Hata/Atlandı'
-            });
+            console.log(`✅ Admin bildirim süreci tamamlandı. Durum: E-posta=${!!emailResult.success}, SMS=${!!smsResult.success}`);
 
             return {
-                email: emailResult.status === 'fulfilled',
-                sms: smsResult.status === 'fulfilled'
+                email: !!emailResult.success,
+                sms: !!smsResult.success
             };
 
         } catch (error) {
