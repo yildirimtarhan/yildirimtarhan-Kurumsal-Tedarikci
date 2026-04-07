@@ -939,7 +939,9 @@
     <script src="js/turkiye-adresler.js"></script>
     <script>
         // ==================== DEĞİŞKENLER ====================
-        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : 'https://backend-api-7s13.onrender.com/api';
+        const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+            ? 'http://localhost:3000/api'
+            : '/api';
         window.ADRES_API_BASE = (API_URL || '').replace(/\/api\/?$/, '') || window.location.origin;
 
         // Türkiye il/ilçe - ödeme sayfası yeni adres formu

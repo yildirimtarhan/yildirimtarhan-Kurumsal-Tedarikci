@@ -7,9 +7,9 @@ class MusteriFaturaService {
     constructor() {
         // Backend API'yi kendi domain'imizden çağırıyoruz.
         // localhost geliştirme için port farklı olabiliyor.
-        this.baseUrl = window.location.origin.includes('localhost')
+        this.baseUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
             ? 'http://localhost:3000/api'
-            : `${window.location.origin}/api`;
+            : '/api';
         this.token = localStorage.getItem('token') || sessionStorage.getItem('token');
         this.musteriId = localStorage.getItem('musteriId') || sessionStorage.getItem('musteriId');
     }

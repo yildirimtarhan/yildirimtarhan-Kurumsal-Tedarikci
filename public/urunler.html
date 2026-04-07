@@ -398,7 +398,9 @@
 <!-- Sepet JS -->
 <script src="js/sepet.js"></script>
 <script>
-        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : 'https://backend-api-7s13.onrender.com/api';
+        const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+            ? 'http://localhost:3000/api'
+            : '/api';
 
         const STATIK_URUNLER = [
             { name: 'E-Fatura Modülü', price: 899, category: 'E-Fatura', description: 'Gelen ve giden efatura yönetimi, otomatik kontrol, raporlama ve entegrasyon özellikleri.', icon: '📄', birim: '/yıl' },
