@@ -1,0 +1,158 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Kullanım Koşulları - Kurumsal Tedarikçi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="css/style.css" rel="stylesheet"/>
+    <style>
+        .legal-content { padding: 120px 5% 80px; max-width: 1000px; margin: 0 auto; line-height: 1.8; color: var(--text-main); font-family: 'Inter', sans-serif; }
+        .legal-content h1 { font-family: 'Outfit'; font-size: 2.5rem; margin-bottom: 2rem; color: var(--primary); text-align: center; }
+        .legal-content h2 { font-family: 'Outfit'; font-size: 1.3rem; margin-top: 2rem; margin-bottom: 1rem; color: var(--primary); border-bottom: 1px solid var(--secondary); padding-bottom: 0.3rem; }
+        .legal-content p, .legal-content li { margin-bottom: 1rem; font-size: 1.05rem; text-align: justify; }
+    </style>
+</head>
+<body class="legal-page">
+
+<nav class="navbar">
+<a class="logo" href="index.html">Kurumsal<span>Tedarikçi</span></a>
+<button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()">
+<i class="fas fa-bars" id="menuIcon"></i>
+</button>
+<ul class="nav-links" id="navLinks">
+<button aria-label="Menüyü Kapat" class="close-menu" onclick="toggleMenu()">
+<i class="fas fa-times"></i>
+</button>
+<li><a href="index.html">Anasayfa</a></li>
+<li><a href="hizmetler.html">Hizmetler</a></li>
+<li><a href="paketler.html">Paketler</a></li>
+<li class="nav-item-dropdown" id="urunlerNavItem">
+<a href="urunler.html" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('urunlerDropdown'); return false;">Ürünler <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="urunlerDropdown">
+  <!-- JS tarafından dinamik olarak doldurulacak -->
+  <a href="urunler.html?kategori=e-imza"><i class="fas fa-pen-fancy"></i> Elektronik İmza (E-İmza)</a>
+  <a href="urunler.html?kategori=e-fatura"><i class="fas fa-file-invoice"></i> E-Fatura</a>
+  <a href="urunler.html"><i class="fas fa-th-list"></i> Tümünü göster</a>
+</div>
+</li>
+<li class="nav-item-dropdown">
+<a href="#" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('kurumsalDropdown'); return false;">Kurumsal <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="kurumsalDropdown">
+<a href="referanslar.html"><i class="fas fa-handshake"></i> Referanslar</a>
+<a href="bayilik-basvuru.html"><i class="fas fa-file-signature"></i> Bayilik Başvurusu</a>
+<a href="bayi-giris.html"><i class="fas fa-user-tie"></i> Bayi Girişi</a>
+<a href="iletisim.html"><i class="fas fa-map-marker-alt"></i> İletişim</a>
+</div>
+</li>
+
+<li><a href="teklif.html" style="color: #f59e0b; font-weight: 700;">Teklif Al</a></li>
+</ul>
+<div class="nav-right" id="navUserArea">
+  <!-- JS burayı dolduracak -->
+  <a class="login-btn" href="giris.html">Giriş Yap</a>
+  <a class="register-btn" href="kayit.html">Kayıt Ol</a>
+  <a class="cart-btn" href="odeme.html">
+    <i class="fas fa-shopping-cart"></i>
+    <span class="cart-count" id="cart-count">0</span>
+  </a>
+</div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="bayilik-basvuru.html">Bayilik Başvurusu</a></li><li><a href="bayi-giris.html">Bayi Girişi</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
+
+<div class="legal-content">
+    <h1>Kullanım Koşulları</h1>
+    
+    <p>Bu internet sitesine girmeniz veya bu internet sitesindeki herhangi bir bilgiyi kullanmanız aşağıdaki koşulları kabul ettiğiniz anlamına gelir.</p>
+
+    <h2>1. GENEL ŞARTLAR</h2>
+    <p>Bu internet sitesine girilmesi, sitenin ya da sitedeki bilgilerin ve diğer verilerin programların vs. kullanılması sebebiyle, sözleşmenin ihlali, haksız fiil, ya da başkaca sebeplere binaen, doğabilecek doğrudan ya da dolaylı hiçbir zarardan Kurumsal Tedarikçi sorumlu değildir.</p>
+
+    <h2>2. HİZMET KAPSAMI</h2>
+    <p>Kurumsal Tedarikçi, işbu site ve site uzantısında mevcut her tür hizmet, ürün, siteyi kullanma koşulları ile sitede sunulan bilgileri önceden bir ihtara gerek olmaksızın değiştirme, siteyi yeniden organize etme, yayını durdurma hakkını saklı tutar.</p>
+
+    <h2>3. FİKRİ MÜLKİYET</h2>
+    <p>Bu internet sitesinin genel görünüm ve dizaynı ile internet sitesindeki tüm bilgi, resim, "Kurumsal Tedarikçi" markası ve diğer markalar, alan adları, logo, ikon, demonstratif, yazılı, elektronik, grafik veya makinede okunabilir şekilde sunulan teknik veriler, bilgisayar yazılımları, uygulanan satış sistemi, iş metodu ve iş modeli de dahil tüm materyallerin ve bunlara ilişkin fikri ve sınai mülkiyet haklarının sahibi veya lisans sahibidir ve yasal koruma altındadır.</p>
+
+    <div style="text-align: center; margin-top: 4rem; padding: 2rem; border-top: 1px solid #eee;">
+        <button onclick="window.close(); window.location.href='odeme.html';" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; border: none; padding: 15px 40px; border-radius: 12px; font-weight: 700; cursor: pointer; font-family: 'Outfit'; box-shadow: 0 10px 20px rgba(99,102,241,0.2); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            <i class="fas fa-arrow-left"></i> Ödeme Sayfasına Dön
+        </button>
+    </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-col footer-about">
+        <a href="index.html" class="logo">Kurumsal<span>Tedarikçi</span></a>
+        <p>İşletmenizi dijital dünyaya taşıyan güvenilir çözüm ortağınız. E-dönüşüm süreçlerinizde her zaman yanınızdayız.</p>
+        <div class="footer-social">
+          <a href="mailto:iletisim@tedarikci.org.tr" class="social-link"><i class="fas fa-envelope"></i></a>
+          <a href="https://wa.me/905059112749" target="_blank" class="social-link" style="color:#25d366;"><i class="fab fa-whatsapp"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+      
+      <div class="footer-col">
+        <h4>Ürünlerimiz</h4>
+        <ul class="footer-links">
+          <li><a href="urunler.html?kategori=e-imza"><i class="fas fa-chevron-right"></i> Elektronik İmza</a></li>
+          <li><a href="urunler.html?kategori=e-fatura"><i class="fas fa-chevron-right"></i> E-Fatura</a></li>
+          <li><a href="urunler.html?kategori=kep"><i class="fas fa-chevron-right"></i> KEP Paketleri</a></li>
+          <li><a href="urunler.html?kategori=mali-muhur"><i class="fas fa-chevron-right"></i> Mali Mühür</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-col">
+        <h4>Kurumsal</h4>
+        <ul class="footer-links">
+          <li><a href="referanslar.html"><i class="fas fa-chevron-right"></i> Referanslar</a></li>
+          <li><a href="bayilik-basvuru.html"><i class="fas fa-chevron-right"></i> Bayilik Başvurusu</a></li>
+          <li><a href="iletisim.html"><i class="fas fa-chevron-right"></i> İletişim</a></li>
+          <li><a href="teklif.html"><i class="fas fa-chevron-right"></i> Teklif Al</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-col">
+        <h4>İletişim</h4>
+        <div class="footer-contact-item">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>Hacı Yusuf Mah. Eser Sokak No:4/10 Bandırma/Balıkesir</span>
+        </div>
+        <div class="footer-contact-item">
+          <i class="fas fa-phone"></i>
+          <span>+90 505 911 27 49</span>
+        </div>
+        <div class="footer-contact-item">
+          <i class="fas fa-envelope"></i>
+          <span>iletisim@tedarikci.org.tr</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="footer-bottom">
+    <div class="container">
+      <div class="etbis-footer-wrap">
+        <div class="etbis-footer-badge"><i class="fas fa-shield-halved"></i> ETBİS KAYITLI SİTE</div>
+        <p class="etbis-footer-text">Bu site, T.C. Ticaret Bakanlığı Elektronik Ticaret Bilgi Sistemi (ETBİS) kapsamında kayıtlı bir elektronik ticaret ortamıdır.</p>
+        <div class="legal-links">
+          <a href="gizlilik-ve-guvenlik-politikasi.html">Gizlilik Politikası</a>
+          <a href="mesafeli-satis-sozlesmesi.html">Mesafeli Satış Sözleşmesi</a>
+          <a href="iptal-ve-iade-kosullari.html">İade Koşulları</a>
+          <a href="kullanim-kosullari.html">Kullanım Şartları</a>
+        </div>
+        <p class="footer-copyright">© 2026 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
+

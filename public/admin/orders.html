@@ -278,9 +278,10 @@
     <a href="raporlar.html"><i class="fas fa-chart-bar"></i> Raporlar</a>
     <a href="products.html">Ürünler (ERP)</a>
     <a href="kargo-bildirim.html"><i class="fas fa-truck"></i> Kargo Bildirim</a>
-    <a href="products-manage.html"><i class="fas fa-warehouse"></i> Stok Yönetimi</a>
-    <a href="paket-yonetim.html"><i class="fas fa-box-open"></i> Paket Yönetimi</a>
-    <a href="#" onclick="logout()">Çıkış Yap</a>
+    <a href="kategori-yonetim.html"><i class="fas fa-folder-tree"></i> Kategori Yönetimi</a>
+    <a href="bayilik-basvurulari.html"><i class="fas fa-store"></i> Bayilik Başvuruları</a>
+    <a href="support.html"><i class="fas fa-headset"></i> Destek Talepleri</a>
+    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</a>
   </div>
 
   <!-- Content -->
@@ -569,6 +570,7 @@
 
         <label>Kargo Firması</label>
         <select id="kargoFirma" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+          <option value="Hepsijet" ${order.kargoBilgisi?.firma === 'Hepsijet' || !order.kargoBilgisi?.firma ? 'selected' : ''}>Hepsijet</option>
           <option value="Yurtiçi Kargo" ${order.kargoBilgisi?.firma === 'Yurtiçi Kargo' ? 'selected' : ''}>Yurtiçi Kargo</option>
           <option value="Aras Kargo" ${order.kargoBilgisi?.firma === 'Aras Kargo' ? 'selected' : ''}>Aras Kargo</option>
           <option value="MNG Kargo" ${order.kargoBilgisi?.firma === 'MNG Kargo' ? 'selected' : ''}>MNG Kargo</option>

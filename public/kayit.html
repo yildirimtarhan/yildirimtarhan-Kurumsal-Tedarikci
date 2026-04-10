@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -6,6 +6,7 @@
     <title>Kurumsal Kayıt - Tedarikci.org.tr</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
     <style>
         * {
             margin: 0;
@@ -17,10 +18,8 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            padding-top: 100px;
+            padding-bottom: 40px;
         }
         
         .container {
@@ -439,7 +438,54 @@
     </style>
 </head>
 <body>
-    <div class="container">
+
+<nav class="navbar">
+<a class="logo" href="index.html">Kurumsal<span>Tedarikçi</span></a>
+<button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()">
+<i class="fas fa-bars" id="menuIcon"></i>
+</button>
+<ul class="nav-links" id="navLinks">
+<button aria-label="Menüyü Kapat" class="close-menu" onclick="toggleMenu()">
+<i class="fas fa-times"></i>
+</button>
+<li><a href="index.html">Anasayfa</a></li>
+<li><a href="hizmetler.html">Hizmetler</a></li>
+<li><a href="paketler.html">Paketler</a></li>
+<li class="nav-item-dropdown" id="urunlerNavItem">
+<a href="urunler.html" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('urunlerDropdown'); return false;">Ürünler <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="urunlerDropdown">
+  <!-- JS tarafından dinamik olarak doldurulacak -->
+  <a href="urunler.html?kategori=e-imza"><i class="fas fa-pen-fancy"></i> Elektronik İmza (E-İmza)</a>
+  <a href="urunler.html?kategori=e-fatura"><i class="fas fa-file-invoice"></i> E-Fatura</a>
+  <a href="urunler.html"><i class="fas fa-th-list"></i> Tümünü göster</a>
+</div>
+</li>
+<li class="nav-item-dropdown">
+<a href="#" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('kurumsalDropdown'); return false;">Kurumsal <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="kurumsalDropdown">
+<a href="referanslar.html"><i class="fas fa-handshake"></i> Referanslar</a>
+<a href="bayilik-basvuru.html"><i class="fas fa-file-signature"></i> Bayilik Başvurusu</a>
+<a href="bayi-giris.html"><i class="fas fa-user-tie"></i> Bayi Girişi</a>
+<a href="iletisim.html"><i class="fas fa-map-marker-alt"></i> İletişim</a>
+</div>
+</li>
+
+<li><a href="teklif.html" style="color: #f59e0b; font-weight: 700;">Teklif Al</a></li>
+</ul>
+<div class="nav-right" id="navUserArea">
+  <!-- JS burayı dolduracak -->
+  <a class="login-btn" href="giris.html">Giriş Yap</a>
+  <a class="register-btn" href="kayit.html">Kayıt Ol</a>
+  <a class="cart-btn" href="odeme.html">
+    <i class="fas fa-shopping-cart"></i>
+    <span class="cart-count" id="cart-count">0</span>
+  </a>
+</div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="bayilik-basvuru.html">Bayilik Başvurusu</a></li><li><a href="bayi-giris.html">Bayi Girişi</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
+
+    <div class="container" style="margin: 0 auto;">
         <div class="header">
             <h1>🚀 Kurumsal Tedarikçi'ye Katılın</h1>
             <p>Dijital dönüşümde güvenilir çözüm ortağınız</p>
@@ -456,31 +502,6 @@
                 </p>
             </div>
 
-            <div id="oauthBlockKayitPage" class="social-oauth-wrap oauth-quick-block">
-                <p class="social-oauth-text">
-                    <strong>Hızlı üyelik:</strong> Google, Facebook veya Instagram ile tek adımda hesap oluşturup giriş yapın.
-                    Sosyal hesaptaki e-posta sitede kayıtlıysa mevcut üyeliğinize bağlanır.
-                    <span style="display:block;margin-top:8px;font-size:13px;color:#6b7280;">Tam adres ve kurumsal bilgiler için aşağıdaki formu kullanın.</span>
-                </p>
-                <div class="social-oauth-grid">
-                    <div class="oauth-cell" data-oauth="google">
-                    <a id="oauthGoogleBtnKayit" href="#" class="social-oauth-btn social-oauth-google">
-                        <i class="fab fa-google"></i> Google ile üye ol
-                    </a>
-                    </div>
-                    <div class="oauth-cell" data-oauth="facebook">
-                    <a id="oauthFacebookBtnKayit" href="#" class="social-oauth-btn social-oauth-fb">
-                        <i class="fab fa-facebook-f"></i> Facebook ile üye ol
-                    </a>
-                    </div>
-                    <div class="oauth-cell" data-oauth="instagram">
-                    <a id="oauthInstagramBtnKayit" href="#" class="social-oauth-btn social-oauth-ig">
-                        <i class="fab fa-instagram"></i> Instagram ile üye ol
-                    </a>
-                    </div>
-                </div>
-                <div id="oauthDividerKayitPage" class="oauth-divider-kayit"><span>veya form ile kayıt</span></div>
-            </div>
             
             <div class="tabs">
                 <button type="button" class="tab active" onclick="switchTab('bireysel')">👤 Bireysel Üyelik</button>
@@ -822,92 +843,6 @@
             : 'https://backend-api-7s13.onrender.com';
     }
 
-    function setupKayitSocialOAuth() {
-        const base = getApiBase();
-        [
-            ['oauthGoogleBtnKayit', '/api/auth/google'],
-            ['oauthFacebookBtnKayit', '/api/auth/facebook'],
-            ['oauthInstagramBtnKayit', '/api/auth/instagram']
-        ].forEach(function (pair) {
-            var el = document.getElementById(pair[0]);
-            if (el) el.href = base + pair[1];
-        });
-    }
-
-    async function applyKayitPageOAuthVisibility() {
-        try {
-            var r = await fetch(getApiBase() + '/api/auth/oauth-providers');
-            var d = await r.json();
-            if (!d.success) return;
-            var on = { google: !!d.google, facebook: !!d.facebook, instagram: !!d.instagram };
-            var block = document.getElementById('oauthBlockKayitPage');
-            if (block) {
-                var showBlock = false;
-                block.querySelectorAll('.oauth-cell').forEach(function (cell) {
-                    var key = cell.getAttribute('data-oauth');
-                    var vis = key && on[key];
-                    cell.style.display = vis ? '' : 'none';
-                    if (vis) showBlock = true;
-                });
-                block.style.display = showBlock ? '' : 'none';
-            }
-        } catch (e) {
-            console.warn('oauth-providers', e);
-        }
-    }
-
-    async function handleKayitOAuthReturn() {
-        var params = new URLSearchParams(window.location.search);
-        var msg = document.getElementById('message');
-        if (params.get('oauth_error')) {
-            var errText = decodeURIComponent(params.get('message') || 'Sosyal giriş tamamlanamadı.');
-            if (msg) {
-                msg.className = 'message error';
-                msg.textContent = errText;
-                msg.style.display = 'block';
-            } else {
-                alert(errText);
-            }
-            window.history.replaceState({}, document.title, window.location.pathname);
-            return;
-        }
-        var raw = params.get('oauth_token');
-        if (!raw) return;
-        var token = decodeURIComponent(raw);
-        localStorage.setItem('token', token);
-        try {
-            var r = await fetch(getApiBase() + '/api/auth/profile', {
-                headers: { Authorization: 'Bearer ' + token }
-            });
-            var data = await r.json();
-            if (data.success && data.user) {
-                localStorage.setItem('user', JSON.stringify(data.user));
-                if (msg) {
-                    msg.className = 'message success';
-                    msg.innerHTML = '<strong>Hoş geldiniz!</strong> Ana sayfaya yönlendiriliyorsunuz...';
-                    msg.style.display = 'block';
-                }
-                window.history.replaceState({}, document.title, window.location.pathname);
-                setTimeout(function () { window.location.href = 'index.html'; }, 450);
-            } else {
-                localStorage.removeItem('token');
-                if (msg) {
-                    msg.className = 'message error';
-                    msg.textContent = data.message || 'Profil alınamadı';
-                    msg.style.display = 'block';
-                }
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        } catch (e) {
-            localStorage.removeItem('token');
-            if (msg) {
-                msg.className = 'message error';
-                msg.textContent = 'Bağlantı hatası';
-                msg.style.display = 'block';
-            }
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
-    }
 
     // Sayfa yüklendiğinde illeri doldur
     document.addEventListener('DOMContentLoaded', function() {
@@ -927,10 +862,6 @@
             teslimatSehir.appendChild(option2);
         });
 
-        setupKayitSocialOAuth();
-        applyKayitPageOAuthVisibility().then(function () {
-            handleKayitOAuthReturn();
-        });
     });
 
             const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
@@ -1195,5 +1126,6 @@
             }
         });
     </script>
+    <script src="js/main.js"></script>
 </body>
 </html>

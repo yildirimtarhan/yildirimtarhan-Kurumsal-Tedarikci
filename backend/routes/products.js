@@ -49,7 +49,7 @@ router.get("/public", async (req, res) => {
         isBayi = decoded.rol === "bayi";
       } catch (_) {}
     }
-    const select = "name sku price category description unit barcode kdvDahil kdvOrani image";
+    const select = "name sku price category description unit barcode kdvDahil kdvOrani image stock";
     const selectBayi = select + " wholesalePrice minQuantityWholesale";
     const products = await Product.find({ isActive: { $ne: false } })
       .sort({ createdAt: -1 })

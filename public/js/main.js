@@ -35,10 +35,68 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.key === "Escape") window.toggleMenu(true);
   });
 
-  // Mobil menüde linke basınca kapat
   document.querySelectorAll("#mobileMenu a").forEach((a) => {
     a.addEventListener("click", () => window.toggleMenu(true));
   });
+
+  // -------------------------
+  // 1.5) Scroll effects (Navbar glassmorphism)
+  // -------------------------
+  const navbar = document.querySelector(".navbar");
+  if (navbar) {
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 50) {
+        navbar.classList.add("scrolled");
+      } else {
+        navbar.classList.remove("scrolled");
+      }
+    });
+  }
+
+  // -------------------------
+  // 1.8) Dinamik Kategori Yükleme (Ürünler Menüsü)
+  // -------------------------
+  async function loadNavbarData() {
+    const urunlerNav = document.getElementById("urunlerNavItem");
+    const urunlerDropdown = document.getElementById("urunlerDropdown");
+    
+    if (!urunlerDropdown) return;
+
+    try {
+      const response = await fetch("/api/categories/public");
+      const data = await response.json();
+
+      if (data.success && data.categories && data.categories.length > 0) {
+        // Dropdown içeriğini temizle (opsiyonel, statik yedekleri korumak istersen kalsın)
+        // urunlerDropdown.innerHTML = ""; 
+
+        let html = "";
+        data.categories.forEach(cat => {
+          // İkon belirleme (isime göre eşleşme)
+          let icon = "fa-tag";
+          const name = cat.name.toLowerCase();
+          if (name.includes("imza")) icon = "fa-pen-fancy";
+          else if (name.includes("fatura")) icon = "fa-file-invoice";
+          else if (name.includes("kep")) icon = "fa-envelope";
+          else if (name.includes("mühür")) icon = "fa-stamp";
+          else if (name.includes("damga")) icon = "fa-clock";
+          else if (name.includes("irsaliye")) icon = "fa-truck-loading";
+          else if (name.includes("defter")) icon = "fa-book";
+
+          html += `<a href="urunler.html?kategori=${encodeURIComponent(cat.name)}"><i class="fas ${icon}"></i> ${cat.name}</a>`;
+        });
+        
+        // "Tümünü Göster" linkini en sona ekle
+        html += `<a href="urunler.html" style="border-top: 1px solid #f1f5f9; padding-top: 10px; margin-top: 5px;"><i class="fas fa-th-list"></i> Tümünü Göster</a>`;
+        
+        urunlerDropdown.innerHTML = html;
+        console.log("✅ Kategoriler başarıyla yüklendi.");
+      }
+    } catch (err) {
+      console.error("❌ Kategoriler yüklenirken hata oluştu:", err);
+      // Hata durumunda HTML'deki statik yedekler görünecektir (hiçbir şey yapma)
+    }
+  }
 
   // -------------------------
   // 2) Sepet sayısı (adet toplamı)
@@ -72,9 +130,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const navArea = document.getElementById("navUserArea");
     if (!navArea) return;
     navArea.innerHTML = `
-      <a class="login-btn" href="giris.html">Giriş Yap</a>
-      <a class="register-btn" href="kayit.html">Kayıt Ol</a>
-      <a class="cart-btn" href="odeme.html">
+      <div id="navUserAreaContent" style="display: flex; align-items: center; gap: 1rem;">
+        <a class="login-btn" href="giris.html">Giriş Yap</a>
+        <a class="register-btn" href="kayit.html">Kayıt Ol</a>
+      </div>
+      <a class="cart-btn" href="odeme.html" style="margin-left: 10px;">
         <i class="fas fa-shopping-cart"></i>
         <span class="cart-count" id="cart-count">0</span>
       </a>
@@ -92,29 +152,37 @@ document.addEventListener("DOMContentLoaded", () => {
   window.logout = logout;
 
   function toggleUserMenu() {
-    const dropdown = document.getElementById("userDropdown");
-    if (dropdown) dropdown.classList.toggle("show");
+    window.toggleDropdown('userDropdown');
   }
   window.toggleUserMenu = toggleUserMenu;
 
-  window.toggleUrunlerMenu = function () {
-    const drop = document.getElementById("urunlerDropdown");
-    const item = document.getElementById("urunlerNavItem");
-    if (!drop || !item) return;
-    drop.classList.toggle("show");
-    item.classList.toggle("open");
+  // Global Dropdown Toggle (Daha robust)
+  // Global Dropdown Toggle (Daha robust)
+  window.toggleDropdown = function (id) {
+    const drop = document.getElementById(id);
+    if (!drop) return;
+    
+    const isOpen = drop.classList.contains("show");
+    
+    // Diğer TÜM dropdown'ları kapat (User menüsü dahil)
+    document.querySelectorAll(".nav-dropdown-menu, .dropdown-menu").forEach(d => {
+      if (d.id !== id) d.classList.remove("show");
+    });
+    
+    // Tıklananı aç/kapat
+    drop.classList.toggle("show", !isOpen);
+    
+    // Parent elemente 'open' class'ı ekle (ikon rotasyonu için)
+    const parent = drop.closest('.nav-item-dropdown');
+    if (parent) {
+        parent.classList.toggle("open", !isOpen);
+    }
   };
 
   function renderNavbarUser() {
-    // Hem localStorage hem sessionStorage kontrol et (Beni hatırla işaretlenmemişse sessionStorage kullanılır)
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     const userStr = localStorage.getItem("user") || sessionStorage.getItem("user");
     const navArea = document.getElementById("navUserArea");
-
-    if (!navArea) {
-      updateCartCount();
-      return;
-    }
 
     if (!token || !userStr) {
       showLoginButton();
@@ -130,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       navArea.innerHTML = `
         <div class="user-menu" id="userMenu">
-          <button class="user-btn" onclick="toggleUserMenu()">
+          <button class="user-btn" onclick="window.toggleDropdown('userDropdown')">
             <div class="user-avatar">${userInitial}</div>
             <span>${userName}</span>
             <i class="fas fa-chevron-down" style="font-size: 12px; margin-left: 5px;"></i>
@@ -147,7 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <a href="siparisler.html">
               <i class="fas fa-box"></i> Siparişlerim
             </a>
-            <a href="musteri/faturalarim.html">
+            <a href="faturalarim.html">
               <i class="fas fa-file-invoice"></i> Faturalarım
             </a>
             <a href="adreslerim.html">
@@ -155,9 +223,6 @@ document.addEventListener("DOMContentLoaded", () => {
             </a>
             <a href="destek-sorularim.html">
               <i class="fas fa-headset"></i> Destek Sorularım
-            </a>
-            <a href="kargo-takip.html">
-              <i class="fas fa-shipping-fast"></i> Kargo Takip
             </a>
             <a href="sifre-degistir.html">
               <i class="fas fa-lock"></i> Şifre Değiştir
@@ -174,33 +239,29 @@ document.addEventListener("DOMContentLoaded", () => {
           <span class="cart-count" id="cart-count">0</span>
         </a>
       `;
-
-      // Dışarı tıklayınca menüyü kapat
-      document.addEventListener("click", (e) => {
-        const userMenu = document.getElementById("userMenu");
-        const dropdown = document.getElementById("userDropdown");
-        if (userMenu && dropdown && !userMenu.contains(e.target)) {
-          dropdown.classList.remove("show");
-        }
-        const urunlerItem = document.getElementById("urunlerNavItem");
-        const urunlerDrop = document.getElementById("urunlerDropdown");
-        if (urunlerDrop && urunlerItem && !urunlerItem.contains(e.target)) {
-          urunlerDrop.classList.remove("show");
-          urunlerItem.classList.remove("open");
-        }
-      });
     } catch (e) {
       console.error("Kullanıcı verisi hatası:", e);
       showLoginButton();
     }
-
     updateCartCount();
   }
 
+  // Menülerin dışına tıklandığında her şeyi kapat
+  document.addEventListener("click", (e) => {
+    // Dropdown açan butonlara veya dropdown içine tıklanmadıysa kapat
+    if (!e.target.closest('.nav-item-dropdown') && !e.target.closest('.user-menu')) {
+        document.querySelectorAll(".nav-dropdown-menu, .dropdown-menu").forEach(d => {
+            d.classList.remove("show");
+        });
+        document.querySelectorAll('.nav-item-dropdown').forEach(p => p.classList.remove('open'));
+    }
+  });
+
   // İlk yükleme
   renderNavbarUser();
+  loadNavbarData();
   updateCartCount();
 
-  // Sepet değişince sayıyı güncelle (aynı tab)
+  // Sepet değişince sayıyı güncelle
   window.addEventListener("storage", updateCartCount);
 });

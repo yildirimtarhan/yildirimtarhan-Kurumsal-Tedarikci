@@ -1,5 +1,6 @@
 const axios = require('axios');
 const Order = require('../models/Order');
+const hepsijetService = require('./hepsijetService');
 
 class KargoService {
     constructor() {
@@ -18,7 +19,12 @@ class KargoService {
                 baseUrl: process.env.MNG_API_URL || 'https://service.mngkargo.com.tr',
                 customerNo: process.env.MNG_CUSTOMER_NO,
                 password: process.env.MNG_PASSWORD
+            },
+            hepsijet: {
+                username: process.env.HEPSIJET_USER,
+                password: process.env.HEPSIJET_PASSWORD
             }
+
         };
     }
 
@@ -31,7 +37,8 @@ class KargoService {
             'MN': 'mng',
             'PT': 'ptt',
             'UP': 'ups',
-            'YT': 'yurtici'
+            'HJ': 'hepsijet', // Hepsijet genelde HJ veya 102 ile başlar
+            '10': 'hepsijet'
         };
         return map[prefix] || 'yurtici';
     }
@@ -41,6 +48,10 @@ class KargoService {
         // Gerçek API entegrasyonu buraya gelecek
         // Şimdilik mock data dönüyoruz
         
+        if (firma === 'hepsijet') {
+            return await hepsijetService.trackShipment(takipNo);
+        }
+
         return this.getMockData(takipNo, firma);
         
         /* 

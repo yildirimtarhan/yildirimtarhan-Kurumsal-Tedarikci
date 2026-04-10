@@ -3,6 +3,8 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const Order = require("../models/Order");
+const Product = require("../models/Product");
+const Package = require("../models/Package");
 const { sendOrderToERP } = require("../services/erpService");
 const emailService = require("../services/emailService");
 const notificationService = require("../services/notificationService");
@@ -61,6 +63,45 @@ router.post("/", authMiddleware, async (req, res) => {
               message: `Bayi için ürün alımında en az ${BAYI_MIN_URUN} adet olmalıdır. (${it.name || it.ad || 'Ürün'})`
             });
           }
+        }
+      }
+    }
+
+    // --- STOK KONTROLÜ VE DÜŞÜMÜ ---
+    for (const item of items) {
+      const quantity = parseInt(item.quantity || item.qty || item.adet || 1);
+      const isPackage = (item.itemType || '').toLowerCase() === 'package';
+      const itemId = item.id || item._id;
+
+      if (!itemId) continue; // ID yoksa geç (statik ürünler olabilir)
+
+      if (isPackage) {
+        const pkg = await Package.findById(itemId);
+        if (pkg) {
+          if (pkg.stock < quantity) {
+            return res.status(400).json({ success: false, message: `Yetersiz stok: ${pkg.name}` });
+          }
+          pkg.stock -= quantity;
+          await pkg.save();
+        }
+      } else {
+        const product = await Product.findById(itemId);
+        if (product) {
+          if (product.stock < quantity) {
+            return res.status(400).json({ success: false, message: `Yetersiz stok: ${product.name}` });
+          }
+          const oldStock = product.stock;
+          product.stock -= quantity;
+          product.movements.push({
+            type: 'cikis',
+            quantity: quantity,
+            oldStock: oldStock,
+            newStock: product.stock,
+            reason: 'Sipariş ile otomatik stok düşümü',
+            userId: user._id,
+            date: new Date()
+          });
+          await product.save();
         }
       }
     }
@@ -351,6 +392,52 @@ router.post("/:id/sync-erp", authMiddleware, async (req, res) => {
       error: result.error
     });
 
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ==========================
+// ADD CARGO MOVEMENT (Admin)
+// ==========================
+router.post("/:id/kargo/hareket", authMiddleware, async (req, res) => {
+  try {
+    const { durum, aciklama, konum } = req.body;
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ success: false, message: "Sipariş bulunamadı" });
+
+    if (!order.kargoBilgisi) {
+      order.kargoBilgisi = {
+        takipNo: null,
+        firma: null,
+        hareketler: []
+      };
+    }
+    
+    if (!order.kargoBilgisi.hareketler) order.kargoBilgisi.hareketler = [];
+
+    order.kargoBilgisi.hareketler.push({
+      durum: durum || 'İşlem Görüyor',
+      aciklama: aciklama || '',
+      konum: konum || '',
+      tarih: new Date()
+    });
+
+    // Otomatik durum güncellemeleri
+    const dLower = (durum || '').toLowerCase();
+    if (dLower.includes('teslim')) {
+      order.status = 'completed';
+      order.kargoBilgisi.durum = 'teslim';
+      order.kargoBilgisi.teslimTarihi = new Date();
+    } else if (dLower.includes('dagitim') || dLower.includes('dağıtım')) {
+      order.kargoBilgisi.durum = 'dagitimda';
+    } else if (dLower.includes('kargo') || dLower.includes('yola')) {
+      order.status = 'shipped';
+      order.kargoBilgisi.durum = 'yolda';
+    }
+
+    await order.save();
+    res.json({ success: true, message: 'Kargo hareketi eklendi', order });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

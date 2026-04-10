@@ -5,18 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>Profilim - Kurumsal Tedarikçi</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
   <style>
     body {
       font-family: "Inter", Arial, sans-serif;
-      background: linear-gradient(to right, #eef2ff, #f8fafc);
+      background: #0f172a;
       margin: 0;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
+      padding-top: 80px;
+    }
+
+    .user-nav-top {
+      display: flex; gap: 15px; margin-bottom: 25px;
+      background: #1e293b; padding: 15px 25px; border-radius: 12px;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .user-nav-top a {
+      color: #94a3b8; text-decoration: none; font-weight: 500;
+      display: flex; align-items: center; gap: 8px; transition: 0.2s;
+      padding: 8px 12px; border-radius: 6px;
+    }
+    .user-nav-top a:hover, .user-nav-top a.active {
+      color: white; background: rgba(255,255,255,0.05);
     }
 
     .container {
       max-width: 900px;
-      margin: 60px auto;
+      margin: 0 auto;
       padding: 20px;
       padding-left: max(16px, env(safe-area-inset-left));
       padding-right: max(16px, env(safe-area-inset-right));
@@ -24,10 +41,11 @@
     }
 
     .profile-card {
-      background: white;
+      background: #1e293b;
       border-radius: 20px;
       padding: 35px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      color: white;
     }
 
     .top-area {
@@ -35,31 +53,33 @@
       align-items: center;
       gap: 20px;
       margin-bottom: 25px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 25px;
     }
 
     .avatar {
       width: 75px;
       height: 75px;
       border-radius: 50%;
-      background: #6366f1;
+      background: #38bdf8;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 28px;
       font-weight: bold;
-      color: white;
+      color: #0f172a;
     }
 
     .user-info h2 {
       margin: 0;
       font-size: 22px;
       font-weight: 800;
-      color: #111827;
+      color: white;
     }
 
     .user-info p {
       margin: 4px 0;
-      color: #6b7280;
+      color: #94a3b8;
       font-size: 14px;
     }
 
@@ -87,8 +107,8 @@
     }
 
     .box {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
       border-radius: 16px;
       padding: 18px;
     }
@@ -97,13 +117,13 @@
       margin: 0 0 8px;
       font-size: 15px;
       font-weight: 700;
-      color: #111827;
+      color: #38bdf8;
     }
 
     .box p {
       margin: 0;
       font-size: 14px;
-      color: #374151;
+      color: #cbd5e1;
       line-height: 1.5;
     }
 
@@ -127,30 +147,32 @@
     }
 
     .btn-primary {
-      background: #6366f1;
-      color: white;
+      background: #38bdf8;
+      color: #0f172a;
     }
 
     .btn-primary:hover {
-      background: #4f46e5;
+      background: #0ea5e9;
     }
 
     .btn-secondary {
-      background: #10b981;
-      color: white;
+      background: rgba(255,255,255,0.05);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
     }
 
     .btn-secondary:hover {
-      background: #059669;
+      background: rgba(56, 189, 248, 0.1);
     }
 
     .btn-danger {
-      background: #ef4444;
-      color: white;
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
     }
 
     .btn-danger:hover {
-      background: #dc2626;
+      background: rgba(239, 68, 68, 0.2);
     }
 
     /* Aktif Kargolarım */
@@ -180,8 +202,8 @@
     }
 
     .kargo-item {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
       border-radius: 12px;
       padding: 14px 18px;
       display: flex;
@@ -199,19 +221,19 @@
     .kargo-item .info strong {
       display: block;
       font-size: 14px;
-      color: #1f2937;
+      color: white;
       margin-bottom: 4px;
     }
 
     .kargo-item .info span {
       font-size: 13px;
-      color: #6b7280;
+      color: #94a3b8;
     }
 
     .kargo-item .btn-track {
       padding: 8px 16px;
-      background: #6366f1;
-      color: white;
+      background: #38bdf8;
+      color: #0f172a;
       border-radius: 10px;
       text-decoration: none;
       font-size: 13px;
@@ -221,15 +243,15 @@
     }
 
     .kargo-item .btn-track:hover {
-      background: #4f46e5;
+      background: #0ea5e9;
     }
 
     .kargo-empty {
       text-align: center;
       padding: 24px;
-      background: #f9fafb;
+      background: rgba(255,255,255,0.02);
       border-radius: 12px;
-      color: #6b7280;
+      color: #94a3b8;
       font-size: 14px;
     }
 
@@ -279,9 +301,62 @@
 </head>
 
 <body>
+<nav class="navbar">
+<a class="logo" href="index.html">Kurumsal<span>Tedarikçi</span></a>
+<button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()">
+<i class="fas fa-bars" id="menuIcon"></i>
+</button>
+<ul class="nav-links" id="navLinks">
+<button aria-label="Menüyü Kapat" class="close-menu" onclick="toggleMenu()">
+<i class="fas fa-times"></i>
+</button>
+<li><a href="index.html">Anasayfa</a></li>
+<li><a href="hizmetler.html">Hizmetler</a></li>
+<li><a href="paketler.html">Paketler</a></li>
+<li class="nav-item-dropdown" id="urunlerNavItem">
+<a href="urunler.html" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('urunlerDropdown'); return false;">Ürünler <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="urunlerDropdown">
+  <!-- JS tarafından dinamik olarak doldurulacak -->
+  <a href="urunler.html?kategori=e-imza"><i class="fas fa-pen-fancy"></i> Elektronik İmza (E-İmza)</a>
+  <a href="urunler.html?kategori=e-fatura"><i class="fas fa-file-invoice"></i> E-Fatura</a>
+  <a href="urunler.html"><i class="fas fa-th-list"></i> Tümünü göster</a>
+</div>
+</li>
+<li class="nav-item-dropdown">
+<a href="#" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('kurumsalDropdown'); return false;">Kurumsal <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="kurumsalDropdown">
+<a href="referanslar.html"><i class="fas fa-handshake"></i> Referanslar</a>
+<a href="bayilik-basvuru.html"><i class="fas fa-file-signature"></i> Bayilik Başvurusu</a>
+<a href="bayi-giris.html"><i class="fas fa-user-tie"></i> Bayi Girişi</a>
+<a href="iletisim.html"><i class="fas fa-map-marker-alt"></i> İletişim</a>
+</div>
+</li>
 
-<div class="container">
-  <div class="profile-card">
+<li><a href="teklif.html" style="color: #f59e0b; font-weight: 700;">Teklif Al</a></li>
+</ul>
+<div class="nav-right" id="navUserArea">
+  <!-- JS burayı dolduracak -->
+  <a class="login-btn" href="giris.html">Giriş Yap</a>
+  <a class="register-btn" href="kayit.html">Kayıt Ol</a>
+  <a class="cart-btn" href="odeme.html">
+    <i class="fas fa-shopping-cart"></i>
+    <span class="cart-count" id="cart-count">0</span>
+  </a>
+</div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="bayilik-basvuru.html">Bayilik Başvurusu</a></li><li><a href="bayi-giris.html">Bayi Girişi</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
+
+<div class="container" style="margin-top: 30px;">
+    <div class="user-nav-top">
+        <a href="index.html"><i class="fas fa-home"></i> Anasayfa</a>
+        <a href="profil.html" class="active"><i class="fas fa-user-circle"></i> Profilim</a>
+        <a href="siparisler.html"><i class="fas fa-box"></i> Siparişlerim</a>
+        <a href="adreslerim.html"><i class="fas fa-map-marker-alt"></i> Adreslerim</a>
+        <a href="destek-sorularim.html"><i class="fas fa-headset"></i> Destek Talepleri</a>
+    </div>
+
+    <div class="profile-card">
 
     <!-- ÜST PROFİL ALANI -->
     <div class="top-area">
@@ -318,20 +393,6 @@
         <p id="deliveryAddress">Adres yok</p>
       </div>
 
-      <div class="box" style="grid-column: 1 / -1;">
-        <h4>🔗 Sosyal hesap eşleştirme</h4>
-        <p style="font-size: 13px; color: #6b7280; margin: 0 0 12px; line-height: 1.5;">
-          <strong>Google / Facebook:</strong> Giriş yaparken sosyal hesabınızın e-postası bu üyeliğin e-postası ile aynıysa hesaplar tek üyelikte birleşir.
-        </p>
-        <p style="font-size: 14px; margin: 6px 0;"><span style="color:#6b7280;">Google:</span> <strong id="socialGoogle">—</strong></p>
-        <p style="font-size: 14px; margin: 6px 0;"><span style="color:#6b7280;">Facebook:</span> <strong id="socialFacebook">—</strong></p>
-        <p style="font-size: 14px; margin: 6px 0;"><span style="color:#6b7280;">Instagram:</span> <strong id="socialInstagram">—</strong></p>
-        <button type="button" id="btnInstagramLink" class="btn-instagram-link" onclick="connectInstagram()"
-          style="margin-top: 12px; padding: 14px 16px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; color: white; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #bc1888); font-size: 14px;">
-          Instagram hesabını bu üyeliğe bağla
-        </button>
-      </div>
-
     </div>
 
     <!-- AKTİF KARGOLARIM (admin kargo girdiğinde burada görünür) -->
@@ -345,16 +406,13 @@
     <!-- BUTONLAR -->
     <div class="buttons">
       <a href="urunler.html" class="btn btn-primary">🛒 Alışverişe Başla</a>
-      <a href="sepet.html" class="btn btn-primary" style="background: #8b5cf6;">🛍️ Sepetim</a>
+      <a href="sepet.html" class="btn btn-primary">🛍️ Sepetim</a>
       <a href="siparisler.html" class="btn btn-secondary">📦 Siparişlerim</a>
-      <a href="musteri/faturalarim.html" class="btn btn-info" style="background: #17a2b8; color: white;">
+      <a href="musteri/faturalarim.html" class="btn btn-secondary">
         <i class="fas fa-file-invoice"></i> Faturalarım
       </a>
       <a href="destek-sorularim.html" class="btn btn-secondary">
         <i class="fas fa-headset"></i> Destek Sorularım
-      </a>
-      <a href="kargo-takip.html" class="btn btn-secondary">
-        <i class="fas fa-shipping-fast"></i> Kargo Takip
       </a>
       <button onclick="logout()" class="btn btn-danger">🚪 Çıkış Yap</button>
     </div>
@@ -415,33 +473,6 @@
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 
-  async function connectInstagram() {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    if (!token) {
-      alert('Önce giriş yapmanız gerekir.');
-      window.location.href = 'giris.html';
-      return;
-    }
-    try {
-      const r = await fetch(`${API_URL}/auth/instagram/link-token`, {
-        method: 'POST',
-        headers: {
-          Authorization: 'Bearer ' + token,
-          'Content-Type': 'application/json'
-        }
-      });
-      const d = await r.json();
-      if (!d.success) {
-        alert(d.message || 'Bağlantı başlatılamadı');
-        return;
-      }
-      const origin = new URL(API_URL).origin;
-      window.location.href = `${origin}/api/auth/instagram?ls=${encodeURIComponent(d.state)}`;
-    } catch (e) {
-      alert('Bağlantı hatası');
-    }
-  }
-
   function showEditModal() {
     const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
     document.getElementById('editUyelikTipi').value = user.uyelikTipi || 'bireysel';
@@ -480,7 +511,7 @@
       alert('Güncelleme başarısız');
     }
   }
-  // Kullanıcı + adres bilgilerini backend'den oku
+
   async function loadUserProfile() {
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
@@ -490,68 +521,52 @@
       return;
     }
 
+    // 1. Önce localStorage'dan hızlıca isim/email gösterelim (eğer varsa)
+    const cachedUserStr = localStorage.getItem("user") || sessionStorage.getItem("user");
+    if (cachedUserStr) {
+      try {
+        const u = JSON.parse(cachedUserStr);
+        updateBasicUI(u);
+      } catch(e) {}
+    }
+
     try {
-      // Profil, adresler ve siparişleri paralel çek
-      const [profileRes, adresRes, ordersRes] = await Promise.all([
-        fetch(`${API_URL}/auth/profile`, {
-          headers: { Authorization: `Bearer ${token}` }
-        }),
-        fetch(`${API_URL}/auth/adreslerim`, {
-          headers: { Authorization: `Bearer ${token}` }
-        }),
-        fetch(`${API_URL}/orders/my-orders`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-      ]);
-
-      const profileData = profileRes.ok ? await profileRes.json() : null;
-      const adresData = adresRes.ok ? await adresRes.json() : null;
-      const ordersData = ordersRes.ok ? await ordersRes.json() : null;
-
-      if (!profileData?.success) {
-        alert("Profil bilgileri alınamadı, lütfen tekrar giriş yapın.");
-        window.location.href = "giris.html";
-        return;
+      // 2. Profil bilgisini çek (En temel bilgi)
+      const profileRes = await fetch(`${API_URL}/auth/profile`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (!profileRes.ok) {
+        if (profileRes.status === 401) {
+          alert("Oturumunuz sona ermiş, lütfen tekrar giriş yapın.");
+          localStorage.clear();
+          window.location.href = "giris.html";
+          return;
+        }
+        throw new Error("Profil bilgisi alınamadı");
       }
+
+      const profileData = await profileRes.json();
+      if (!profileData.success) throw new Error(profileData.message || "Profil hatası");
 
       const user = profileData.user;
-      // Profil verisini hafızada da güncelle
       localStorage.setItem("user", JSON.stringify(user));
+      updateBasicUI(user);
 
-      // Avatar ve üst bilgiler
-      document.getElementById("avatarLetter").innerText =
-        user.ad ? user.ad.charAt(0).toUpperCase() : "U";
-      document.getElementById("userName").innerText = user.ad || "Kullanıcı";
-      document.getElementById("userEmail").innerText = user.email || "";
+      // 3. Adresleri ve Siparişleri (Kargo bilgisi için) paralel çekmeye çalış
+      // Birinin hatası diğerini engellemesin
+      const adresPromise = fetch(`${API_URL}/auth/adreslerim`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).then(r => r.ok ? r.json() : null).catch(() => null);
 
-      const igLinked = !!(user.instagramId && String(user.instagramId).trim());
-      const gLinked = !!(user.googleId && String(user.googleId).trim());
-      const fbLinked = !!(user.facebookId && String(user.facebookId).trim());
-      document.getElementById("socialGoogle").textContent = gLinked ? 'Bağlı ✓' : 'Bağlı değil';
-      document.getElementById("socialFacebook").textContent = fbLinked ? 'Bağlı ✓' : 'Bağlı değil';
-      document.getElementById("socialInstagram").textContent = igLinked ? 'Bağlı ✓' : 'Bağlı değil';
-      const igBtn = document.getElementById('btnInstagramLink');
-      if (igBtn) {
-        igBtn.style.display = igLinked ? 'none' : 'inline-block';
-      }
+      const ordersPromise = fetch(`${API_URL}/orders/my-orders`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).then(r => r.ok ? r.json() : null).catch(() => null);
 
-      // Üyelik tipi badge
-      const userTypeEl = document.getElementById("userType");
-      if (user.uyelikTipi === "kurumsal") {
-        userTypeEl.innerText = "Kurumsal Üye";
-        userTypeEl.classList.add("kurumsal");
-      } else {
-        userTypeEl.innerText = "Bireysel Üye";
-        userTypeEl.classList.remove("kurumsal");
-      }
+      const [adresData, ordersData] = await Promise.all([adresPromise, ordersPromise]);
 
-      // Diğer detaylar
-      document.getElementById("userPhone").innerText = user.telefon || "-";
-      document.getElementById("userCompany").innerText =
-        user.firma || (user.uyelikTipi === "kurumsal" ? "-" : "Bireysel Üye");
-
-      // Adresleri işleme (adreslerim endpoint'i üzerinden)
-      if (adresData?.success) {
+      // ADRESLERİ GÜNCELLE
+      if (adresData && adresData.success) {
         const fatura = adresData.faturaAdresi;
         const teslimat = adresData.teslimatAdresi || adresData.faturaAdresi;
 
@@ -559,76 +574,88 @@
           if (!a) return "";
           if (typeof a === "string" && a.trim()) return a;
           if (typeof a === "object") {
+            const baslik = (a.baslik || a.title || "").trim();
             const mahalle = (a.mahalle || "").trim();
             const sokak = (a.sokak || "").trim();
             const acik = (a.acikAdres || a.address || "").trim();
             const ilce = (a.ilce || a.district || "").trim();
             const sehir = (a.sehir || a.city || "").trim();
-            const postaKodu = (a.postaKodu || "").trim();
-            const parts = [
-              mahalle,
-              sokak,
-              acik,
-              [ilce, sehir].filter(Boolean).join(" / "),
-              postaKodu
-            ].filter(Boolean);
-            return parts.length ? parts.join(", ") : "";
+            
+            const mainBody = [mahalle, sokak, acik, [ilce, sehir].filter(Boolean).join(" / ")].filter(Boolean).join(", ");
+            if (baslik && mainBody) return `[${baslik}] ${mainBody}`;
+            if (baslik) return baslik;
+            return mainBody;
           }
           return "";
         };
 
-        const faturaMetin = formatAdres(fatura);
-        const teslimatMetin = formatAdres(teslimat);
+        const fMetin = formatAdres(fatura);
+        const tMetin = formatAdres(teslimat);
 
-        document.getElementById("invoiceAddress").innerText =
-          faturaMetin || "Adres yok";
-        document.getElementById("deliveryAddress").innerText =
-          teslimatMetin || "Adres yok";
+        document.getElementById("invoiceAddress").innerText = fMetin || "Henüz kaydedilmiş adres bulunmamaktadır.";
+        document.getElementById("deliveryAddress").innerText = tMetin || "Henüz kaydedilmiş adres bulunmamaktadır.";
       } else {
-        document.getElementById("invoiceAddress").innerText = "Adres yok";
-        document.getElementById("deliveryAddress").innerText = "Adres yok";
+        document.getElementById("invoiceAddress").innerText = "Adreslerinizi 'Adreslerim' sayfasından yönetebilirsiniz.";
+        document.getElementById("deliveryAddress").innerText = "Adreslerinizi 'Adreslerim' sayfasından yönetebilirsiniz.";
       }
 
-      // Aktif kargolar (admin takip bilgisi girmiş siparişler)
-      const orders = ordersData?.orders || [];
-      const kargoOrders = orders.filter(o => 
-        (o.kargoBilgisi?.takipNo || o.trackingNumber) && 
-        (o.kargoBilgisi?.takipNo || o.trackingNumber).trim()
-      );
+      // KARGOLARI GÜNCELLE
       const kargoListEl = document.getElementById("kargoList");
-      if (kargoOrders.length === 0) {
-        kargoListEl.innerHTML = '<div class="kargo-empty">Henüz takip bilgisi girilmiş kargonuz yok.<br>Admin kargo bilgisi girdiğinde burada görünecektir.</div>';
-      } else {
-        kargoListEl.innerHTML = kargoOrders.map(o => {
-          const takipNo = o.kargoBilgisi?.takipNo || o.trackingNumber;
-          const firma = o.kargoBilgisi?.firma || o.cargoCompany || 'Kargo';
-          const siparisNo = o.orderNumber || o._id?.slice(-6).toUpperCase() || '-';
-          const trackUrl = `kargo-takip.html?track=${encodeURIComponent(takipNo)}`;
-          return `
-            <div class="kargo-item">
-              <div class="info">
-                <strong>Sipariş #${siparisNo}</strong>
-                <span>${firma} • ${takipNo}</span>
+      if (ordersData && ordersData.success) {
+        const orders = ordersData.orders || [];
+        const kargoOrders = orders.filter(o => {
+          if (!o) return false;
+          const kb = o.kargoBilgisi || {};
+          const tNo = kb.takipNo || o.trackingNumber;
+          return tNo && String(tNo).trim() !== '';
+        });
+
+        if (kargoOrders.length === 0) {
+          kargoListEl.innerHTML = '<div class="kargo-empty">Henüz takip bilgisi girilmiş kargonuz yok.</div>';
+        } else {
+          kargoListEl.innerHTML = kargoOrders.map(o => {
+            const kb = o.kargoBilgisi || {};
+            const tNo = kb.takipNo || o.trackingNumber;
+            const firm = kb.firma || o.cargoCompany || 'Kargo';
+            const sNo = o.orderNumber || (o._id ? o._id.slice(-6).toUpperCase() : '---');
+            return `
+              <div class="kargo-item">
+                <div class="info">
+                  <strong>Sipariş #${sNo}</strong>
+                  <span>${firm} | ${tNo}</span>
+                </div>
+                <a href="siparisler.html" class="btn-track">Siparişe Git <i class="fas fa-arrow-right"></i></a>
               </div>
-              <a href="${trackUrl}" target="_blank" class="btn-track">
-                <i class="fas fa-external-link-alt"></i> Takip Et
-              </a>
-            </div>
-          `;
-        }).join('');
+            `;
+          }).join('');
+        }
+      } else {
+        kargoListEl.innerHTML = '<div class="kargo-empty">Sipariş verileri alınamadı.</div>';
       }
+
     } catch (err) {
       console.error("Profil yükleme hatası:", err);
-      alert("Profil bilgileri yüklenirken hata oluştu.");
+      // Temel bilgiler zaten set edilmiş olabilir, sadece uyarı verelim
     }
   }
 
-  function logout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("cart");
-    alert("Çıkış yapıldı");
-    window.location.href = "index.html";
+  function updateBasicUI(user) {
+    if (!user) return;
+    document.getElementById("avatarLetter").innerText = user.ad ? user.ad.charAt(0).toUpperCase() : "U";
+    document.getElementById("userName").innerText = user.ad || "Kullanıcı";
+    document.getElementById("userEmail").innerText = user.email || "";
+    
+    const userTypeEl = document.getElementById("userType");
+    if (user.uyelikTipi === "kurumsal") {
+      userTypeEl.innerText = "Kurumsal Üye";
+      userTypeEl.classList.add("kurumsal");
+    } else {
+      userTypeEl.innerText = "Bireysel Üye";
+      userTypeEl.classList.remove("kurumsal");
+    }
+
+    document.getElementById("userPhone").innerText = user.telefon || "-";
+    document.getElementById("userCompany").innerText = user.firma || (user.uyelikTipi === "kurumsal" ? "-" : "Bireysel Üye");
   }
 
   (async function init() {
@@ -636,6 +663,7 @@
     await loadUserProfile();
   })();
 </script>
+<script src="js/main.js"></script>
 
 </body>
 </html>

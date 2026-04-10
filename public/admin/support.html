@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Destek Talepleri - Admin Paneli</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; color: #2c3e50; }
+    
+    .sidebar { width: 260px; height: 100vh; background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%); position: fixed; left: 0; top: 0; color: white; padding-top: 1.5rem; z-index: 1000; overflow-y: auto; }
+    .sidebar .logo { text-align: center; padding: 0 1rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .sidebar .logo h2 { font-size: 1.3rem; font-weight: 600; }
+    .sidebar .logo span { color: #3498db; }
+    .sidebar nav { margin-top: 1rem; padding-bottom: 80px; }
+    .sidebar a { display: flex; align-items: center; gap: 12px; padding: 1rem 1.5rem; color: #bdc3c7; text-decoration: none; transition: all 0.3s; border-left: 3px solid transparent; }
+    .sidebar a:hover, .sidebar a.active { background: rgba(255,255,255,0.05); color: white; border-left-color: #3498db; }
+    .sidebar a i { width: 20px; text-align: center; }
+    .sidebar .logout { position: fixed; bottom: 0; width: 260px; background: linear-gradient(180deg, #1a252f 0%, #2c3e50 100%); border-top: 1px solid rgba(255,255,255,0.1); }
+
+    .main-content { margin-left: 260px; padding: 2rem; min-height: 100vh; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .header h1 { font-size: 1.8rem; }
+
+    .support-container { display: grid; grid-template-columns: 350px 1fr; gap: 20px; height: calc(100vh - 150px); }
+    
+    /* Ticket List */
+    .ticket-list-card { background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow: hidden; display: flex; flex-direction: column; }
+    .card-header { padding: 1.25rem; border-bottom: 1px solid #edf2f7; background: #fff; }
+    .card-header h3 { font-size: 1.1rem; margin-bottom: 10px; }
+    .filter-tabs { display: flex; gap: 10px; }
+    .filter-btn { padding: 6px 12px; border-radius: 20px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
+    .filter-btn.active { background: #3498db; color: white; border-color: #3498db; }
+
+    .tickets-scroll { flex: 1; overflow-y: auto; }
+    .ticket-item { padding: 1.25rem; border-bottom: 1px solid #edf2f7; cursor: pointer; transition: 0.2s; position: relative; }
+    .ticket-item:hover { background: #f8fafc; }
+    .ticket-item.active { background: #ebf8ff; border-left: 4px solid #3498db; }
+    .ticket-item h4 { font-size: 0.95rem; margin-bottom: 5px; color: #2d3748; }
+    .ticket-item .meta { font-size: 0.8rem; color: #718096; display: flex; justify-content: space-between; }
+    .status-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; font-weight: 600; text-transform: uppercase; }
+    .status-beklemede { background: #fff3e0; color: #e65100; }
+    .status-cevaplandi { background: #e3f2fd; color: #1565c0; }
+    .status-kapali { background: #edf2f7; color: #4a5568; }
+
+    /* Chat View */
+    .chat-view-card { background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden; visibility: hidden; }
+    .chat-view-card.active { visibility: visible; }
+    .chat-header { padding: 1.25rem; border-bottom: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: center; }
+    .chat-user-info h3 { font-size: 1.1rem; }
+    .chat-user-info p { font-size: 0.85rem; color: #718096; }
+
+    .messages-area { flex: 1; padding: 1.5rem; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 15px; }
+    .message-bubble { max-width: 80%; padding: 12px 16px; border-radius: 15px; font-size: 0.9rem; line-height: 1.5; position: relative; }
+    .message-bubble.user { align-self: flex-start; background: white; border: 1px solid #e2e8f0; color: #2d3748; border-bottom-left-radius: 2px; }
+    .message-bubble.admin { align-self: flex-end; background: #3498db; color: white; border-bottom-right-radius: 2px; }
+    .message-time { font-size: 0.7rem; margin-top: 5px; opacity: 0.7; display: block; text-align: right; }
+
+    .reply-area { padding: 1.25rem; border-top: 1px solid #edf2f7; display: flex; gap: 10px; align-items: flex-end; }
+    .reply-input { flex: 1; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; resize: none; font-family: inherit; font-size: 0.9rem; min-height: 50px; max-height: 150px; outline: none; }
+    .reply-input:focus { border-color: #3498db; }
+    .send-btn { background: #3498db; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+    .send-btn:hover { background: #2980b9; }
+
+    .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #a0aec0; gap: 15px; }
+    .empty-state i { font-size: 4rem; }
+
+    @media (max-width: 1024px) {
+      .support-container { grid-template-columns: 1fr; height: auto; }
+      .ticket-list-card { height: 400px; }
+      .chat-view-card { height: 500px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="logo">
+      <h2>Kurumsal<span>Panel</span></h2>
+    </div>
+    <nav>
+      <a href="index.html"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="orders.html"><i class="fas fa-shopping-cart"></i> Siparişler</a>
+      <a href="cari-yonetim.html"><i class="fas fa-users"></i> Cari Yönetimi</a>
+      <a href="fatura-yonetim.html"><i class="fas fa-file-invoice"></i> Fatura Yönetimi</a>
+      <a href="tahsilat-yonetim.html"><i class="fas fa-hand-holding-usd"></i> Tahsilat Yönetimi</a>
+      <a href="admin-sync.html"><i class="fas fa-sync"></i> ERP Senkron</a>
+      <a href="kargo-bildirim.html"><i class="fas fa-truck"></i> Kargo Bildirim</a>
+      <a href="products-manage.html"><i class="fas fa-warehouse"></i> Stok Yönetimi</a>
+      <a href="paket-yonetim.html"><i class="fas fa-box-open"></i> Paket Yönetimi</a>
+      <a href="kategori-yonetim.html"><i class="fas fa-folder-tree"></i> Kategori Yönetimi</a>
+      <a href="bayilik-basvurulari.html"><i class="fas fa-store"></i> Bayilik Başvuruları</a>
+      <a href="support.html" class="active"><i class="fas fa-headset"></i> Destek Talepleri</a>
+    </nav>
+    <a href="#" class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</a>
+  </div>
+
+  <div class="main-content">
+    <div class="header">
+      <h1>Destek Talepleri</h1>
+    </div>
+
+    <div class="support-container">
+      <!-- Liste -->
+      <div class="ticket-list-card">
+        <div class="card-header">
+          <h3>Talepler</h3>
+          <div class="filter-tabs">
+            <button class="filter-btn active" onclick="filterTickets('all')">Tümü</button>
+            <button class="filter-btn" onclick="filterTickets('beklemede')">Bekleyen</button>
+            <button class="filter-btn" onclick="filterTickets('cevaplandı')">Cevaplanan</button>
+          </div>
+        </div>
+        <div class="tickets-scroll" id="ticketList">
+          <div class="loading" style="text-align:center; padding:2rem; color:#718096;">
+            <i class="fas fa-spinner fa-spin"></i> Yükleniyor...
+          </div>
+        </div>
+      </div>
+
+      <!-- Detay/Chat -->
+      <div class="chat-view-card" id="chatCard">
+        <div class="chat-header">
+          <div class="chat-user-info">
+            <h3 id="chatUserName">Seçilmedi</h3>
+            <p id="chatUserEmail">...</p>
+          </div>
+          <div class="chat-actions">
+            <select id="chatStatusSelect" onchange="updateTicketStatus()" style="padding:6px; border-radius:6px; border:1px solid #e2e8f0; font-size:0.85rem;">
+              <option value="beklemede">Beklemede</option>
+              <option value="cevaplandı">Cevaplandı</option>
+              <option value="kapalı">Kapalı</option>
+            </select>
+          </div>
+        </div>
+        <div class="messages-area" id="messagesArea">
+          <!-- Mesajlar buraya -->
+        </div>
+        <div class="reply-area">
+          <textarea class="reply-input" id="replyInput" placeholder="Yanıtınızı yazın..." onkeydown="handleKeyPress(event)"></textarea>
+          <button class="send-btn" onclick="sendReply()">
+            <i class="fas fa-paper-plane"></i> Gönder
+          </button>
+        </div>
+      </div>
+
+      <!-- Boş Durum -->
+      <div class="chat-view-card active" id="emptyState" style="justify-content:center; align-items:center;">
+        <div class="empty-state">
+          <i class="fas fa-comments"></i>
+          <p>Görüntülemek için bir talep seçin</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const API_URL = window.location.hostname.includes("localhost") ? "http://localhost:3000/api" : "/api";
+    let allTickets = [];
+    let selectedTicketId = null;
+
+    async function loadTickets() {
+      const token = localStorage.getItem("token");
+      try {
+        const res = await fetch(`${API_URL}/admin/support/tickets`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          allTickets = data.tickets;
+          renderTickets(allTickets);
+        }
+      } catch (err) {
+        console.error("Yükleme hatası:", err);
+      }
+    }
+
+    function renderTickets(tickets) {
+      const list = document.getElementById("ticketList");
+      if (tickets.length === 0) {
+        list.innerHTML = `<div style="text-align:center; padding:2rem; color:#718096;">Talep bulunamadı.</div>`;
+        return;
+      }
+      list.innerHTML = tickets.map(t => {
+        const lastMsg = t.mesajlar[t.mesajlar.length - 1];
+        const date = new Date(t.createdAt).toLocaleDateString('tr-TR');
+        return `
+          <div class="ticket-item ${selectedTicketId === t._id ? 'active' : ''}" onclick="selectTicket('${t._id}')">
+            <h4>${t.konu}</h4>
+            <div class="meta">
+              <span>${t.userId?.ad || 'Bilinmeyen'}</span>
+              <span class="status-badge status-${t.durum}">${t.durum}</span>
+            </div>
+            <div style="font-size:0.75rem; color:#a0aec0; margin-top:5px;">${date}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterTickets(status) {
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      if (status === 'all') {
+        renderTickets(allTickets);
+      } else {
+        renderTickets(allTickets.filter(t => t.durum === status));
+      }
+    }
+
+    async function selectTicket(id) {
+      selectedTicketId = id;
+      document.getElementById("emptyState").style.display = "none";
+      document.getElementById("chatCard").classList.add("active");
+      
+      const ticket = allTickets.find(t => t._id === id);
+      if (!ticket) return;
+
+      document.getElementById("chatUserName").innerText = ticket.konu;
+      document.getElementById("chatUserEmail").innerText = `${ticket.userId?.ad || ''} (${ticket.userId?.email || ''})`;
+      document.getElementById("chatStatusSelect").value = ticket.durum;
+
+      renderMessages(ticket.mesajlar);
+      renderTickets(allTickets); // Link highlight update
+    }
+
+    function renderMessages(messages) {
+      const area = document.getElementById("messagesArea");
+      area.innerHTML = messages.map(m => `
+        <div class="message-bubble ${m.from === 'kullanici' ? 'user' : 'admin'}">
+          ${m.text}
+          <span class="message-time">${new Date(m.date || Date.now()).toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'})}</span>
+        </div>
+      `).join('');
+      area.scrollTop = area.scrollHeight;
+    }
+
+    async function sendReply() {
+      const text = document.getElementById("replyInput").value.trim();
+      if (!text || !selectedTicketId) return;
+
+      const token = localStorage.getItem("token");
+      try {
+        const res = await fetch(`${API_URL}/admin/support/tickets/${selectedTicketId}/reply`, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}` 
+          },
+          body: JSON.stringify({ mesaj: text })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById("replyInput").value = "";
+          // Update local data
+          const idx = allTickets.findIndex(t => t._id === selectedTicketId);
+          allTickets[idx] = data.ticket;
+          renderMessages(data.ticket.mesajlar);
+          renderTickets(allTickets);
+        }
+      } catch (err) {
+        Swal.fire("Hata", "Yanıt gönderilemedi", "error");
+      }
+    }
+
+    async function updateTicketStatus() {
+      const status = document.getElementById("chatStatusSelect").value;
+      if (!selectedTicketId) return;
+
+      const token = localStorage.getItem("token");
+      try {
+        const res = await fetch(`${API_URL}/admin/support/tickets/${selectedTicketId}/status`, {
+          method: "PUT",
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}` 
+          },
+          body: JSON.stringify({ durum: status })
+        });
+        const data = await res.json();
+        if (data.success) {
+          const idx = allTickets.findIndex(t => t._id === selectedTicketId);
+          allTickets[idx].durum = status;
+          renderTickets(allTickets);
+        }
+      } catch (err) {
+        Swal.fire("Hata", "Durum güncellenemedi", "error");
+      }
+    }
+
+    function handleKeyPress(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendReply();
+      }
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
+
+    loadTickets();
+  </script>
+
+</body>
+</html>

@@ -1,51 +1,21 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>İletişim - Kurumsal Tedarikçi</title>
-    <!-- Fonts -->
+    <title>İade ve İptal Koşulları - Kurumsal Tedarikçi</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
-    <!-- Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-    <!-- Styles -->
     <link href="css/style.css" rel="stylesheet"/>
-
     <style>
-        .contact-header { padding: 120px 5% 60px; text-align: center; background: white; }
-        .contact-header h1 { font-family: 'Outfit'; font-size: 3.5rem; color: var(--primary); margin-bottom: 20px; }
-        .contact-header p { font-size: 1.25rem; color: var(--text-muted); max-width: 800px; margin: 0 auto; }
-
-        .whatsapp-banner { 
-            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); 
-            color: white; border-radius: 40px; padding: 4rem 2rem; text-align: center; margin: 2rem 5% 4rem; 
-            box-shadow: 0 20px 40px rgba(37, 211, 102, 0.3); position: relative; overflow: hidden;
-        }
-        .whatsapp-banner h2 { font-size: 2.5rem; margin-bottom: 1rem; font-family: 'Outfit', sans-serif; position: relative; z-index: 2; }
-        .whatsapp-banner p { font-size: 1.25rem; opacity: 0.9; margin-bottom: 2.5rem; position: relative; z-index: 2; }
-        .whatsapp-banner .phone-num { font-size: 3.5rem; font-weight: 800; font-family: 'Outfit', sans-serif; display: block; margin-bottom: 2.5rem; letter-spacing: 1px; position: relative; z-index: 2; }
-        .btn-wa { display: inline-flex; align-items: center; gap: 1rem; background: white; color: #25D366; padding: 1.25rem 3.5rem; border-radius: 50px; text-decoration: none; font-weight: 800; font-size: 1.1rem; transition: var(--transition); box-shadow: var(--shadow-md); position: relative; z-index: 2; }
-        .btn-wa:hover { transform: scale(1.05); box-shadow: var(--shadow-xl); }
-
-        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; padding: 0 5% 8rem; max-width: 1400px; margin: 0 auto; }
-        .info-card { background: white; padding: 3rem 2rem; border-radius: 32px; border: 1px solid var(--border); text-align: center; transition: var(--transition); }
-        .info-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-xl); border-color: var(--secondary); }
-        .info-card .icon-box { font-size: 2.5rem; margin-bottom: 1.5rem; color: var(--secondary); display: block; }
-        .info-card h4 { font-size: 1.25rem; color: var(--text-muted); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
-        .info-card p { font-size: 1.5rem; color: var(--primary); font-weight: 800; font-family: 'Outfit', sans-serif; }
-        .info-card span { font-size: 1rem; color: #10b981; font-weight: 700; display: block; margin-top: 0.5rem; }
-
-        .corp-info-card { background: #f8fafc; padding: 3rem; border-radius: 32px; border: 1px dashed var(--border); max-width: 900px; margin: 0 auto 8rem; }
-        .corp-info-card h3 { font-family: 'Outfit'; font-size: 2rem; color: var(--primary); margin-bottom: 2rem; text-align: center; }
-        .corp-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; font-size: 1.15rem; line-height: 1.6; }
-        .corp-grid p { display: flex; gap: 10px; }
-        .corp-grid strong { color: var(--text-muted); min-width: 120px; }
-
-
+        .legal-content { padding: 120px 5% 80px; max-width: 1000px; margin: 0 auto; line-height: 1.8; color: var(--text-main); font-family: 'Inter', sans-serif; }
+        .legal-content h1 { font-family: 'Outfit'; font-size: 2.5rem; margin-bottom: 2rem; color: var(--primary); text-align: center; }
+        .legal-content h2 { font-family: 'Outfit'; font-size: 1.3rem; margin-top: 2rem; margin-bottom: 1rem; color: var(--primary); border-bottom: 1px solid var(--secondary); padding-bottom: 0.3rem; }
+        .legal-content p, .legal-content li { margin-bottom: 1rem; font-size: 1.05rem; text-align: justify; }
+        .alert-box { background: #fffbeb; border: 1px solid #fcd34d; padding: 1.5rem; border-radius: 12px; color: #92400e; margin: 1.5rem 0; }
     </style>
-    <link href="css/mobile.css" rel="stylesheet"/>
 </head>
-<body>
+<body class="legal-page">
 
 <nav class="navbar">
 <a class="logo" href="index.html">Kurumsal<span>Tedarikçi</span></a>
@@ -69,12 +39,12 @@
 </div>
 </li>
 <li class="nav-item-dropdown">
-<a href="#" class="nav-link-dropdown active" onclick="event.preventDefault(); toggleDropdown('kurumsalDropdown'); return false;">Kurumsal <i class="fas fa-chevron-down"></i></a>
+<a href="#" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('kurumsalDropdown'); return false;">Kurumsal <i class="fas fa-chevron-down"></i></a>
 <div class="nav-dropdown-menu" id="kurumsalDropdown">
 <a href="referanslar.html"><i class="fas fa-handshake"></i> Referanslar</a>
 <a href="bayilik-basvuru.html"><i class="fas fa-file-signature"></i> Bayilik Başvurusu</a>
 <a href="bayi-giris.html"><i class="fas fa-user-tie"></i> Bayi Girişi</a>
-<a href="iletisim.html" class="active"><i class="fas fa-map-marker-alt"></i> İletişim</a>
+<a href="iletisim.html"><i class="fas fa-map-marker-alt"></i> İletişim</a>
 </div>
 </li>
 
@@ -91,49 +61,40 @@
 </div>
 </nav>
 
-<div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="bayilik-basvuru.html">Bayilik Başvurusu</a></li><li><a href="bayi-giris.html">Bayi Girişi</a></li><li><a class="active" href="iletisim.html">İletişim</a></li></ul></div></div>
+<div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="bayilik-basvuru.html">Bayilik Başvurusu</a></li><li><a href="bayi-giris.html">Bayi Girişi</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
 
-<header class="contact-header">
-    <h1>Bize Ulaşın</h1>
-    <p>Dijital dönüşüm yolculuğunuzda teknik destek veya kurumsal talepleriniz için uzman ekibimizle iletişime geçin.</p>
-</header>
+<div class="legal-content">
+    <h1>İptal ve İade Koşulları</h1>
+    
+    <p>Kurumsal Tedarikçi üzerinden gerçekleştirdiğiniz alışverişlerde iptal, iade ve cayma hakları aşağıdaki kurallara tabidir.</p>
 
-<div class="whatsapp-banner">
-    <h2>7/24 Teknik Destek</h2>
-    <p>Acil talepleriniz ve hızlı sorularınız için her an yanınızdayız.</p>
-    <span class="phone-num">0505 911 27 49</span>
-    <a href="https://wa.me/905059112749" class="btn-wa" target="_blank">
-        <i class="fab fa-whatsapp"></i>
-        WhatsApp ile Hemen Yazın
-    </a>
-</div>
+    <h2>1. SİPARİŞ İPTALİ</h2>
+    <p>Siparişinizi, ürün kargoya verilmeden veya dijital hizmet aktivasyonu henüz başlamadan önce aynı gün içerisinde <strong>0505 911 27 49</strong> numaralı hattımızdan veya web sitemiz üzerindeki panelden iptal edebilirsiniz. İptal edilen siparişlerin ücreti, bankanızın iade prosedürlerine bağlı olarak 3-7 iş günü içerisinde kartınıza/hesabınıza iade edilir.</p>
 
-<div class="info-grid">
-    <div class="info-card">
-        <i class="fas fa-phone-alt icon-box"></i>
-        <h4>Telefon</h4>
-        <p>0505 911 27 49</p>
+    <h2>2. CAYMA HAKKI (Genel Kurallar)</h2>
+    <p>Alıcı, satın aldığı malı teslim aldığı tarihten itibaren 14 gün içerisinde herhangi bir gerekçe göstermeksizin iade edebilir. İade edilecek ürünün ambalajı açılmamış, kullanılmamış ve yeniden satışa uygun durumda olması şarttır.</p>
+
+    <h2>3. CAYMA HAKKI İSTİSNALARI (İadesi Olmayan Ürünler)</h2>
+    <div class="alert-box">
+        <strong>DİKKAT:</strong> Mesafeli Sözleşmeler Yönetmeliği uyarınca aşağıdaki ürün ve hizmetlerde cayma hakkı kullanılamaz:
     </div>
-    <div class="info-card">
-        <i class="fas fa-envelope-open-text icon-box"></i>
-        <h4>E-Posta</h4>
-        <p style="font-size: 1.25rem;">iletisim@tedarikci.org.tr</p>
-    </div>
-    <div class="info-card">
-        <i class="fas fa-clock icon-box"></i>
-        <h4>Çalışma Saatleri</h4>
-        <p>Pzt-Cmt: 09:00-18:00</p>
-        <span>WhatsApp: 7/24 Aktif</span>
-    </div>
-</div>
+    <ul>
+        <li>Tüketicinin özel istekleri doğrultusunda hazırlanan veya kişiselleştirilen ürünler.</li>
+        <li><strong>E-İmza sertifikaları (Kişiye özel üretildiği andan itibaren iadesi mümkün değildir).</strong></li>
+        <li><strong>E-Fatura, E-Arşiv, KEP ve benzeri kontör/kredi tanımlamaları (Aktivasyon sonrası kullanım başlamış sayılır).</strong></li>
+        <li>Mali Mühür sertifikaları (Kamu SM tarafından kişiye/kuruma özel üretildiği için).</li>
+    </ul>
 
-<div class="corp-info-card">
-    <h3>Kurumsal Bilgiler</h3>
-    <div class="corp-grid">
-        <p><strong>Ünvan:</strong> KURUMSAL TEDARİKÇİ</p>
-        <p><strong>Adres:</strong> Hacı Yusuf Mah. Eser Sokak No:4/10 Bandırma/Balıkesir</p>
-        <p><strong>Vergi Dairesi:</strong> BANDIRMA</p>
-        <p><strong>KEP Adresi:</strong> yildirim.ayluctarhan@hs03.kep.tr</p>
+    <h2>4. ARIZALI VEYA AYIPLI ÜRÜNLER</h2>
+    <p>Donanım ürünlerinde (kart okuyucu, token vb.) teslimat sırasında tespit edilen fiziksel hasarlar veya fabrikasyon arızalar durumunda, ürünün yenisi ile değişimi veya tam ücret iadesi Satıcı tarafından karşılanacaktır. Alıcı, ürünü teslim alırken kargo yetkilisi önünde kontrol etmeli, hasar varsa tutanak tutturmalıdır.</p>
+
+    <h2>5. İADE SÜRECİ</h2>
+    <p>İade talebinizi ilettikten sonra, anlaşmalı kargo kodumuz ile ürünü tarafımıza göndermeniz gerekmektedir. İade kargo bedeli, cayma hakkı kapsamında Alıcı’ya (Tüketici) aittir (Ayıplı mal hariç).</p>
+
+    <div style="text-align: center; margin-top: 4rem; padding: 2rem; border-top: 1px solid #eee;">
+        <button onclick="window.close(); window.location.href='odeme.html';" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; border: none; padding: 15px 40px; border-radius: 12px; font-weight: 700; cursor: pointer; font-family: 'Outfit'; box-shadow: 0 10px 20px rgba(99,102,241,0.2); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            <i class="fas fa-arrow-left"></i> Ödeme Sayfasına Dön
+        </button>
     </div>
 </div>
 
@@ -166,7 +127,7 @@
         <ul class="footer-links">
           <li><a href="referanslar.html"><i class="fas fa-chevron-right"></i> Referanslar</a></li>
           <li><a href="bayilik-basvuru.html"><i class="fas fa-chevron-right"></i> Bayilik Başvurusu</a></li>
-          <li><a href="iletisim.html" class="active"><i class="fas fa-chevron-right"></i> İletişim</a></li>
+          <li><a href="iletisim.html"><i class="fas fa-chevron-right"></i> İletişim</a></li>
           <li><a href="teklif.html"><i class="fas fa-chevron-right"></i> Teklif Al</a></li>
         </ul>
       </div>
@@ -209,3 +170,4 @@
 <script src="js/main.js"></script>
 </body>
 </html>
+

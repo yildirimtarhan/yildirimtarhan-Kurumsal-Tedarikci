@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -6,6 +6,7 @@
     <title>Faturalarım - Kurumsal Tedarikçi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
     <style>
         .sidebar { transition: all 0.3s; }
         .sidebar-collapsed { width: 70px; }
@@ -30,45 +31,53 @@
 </head>
 <body class="bg-gray-50 font-sans">
     
-    <!-- SIDEBAR -->
-<div id="sidebar" class="sidebar sidebar-expanded fixed left-0 top-0 h-full bg-slate-900 text-white z-50 overflow-y-auto">
-    <div class="p-4 flex items-center justify-between border-b border-slate-700">
-        <div class="flex items-center gap-3 logo-full">
-            <i class="fas fa-building-columns text-2xl text-blue-400"></i>
-            <span class="font-bold text-lg">Kurumsal</span>
-        </div>
-        <button onclick="toggleSidebar()" class="text-gray-400 hover:text-white">
-            <i class="fas fa-bars"></i>
-        </button>
-    </div>
-    <nav class="mt-6 px-2">
-        <!-- DÜZELTİLDİ: Ana sayfaya yönlendir -->
-        <a href="../index.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
-            <i class="fas fa-home w-5"></i>
-            <span class="menu-text">Ana Sayfa</span>
-        </a>
-        
-        <!-- DÜZELTİLDİ: Siparişler sayfasına yönlendir -->
-        <a href="../siparisler.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
-            <i class="fas fa-shopping-bag w-5"></i>
-            <span class="menu-text">Siparişlerim</span>
-        </a>
-        
-        <!-- Aktif sayfa -->
-        <a href="faturalarim.html" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg mb-1">
-            <i class="fas fa-file-invoice w-5"></i>
-            <span class="menu-text">Faturalarım</span>
-        </a>
-        
-        <!-- DÜZELTİLDİ: Profil sayfasına yönlendir -->
-        <a href="../profil.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
-            <i class="fas fa-user w-5"></i>
-            <span class="menu-text">Profilim</span>
-        </a>
-    </nav>
+<nav class="navbar">
+<a class="logo" href="index.html">Kurumsal<span>Tedarikçi</span></a>
+<button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()">
+<i class="fas fa-bars" id="menuIcon"></i>
+</button>
+<ul class="nav-links" id="navLinks">
+<button aria-label="Menüyü Kapat" class="close-menu" onclick="toggleMenu()">
+<i class="fas fa-times"></i>
+</button>
+<li><a href="index.html">Anasayfa</a></li>
+<li><a href="hizmetler.html">Hizmetler</a></li>
+<li><a href="paketler.html">Paketler</a></li>
+<li class="nav-item-dropdown" id="urunlerNavItem">
+<a href="urunler.html" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('urunlerDropdown'); return false;">Ürünler <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="urunlerDropdown">
+  <!-- JS tarafından dinamik olarak doldurulacak -->
+  <a href="urunler.html?kategori=e-imza"><i class="fas fa-pen-fancy"></i> Elektronik İmza (E-İmza)</a>
+  <a href="urunler.html?kategori=e-fatura"><i class="fas fa-file-invoice"></i> E-Fatura</a>
+  <a href="urunler.html"><i class="fas fa-th-list"></i> Tümünü göster</a>
 </div>
+</li>
+<li class="nav-item-dropdown">
+<a href="#" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('kurumsalDropdown'); return false;">Kurumsal <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="kurumsalDropdown">
+<a href="referanslar.html"><i class="fas fa-handshake"></i> Referanslar</a>
+<a href="bayilik-basvuru.html"><i class="fas fa-file-signature"></i> Bayilik Başvurusu</a>
+<a href="bayi-giris.html"><i class="fas fa-user-tie"></i> Bayi Girişi</a>
+<a href="iletisim.html"><i class="fas fa-map-marker-alt"></i> İletişim</a>
+</div>
+</li>
+
+<li><a href="teklif.html" style="color: #f59e0b; font-weight: 700;">Teklif Al</a></li>
+</ul>
+<div class="nav-right" id="navUserArea">
+  <!-- JS burayı dolduracak -->
+  <a class="login-btn" href="giris.html">Giriş Yap</a>
+  <a class="register-btn" href="kayit.html">Kayıt Ol</a>
+  <a class="cart-btn" href="odeme.html">
+    <i class="fas fa-shopping-cart"></i>
+    <span class="cart-count" id="cart-count">0</span>
+  </a>
+</div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="bayilik-basvuru.html">Bayilik Başvurusu</a></li><li><a href="bayi-giris.html">Bayi Girişi</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
     <!-- Main Content -->
-    <div id="content" class="content-area ml-[260px] p-6">
+    <div id="content" class="container mx-auto p-6 pt-24">
         
         <!-- Header -->
         <div class="flex justify-between items-center mb-6">
@@ -216,7 +225,8 @@
         </div>
     </div>
 
-    <script src="../js/musteri-fatura-service.js"></script>
+    <script src="js/musteri-fatura-service.js"></script>
+    <script src="js/main.js"></script>
     <script>
         let currentFatura = null;
         let currentPage = 1;

@@ -1,18 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>Destek Sorularım - Kurumsal Tedarikçi</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%); min-height: 100vh; padding-top: 80px; }
-        .navbar { position: fixed; top: 0; left: 0; width: 100%; background: white; box-shadow: 0 2px 20px rgba(0,0,0,0.1); z-index: 1000; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; height: 70px; }
-        .logo { font-size: 22px; font-weight: 800; color: #1f2937; text-decoration: none; }
-        .logo span { color: #6366f1; }
-        .nav-back { display: flex; align-items: center; gap: 8px; color: #6366f1; text-decoration: none; font-weight: 600; font-size: 14px; padding: 8px 16px; border-radius: 8px; transition: background 0.3s; }
-        .nav-back:hover { background: #f3f4f6; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%); min-height: 100vh; padding-top: 80px; }
         .container { max-width: 900px; margin: 0 auto; padding: 20px; }
         .page-header { margin-bottom: 25px; }
         .page-header h1 { font-size: 2rem; color: #1f2937; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
@@ -67,10 +63,51 @@
 </head>
 <body>
 
-    <nav class="navbar">
-        <a href="index.html" class="logo">Kurumsal<span>Tedarikçi</span></a>
-        <a href="profil.html" class="nav-back"><i class="fas fa-arrow-left"></i> Profil'e Dön</a>
-    </nav>
+<nav class="navbar">
+<a class="logo" href="index.html">Kurumsal<span>Tedarikçi</span></a>
+<button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()">
+<i class="fas fa-bars" id="menuIcon"></i>
+</button>
+<ul class="nav-links" id="navLinks">
+<button aria-label="Menüyü Kapat" class="close-menu" onclick="toggleMenu()">
+<i class="fas fa-times"></i>
+</button>
+<li><a href="index.html">Anasayfa</a></li>
+<li><a href="hizmetler.html">Hizmetler</a></li>
+<li><a href="paketler.html">Paketler</a></li>
+<li class="nav-item-dropdown" id="urunlerNavItem">
+<a href="urunler.html" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('urunlerDropdown'); return false;">Ürünler <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="urunlerDropdown">
+  <!-- JS tarafından dinamik olarak doldurulacak -->
+  <a href="urunler.html?kategori=e-imza"><i class="fas fa-pen-fancy"></i> Elektronik İmza (E-İmza)</a>
+  <a href="urunler.html?kategori=e-fatura"><i class="fas fa-file-invoice"></i> E-Fatura</a>
+  <a href="urunler.html"><i class="fas fa-th-list"></i> Tümünü göster</a>
+</div>
+</li>
+<li class="nav-item-dropdown">
+<a href="#" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('kurumsalDropdown'); return false;">Kurumsal <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="kurumsalDropdown">
+<a href="referanslar.html"><i class="fas fa-handshake"></i> Referanslar</a>
+<a href="bayilik-basvuru.html"><i class="fas fa-file-signature"></i> Bayilik Başvurusu</a>
+<a href="bayi-giris.html"><i class="fas fa-user-tie"></i> Bayi Girişi</a>
+<a href="iletisim.html"><i class="fas fa-map-marker-alt"></i> İletişim</a>
+</div>
+</li>
+
+<li><a href="teklif.html" style="color: #f59e0b; font-weight: 700;">Teklif Al</a></li>
+</ul>
+<div class="nav-right" id="navUserArea">
+  <!-- JS burayı dolduracak -->
+  <a class="login-btn" href="giris.html">Giriş Yap</a>
+  <a class="register-btn" href="kayit.html">Kayıt Ol</a>
+  <a class="cart-btn" href="odeme.html">
+    <i class="fas fa-shopping-cart"></i>
+    <span class="cart-count" id="cart-count">0</span>
+  </a>
+</div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="bayilik-basvuru.html">Bayilik Başvurusu</a></li><li><a href="bayi-giris.html">Bayi Girişi</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
 
     <div class="container">
         <div class="page-header">
@@ -113,7 +150,9 @@
                     </div>
                     <div class="form-group">
                         <label>Sipariş No (opsiyonel)</label>
-                        <input type="text" id="talepSiparisNo" placeholder="İlgili sipariş numarası varsa">
+                        <select id="talepSiparisNo" style="width: 100%; border: 2px solid #e5e7eb; padding: 12px 16px; border-radius: 10px; font-size: 15px; outline: none;">
+                            <option value="">Genel Konu / Sipariş Yok</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Mesajınız *</label>
@@ -137,6 +176,40 @@
         }
 
         let tickets = [];
+        let userOrders = []; // Sipariş listesini tutmak için
+
+        async function initPage() {
+            await loadTickets();
+            const params = new URLSearchParams(window.location.search);
+            const orderId = params.get('orderId');
+            if (orderId) {
+                openYeniTalepModal(orderId);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', initPage);
+
+        async function loadUserOrders() {
+            try {
+                const res = await fetch(API_URL + '/orders/my-orders', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                if (data.success && data.orders) {
+                    userOrders = data.orders;
+                    const selectEl = document.getElementById('talepSiparisNo');
+                    selectEl.innerHTML = '<option value="">Genel Konu / Sipariş Yok</option>';
+                    userOrders.forEach(order => {
+                        const opt = document.createElement('option');
+                        opt.value = order.orderNumber || order._id;
+                        opt.textContent = `Sipariş #${order.orderNumber || order._id.slice(-6).toUpperCase()} - ${new Date(order.createdAt).toLocaleDateString('tr-TR')}`;
+                        selectEl.appendChild(opt);
+                    });
+                }
+            } catch (err) {
+                console.warn('Aktif siparişler yüklenemedi:', err);
+            }
+        }
 
         async function loadTickets() {
             const container = document.getElementById('ticketList');
@@ -198,7 +271,7 @@
             const durumClass = t.durum === 'açık' ? 'acik' : t.durum === 'cevaplandı' ? 'cevaplandi' : 'kapali';
             const mesajlarHtml = (t.mesajlar || []).map(m => `
                 <div class="mesaj mesaj-${m.from}">
-                    <div class="mesaj-meta">${m.from === 'kullanici' ? 'Siz' : 'Destek'} • ${new Date(m.createdAt).toLocaleString('tr-TR')}</div>
+                    <div class="mesaj-meta">${m.from === 'kullanici' ? 'Siz' : 'Destek'} ”¢ ${new Date(m.createdAt).toLocaleString('tr-TR')}</div>
                     <div>${escapeHtml(m.text).replace(/\n/g, '<br>')}</div>
                 </div>
             `).join('');
@@ -233,9 +306,32 @@
             loadTickets();
         }
 
-        function openYeniTalepModal() {
+        async function openYeniTalepModal(preselectOrderId = null) {
             document.getElementById('yeniTalepModal').classList.add('active');
             document.getElementById('yeniTalepForm').reset();
+            
+            // Eğer siparişler dolmadıysa yükle
+            if (userOrders.length === 0) {
+                await loadUserOrders();
+            }
+            
+            if (preselectOrderId) {
+                const selectEl = document.getElementById('talepSiparisNo');
+                // Backend'den çekilen _id veya orderNumber olabilir. Her ikisini de try etmek mantıklı.
+                const relatedOrder = userOrders.find(o => o._id === preselectOrderId || o.orderNumber === preselectOrderId);
+                if (relatedOrder) {
+                    selectEl.value = relatedOrder.orderNumber || relatedOrder._id;
+                    document.getElementById('talepKonu').value = `Sipariş #${relatedOrder.orderNumber || relatedOrder._id.slice(-6).toUpperCase()} İle İlgili`;
+                } else {
+                    // Eğer orderId listedee yoksa text olarak value atayalım.
+                    const opt = document.createElement('option');
+                    opt.value = preselectOrderId;
+                    opt.textContent = `Sipariş #${preselectOrderId.slice(-6).toUpperCase()}`;
+                    selectEl.appendChild(opt);
+                    selectEl.value = preselectOrderId;
+                    document.getElementById('talepKonu').value = `Sipariş #${preselectOrderId.slice(-6).toUpperCase()} İle İlgili`;
+                }
+            }
         }
 
         function closeYeniTalepModal() {
@@ -295,5 +391,7 @@
 
         loadTickets();
     </script>
+    <script src="js/main.js"></script>
 </body>
 </html>
+

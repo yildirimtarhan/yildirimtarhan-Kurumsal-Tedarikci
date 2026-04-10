@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const MesajSchema = new mongoose.Schema({
-  from: { type: String, enum: ["kullanici", "destek"], default: "kullanici" },
+  from: { type: String, enum: ["kullanici", "admin", "destek"], default: "kullanici" },
   text: { type: String, required: true },
   createdAt: { type: Date, default: Date.now }
 }, { _id: true });
@@ -12,7 +12,7 @@ const SupportTicketSchema = new mongoose.Schema({
   mesajlar: [MesajSchema],
   durum: {
     type: String,
-    enum: ["açık", "cevaplandı", "kapalı"],
+    enum: ["açık", "beklemede", "cevaplandı", "çözüldü", "kapalı"],
     default: "açık"
   },
   siparisNo: { type: String, default: "" },

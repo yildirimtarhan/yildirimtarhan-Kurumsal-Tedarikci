@@ -37,7 +37,7 @@ router.get("/public", async (req, res) => {
         isBayi = decoded.rol === "bayi";
       } catch (_) {}
     }
-    const select = "name subtitle price period features featuresExcluded isPopular accentColor kdvDahil";
+    const select = "name subtitle price period features featuresExcluded isPopular accentColor kdvDahil stock";
     const selectBayi = select + " wholesalePrice";
     const packages = await Package.find({ isActive: true })
       .sort({ sortOrder: 1, createdAt: 1 })
@@ -80,7 +80,7 @@ router.get("/:id", adminOnly, async (req, res) => {
 // Admin: Yeni paket
 router.post("/", adminOnly, async (req, res) => {
   try {
-    const { name, subtitle, price, period, features, featuresExcluded, isPopular, accentColor, sortOrder, barcode, kdvDahil, kdvOrani, wholesalePrice } = req.body;
+    const { name, subtitle, price, period, features, featuresExcluded, isPopular, accentColor, sortOrder, barcode, kdvDahil, kdvOrani, wholesalePrice, stock, minStock } = req.body;
     const barcodeValue = barcode && String(barcode).trim()
       ? String(barcode).trim()
       : await generateUniqueBarcode(Package);
@@ -97,6 +97,8 @@ router.post("/", adminOnly, async (req, res) => {
       featuresExcluded: Array.isArray(featuresExcluded) ? featuresExcluded : (featuresExcluded ? featuresExcluded.split("\n").filter(Boolean) : []),
       isPopular: !!isPopular,
       accentColor: accentColor || "#6366f1",
+      stock: parseInt(stock) || 0,
+      minStock: parseInt(minStock) || 0,
       sortOrder: parseInt(sortOrder) || 0,
     });
     res.json({ success: true, message: "Paket eklendi", package: pkg });
@@ -108,7 +110,7 @@ router.post("/", adminOnly, async (req, res) => {
 // Admin: Paket güncelle
 router.put("/:id", adminOnly, async (req, res) => {
   try {
-    const { name, subtitle, price, period, features, featuresExcluded, isPopular, accentColor, sortOrder, isActive, kdvDahil, kdvOrani, wholesalePrice } = req.body;
+    const { name, subtitle, price, period, features, featuresExcluded, isPopular, accentColor, sortOrder, isActive, kdvDahil, kdvOrani, wholesalePrice, stock, minStock } = req.body;
     const updates = {};
     if (name !== undefined) updates.name = name;
     if (subtitle !== undefined) updates.subtitle = subtitle;
@@ -126,6 +128,8 @@ router.put("/:id", adminOnly, async (req, res) => {
     if (isPopular !== undefined) updates.isPopular = !!isPopular;
     if (accentColor !== undefined) updates.accentColor = accentColor;
     if (sortOrder !== undefined) updates.sortOrder = parseInt(sortOrder);
+    if (stock !== undefined) updates.stock = parseInt(stock);
+    if (minStock !== undefined) updates.minStock = parseInt(minStock);
     if (isActive !== undefined) updates.isActive = !!isActive;
     updates.updatedAt = new Date();
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -6,6 +6,7 @@
     <title>Giriş Yap - Kurumsal Tedarikçi</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         
@@ -122,336 +123,128 @@
         }
     </style>
 </head>
-<body class="gradient-bg min-h-screen flex items-center justify-center p-3 sm:p-4">
-    <div class="glass-effect w-full max-w-4xl rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden animate-slide-in">
+<body class="gradient-bg min-h-screen">
+
+<nav class="navbar">
+<a class="logo" href="index.html">Kurumsal<span>Tedarikçi</span></a>
+<button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()">
+<i class="fas fa-bars" id="menuIcon"></i>
+</button>
+<ul class="nav-links" id="navLinks">
+<button aria-label="Menüyü Kapat" class="close-menu" onclick="toggleMenu()">
+<i class="fas fa-times"></i>
+</button>
+<li><a href="index.html">Anasayfa</a></li>
+<li><a href="hizmetler.html">Hizmetler</a></li>
+<li><a href="paketler.html">Paketler</a></li>
+<li class="nav-item-dropdown" id="urunlerNavItem">
+<a href="urunler.html" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('urunlerDropdown'); return false;">Ürünler <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="urunlerDropdown">
+  <!-- JS tarafından dinamik olarak doldurulacak -->
+  <a href="urunler.html?kategori=e-imza"><i class="fas fa-pen-fancy"></i> Elektronik İmza (E-İmza)</a>
+  <a href="urunler.html?kategori=e-fatura"><i class="fas fa-file-invoice"></i> E-Fatura</a>
+  <a href="urunler.html"><i class="fas fa-th-list"></i> Tümünü göster</a>
+</div>
+</li>
+<li class="nav-item-dropdown">
+<a href="#" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('kurumsalDropdown'); return false;">Kurumsal <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="kurumsalDropdown">
+<a href="referanslar.html"><i class="fas fa-handshake"></i> Referanslar</a>
+<a href="bayilik-basvuru.html"><i class="fas fa-file-signature"></i> Bayilik Başvurusu</a>
+<a href="bayi-giris.html"><i class="fas fa-user-tie"></i> Bayi Girişi</a>
+<a href="iletisim.html"><i class="fas fa-map-marker-alt"></i> İletişim</a>
+</div>
+</li>
+
+<li><a href="teklif.html" style="color: #f59e0b; font-weight: 700;">Teklif Al</a></li>
+</ul>
+<div class="nav-right" id="navUserArea">
+  <!-- JS burayı dolduracak -->
+  <a class="login-btn" href="giris.html">Giriş Yap</a>
+  <a class="register-btn" href="kayit.html">Kayıt Ol</a>
+  <a class="cart-btn" href="odeme.html">
+    <i class="fas fa-shopping-cart"></i>
+    <span class="cart-count" id="cart-count">0</span>
+  </a>
+</div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="bayilik-basvuru.html">Bayilik Başvurusu</a></li><li><a href="bayi-giris.html">Bayi Girişi</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
+
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full glass-effect rounded-2xl shadow-2xl overflow-hidden animate-slide-in">
         <!-- Header -->
-        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-center text-white login-header-mobile">
-            <h1 class="text-2xl sm:text-3xl font-bold mb-2">Kurumsal Tedarikçi Portalı</h1>
-            <p class="text-indigo-100 text-sm sm:text-base">Hesabınıza giriş yapın veya yeni hesap oluşturun</p>
+        <div class="bg-gradient-to-br from-primary to-secondary p-8 text-center text-white">
+            <h1 class="text-2xl font-bold mb-2">Kurumsal Tedarikçi</h1>
+            <p class="text-blue-100 text-sm">Giriş yapın veya yeni bir hesap oluşturun</p>
         </div>
         
         <!-- Tabs -->
-        <div class="flex border-b border-gray-200 login-tabs-mobile">
-            <button onclick="switchTab('login')" id="tab-login" class="flex-1 py-4 px-3 sm:px-6 font-medium text-sm transition-all duration-300 tab-active flex items-center justify-center gap-2">
-                <i class="fas fa-sign-in-alt"></i>
-                Giriş Yap
-            </button>
-            <button onclick="switchTab('register')" id="tab-register" class="flex-1 py-4 px-3 sm:px-6 font-medium text-sm transition-all duration-300 tab-inactive flex items-center justify-center gap-2">
-                <i class="fas fa-user-plus"></i>
-                Üye Ol
-            </button>
+        <div class="flex border-b border-gray-100">
+            <div class="flex-1 py-4 text-center font-semibold text-sm tab-active">
+                <i class="fas fa-sign-in-alt mr-2"></i>Giriş Yap
+            </div>
+            <a href="kayit.html" class="flex-1 py-4 text-center font-semibold text-sm transition-all tab-inactive hover:bg-gray-50 border-l border-gray-100">
+                <i class="fas fa-user-plus mr-2"></i>Kayıt Ol
+            </a>
         </div>
         
         <!-- Login Form -->
-        <div id="login-section" class="p-8 login-section-mobile">
-            <form id="loginForm" class="space-y-6">
-                <div class="grid md:grid-cols-2 gap-6">
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-envelope text-indigo-600 mr-2"></i>E-posta Adresi
-                        </label>
-                        <input type="email" id="loginEmail" required autocomplete="email"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all outline-none"
-                            placeholder="ornek@sirket.com">
-                    </div>
-                    
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-lock text-indigo-600 mr-2"></i>Şifre
-                        </label>
-                        <div class="relative">
-                            <input type="password" id="loginPassword" required autocomplete="current-password"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all outline-none"
-                                placeholder="••••••••">
-                            <button type="button" onclick="togglePassword('loginPassword')" 
-                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-indigo-600">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
+        <div id="login-section" class="p-8">
+            <form id="loginForm" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">E-posta Adresi</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                        <input type="email" id="loginEmail" required class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:bg-white outline-none transition-all" placeholder="ornek@sirket.com">
                     </div>
                 </div>
                 
-                <div class="flex items-center justify-between remember-row-mobile">
-                    <label class="flex items-center">
-                        <input type="checkbox" id="rememberMe" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                        <span class="ml-2 text-sm text-gray-600">Beni hatırla</span>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Şifre</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" id="loginPassword" required class="w-full pl-10 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-accent focus:bg-white outline-none transition-all" placeholder="”¢”¢”¢”¢”¢”¢”¢”¢">
+                        <button type="button" onclick="togglePassword('loginPassword')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-accent">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" id="rememberMe" class="w-4 h-4 text-accent border-gray-300 rounded focus:ring-accent">
+                        <span class="ml-2 text-xs text-gray-600">Beni hatırla</span>
                     </label>
-                    <a href="#" onclick="showForgotPassword()" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
-                        Şifremi unuttum?
-                    </a>
+                    <a href="#" onclick="showForgotPassword()" class="text-xs font-semibold text-accent hover:underline">Şifremi unuttum</a>
                 </div>
 
-                <div id="oauthBlockLogin" class="oauth-quick-block">
-                <p class="text-sm text-gray-600 text-center leading-relaxed px-1 oauth-info-mobile">
-                    Sitede kayıtlı e-postanız ile <strong>Google</strong> veya <strong>Facebook</strong> hesabınızdaki e-posta <strong>aynıysa</strong>, tek üyeliğinize otomatik bağlanırsınız.
-                    <span class="block mt-1 text-gray-500">Instagram e-posta paylaşmadığı için yeni hesap açar; mevcut hesaba bağlamak için giriş yaptıktan sonra <a href="profil.html" class="text-indigo-600 hover:underline">Profil</a> sayfasından &quot;Instagram bağla&quot; kullanın.</span>
-                </p>
-
-                <div class="relative my-6 oauth-divider-wrap">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-200"></div>
-                    </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-white text-gray-500">veya hızlı giriş</span>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 oauth-buttons-grid">
-                    <div class="oauth-cell" data-oauth="google">
-                    <a id="oauthGoogleBtn" href="#"
-                        class="oauth-btn-mobile flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white text-gray-700 font-medium hover:border-gray-300 hover:bg-gray-50 transition-all text-sm sm:text-base">
-                        <i class="fab fa-google text-red-500 text-lg"></i>
-                        Google ile devam et
-                    </a>
-                    </div>
-                    <div class="oauth-cell" data-oauth="facebook">
-                    <a id="oauthFacebookBtn" href="#"
-                        class="oauth-btn-mobile flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-transparent text-white font-medium hover:opacity-95 transition-all text-sm sm:text-base"
-                        style="background-color: #1877F2;">
-                        <i class="fab fa-facebook-f text-lg"></i>
-                        Facebook ile devam et
-                    </a>
-                    </div>
-                    <div class="oauth-cell" data-oauth="instagram">
-                    <a id="oauthInstagramBtn" href="#"
-                        class="oauth-btn-mobile flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-transparent text-white font-medium hover:opacity-95 transition-all instagram-oauth-btn text-sm sm:text-base">
-                        <i class="fab fa-instagram text-lg"></i>
-                        Instagram ile devam et
-                    </a>
-                    </div>
-                </div>
-                </div>
-                
-                <button type="submit" id="loginBtn"
-                    class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2">
-                    <i class="fas fa-sign-in-alt"></i>
+                <button type="submit" id="loginBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-bold shadow-lg hover:shadow-indigo-300/50 transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2">
                     <span id="loginBtnText">Giriş Yap</span>
+                    <i class="fas fa-arrow-right"></i>
                 </button>
-                <p class="mt-4 text-center text-sm text-gray-500">
-                    <i class="fas fa-store text-green-600 mr-1"></i> Bayi (toptan B2B) iseniz <a href="bayi-giris.html" class="text-green-600 hover:underline font-medium">Bayi Girişi</a> yapın. Bayi değilseniz önce <a href="bayilik-basvuru.html" class="text-green-600 hover:underline font-medium">Bayilik Başvurusu</a> yapın.
-                </p>
+                
+                <div class="pt-4 border-t border-gray-100">
+                    <p class="text-center text-xs text-gray-500">
+                        <i class="fas fa-store-alt text-green-500 mr-1"></i> Bayi misiniz? <a href="bayi-giris.html" class="text-green-600 font-bold hover:underline">Bayi Paneli</a>
+                    </p>
+                </div>
             </form>
         </div>
         
-        <!-- Register Form -->
-        <div id="register-section" class="p-8 hidden-tab login-section-mobile">
-            <form id="registerForm" class="space-y-6">
-                <div id="oauthBlockRegister" class="oauth-quick-block">
-                <p class="text-sm text-gray-600 text-center leading-relaxed px-1 oauth-info-mobile">
-                    <strong>Hızlı üyelik:</strong> Google, Facebook veya Instagram ile tek tıkla hesap oluşturup giriş yapabilirsiniz. Google/Facebook’ta kullandığınız e-posta daha önce kayıtlıysa mevcut üyeliğinize bağlanır.
-                    <span class="block mt-1 text-gray-500">Detaylı kayıt (adres, vergi vb.) için aşağıdaki formu doldurun.</span>
-                </p>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 oauth-buttons-grid">
-                    <div class="oauth-cell" data-oauth="google">
-                    <a id="oauthGoogleBtnReg" href="#"
-                        class="oauth-btn-mobile flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white text-gray-700 font-medium hover:border-gray-300 hover:bg-gray-50 transition-all text-sm sm:text-base">
-                        <i class="fab fa-google text-red-500 text-lg"></i>
-                        Google ile üye ol
-                    </a>
-                    </div>
-                    <div class="oauth-cell" data-oauth="facebook">
-                    <a id="oauthFacebookBtnReg" href="#"
-                        class="oauth-btn-mobile flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-transparent text-white font-medium hover:opacity-95 transition-all text-sm sm:text-base"
-                        style="background-color: #1877F2;">
-                        <i class="fab fa-facebook-f text-lg"></i>
-                        Facebook ile üye ol
-                    </a>
-                    </div>
-                    <div class="oauth-cell" data-oauth="instagram">
-                    <a id="oauthInstagramBtnReg" href="#"
-                        class="oauth-btn-mobile flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-transparent text-white font-medium hover:opacity-95 transition-all instagram-oauth-btn text-sm sm:text-base">
-                        <i class="fab fa-instagram text-lg"></i>
-                        Instagram ile üye ol
-                    </a>
-                    </div>
-                </div>
-                </div>
-
-                <div id="oauthDividerRegister" class="relative my-6">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-200"></div>
-                    </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-white text-gray-500">veya form ile kayıt</span>
-                    </div>
-                </div>
-
-                <!-- Üyelik Tipi -->
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-3">
-                        <i class="fas fa-building text-indigo-600 mr-2"></i>Üyelik Tipi
-                    </label>
-                    <div class="grid grid-cols-2 gap-4">
-                        <label class="cursor-pointer">
-                            <input type="radio" name="userType" value="bireysel" checked onchange="toggleUserType()" class="hidden peer">
-                            <div class="p-4 border-2 border-gray-200 rounded-lg text-center peer-checked:border-indigo-600 peer-checked:bg-indigo-50 transition-all">
-                                <i class="fas fa-user text-2xl mb-2 text-gray-400 peer-checked:text-indigo-600"></i>
-                                <div class="font-medium">Bireysel</div>
-                            </div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="userType" value="kurumsal" onchange="toggleUserType()" class="hidden peer">
-                            <div class="p-4 border-2 border-gray-200 rounded-lg text-center peer-checked:border-indigo-600 peer-checked:bg-indigo-50 transition-all">
-                                <i class="fas fa-building text-2xl mb-2 text-gray-400 peer-checked:text-indigo-600"></i>
-                                <div class="font-medium">Kurumsal</div>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="grid md:grid-cols-2 gap-6">
-                    <!-- Ad Soyad -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-user text-indigo-600 mr-2"></i>Ad Soyad *
-                        </label>
-                        <input type="text" id="regName" required autocomplete="name"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all outline-none"
-                            placeholder="Adınız Soyadınız">
-                    </div>
-                    
-                    <!-- E-posta -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-envelope text-indigo-600 mr-2"></i>E-posta Adresi *
-                        </label>
-                        <input type="email" id="regEmail" required autocomplete="email"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all outline-none"
-                            placeholder="ornek@email.com">
-                    </div>
-                    
-                    <!-- Telefon -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-phone text-indigo-600 mr-2"></i>Telefon Numarası *
-                        </label>
-                        <input type="tel" id="regPhone" required autocomplete="tel"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all outline-none"
-                            placeholder="05XX XXX XX XX">
-                    </div>
-                    
-                    <!-- TC/Vergi No -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-id-card text-indigo-600 mr-2"></i>
-                            <span id="idLabel">T.C. Kimlik No *</span>
-                        </label>
-                        <input type="text" id="regIdNumber" required maxlength="11" autocomplete="off"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all outline-none"
-                            placeholder="T.C. Kimlik Numaranız">
-                    </div>
-                    
-                    <!-- Kurumsal Alanlar -->
-                    <div id="kurumsal-alanlar" class="md:col-span-2 hidden-tab">
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    <i class="fas fa-building text-indigo-600 mr-2"></i>Firma Adı *
-                                </label>
-                                <input type="text" id="regCompany" autocomplete="organization"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all outline-none"
-                                    placeholder="Firma Adı">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    <i class="fas fa-file-alt text-indigo-600 mr-2"></i>Vergi Dairesi
-                                </label>
-                                <input type="text" id="regTaxOffice" autocomplete="off"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all outline-none"
-                                    placeholder="Vergi Dairesi">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Şehir -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-map-marker-alt text-indigo-600 mr-2"></i>Şehir *
-                        </label>
-                        <select id="regCity" required onchange="loadDistricts()"
-                            class="city-select input-focus outline-none">
-                            <option value="">Şehir Seçin</option>
-                        </select>
-                    </div>
-                    
-                    <!-- İlçe -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-map-pin text-indigo-600 mr-2"></i>İlçe *
-                        </label>
-                        <select id="regDistrict" required
-                            class="district-select input-focus outline-none">
-                            <option value="">Önce Şehir Seçin</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Adres -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-home text-indigo-600 mr-2"></i>Açık Adres *
-                        </label>
-                        <textarea id="regAddress" required rows="3" autocomplete="street-address"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all outline-none resize-none"
-                            placeholder="Mahalle, Sokak, Bina No, Daire No"></textarea>
-                    </div>
-                    
-                    <!-- Şifre -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-lock text-indigo-600 mr-2"></i>Şifre *
-                        </label>
-                        <div class="relative">
-                            <input type="password" id="regPassword" required minlength="6" autocomplete="new-password"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all outline-none"
-                                placeholder="En az 6 karakter">
-                            <button type="button" onclick="togglePassword('regPassword')" 
-                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-indigo-600">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Şifre Tekrar -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-lock text-indigo-600 mr-2"></i>Şifre Tekrar *
-                        </label>
-                        <div class="relative">
-                            <input type="password" id="regPasswordConfirm" required autocomplete="new-password"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all outline-none"
-                                placeholder="Şifrenizi tekrar girin">
-                            <button type="button" onclick="togglePassword('regPasswordConfirm')" 
-                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-indigo-600">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- KVKK Onayı -->
-                <div class="flex items-start">
-                    <input type="checkbox" id="kvkk" required class="mt-1 w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                    <label for="kvkk" class="ml-2 text-sm text-gray-600">
-                        <a href="#" class="text-indigo-600 hover:underline">KVKK Aydınlatma Metni</a>'ni okudum ve kabul ediyorum. *
-                    </label>
-                </div>
-                
-                <button type="submit" id="registerBtn"
-                    class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2">
-                    <i class="fas fa-user-plus"></i>
-                    <span id="registerBtnText">Üye Ol</span>
-                </button>
-            </form>
-        </div>
         
-        <!-- Footer -->
-        <div class="bg-gray-50 p-6 text-center border-t border-gray-200">
-            <p class="text-sm text-gray-600">
-                Yardıma mı ihtiyacınız var? 
-                <a href="#" class="text-indigo-600 hover:text-indigo-800 font-medium">İletişime geçin</a>
+        <!-- Footer Info -->
+        <div class="bg-gray-50 p-6 text-center border-t border-gray-100">
+            <p class="text-xs text-gray-500">
+                Sorunuz mu var? <a href="iletisim.html" class="text-accent font-bold">Müşteri Hizmetleri</a>
             </p>
         </div>
     </div>
+</div>
 
     <!-- Şifre Sıfırlama Modal -->
     <div id="forgotModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
@@ -482,207 +275,10 @@
     </div>
 
     
-         <script>
-        // API BASE URL - Backend Render'da (backend-api-7s13)
+    <script>
         const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
             ? 'http://localhost:3000/api'
             : '/api';
-
-        // Türkiye Şehir ve İlçe Verileri
-        const cityData = {
-            "Adana": ["Aladağ", "Ceyhan", "Çukurova", "Feke", "İmamoğlu", "Karaisalı", "Karataş", "Kozan", "Pozantı", "Saimbeyli", "Sarıçam", "Seyhan", "Tufanbeyli", "Yumurtalık", "Yüreğir"],
-            "Adıyaman": ["Besni", "Çelikhan", "Gerger", "Gölbaşı", "Kahta", "Merkez", "Samsat", "Sincik", "Tut"],
-            "Afyonkarahisar": ["Başmakçı", "Bayat", "Bolvadin", "Çay", "Çobanlar", "Dazkırı", "Dinar", "Emirdağ", "Evciler", "Hocalar", "İhsaniye", "İscehisar", "Kızılören", "Merkez", "Sandıklı", "Sinanpaşa", "Sultandağı", "Şuhut"],
-            "Ağrı": ["Diyadin", "Doğubayazıt", "Eleşkirt", "Hamur", "Merkez", "Patnos", "Taşlıçay", "Tutak"],
-            "Amasya": ["Göynücek", "Gümüşhacıköy", "Hamamözü", "Merkez", "Merzifon", "Suluova", "Taşova"],
-            "Ankara": ["Akyurt", "Altındağ", "Ayaş", "Bala", "Beypazarı", "Çamlıdere", "Çankaya", "Çubuk", "Elmadağ", "Etimesgut", "Evren", "Gölbaşı", "Güdül", "Haymana", "Kahramankazan", "Kalecik", "Keçiören", "Kızılcahamam", "Mamak", "Nallıhan", "Polatlı", "Pursaklar", "Sincan", "Şereflikoçhisar", "Yenimahalle"],
-            "Antalya": ["Akseki", "Aksu", "Alanya", "Demre", "Döşemealtı", "Elmalı", "Finike", "Gazipaşa", "Gündoğmuş", "İbradı", "Kaş", "Kemer", "Kepez", "Konyaaltı", "Korkuteli", "Kumluca", "Manavgat", "Muratpaşa", "Serik"],
-            "Artvin": ["Ardanuç", "Arhavi", "Borçka", "Hopa", "Merkez", "Murgul", "Şavşat", "Yusufeli"],
-            "Aydın": ["Bozdoğan", "Buharkent", "Çine", "Didim", "Efeler", "Germencik", "İncirliova", "Karacasu", "Karpuzlu", "Koçarlı", "Köşk", "Kuşadası", "Kuyucak", "Nazilli", "Söke", "Sultanhisar", "Yenipazar"],
-            "Balıkesir": ["Altıeylül", "Ayvalık", "Balya", "Bandırma", "Bigadiç", "Burhaniye", "Dursunbey", "Edremit", "Erdek", "Gömeç", "Gönen", "Havran", "İvrindi", "Karesi", "Kepsut", "Manyas", "Marmara", "Savaştepe", "Sındırgı", "Susurluk"],
-            "Bilecik": ["Bozüyük", "Gölpazarı", "İnhisar", "Merkez", "Osmaneli", "Pazaryeri", "Söğüt", "Yenipazar"],
-            "Bingöl": ["Adaklı", "Genç", "Karlıova", "Kiğı", "Merkez", "Solhan", "Yayladere", "Yedisu"],
-            "Bitlis": ["Adilcevaz", "Ahlat", "Güroymak", "Hizan", "Merkez", "Mutki", "Tatvan"],
-            "Bolu": ["Dörtdivan", "Gerede", "Göynük", "Kıbrıscık", "Mengen", "Merkez", "Mudurnu", "Seben", "Yeniçağa"],
-            "Burdur": ["Ağlasun", "Altınyayla", "Bucak", "Çavdır", "Çeltikçi", "Gölhisar", "Karamanlı", "Kemer", "Merkez", "Tefenni", "Yeşilova"],
-            "Bursa": ["Büyükorhan", "Gemlik", "Gürsu", "Harmancık", "İnegöl", "İznik", "Karacabey", "Keles", "Kestel", "Mudanya", "Mustafakemalpaşa", "Nilüfer", "Orhaneli", "Orhangazi", "Osmangazi", "Yenişehir", "Yıldırım"],
-            "Çanakkale": ["Ayvacık", "Bayramiç", "Biga", "Bozcaada", "Çan", "Eceabat", "Ezine", "Gelibolu", "Gökçeada", "Lapseki", "Merkez", "Yenice"],
-            "Çankırı": ["Atkaracalar", "Bayramören", "Çerkeş", "Eldivan", "Ilgaz", "Kızılırmak", "Korgun", "Kurşunlu", "Merkez", "Orta", "Şabanözü", "Yapraklı"],
-            "Çorum": ["Alaca", "Bayat", "Boğazkale", "Dodurga", "İskilip", "Kargı", "Laçin", "Mecitözü", "Merkez", "Oğuzlar", "Ortaköy", "Osmancık", "Sungurlu", "Uğurludağ"],
-            "Denizli": ["Acıpayam", "Babadağ", "Baklan", "Bekilli", "Beyağaç", "Bozkurt", "Buldan", "Çal", "Çameli", "Çardak", "Çivril", "Güney", "Honaz", "Kale", "Merkezefendi", "Pamukkale", "Sarayköy", "Serinhisar", "Tavas"],
-            "Diyarbakır": ["Bağlar", "Bismil", "Çermik", "Çınar", "Çüngüş", "Dicle", "Eğil", "Ergani", "Hani", "Hazro", "Kayapınar", "Kocaköy", "Kulp", "Lice", "Silvan", "Sur", "Yenişehir"],
-            "Düzce": ["Akçakoca", "Cumayeri", "Çilimli", "Gölyaka", "Gümüşova", "Kaynaşlı", "Merkez", "Yığılca"],
-            "Edirne": ["Enez", "Havsa", "İpsala", "Keşan", "Lalapaşa", "Meriç", "Merkez", "Süloğlu", "Uzunköprü"],
-            "Elazığ": ["Ağın", "Alacakaya", "Arıcak", "Baskil", "Karakoçan", "Keban", "Kovancılar", "Maden", "Merkez", "Palu", "Sivrice"],
-            "Erzincan": ["Çayırlı", "İliç", "Kemah", "Kemaliye", "Merkez", "Otlukbeli", "Refahiye", "Tercan", "Üzümlü"],
-            "Erzurum": ["Aşkale", "Aziziye", "Çat", "Hınıs", "Horasan", "İspir", "Karaçoban", "Karayazı", "Köprüköy", "Narman", "Oltu", "Olur", "Palandöken", "Pasinler", "Pazaryolu", "Şenkaya", "Tekman", "Tortum", "Uzundere", "Yakutiye"],
-            "Eskişehir": ["Alpu", "Beylikova", "Çifteler", "Günyüzü", "Han", "İnönü", "Mahmudiye", "Mihalgazi", "Mihalıççık", "Odunpazarı", "Sarıcakaya", "Seyitgazi", "Sivrihisar", "Tepebaşı"],
-            "Gaziantep": ["Araban", "İslahiye", "Karkamış", "Nizip", "Nurdağı", "Oğuzeli", "Şahinbey", "Şehitkamil", "Yavuzeli"],
-            "Giresun": ["Alucra", "Bulancak", "Çamoluk", "Çanakçı", "Dereli", "Doğankent", "Espiye", "Eynesil", "Görele", "Güce", "Keşap", "Merkez", "Piraziz", "Şebinkarahisar", "Tirebolu", "Yağlıdere"],
-            "Gümüşhane": ["Kelkit", "Köse", "Kürtün", "Merkez", "Şiran", "Torul"],
-            "Hakkari": ["Çukurca", "Derecik", "Merkez", "Şemdinli", "Yüksekova"],
-            "Hatay": ["Altınözü", "Antakya", "Arsuz", "Belen", "Defne", "Dörtyol", "Erzin", "Hassa", "İskenderun", "Kırıkhan", "Kumlu", "Payas", "Reyhanlı", "Samandağ", "Yayladağı"],
-            "Iğdır": ["Aralık", "Karakoyunlu", "Merkez", "Tuzluca"],
-            "Isparta": ["Aksu", "Atabey", "Eğirdir", "Gelendost", "Gönen", "Keçiborlu", "Merkez", "Senirkent", "Sütçüler", "Şarkikaraağaç", "Uluborlu", "Yalvaç", "Yenişarbademli"],
-            "İstanbul": ["Adalar", "Arnavutköy", "Ataşehir", "Avcılar", "Bağcılar", "Bahçelievler", "Bakırköy", "Başakşehir", "Bayrampaşa", "Beşiktaş", "Beykoz", "Beylikdüzü", "Beyoğlu", "Büyükçekmece", "Çatalca", "Çekmeköy", "Esenler", "Esenyurt", "Eyüpsultan", "Fatih", "Gaziosmanpaşa", "Güngören", "Kadıköy", "Kağıthane", "Kartal", "Küçükçekmece", "Maltepe", "Pendik", "Sancaktepe", "Sarıyer", "Silivri", "Sultanbeyli", "Sultangazi", "Şile", "Şişli", "Tuzla", "Ümraniye", "Üsküdar", "Zeytinburnu"],
-            "İzmir": ["Aliağa", "Balçova", "Bayındır", "Bayraklı", "Bergama", "Beydağ", "Bornova", "Buca", "Çeşme", "Çiğli", "Dikili", "Foça", "Gaziemir", "Güzelbahçe", "Karabağlar", "Karaburun", "Karşıyaka", "Kemalpaşa", "Kınık", "Kiraz", "Konak", "Menderes", "Menemen", "Narlıdere", "Ödemiş", "Seferihisar", "Selçuk", "Tire", "Torbalı", "Urla"],
-            "Kahramanmaraş": ["Afşin", "Andırın", "Çağlayancerit", "Dulkadiroğlu", "Ekinözü", "Elbistan", "Göksun", "Nurhak", "Onikişubat", "Pazarcık", "Türkoğlu"],
-            "Karabük": ["Eflani", "Eskipazar", "Merkez", "Ovacık", "Safranbolu", "Yenice"],
-            "Karaman": ["Ayrancı", "Başyayla", "Ermenek", "Kazımkarabekir", "Merkez", "Sarıveliler"],
-            "Kars": ["Akyaka", "Arpaçay", "Digor", "Kağızman", "Merkez", "Sarıkamış", "Selim", "Susuz"],
-            "Kastamonu": ["Abana", "Ağlı", "Araç", "Azdavay", "Bozkurt", "Cide", "Çatalzeytin", "Daday", "Devrekani", "Doğanyurt", "Hanönü", "İhsangazi", "İnebolu", "Küre", "Merkez", "Pınarbaşı", "Seydiler", "Şenpazar", "Taşköprü", "Tosya"],
-            "Kayseri": ["Akkışla", "Bünyan", "Develi", "Felahiye", "Hacılar", "İncesu", "Kocasinan", "Melikgazi", "Özvatan", "Pınarbaşı", "Sarıoğlan", "Sarız", "Talas", "Tomarza", "Yahyalı", "Yeşilhisar"],
-            "Kırıkkale": ["Bahşılı", "Balışeyh", "Çelebi", "Delice", "Karakeçili", "Keskin", "Merkez", "Sulakyurt", "Yahşihan"],
-            "Kırklareli": ["Babaeski", "Demirköy", "Kofçaz", "Lüleburgaz", "Merkez", "Pehlivanköy", "Pınarhisar", "Vize"],
-            "Kırşehir": ["Akçakent", "Akpınar", "Boztepe", "Çiçekdağı", "Kaman", "Merkez", "Mucur"],
-            "Kilis": ["Elbeyli", "Merkez", "Musabeyli", "Polateli"],
-            "Kocaeli": ["Başiskele", "Çayırova", "Darıca", "Derince", "Dilovası", "Gebze", "Gölcük", "İzmit", "Kandıra", "Karamürsel", "Kartepe", "Körfez"],
-            "Konya": ["Ahırlı", "Akören", "Akşehir", "Altınekin", "Beyşehir", "Bozkır", "Cihanbeyli", "Çeltik", "Çumra", "Derbent", "Derebucak", "Doğanhisar", "Emirgazi", "Ereğli", "Güneysınır", "Hadim", "Halkapınar", "Hüyük", "Ilgın", "Kadınhanı", "Karapınar", "Karatay", "Kulu", "Meram", "Sarayönü", "Selçuklu", "Seydişehir", "Taşkent", "Tuzlukçu", "Yalıhüyük", "Yunak"],
-            "Kütahya": ["Altıntaş", "Aslanapa", "Çavdarhisar", "Domaniç", "Dumlupınar", "Emet", "Gediz", "Hisarcık", "Merkez", "Pazarlar", "Şaphane", "Simav", "Tavşanlı"],
-            "Malatya": ["Akçadağ", "Arapgir", "Arguvan", "Battalgazi", "Darende", "Doğanşehir", "Doğanyol", "Hekimhan", "Kale", "Kuluncak", "Pütürge", "Yazıhan", "Yeşilyurt"],
-            "Manisa": ["Ahmetli", "Akhisar", "Alaşehir", "Demirci", "Gölmarmara", "Gördes", "Kırkağaç", "Köprübaşı", "Kula", "Salihli", "Sarıgöl", "Saruhanlı", "Selendi", "Soma", "Şehzadeler", "Turgutlu", "Yunusemre"],
-            "Mardin": ["Artuklu", "Dargeçit", "Derik", "Kızıltepe", "Mazıdağı", "Midyat", "Nusaybin", "Ömerli", "Savur", "Yeşilli"],
-            "Mersin": ["Akdeniz", "Anamur", "Aydıncık", "Bozyazı", "Çamlıyayla", "Erdemli", "Gülnar", "Mezitli", "Mut", "Silifke", "Tarsus", "Toroslar", "Yenişehir"],
-            "Muğla": ["Bodrum", "Dalaman", "Datça", "Fethiye", "Kavaklıdere", "Köyceğiz", "Marmaris", "Menteşe", "Milas", "Ortaca", "Seydikemer", "Ula", "Yatağan"],
-            "Muş": ["Bulanık", "Hasköy", "Korkut", "Malazgirt", "Merkez", "Varto"],
-            "Nevşehir": ["Acıgöl", "Avanos", "Derinkuyu", "Gülşehir", "Hacıbektaş", "Kozaklı", "Merkez", "Ürgüp"],
-            "Niğde": ["Altunhisar", "Bor", "Çamardı", "Çiftlik", "Merkez", "Ulukışla"],
-            "Ordu": ["Akkuş", "Altınordu", "Aybastı", "Çamaş", "Çatalpınar", "Çaybaşı", "Fatsa", "Gölköy", "Gülyalı", "Gürgentepe", "İkizce", "Kabadüz", "Kabataş", "Korgan", "Kumru", "Mesudiye", "Perşembe", "Ulubey", "Ünye"],
-            "Osmaniye": ["Bahçe", "Düziçi", "Hasanbeyli", "Kadirli", "Merkez", "Sumbas", "Toprakkale"],
-            "Rize": ["Ardeşen", "Çamlıhemşin", "Çayeli", "Derepazarı", "Fındıklı", "Güneysu", "Hemşin", "İkizdere", "İyidere", "Kalkandere", "Merkez", "Pazar"],
-            "Sakarya": ["Adapazarı", "Akyazı", "Arifiye", "Erenler", "Ferizli", "Geyve", "Hendek", "Karapürçek", "Karasu", "Kaynarca", "Kocaali", "Pamukova", "Sapanca", "Serdivan", "Söğütlü", "Taraklı"],
-            "Samsun": ["Alaçam", "Asarcık", "Atakum", "Ayvacık", "Bafra", "Canik", "Çarşamba", "Havza", "İlkadım", "Kavak", "Ladik", "Ondokuzmayıs", "Salıpazarı", "Tekkeköy", "Terme", "Vezirköprü", "Yakakent"],
-            "Siirt": ["Baykan", "Eruh", "Kurtalan", "Merkez", "Pervari", "Şirvan", "Tillo"],
-            "Sinop": ["Ayancık", "Boyabat", "Dikmen", "Durağan", "Erfelek", "Gerze", "Merkez", "Saraydüzü", "Türkeli"],
-            "Sivas": ["Akıncılar", "Altınyayla", "Divriği", "Doğanşar", "Gemerek", "Gölova", "Gürün", "Hafik", "İmranlı", "Kangal", "Koyulhisar", "Merkez", "Şarkışla", "Suşehri", "Ulaş", "Yıldızeli", "Zara"],
-            "Şanlıurfa": ["Akçakale", "Birecik", "Bozova", "Ceylanpınar", "Eyyübiye", "Halfeti", "Haliliye", "Harran", "Hilvan", "Karaköprü", "Siverek", "Suruç", "Viranşehir"],
-            "Şırnak": ["Beytüşşebap", "Cizre", "Güçlükonak", "İdil", "Merkez", "Silopi", "Uludere"],
-            "Tekirdağ": ["Çerkezköy", "Çorlu", "Ergene", "Hayrabolu", "Kapaklı", "Malkara", "Marmaraereğlisi", "Muratlı", "Saray", "Süleymanpaşa", "Şarköy"],
-            "Tokat": ["Almus", "Artova", "Başçiftlik", "Erbaa", "Merkez", "Niksar", "Pazar", "Reşadiye", "Sulusaray", "Turhal", "Yeşilyurt", "Zile"],
-            "Trabzon": ["Akçaabat", "Araklı", "Arsin", "Beşikdüzü", "Çarşıbaşı", "Çaykara", "Dernekpazarı", "Düzköy", "Hayrat", "Köprübaşı", "Maçka", "Of", "Ortahisar", "Sürmene", "Şalpazarı", "Tonya", "Vakfıkebir", "Yomra"],
-            "Tunceli": ["Çemişgezek", "Hozat", "Mazgirt", "Merkez", "Nazımiye", "Ovacık", "Pertek", "Pülümür"],
-            "Uşak": ["Banaz", "Eşme", "Karahallı", "Merkez", "Sivaslı", "Ulubey"],
-            "Van": ["Bahçesaray", "Başkale", "Çaldıran", "Çatak", "Edremit", "Erciş", "Gevaş", "Gürpınar", "İpekyolu", "Muradiye", "Özalp", "Saray", "Tuşba"],
-            "Yalova": ["Altınova", "Armutlu", "Çınarcık", "Çiftlikköy", "Merkez", "Termal"],
-            "Yozgat": ["Akdağmadeni", "Aydıncık", "Boğazlıyan", "Çandır", "Çayıralan", "Çekerek", "Kadışehri", "Merkez", "Saraykent", "Sarıkaya", "Şefaatli", "Sorgun", "Yenifakılı", "Yerköy"],
-            "Zonguldak": ["Alaplı", "Çaycuma", "Devrek", "Ereğli", "Gökçebey", "Kilimli", "Kozlu", "Merkez"]
-        };
-
-        async function applyOAuthProviderVisibility() {
-            try {
-                const r = await fetch(API_URL + '/auth/oauth-providers');
-                const d = await r.json();
-                if (!d.success) return;
-                const on = { google: !!d.google, facebook: !!d.facebook, instagram: !!d.instagram };
-                document.querySelectorAll('.oauth-quick-block').forEach(function (block) {
-                    var showBlock = false;
-                    block.querySelectorAll('.oauth-cell').forEach(function (cell) {
-                        var key = cell.getAttribute('data-oauth');
-                        var vis = key && on[key];
-                        cell.style.display = vis ? '' : 'none';
-                        if (vis) showBlock = true;
-                    });
-                    block.style.display = showBlock ? '' : 'none';
-                });
-                var regDiv = document.getElementById('oauthDividerRegister');
-                if (regDiv) {
-                    regDiv.style.display = (on.google || on.facebook || on.instagram) ? '' : 'none';
-                }
-            } catch (e) {
-                console.warn('oauth-providers', e);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const API_ORIGIN = new URL(API_URL).origin;
-            const gBtn = document.getElementById('oauthGoogleBtn');
-            const fBtn = document.getElementById('oauthFacebookBtn');
-            const iBtn = document.getElementById('oauthInstagramBtn');
-            if (gBtn) gBtn.href = API_ORIGIN + '/api/auth/google';
-            if (fBtn) fBtn.href = API_ORIGIN + '/api/auth/facebook';
-            if (iBtn) iBtn.href = API_ORIGIN + '/api/auth/instagram';
-            const gReg = document.getElementById('oauthGoogleBtnReg');
-            const fReg = document.getElementById('oauthFacebookBtnReg');
-            const iReg = document.getElementById('oauthInstagramBtnReg');
-            if (gReg) gReg.href = API_ORIGIN + '/api/auth/google';
-            if (fReg) fReg.href = API_ORIGIN + '/api/auth/facebook';
-            if (iReg) iReg.href = API_ORIGIN + '/api/auth/instagram';
-            applyOAuthProviderVisibility().then(function () { handleOAuthReturn(); });
-        });
-
-        // Sayfa yüklendiğinde şehirleri doldur
-        document.addEventListener('DOMContentLoaded', function() {
-            const citySelect = document.getElementById('regCity');
-            Object.keys(cityData).sort().forEach(city => {
-                const option = document.createElement('option');
-                option.value = city;
-                option.textContent = city;
-                citySelect.appendChild(option);
-            });
-        });
-
-        // İlçeleri yükle
-        function loadDistricts() {
-            const city = document.getElementById('regCity').value;
-            const districtSelect = document.getElementById('regDistrict');
-            
-            districtSelect.innerHTML = '<option value="">İlçe Seçin</option>';
-            
-            if (city && cityData[city]) {
-                cityData[city].forEach(district => {
-                    const option = document.createElement('option');
-                    option.value = district;
-                    option.textContent = district;
-                    districtSelect.appendChild(option);
-                });
-            }
-        }
-
-        // Tab değiştirme
-        function switchTab(tab) {
-            const loginSection = document.getElementById('login-section');
-            const registerSection = document.getElementById('register-section');
-            const loginTab = document.getElementById('tab-login');
-            const registerTab = document.getElementById('tab-register');
-            
-            if (tab === 'login') {
-                loginSection.classList.remove('hidden-tab');
-                registerSection.classList.add('hidden-tab');
-                loginTab.classList.remove('tab-inactive');
-                loginTab.classList.add('tab-active');
-                registerTab.classList.remove('tab-active');
-                registerTab.classList.add('tab-inactive');
-            } else {
-                loginSection.classList.add('hidden-tab');
-                registerSection.classList.remove('hidden-tab');
-                registerTab.classList.remove('tab-inactive');
-                registerTab.classList.add('tab-active');
-                loginTab.classList.remove('tab-active');
-                loginTab.classList.add('tab-inactive');
-            }
-        }
-
-        // Üyelik tipi değiştirme
-        function toggleUserType() {
-            const userType = document.querySelector('input[name="userType"]:checked').value;
-            const kurumsalAlanlar = document.getElementById('kurumsal-alanlar');
-            const idLabel = document.getElementById('idLabel');
-            const regIdNumber = document.getElementById('regIdNumber');
-            
-            if (userType === 'kurumsal') {
-                kurumsalAlanlar.classList.remove('hidden-tab');
-                idLabel.textContent = 'Vergi No *';
-                regIdNumber.placeholder = 'Vergi Numarası';
-                regIdNumber.maxLength = 10;
-                document.getElementById('regCompany').required = true;
-            } else {
-                kurumsalAlanlar.classList.add('hidden-tab');
-                idLabel.textContent = 'T.C. Kimlik No *';
-                regIdNumber.placeholder = 'T.C. Kimlik Numaranız';
-                regIdNumber.maxLength = 11;
-                document.getElementById('regCompany').required = false;
-            }
-        }
 
         // Şifre göster/gizle
         function togglePassword(inputId) {
@@ -729,40 +325,6 @@
             }, 3000);
         }
 
-        async function handleOAuthReturn() {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('oauth_error')) {
-                const msg = params.get('message') || 'Sosyal giriş tamamlanamadı.';
-                showToast(decodeURIComponent(msg), 'error');
-                window.history.replaceState({}, document.title, window.location.pathname);
-                return;
-            }
-            const rawToken = params.get('oauth_token');
-            if (!rawToken) return;
-            const token = decodeURIComponent(rawToken);
-            localStorage.setItem('token', token);
-            try {
-                const r = await fetch(`${API_URL}/auth/profile`, {
-                    headers: { 'Authorization': 'Bearer ' + token }
-                });
-                const data = await r.json();
-                if (data.success && data.user) {
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    showToast('Giriş başarılı! Yönlendiriliyorsunuz...');
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    setTimeout(() => { window.location.href = 'index.html'; }, 400);
-                } else {
-                    localStorage.removeItem('token');
-                    showToast(data.message || 'Profil alınamadı', 'error');
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                }
-            } catch (e) {
-                localStorage.removeItem('token');
-                showToast('Bağlantı hatası', 'error');
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        }
-
         // Buton loading durumu
         function setLoading(btnId, textId, isLoading) {
             const btn = document.getElementById(btnId);
@@ -772,128 +334,43 @@
             if (isLoading) {
                 btn.classList.add('loading');
                 text.textContent = 'İşleniyor...';
-                icon.classList.add('spinner');
+                if (icon) icon.classList.add('spinner');
             } else {
                 btn.classList.remove('loading');
-                icon.classList.remove('spinner');
+                if (icon) icon.classList.remove('spinner');
             }
         }
 
-        // Backend için veri hazırlama - User Model'e tam uyumlu
-        function prepareRegisterData() {
-            const userType = document.querySelector('input[name="userType"]:checked').value;
-            const fullName = document.getElementById('regName').value.trim();
-            const city = document.getElementById('regCity').value;
-            const district = document.getElementById('regDistrict').value;
-            const address = document.getElementById('regAddress').value.trim();
-            const phone = document.getElementById('regPhone').value.trim();
-            const idNumber = document.getElementById('regIdNumber').value.trim();
-            
-            // Temel veri
-            const data = {
-                ad: fullName,                    // User model: ad (required)
-                email: document.getElementById('regEmail').value.trim().toLowerCase(), // User model: email (required)
-                password: document.getElementById('regPassword').value,  // User model: password (required) - İNGİLİZCE!
-                uyelikTipi: userType,            // User model: uyelikTipi
-                telefon: phone                   // User model: telefon
-            };
-
-            // Fatura adresi (her iki tip için de)
-            data.faturaAdresi = {
-                baslik: userType === 'kurumsal' ? 'Fatura Adresi' : 'Ev',
-                sehir: city,
-                ilce: district,
-                acikAdres: address,
-                vergiDairesi: '',
-                vergiNo: ''
-            };
-
-            // Teslimat adresi
-            data.teslimatAdresi = {
-                baslik: 'Teslimat Adresi',
-                adSoyad: fullName,
-                telefon: phone,
-                sehir: city,
-                ilce: district,
-                acikAdres: address
-            };
-
-            // Bireysel/Kurumsal özel alanlar
-            if (userType === 'bireysel') {
-                data.tcNo = idNumber;             // User model: tcNo
-            } else {
-                // Kurumsal
-                data.firma = document.getElementById('regCompany').value.trim();           // User model: firma
-                data.vergiNo = idNumber;          // User model: vergiNo
-                data.vergiDairesi = document.getElementById('regTaxOffice').value.trim();  // User model: vergiDairesi
-                
-                // Fatura adresine de vergi bilgilerini ekle
-                data.faturaAdresi.vergiDairesi = data.vergiDairesi;
-                data.faturaAdresi.vergiNo = data.vergiNo;
-            }
-
-            return data;
-        }
-
-        // GİRİŞ YAP - API Entegrasyonu
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        // Login İşlemi
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            setLoading('loginBtn', 'loginBtnText', true);
             
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
             const rememberMe = document.getElementById('rememberMe').checked;
             
-            setLoading('loginBtn', 'loginBtnText', true);
-            
             try {
                 const response = await fetch(`${API_URL}/auth/login`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        password: password  // Modelde password (İngilizce)
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
                 });
-                
+
                 const data = await response.json();
-                
-                if (response.ok && data.token) {
-                    // Token'ı sakla
+
+                if (response.ok) {
                     const storage = rememberMe ? localStorage : sessionStorage;
                     storage.setItem('token', data.token);
                     storage.setItem('user', JSON.stringify(data.user));
                     
                     showToast('Giriş başarılı! Yönlendiriliyorsunuz...');
-                    
-                    // returnTo varsa (örn. bayilik-basvuru) oraya yönlendir
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const returnTo = urlParams.get('returnTo');
-                    if (returnTo && /^[a-zA-Z0-9_.-]+\.html$/.test(returnTo)) {
-                        setTimeout(() => { window.location.href = returnTo; }, 350);
-                        return;
-                    }
-                    
-                    // Kullanıcı rolüne göre yönlendirme (kısa gecikme, hızlı yönlendirme)
                     setTimeout(() => {
-                        const userRol = data.user?.rol || 'user';
-                        const userTip = data.user?.uyelikTipi || 'bireysel';
-                        
-                        let redirectPage = 'index.html'; // Varsayılan
-                        
-                        if (userRol === 'admin') {
-                            redirectPage = 'admin/index.html';  // Admin paneli
-                        } else if (userTip === 'kurumsal') {
-                            redirectPage = 'index.html';        // Kurumsal panel
-                        } else {
-                            redirectPage = 'index.html';        // Bireysel ana sayfa
-                        }
-                        
-                        window.location.href = redirectPage;
-                    }, 350);
+                        window.location.href = 'profil.html';
+                    }, 1000);
                 } else {
-                    showToast(data.message || 'Giriş başarısız! E-posta veya şifre hatalı.', 'error');
+                    showToast(data.message || 'E-posta veya şifre hatalı!', 'error');
                 }
             } catch (error) {
                 console.error('Giriş hatası:', error);
@@ -904,71 +381,9 @@
             }
         });
 
-        // KAYIT OL - API Entegrasyonu
-        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+        // Şifre Sıfırlama İsteği
+        document.getElementById('forgotForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const password = document.getElementById('regPassword').value;
-            const passwordConfirm = document.getElementById('regPasswordConfirm').value;
-            
-            if (password !== passwordConfirm) {
-                showToast('Şifreler eşleşmiyor!', 'error');
-                return;
-            }
-            
-            if (password.length < 6) {
-                showToast('Şifre en az 6 karakter olmalı!', 'error');
-                return;
-            }
-            
-            const formData = prepareRegisterData();
-            console.log('Gönderilen veri:', formData); // Debug için
-            
-            setLoading('registerBtn', 'registerBtnText', true);
-            
-            try {
-                const response = await fetch(`${API_URL}/auth/register`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    showToast('Kayıt başarılı! Giriş yapabilirsiniz.');
-                    
-                    // Form temizle
-                    document.getElementById('registerForm').reset();
-                    
-                    setTimeout(() => {
-                        switchTab('login');
-                        document.getElementById('loginEmail').value = formData.email;
-                    }, 1500);
-                } else {
-                    // Mongoose validasyon hatası detayları
-                    if (data.errors) {
-                        const errorMessages = Object.values(data.errors).map(err => err.message).join(', ');
-                        showToast(errorMessages || data.message || 'Kayıt başarısız!', 'error');
-                    } else {
-                        showToast(data.message || 'Kayıt başarısız!', 'error');
-                    }
-                }
-            } catch (error) {
-                console.error('Kayıt hatası:', error);
-                showToast('Bağlantı hatası! Lütfen tekrar deneyin.', 'error');
-            } finally {
-                setLoading('registerBtn', 'registerBtnText', false);
-                document.getElementById('registerBtnText').textContent = 'Üye Ol';
-            }
-        });
-
-        // ŞİFRE SIFIRLAMA - API Entegrasyonu
-        document.getElementById('forgotForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
             const email = document.getElementById('forgotEmail').value.trim();
             
             document.getElementById('forgotBtn').textContent = 'Gönderiliyor...';
@@ -977,16 +392,13 @@
             try {
                 const response = await fetch(`${API_URL}/auth/forgot-password`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email: email })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
                 });
-                
+
                 const data = await response.json();
-                
                 if (response.ok) {
-                    showToast('Şifre sıfırlama bağlantısı e-posta adresinize gönderildi!');
+                    showToast('Sıfırlama bağlantısı e-posta adresinize gönderildi.');
                     hideForgotPassword();
                     document.getElementById('forgotForm').reset();
                 } else {
@@ -1000,13 +412,79 @@
                 document.getElementById('forgotBtn').disabled = false;
             }
         });
-
-        // Modal dışına tıklama
-        document.getElementById('forgotModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                hideForgotPassword();
-            }
-        });
     </script>
+</div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-col footer-about">
+        <a href="index.html" class="logo">Kurumsal<span>Tedarikçi</span></a>
+        <p>İşletmenizi dijital dünyaya taşıyan güvenilir çözüm ortağınız. E-dönüşüm süreçlerinizde her zaman yanınızdayız.</p>
+        <div class="footer-social">
+          <a href="mailto:iletisim@tedarikci.org.tr" class="social-link"><i class="fas fa-envelope"></i></a>
+          <a href="https://wa.me/905059112749" target="_blank" class="social-link" style="color:#25d366;"><i class="fab fa-whatsapp"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+      
+      <div class="footer-col">
+        <h4>Ürünlerimiz</h4>
+        <ul class="footer-links">
+          <li><a href="urunler.html?kategori=e-imza"><i class="fas fa-chevron-right"></i> Elektronik İmza</a></li>
+          <li><a href="urunler.html?kategori=e-fatura"><i class="fas fa-chevron-right"></i> E-Fatura</a></li>
+          <li><a href="urunler.html?kategori=kep"><i class="fas fa-chevron-right"></i> KEP Paketleri</a></li>
+          <li><a href="urunler.html?kategori=mali-muhur"><i class="fas fa-chevron-right"></i> Mali Mühür</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-col">
+        <h4>Kurumsal</h4>
+        <ul class="footer-links">
+          <li><a href="referanslar.html"><i class="fas fa-chevron-right"></i> Referanslar</a></li>
+          <li><a href="bayilik-basvuru.html"><i class="fas fa-chevron-right"></i> Bayilik Başvurusu</a></li>
+          <li><a href="iletisim.html"><i class="fas fa-chevron-right"></i> İletişim</a></li>
+          <li><a href="teklif.html"><i class="fas fa-chevron-right"></i> Teklif Al</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-col">
+        <h4>İletişim</h4>
+        <div class="footer-contact-item">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>Hacı Yusuf Mah. Eser Sokak No:4/10 Bandırma/Balıkesir</span>
+        </div>
+        <div class="footer-contact-item">
+          <i class="fas fa-phone"></i>
+          <span>+90 505 911 27 49</span>
+        </div>
+        <div class="footer-contact-item">
+          <i class="fas fa-envelope"></i>
+          <span>iletisim@tedarikci.org.tr</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="footer-bottom">
+    <div class="container">
+      <div class="etbis-footer-wrap">
+        <div class="etbis-footer-badge"><i class="fas fa-shield-halved"></i> ETBİS KAYITLI SİTE</div>
+        <p class="etbis-footer-text">Bu site, T.C. Ticaret Bakanlığı Elektronik Ticaret Bilgi Sistemi (ETBİS) kapsamında kayıtlı bir elektronik ticaret ortamıdır.</p>
+        <div class="legal-links">
+          <a href="gizlilik-ve-guvenlik-politikasi.html">Gizlilik Politikası</a>
+          <a href="mesafeli-satis-sozlesmesi.html">Mesafeli Satış Sözleşmesi</a>
+          <a href="iptal-ve-iade-kosullari.html">İade Koşulları</a>
+          <a href="kullanim-kosullari.html">Kullanım Şartları</a>
+        </div>
+        <p class="footer-copyright">© 2026 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+    <script src="js/main.js"></script>
 </body>
 </html>

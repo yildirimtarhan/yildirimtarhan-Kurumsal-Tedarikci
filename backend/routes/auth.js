@@ -140,12 +140,12 @@ router.post("/register", async (req, res) => {
       acikAdres: eskiTeslimatAdresi || eskiFaturaAdresi || ""
     };
 
-    // Adres dizisi - AddressSchema formatında (baslik, adSoyad, telefon, sehir, ilce, mahalle, sokak, postaKodu, acikAdres, tip)
+    // Adres dizisi - AddressSchema formatında
     const addresses = [];
     
-    // Fatura adresi ekle
+    // 1. Fatura adresi HER ZAMAN ekle
     addresses.push({
-      baslik: yeniFaturaAdresi.baslik || "Fatura Adresi",
+      baslik: yeniFaturaAdresi.baslik || "Varsayılan Fatura Adresi",
       adSoyad: ad,
       telefon: telefon || "",
       sehir: yeniFaturaAdresi.sehir || "",
@@ -158,23 +158,20 @@ router.post("/register", async (req, res) => {
       varsayilan: true
     });
 
-    // Teslimat adresi ekle (farklıysa veya fatura ile aynı olsa bile ikisi de olsun - adreslerim sayfası için)
-    const teslimatFarkli = JSON.stringify(yeniTeslimatAdresi) !== JSON.stringify(yeniFaturaAdresi);
-    if (teslimatFarkli || !yeniTeslimatAdresi.acikAdres) {
-      addresses.push({
-        baslik: yeniTeslimatAdresi.baslik || "Teslimat Adresi",
-        adSoyad: ad,
-        telefon: telefon || "",
-        sehir: yeniTeslimatAdresi.sehir || "",
-        ilce: yeniTeslimatAdresi.ilce || "",
-        mahalle: yeniTeslimatAdresi.mahalle || "",
-        sokak: yeniTeslimatAdresi.sokak || "",
-        postaKodu: yeniTeslimatAdresi.postaKodu || "",
-        acikAdres: (yeniTeslimatAdresi.acikAdres || yeniFaturaAdresi.acikAdres) || "",
-        tip: 'teslimat',
-        varsayilan: false
-      });
-    }
+    // 2. Teslimat adresi HER ZAMAN ekle
+    addresses.push({
+      baslik: yeniTeslimatAdresi.baslik || "Varsayılan Teslimat Adresi",
+      adSoyad: ad,
+      telefon: telefon || "",
+      sehir: yeniTeslimatAdresi.sehir || "",
+      ilce: yeniTeslimatAdresi.ilce || "",
+      mahalle: yeniTeslimatAdresi.mahalle || "",
+      sokak: yeniTeslimatAdresi.sokak || "",
+      postaKodu: yeniTeslimatAdresi.postaKodu || "",
+      acikAdres: (yeniTeslimatAdresi.acikAdres || yeniFaturaAdresi.acikAdres) || "",
+      tip: 'teslimat',
+      varsayilan: true // Hem fatura hem teslimat için varsayılan birer tane olsun
+    });
 
     // ✅ Kullanıcı oluştur - adresler tekil objeler + adres dizisi
     const newUser = await User.create({
@@ -391,6 +388,7 @@ router.get("/profile", async (req, res) => {
         email: user.email,
         rol: user.rol,
         uyelikTipi: user.uyelikTipi,
+        request_feedback: true,
         firma: user.firma,
         telefon: user.telefon,
         tcNo: user.tcNo,
@@ -478,7 +476,7 @@ router.get("/adreslerim", async (req, res) => {
   }
 });
 
-// YENİ: Adres güncelle
+// YENİ: Adres güncelle (Geri uyumluluk)
 router.put("/adres-guncelle", async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -508,6 +506,94 @@ router.put("/adres-guncelle", async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ success: false, message: "Adres güncelleme hatası" });
+  }
+});
+
+// ==========================================
+// ADRES YÖNETİMİ (ÇOKLU)
+// ==========================================
+
+// Yeni adres ekle
+router.post("/adres-ekle", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ success: false, message: "Token gerekli" });
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId || decoded.id;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı" });
+
+    const { baslik, sehir, ilce, acikAdres, tip, varsayilan } = req.body;
+
+    if (varsayilan) {
+      user.addresses.forEach(sub => {
+        if (sub.tip === tip) sub.varsayilan = false;
+      });
+    }
+
+    const newAddr = {
+      baslik: baslik || (tip === 'fatura' ? 'Yeni Fatura Adresi' : 'Yeni Teslimat Adresi'),
+      sehir: sehir || "",
+      ilce: ilce || "",
+      acikAdres: acikAdres || "",
+      tip: tip || 'teslimat',
+      varsayilan: varsayilan || false
+    };
+
+    user.addresses.push(newAddr);
+
+    if (varsayilan) {
+      if (tip === 'fatura') user.faturaAdresi = newAddr;
+      else user.teslimatAdresi = newAddr;
+    }
+
+    await user.save();
+    res.json({ success: true, message: "Adres eklendi", addresses: user.addresses });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Adres sil
+router.delete("/adres-sil/:id", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId || decoded.id;
+    const user = await User.findById(userId);
+
+    user.addresses = user.addresses.filter(a => a._id.toString() !== req.params.id);
+    await user.save();
+    res.json({ success: true, message: "Adres silindi" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Varsayılan adres yap
+router.put("/adres-varsayilan/:id", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId || decoded.id;
+    const user = await User.findById(userId);
+
+    const target = user.addresses.find(a => a._id.toString() === req.params.id);
+    if (!target) return res.status(404).json({ success: false, message: "Adres bulunamadı" });
+
+    user.addresses.forEach(a => {
+      if (a.tip === target.tip) a.varsayilan = false;
+    });
+    target.varsayilan = true;
+
+    if (target.tip === 'fatura') user.faturaAdresi = target;
+    else user.teslimatAdresi = target;
+
+    await user.save();
+    res.json({ success: true, message: "Varsayılan yapıldı" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 

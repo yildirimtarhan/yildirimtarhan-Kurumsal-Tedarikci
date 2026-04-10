@@ -5,40 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>Siparişlerim - Kurumsal Tedarikçi</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
             min-height: 100vh;
             padding-top: 80px;
         }
-
-        /* Navbar */
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: white;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
-            z-index: 1000;
-            padding: 15px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 70px;
-        }
-
-        .logo {
-            font-size: 22px;
-            font-weight: 800;
-            color: #1f2937;
-            text-decoration: none;
-        }
-
-        .logo span { color: #6366f1; }
 
         .nav-back {
             display: flex;
@@ -226,54 +202,164 @@
             font-size: 15px;
         }
 
-        /* Kargo Bilgisi - YENİ EKLENDİ */
-        .kargo-bilgisi {
-            background: #e0f2fe;
-            padding: 1rem;
-            border-radius: 8px;
-            margin: 1rem 0;
-            border-left: 4px solid #0ea5e9;
+        /* Kargo Bilgisi Kademeli Görünüm */
+        .progressive-tracker {
+            padding: 20px 10px;
+            margin-bottom: 20px;
         }
 
-        .kargo-bilgisi h5 {
-            color: #0369a1;
-            margin-bottom: 0.5rem;
+        .tracker-steps-container {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 14px;
+            justify-content: space-between;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
         }
 
-        .kargo-bilgisi p {
-            color: #0c4a6e;
-            font-size: 13px;
-            margin: 4px 0;
-        }
-
-        .kargo-bilgisi .takip-no {
-            font-weight: 700;
-            color: #0284c7;
-            font-family: monospace;
-            font-size: 14px;
-        }
-
-        .btn-kargo-takip {
-            display: inline-flex;
+        .t-step {
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 6px;
-            margin-top: 8px;
-            padding: 8px 16px;
-            background: #0ea5e9;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            transition: background 0.3s;
+            position: relative;
+            z-index: 2;
+            width: 80px;
         }
 
-        .btn-kargo-takip:hover {
-            background: #0284c7;
+        .t-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 3;
+        }
+
+        .t-text {
+            margin-top: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #64748b;
+            text-align: center;
+            line-height: 1.4;
+            transition: color 0.3s ease;
+        }
+
+        .t-step.completed .t-icon {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #fff;
+            border-color: #10b981;
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+        }
+
+        .t-step.active .t-icon {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: #fff;
+            border-color: #6366f1;
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+            transform: scale(1.1);
+        }
+
+        .t-step.completed .t-text { color: #059669; }
+        .t-step.active .t-text { color: #4f46e5; font-weight: 800; }
+
+        .t-line {
+            flex: 1;
+            height: 6px;
+            background: #e2e8f0;
+            position: relative;
+            transform: translateY(-16px);
+            z-index: 1;
+            margin: 0 -15px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .t-line::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            transition: width 0.8s ease;
+        }
+
+        .t-line.active-line::after {
+            width: 100%;
+        }
+
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(99,102,241,0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(99,102,241,0); }
+            100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+        }
+
+        /* Yeni Gelişmiş Kargo Kutusu */
+        .adv-kargo-bilgisi {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .adv-kargo-header {
+            background: #f8fafc;
+            padding: 12px 20px;
+            font-weight: 700;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 15px;
+        }
+
+        .adv-kargo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .adv-k-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .adv-k-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .adv-k-val {
+            font-size: 14px;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .tracking-code {
+            color: #6366f1;
+            font-family: monospace;
+            font-size: 15px;
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
         }
 
         /* Sipariş Alt Bilgi */
@@ -394,6 +480,21 @@
             to { transform: rotate(360deg); }
         }
 
+        /* Canlı Kargo Takibi Timeline */
+        .kargo-live-title { font-size: 14px; font-weight: 700; color: #1e293b; margin: 20px 0 12px 0; display: flex; align-items: center; gap: 8px; padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0; }
+        .kargo-timeline { position: relative; padding-left: 25px; margin: 15px 0; }
+        .kargo-timeline::before { content: ''; position: absolute; left: 5px; top: 5px; bottom: 5px; width: 2px; background: #e2e8f0; }
+        .timeline-item { position: relative; margin-bottom: 18px; }
+        .timeline-item::before { content: ''; position: absolute; left: -25px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: #fff; border: 2px solid #cbd5e1; z-index: 2; }
+        .timeline-item.latest::before { background: #6366f1; border-color: #6366f1; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2); }
+        .timeline-content { background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #f1f5f9; }
+        .timeline-status { font-weight: 700; font-size: 13px; color: #1e293b; }
+        .timeline-date { font-size: 11px; color: #64748b; }
+        .timeline-desc { font-size: 12px; color: #475569; line-height: 1.5; }
+        .timeline-location { font-size: 11px; color: #6366f1; font-weight: 700; margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+        .btn-track-external { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; color: #475569; font-size: 12px; font-weight: 600; text-decoration: none; transition: all 0.2s; margin-top: 12px; margin-bottom: 5px; }
+        .btn-track-external:hover { background: #f1f5f9; color: #6366f1; border-color: #cbd5e1; transform: translateY(-1px); }
+
         /* Mobil */
         @media (max-width: 768px) {
             body { padding-top: 60px; }
@@ -463,17 +564,65 @@
 
     <!-- Navbar -->
     <nav class="navbar">
-        <a href="index.html" class="logo">Kurumsal<span>Tedarikçi</span></a>
-        <a href="profil.html" class="nav-back">
-            <i class="fas fa-arrow-left"></i> Profil'e Dön
-        </a>
-    </nav>
+<a class="logo" href="index.html">Kurumsal<span>Tedarikçi</span></a>
+<button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()">
+<i class="fas fa-bars" id="menuIcon"></i>
+</button>
+<ul class="nav-links" id="navLinks">
+<button aria-label="Menüyü Kapat" class="close-menu" onclick="toggleMenu()">
+<i class="fas fa-times"></i>
+</button>
+<li><a href="index.html">Anasayfa</a></li>
+<li><a href="hizmetler.html">Hizmetler</a></li>
+<li><a href="paketler.html">Paketler</a></li>
+<li class="nav-item-dropdown" id="urunlerNavItem">
+<a href="urunler.html" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('urunlerDropdown'); return false;">Ürünler <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="urunlerDropdown">
+  <!-- JS tarafından dinamik olarak doldurulacak -->
+  <a href="urunler.html?kategori=e-imza"><i class="fas fa-pen-fancy"></i> Elektronik İmza (E-İmza)</a>
+  <a href="urunler.html?kategori=e-fatura"><i class="fas fa-file-invoice"></i> E-Fatura</a>
+  <a href="urunler.html"><i class="fas fa-th-list"></i> Tümünü göster</a>
+</div>
+</li>
+<li class="nav-item-dropdown">
+<a href="#" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('kurumsalDropdown'); return false;">Kurumsal <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="kurumsalDropdown">
+<a href="referanslar.html"><i class="fas fa-handshake"></i> Referanslar</a>
+<a href="bayilik-basvuru.html"><i class="fas fa-file-signature"></i> Bayilik Başvurusu</a>
+<a href="bayi-giris.html"><i class="fas fa-user-tie"></i> Bayi Girişi</a>
+<a href="iletisim.html"><i class="fas fa-map-marker-alt"></i> İletişim</a>
+</div>
+</li>
+
+<li><a href="teklif.html" style="color: #f59e0b; font-weight: 700;">Teklif Al</a></li>
+</ul>
+<div class="nav-right" id="navUserArea">
+  <!-- JS burayı dolduracak -->
+  <a class="login-btn" href="giris.html">Giriş Yap</a>
+  <a class="register-btn" href="kayit.html">Kayıt Ol</a>
+  <a class="cart-btn" href="odeme.html">
+    <i class="fas fa-shopping-cart"></i>
+    <span class="cart-count" id="cart-count">0</span>
+  </a>
+</div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="bayilik-basvuru.html">Bayilik Başvurusu</a></li><li><a href="bayi-giris.html">Bayi Girişi</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
 
     <!-- Container -->
     <div class="container">
+        <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+            <a href="index.html" class="btn-back-nav" style="background: white; border: 1px solid #e5e7eb; color: #6b7280;">
+                <i class="fas fa-home"></i> Anasayfa
+            </a>
+            <a href="profil.html" class="btn-back-nav">
+                <i class="fas fa-user"></i> Profilim
+            </a>
+        </div>
+
         <div class="page-header">
             <h1><i class="fas fa-box-open"></i> Siparişlerim</h1>
-            <p>Tüm siparişlerinizi buradan takip edebilirsiniz</p>
+            <p>Tüm siparişlerinizi buradan detaylı olarak takip edebilirsiniz</p>
         </div>
 
         <!-- Filtreler -->
@@ -509,7 +658,7 @@
             } catch (_) {}
         })();
 
-        // Kullanıcı kontrolü (hem localStorage hem sessionStorage - Beni hatırla işaretlenmemişse sessionStorage kullanılır)
+        // Kullanıcı kontrolü
         const userData = localStorage.getItem('user') || sessionStorage.getItem('user');
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
 
@@ -520,10 +669,27 @@
 
         let allOrders = [];
 
+        // Kargo takip linki oluşturucu
+        function getTrackingUrl(firma, takipNo) {
+            if (!takipNo) return null;
+            const f = (firma || '').toLowerCase();
+            if (f.includes('aras')) return `https://www.araskargo.com.tr/tuzel/kargo_takip/detay.aspx?s_kod=${takipNo}`;
+            if (f.includes('yurtici') || f.includes('yurtiçi')) return `https://www.yurticikargo.com/tr/online-servisler/kargo-takip?code=${takipNo}`;
+            if (f.includes('mng')) return `https://www.mngkargo.com.tr/kargotakip?takipno=${takipNo}`;
+            if (f.includes('surat') || f.includes('sürat')) return `https://www.suratkargo.com.tr/kargotakip/?takipno=${takipNo}`;
+            if (f.includes('hepsijet')) return `https://www.hepsijet.com/gonderi-takibi/${takipNo}`;
+            if (f.includes('ptt')) return `https://gonderitakip.ptt.gov.tr/Track/PttTrackResult?barcode=${takipNo}`;
+            return null;
+        }
+
         // Siparişleri getir
         async function loadOrders() {
+            const container = document.getElementById('ordersList');
             try {
-                const user = JSON.parse(userData);
+                let user = {};
+                try {
+                    user = userData ? JSON.parse(userData) : {};
+                } catch(e) { console.error("User data parse error"); }
                 
                 const response = await fetch(`${API_URL}/orders/my-orders`, {
                     headers: {
@@ -531,7 +697,13 @@
                     }
                 });
 
-                if (!response.ok) throw new Error('Siparişler alınamadı');
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = 'giris.html';
+                        return;
+                    }
+                    throw new Error('Siparişler alınamadı');
+                }
 
                 const data = await response.json();
                 allOrders = data.orders || [];
@@ -539,17 +711,25 @@
                 renderOrders(allOrders);
             } catch (error) {
                 console.error('Sipariş yükleme hatası:', error);
-                // HATA DURUMUNDA BOŞ LİSTE GÖSTER (Demo siparişler kaldırıldı)
-                allOrders = [];
-                renderOrders([]);
+                if (container) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-circle" style="color:#ef4444;"></i>
+                            <h3>Bir hata oluştu</h3>
+                            <p>Siparişleriniz yüklenirken bir sorun yaşandı. Lütfen sayfayı yenileyiniz.</p>
+                            <button onclick="location.reload()" class="btn-shop">Tekrar Dene</button>
+                        </div>
+                    `;
+                }
             }
         }
 
         // Siparişleri render et
         function renderOrders(orders) {
             const container = document.getElementById('ordersList');
+            if (!container) return;
 
-            if (orders.length === 0) {
+            if (!orders || orders.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-shopping-bag"></i>
@@ -563,72 +743,190 @@
                 return;
             }
 
-            container.innerHTML = orders.map(order => `
-                <div class="order-card" data-status="${order.status || 'completed'}">
-                    <div class="order-header">
-                        <div class="order-info">
-                            <h3><i class="fas fa-hashtag"></i> Sipariş #${order.orderNumber || order._id?.slice(-6).toUpperCase()}</h3>
-                            <p class="order-date">
-                                <i class="far fa-calendar"></i> ${new Date(order.createdAt).toLocaleDateString('tr-TR', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                })}
-                            </p>
-                        </div>
-                        <span class="order-status status-${order.status || 'completed'}">
-                            ${getStatusText(order.status)}
-                        </span>
-                    </div>
+            container.innerHTML = orders.map(order => {
+                try {
+                    const rawStatus = (order.status || 'pending').toLowerCase();
+                    let normalizedStatus = 'pending';
+                    if (rawStatus.includes('hazir') || rawStatus.includes('process') || rawStatus.includes('işlen')) normalizedStatus = 'processing';
+                    else if (rawStatus.includes('tamam') || rawStatus.includes('complet') || rawStatus.includes('teslim')) normalizedStatus = 'completed';
+                    else if (rawStatus.includes('iptal') || rawStatus.includes('cancel')) normalizedStatus = 'cancelled';
+                    else if (rawStatus.includes('kargo') || rawStatus.includes('ship')) normalizedStatus = 'shipped';
 
-                    <div class="order-items">
-                        ${(order.items || []).map(item => `
-                            <div class="order-item">
-                                <div class="item-icon">
-                                    <i class="fas ${item.icon || 'fa-box'}"></i>
-                                </div>
-                                <div class="item-details">
-                                    <h4>${item.ad}</h4>
-                                    <p>Adet: ${item.adet}</p>
-                                </div>
-                                <div class="item-price">₺${(item.fiyat * item.adet).toLocaleString('tr-TR')}</div>
+                    const hasKargo = !!(order.kargoBilgisi?.takipNo || order.trackingNumber);
+                    const cargoStatus = (order.kargoBilgisi?.durum || 'yolda').toLowerCase();
+                    
+                    return `
+                    <div class="order-card" data-status="${normalizedStatus}">
+                        <div class="order-header">
+                            <div class="order-info">
+                                <h3><i class="fas fa-hashtag"></i> Sipariş #${order.orderNumber || (order._id ? order._id.slice(-6).toUpperCase() : '------')}</h3>
+                                <p class="order-date">
+                                    <i class="far fa-calendar"></i> ${order.createdAt ? new Date(order.createdAt).toLocaleDateString('tr-TR', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    }) : 'Tarih Bilgisi Yok'}
+                                </p>
                             </div>
-                        `).join('')}
-                    </div>
-
-                    <!-- Kargo Takip Bilgisi (kargoBilgisi.takipNo / firma) -->
-                    ${(order.kargoBilgisi?.takipNo || order.trackingNumber) ? `
-                        <div class="kargo-bilgisi">
-                            <h5><i class="fas fa-truck"></i> Kargo Bilgisi</h5>
-                            <p><strong>Firma:</strong> ${order.kargoBilgisi?.firma || order.cargoCompany || 'Yurtiçi Kargo'}</p>
-                            <p><strong>Takip No:</strong> <span class="takip-no">${order.kargoBilgisi?.takipNo || order.trackingNumber}</span></p>
-                            <a href="kargo-takip.html?track=${encodeURIComponent(order.kargoBilgisi?.takipNo || order.trackingNumber)}" 
-                               target="_blank" 
-                               class="btn-kargo-takip">
-                                <i class="fas fa-external-link-alt"></i> Kargoyu Takip Et
-                            </a>
+                            <div class="order-badge">
+                                <span class="order-status status-${normalizedStatus}">${getStatusText(normalizedStatus)}</span>
+                            </div>
                         </div>
-                    ` : ''}
 
-                    <div class="order-footer">
-                        <div class="order-total">
-                            Toplam: <span>₺${order.total?.toLocaleString('tr-TR') || order.toplam?.toLocaleString('tr-TR')}</span>
+                        <!-- Sipariş Süreç Takibi (5 Kademeli Sistem) -->
+                        <div class="progressive-tracker">
+                            ${(() => {
+                                let step1 = 'active', step2 = '', step3 = '', step4 = '', step5 = '';
+                                let t1 = 'Alındı', t2 = 'Hazırlanıyor', t3 = 'Kargoda', t4 = 'Dağıtımda', t5 = 'Teslimat';
+                                
+                                if (normalizedStatus === 'processing') {
+                                    step1 = 'completed'; step2 = 'active';
+                                } else if (normalizedStatus === 'shipped' || hasKargo) {
+                                    step1 = 'completed'; step2 = 'completed'; step3 = 'active';
+                                    
+                                    if (cargoStatus.includes('dagitim') || cargoStatus.includes('dağıtım')) {
+                                        step3 = 'completed'; step4 = 'active';
+                                    } else if (cargoStatus.includes('teslim') || normalizedStatus === 'completed') {
+                                        step1 = 'completed'; step2 = 'completed'; step3 = 'completed'; step4 = 'completed'; step5 = 'completed';
+                                    }
+                                } else if (normalizedStatus === 'completed') {
+                                    step1 = 'completed'; step2 = 'completed'; step3 = 'completed'; step4 = 'completed'; step5 = 'completed';
+                                }
+                                
+                                if(normalizedStatus === 'cancelled') {
+                                    return `<div style="color:#ef4444; font-weight:bold; padding:15px; text-align:center;"><i class="fas fa-times-circle"></i> Bu sipariş iptal edilmiştir.</div>`;
+                                }
+
+                                return `
+                                <div class="tracker-steps-container">
+                                    <div class="t-step ${step1}">
+                                        <div class="t-icon"><i class="fas fa-check-double"></i></div>
+                                        <div class="t-text">${t1}</div>
+                                    </div>
+                                    <div class="t-line ${step1 === 'completed' ? 'active-line' : ''}"></div>
+                                    <div class="t-step ${step2}">
+                                        <div class="t-icon"><i class="fas fa-box-open"></i></div>
+                                        <div class="t-text">${t2}</div>
+                                    </div>
+                                    <div class="t-line ${step2 === 'completed' ? 'active-line' : ''}"></div>
+                                    <div class="t-step ${step3}">
+                                        <div class="t-icon"><i class="fas fa-truck"></i></div>
+                                        <div class="t-text">${t3}</div>
+                                    </div>
+                                    <div class="t-line ${step3 === 'completed' ? 'active-line' : ''}"></div>
+                                    <div class="t-step ${step4}">
+                                        <div class="t-icon"><i class="fas fa-motorcycle"></i></div>
+                                        <div class="t-text">${t4}</div>
+                                    </div>
+                                    <div class="t-line ${step4 === 'completed' ? 'active-line' : ''}"></div>
+                                    <div class="t-step ${step5}">
+                                        <div class="t-icon"><i class="fas fa-hand-holding-heart"></i></div>
+                                        <div class="t-text">${t5}</div>
+                                    </div>
+                                </div>
+                                `;
+                            })()}
                         </div>
-                        <div class="order-actions">
-                            <button class="btn-action btn-secondary" onclick="viewOrderDetails('${order._id}')">
-                                <i class="fas fa-eye"></i> Detay
-                            </button>
-                            ${order.status === 'completed' ? `
-                                <button class="btn-action btn-primary" onclick="reorder('${order._id}')">
-                                    <i class="fas fa-redo"></i> Tekrarla
-                                </button>
+
+                        <!-- Detaylar (Gizli/Açılır) -->
+                        <div id="details-${order._id}" class="order-items-wrapper">
+                            <div class="order-items">
+                                ${(order.items || []).map(item => `
+                                    <div class="order-item">
+                                        <div class="item-icon">
+                                            <i class="fas ${item.icon || 'fa-box'}"></i>
+                                        </div>
+                                        <div class="item-details">
+                                            <h4>${item.ad || item.name || 'İsimsiz Ürün'}</h4>
+                                            <p>Adet: ${item.adet || item.quantity || 1}</p>
+                                        </div>
+                                        <div class="item-price">₺${((item.fiyat || item.price || 0) * (item.adet || item.quantity || 1)).toLocaleString('tr-TR')}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            ${(order.kargoBilgisi?.takipNo || order.trackingNumber) ? `
+                                <div class="adv-kargo-bilgisi">
+                                    <div class="adv-kargo-header">
+                                        <i class="fas fa-truck-loading"></i> Kargo Detayları
+                                    </div>
+                                    <div class="adv-kargo-grid">
+                                        <div class="adv-k-item">
+                                            <span class="adv-k-label">Taşıyıcı Firma</span>
+                                            <span class="adv-k-val">${order.kargoBilgisi?.firma || order.cargoCompany || 'Kargo Firması'}</span>
+                                        </div>
+                                        <div class="adv-k-item">
+                                            <span class="adv-k-label">Takip Numarası</span>
+                                            <span class="adv-k-val tracking-code">${order.kargoBilgisi?.takipNo || order.trackingNumber}</span>
+                                        </div>
+                                        <div class="adv-k-item">
+                                            <span class="adv-k-label">Son Güncelleme</span>
+                                            <span class="adv-k-val">${order.kargoBilgisi?.tarih ? new Date(order.kargoBilgisi.tarih).toLocaleDateString('tr-TR', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) : 'Güncel'}</span>
+                                        </div>
+                                    </div>
+
+                                    ${(() => {
+                                        const trackingUrl = getTrackingUrl(order.kargoBilgisi?.firma || order.cargoCompany, order.kargoBilgisi?.takipNo || order.trackingNumber);
+                                        const hareketler = order.kargoBilgisi?.hareketler || [];
+                                        
+                                        let html = '';
+                                        if (trackingUrl) {
+                                            html += `<a href="${trackingUrl}" target="_blank" class="btn-track-external"><i class="fas fa-external-link-alt"></i> Kargo Firması Sayfasında Takip Et</a>`;
+                                        }
+                                        
+                                        if (hareketler.length > 0) {
+                                            html += `<div class="kargo-live-title"><i class="fas fa-history"></i> Anlık Hareketler</div>`;
+                                            html += `<div class="kargo-timeline">`;
+                                            // Tersten sırala (en yeni en üstte)
+                                            [...hareketler].reverse().forEach((h, index) => {
+                                                const dateStr = h.tarih ? new Date(h.tarih).toLocaleDateString('tr-TR', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) : '';
+                                                html += `
+                                                <div class="timeline-item ${index === 0 ? 'latest' : ''}">
+                                                    <div class="timeline-content">
+                                                        <div class="timeline-header">
+                                                            <span class="timeline-status">${h.durum || 'İşlem Görüyor'}</span>
+                                                            <span class="timeline-date">${dateStr}</span>
+                                                        </div>
+                                                        ${h.aciklama ? `<div class="timeline-desc">${h.aciklama}</div>` : ''}
+                                                        ${h.konum ? `<div class="timeline-location"><i class="fas fa-map-marker-alt"></i> ${h.konum}</div>` : ''}
+                                                    </div>
+                                                </div>`;
+                                            });
+                                            html += `</div>`;
+                                        }
+                                        return html;
+                                    })()}
+                                </div>
                             ` : ''}
                         </div>
+
+                        <div class="order-footer">
+                            <div class="order-total">
+                                Toplam: <span>₺${(order.total || order.toplam || order.grandTotal || 0).toLocaleString('tr-TR')}</span>
+                            </div>
+                            <div class="order-actions">
+                                <a href="destek-sorularim.html?orderId=${order._id}" class="btn-action" style="background:#f59e0b; color:white; text-decoration:none; display:inline-flex; align-items:center; gap:5px;">
+                                    <i class="fas fa-headset"></i> Destek İste
+                                </a>
+                                <button class="btn-action btn-secondary" onclick="viewOrderDetails('${order._id}', this)">
+                                    <i class="fas fa-chevron-down"></i> Detay
+                                </button>
+                                ${normalizedStatus === 'completed' ? `
+                                    <button class="btn-action btn-primary" onclick="reorder('${order._id}')">
+                                        <i class="fas fa-redo"></i> Tekrarla
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                    `;
+                } catch (e) {
+                    console.error("Order render error:", e, order);
+                    return `<div class="order-card" style="border:1px dashed #ef4444; padding:15px; color:#ef4444;">Bu sipariş verisi yüklenirken bir hata oluştu.</div>`;
+                }
+            }).join('');
         }
 
         // Durum metni
@@ -636,6 +934,7 @@
             const texts = {
                 'pending': 'Beklemede',
                 'processing': 'İşleniyor',
+                'shipped': 'Kargoda',
                 'completed': 'Tamamlandı',
                 'cancelled': 'İptal Edildi'
             };
@@ -645,19 +944,34 @@
         // Filtrele
         function filterOrders(status) {
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            if (event) event.target.classList.add('active');
 
             if (status === 'all') {
                 renderOrders(allOrders);
             } else {
-                const filtered = allOrders.filter(order => order.status === status);
+                const filtered = allOrders.filter(order => {
+                    const rawStatus = (order.status || 'pending').toLowerCase();
+                    if (status === 'pending') return rawStatus.includes('hazir') || rawStatus.includes('bekle');
+                    if (status === 'processing') return rawStatus.includes('islen') || rawStatus.includes('process');
+                    if (status === 'completed') return rawStatus.includes('tamam') || rawStatus.includes('complet') || rawStatus.includes('teslim');
+                    return rawStatus.includes(status);
+                });
                 renderOrders(filtered);
             }
         }
 
         // Sipariş detayı görüntüle
-        function viewOrderDetails(orderId) {
-            alert('Sipariş detayları yakında!');
+        function viewOrderDetails(orderId, btnElement) {
+            const detailsDiv = document.getElementById('details-' + orderId);
+            const icon = btnElement.querySelector('i');
+            
+            if (detailsDiv.classList.contains('show')) {
+                detailsDiv.classList.remove('show');
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                detailsDiv.classList.add('show');
+                icon.className = 'fas fa-chevron-up';
+            }
         }
 
         // Siparişi tekrarla
@@ -673,5 +987,6 @@
         loadOrders();
     </script>
 
+    <script src="js/main.js"></script>
 </body>
 </html>

@@ -5,68 +5,11 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Ürünler - Kurumsal Tedarikçi</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/><link href="css/style.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="css/style.css" rel="stylesheet"/>
 <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f9fafb; }
-        
-        /* Navbar - Yeni yapıya uygun */
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: white;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
-            z-index: 1000;
-            padding: 15px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo { font-size: 24px; font-weight: 800; color: #1f2937; text-decoration: none; }
-        .logo span { color: #6366f1; }
-        
-        .nav-links { display: flex; list-style: none; gap: 30px; }
-        .nav-links a { 
-            text-decoration: none; 
-            color: #4b5563; 
-            font-weight: 600; 
-            transition: color 0.3s;
-        }
-        .nav-links a:hover, .nav-links a.active { color: #6366f1; }
-        
-        .cart-btn {
-            background: #6366f1;
-            color: white;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            position: relative;
-            box-shadow: 0 4px 15px rgba(99,102,241,0.3);
-        }
-        
-        .cart-count {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #ef4444;
-            color: white;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            font-size: 12px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid white;
-        }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-main, #f9fafb); padding-top: 80px; }
         
         /* Hero */
         .urunler-hero {
@@ -302,47 +245,56 @@
         }
         
         /* Mobil */
-        @media (max-width: 768px) {
-            .nav-links { display: none; }
-            .urunler-hero h1 { font-size: 2rem; }
-            .urun-grid { grid-template-columns: 1fr; padding: 30px 5%; }
-        }
+
     </style>
+    <link href="css/mobile.css" rel="stylesheet"/>
 </head>
 <body>
-<nav class="navbar" style="position: fixed; top: 0; left: 0; width: 100%; background: white; z-index: 9999; box-shadow: 0 2px 20px rgba(0,0,0,0.1); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center;">
-<a class="logo" href="index.html" style="font-size: 24px; font-weight: 800; color: #1f2937; text-decoration: none;">Kurumsal<span style="color: #6366f1;">Tedarikçi</span></a><button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()"><i class="fas fa-bars" id="menuIcon"></i></button>
-<ul class="nav-links" style="display: flex; list-style: none; gap: 25px; margin: 0;">
-<li><a href="index.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Anasayfa</a></li>
-<li><a href="hizmetler.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Hizmetler</a></li>
-<li><a href="paketler.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Paketler</a></li>
+<nav class="navbar">
+<a class="logo" href="index.html">Kurumsal<span>Tedarikçi</span></a>
+<button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()">
+<i class="fas fa-bars" id="menuIcon"></i>
+</button>
+<ul class="nav-links" id="navLinks">
+<button aria-label="Menüyü Kapat" class="close-menu" onclick="toggleMenu()">
+<i class="fas fa-times"></i>
+</button>
+<li><a href="index.html">Anasayfa</a></li>
+<li><a href="hizmetler.html">Hizmetler</a></li>
+<li><a href="paketler.html">Paketler</a></li>
 <li class="nav-item-dropdown" id="urunlerNavItem">
-<a href="urunler.html" class="nav-link-dropdown" style="text-decoration: none; color: #6366f1; font-weight: 700; font-size: 15px;" onclick="event.preventDefault(); toggleUrunlerMenu(); return false;">Ürünler <i class="fas fa-chevron-down"></i></a>
+<a href="urunler.html" class="nav-link-dropdown active" onclick="event.preventDefault(); toggleDropdown('urunlerDropdown'); return false;">Ürünler <i class="fas fa-chevron-down"></i></a>
 <div class="nav-dropdown-menu" id="urunlerDropdown">
-<a href="urunler.html?kategori=e-imza"><i class="fas fa-pen-fancy"></i> Elektronik İmza (E-İmza) Paketleri</a>
-<a href="urunler.html?kategori=e-fatura"><i class="fas fa-file-invoice"></i> E-Fatura (Köntörü)</a>
-<a href="urunler.html?kategori=kep"><i class="fas fa-envelope"></i> KEP Paketleri</a>
-<a href="urunler.html?kategori=mali-muhur"><i class="fas fa-stamp"></i> Mali Mühür Paketleri</a>
-<a href="urunler.html?kategori=zaman-damgasi"><i class="fas fa-clock"></i> Zaman Damgası Paketleri</a>
-<a href="urunler.html?kategori=e-irsaliye"><i class="fas fa-truck-loading"></i> E-İrsaliye Paketleri</a>
-<a href="urunler.html?kategori=e-defter"><i class="fas fa-book"></i> E-Defter Paketleri</a>
-<a href="urunler.html"><i class="fas fa-th-list"></i> Tümünü göster</a>
+  <!-- JS tarafından dinamik olarak doldurulacak -->
+  <a href="urunler.html?kategori=e-imza"><i class="fas fa-pen-fancy"></i> Elektronik İmza (E-İmza)</a>
+  <a href="urunler.html?kategori=e-fatura"><i class="fas fa-file-invoice"></i> E-Fatura</a>
+  <a href="urunler.html"><i class="fas fa-th-list"></i> Tümünü göster</a>
 </div>
 </li>
-<li><a href="referanslar.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Referanslar</a></li>
-<li><a href="teklif.html" style="text-decoration: none; color: #f59e0b; font-weight: 600; font-size: 15px;">Teklif Al</a></li>
-<li><a href="bayilik-basvuru.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Bayilik Başvurusu</a></li>
-<li><a href="bayi-giris.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">Bayi Girişi</a></li>
-<li><a href="iletisim.html" style="text-decoration: none; color: #374151; font-weight: 500; font-size: 15px;">İletişim</a></li>
-</ul>
-<div id="navUserArea" style="display: flex; align-items: center; gap: 15px;">
-<a href="giris.html" style="text-decoration: none; color: #6366f1; font-weight: 600; font-size: 14px; padding: 8px 16px; border: 2px solid #6366f1; border-radius: 20px;">Giriş Yap</a>
-<a href="odeme.html" style="background: #6366f1; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; position: relative;">
-<i class="fas fa-shopping-cart" style="font-size: 16px;"></i>
-<span id="cart-count" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; border: 2px solid white;">0</span>
-</a>
+<li class="nav-item-dropdown">
+<a href="#" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('kurumsalDropdown'); return false;">Kurumsal <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="kurumsalDropdown">
+<a href="referanslar.html"><i class="fas fa-handshake"></i> Referanslar</a>
+<a href="bayilik-basvuru.html"><i class="fas fa-file-signature"></i> Bayilik Başvurusu</a>
+<a href="bayi-giris.html"><i class="fas fa-user-tie"></i> Bayi Girişi</a>
+<a href="iletisim.html"><i class="fas fa-map-marker-alt"></i> İletişim</a>
 </div>
-</nav><div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a class="active" href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="bayilik-basvuru.html">Bayilik Başvurusu</a></li><li><a href="bayi-giris.html">Bayi Girişi</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
+</li>
+
+<li><a href="teklif.html" style="color: #f59e0b; font-weight: 700;">Teklif Al</a></li>
+</ul>
+<div class="nav-right" id="navUserArea">
+  <!-- JS burayı dolduracak -->
+  <a class="login-btn" href="giris.html">Giriş Yap</a>
+  <a class="register-btn" href="kayit.html">Kayıt Ol</a>
+  <a class="cart-btn" href="odeme.html">
+    <i class="fas fa-shopping-cart"></i>
+    <span class="cart-count" id="cart-count">0</span>
+  </a>
+</div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a class="active" href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="bayilik-basvuru.html">Bayilik Başvurusu</a></li><li><a href="bayi-giris.html">Bayi Girişi</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
 <!-- Hero -->
 <section class="urunler-hero">
 <h1>E-Dönüşüm Ürünleri</h1>
@@ -440,22 +392,35 @@
             };
             // Ürünler: Paket kategorileri (tıklanınca altında içerik açılır) - sıra ve başlık
             const PAKET_KATEGORI_SIRASI = [
-                { key: 'E-İmza Paketleri', baslik: 'Elektronik İmza (E-İmza) Paketleri' },
-                { key: 'E-Dönüşüm (E-Fatura Köntörü) Paketleri', baslik: 'E-Fatura (E Fatura Köntörü)', aliases: ['E-Fatura (Köntörü)', 'E-Fatura Köntörü', 'E Fatura Kontörü', 'E-Fatura'] },
-                { key: 'KEP Paketleri', baslik: 'KEP Paketleri' },
-                { key: 'Mali Mühür Paketleri', baslik: 'Mali Mühür Paketleri' },
-                { key: 'Zaman Damgası Paketleri', baslik: 'Zaman Damgası Paketleri' },
-                { key: 'E-İrsaliye Paketleri', baslik: 'E-İrsaliye Paketleri' },
-                { key: 'E-Defter Paketleri', baslik: 'E-Defter Paketleri' }
+                { key: 'E-İmza Paketleri', baslik: 'Elektronik İmza (E-İmza) Paketleri', aliases: ['E-İmza', 'Electronic Signature', 'E imza', 'E-imza Paketleri', 'Elektronik İmza Paketleri'] },
+                { key: 'E-Dönüşüm (E-Fatura Köntörü) Paketleri', baslik: 'E-Fatura (E Fatura Köntörü)', aliases: ['E-Fatura (Köntörü)', 'E-Fatura Köntörü', 'E Fatura Kontörü', 'E-Fatura', 'E-Fatura Kontörleri', 'E-Fatura Köntörleri', 'Fatura Paketleri'] },
+                { key: 'KEP Paketleri', baslik: 'KEP Paketleri', aliases: ['KEP', 'Kayıtlı Elektronik Posta'] },
+                { key: 'Mali Mühür Paketleri', baslik: 'Mali Mühür Paketleri', aliases: ['Mali Mühür'] },
+                { key: 'Zaman Damgası Paketleri', baslik: 'Zaman Damgası Paketleri', aliases: ['Zaman Damgası'] },
+                { key: 'E-İrsaliye Paketleri', baslik: 'E-İrsaliye Paketleri', aliases: ['E-İrsaliye'] },
+                { key: 'E-Defter Paketleri', baslik: 'E-Defter Paketleri', aliases: ['E-Defter'] },
+                { key: 'Diğer', baslik: 'Diğer Ürünler', aliases: ['Genel', 'Diğer'] }
             ];
             function kategoriEslesiyorMu(urunKategori, paketKey) {
                 if (!urunKategori || !paketKey) return false;
                 var u = String(urunKategori).trim();
                 var p = String(paketKey).trim();
                 if (u === p) return true;
-                var uNorm = u.replace(/\u0130/g, 'i').replace(/ı/g, 'i').toLowerCase();
-                var pNorm = p.replace(/\u0130/g, 'i').replace(/ı/g, 'i').toLowerCase();
-                return uNorm === pNorm;
+                
+                // Daha esnek eşleşme: Boşlukları ve özel karakterleri normalize et
+                var normalize = function(str) {
+                    return str.replace(/\u0130/g, 'i')
+                              .replace(/ı/g, 'i')
+                              .replace(/ğ/g, 'g')
+                              .replace(/ü/g, 'u')
+                              .replace(/ş/g, 's')
+                              .replace(/ö/g, 'o')
+                              .replace(/ç/g, 'c')
+                              .replace(/[-\s()]/g, '')
+                              .toLowerCase();
+                };
+                
+                return normalize(u) === normalize(p);
             }
             function urunKategoriPaketeDusuyorMu(urunKategori, item) {
                 if (kategoriEslesiyorMu(urunKategori, item.key)) return true;
@@ -629,14 +594,33 @@
 
             const flatList = [];
             var globalIndex = 0;
-            var slugs = ['e-imza','e-fatura','kep','mali-muhur','zaman-damgasi','e-irsaliye','e-defter'];
+            var slugs = ['e-imza','e-fatura','kep','mali-muhur','zaman-damgasi','e-irsaliye','e-defter', 'diger'];
             var urlKategori = (new URLSearchParams(window.location.search)).get('kategori');
             if (urlKategori) urlKategori = urlKategori.toLowerCase().trim();
             var accordionHtml = '';
             PAKET_KATEGORI_SIRASI.forEach(function(item, idx) {
                 var slug = slugs[idx] || '';
-                // URL'de kategori seçiliyse sadece o kategoriyi göster (diğerleri çıkmasın)
-                if (urlKategori && slug !== urlKategori) return;
+                
+                // URL'de kategori seçiliyse:
+                // 1. Slug eşleşiyor mu? (e-imza)
+                // 2. Kategori adı (key) eşleşiyor mu? (E-İmza Paketleri)
+                // 3. Aliases eşleşiyor mu?
+                var urlEslesiyor = false;
+                if (urlKategori) {
+                    if (slug === urlKategori) urlEslesiyor = true;
+                    else if (kategoriEslesiyorMu(urlKategori, item.key)) urlEslesiyor = true;
+                    else if (item.aliases && item.aliases.length) {
+                        for (var a = 0; a < item.aliases.length; a++) {
+                            if (kategoriEslesiyorMu(urlKategori, item.aliases[a])) { urlEslesiyor = true; break; }
+                        }
+                    }
+                }
+
+                if (urlKategori && !urlEslesiyor) {
+                    // Eğer bu döngüdeki kategori URL ile eşleşmiyorsa pas geç
+                    return;
+                }
+
                 var list = kategoriUrunleri[item.key] || [];
                 var icon = KATEGORI_ICON[item.key] || '📦';
                 var baslikEsc = (item.baslik || item.key).replace(/</g, '&lt;');
@@ -647,11 +631,17 @@
                         flatList.push(p);
                         globalIndex++;
                     });
-                } else {
+                } else if (urlKategori) {
+                    // Eğer spesifik kategori seçiliyse ve ürün yoksa mesaj göster
                     cards = '<p style="padding: 24px; text-align: center; color: #9ca3af;">Bu kategoride henüz ürün yok.</p>';
+                } else {
+                    // Genel aramada ürün olmayan kategori accordion'u hiç çıkmasın da diyebiliriz veya böyle kalabilir
+                    cards = '<p style="padding: 24px; text-align: center; color: #9ca3af;">Bu kategoride henüz ürün yok.</p>';
+                    if (idx !== 0) return; // Sadece ilk kategori (E-imza) boşsa görünsün, diğerleri kalabalık yapmasın
                 }
+
                 // URL'de kategori seçiliyse sadece ürünleri göster, kategori ismi/başlığı gösterme
-                if (urlKategori && slug === urlKategori) {
+                if (urlKategori && urlEslesiyor) {
                     accordionHtml += '<div class="urun-grid-tek">' + cards + '</div>';
                 } else {
                     var acikClass = (!urlKategori && idx === 0) ? ' acik' : '';

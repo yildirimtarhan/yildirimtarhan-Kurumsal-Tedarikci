@@ -1,0 +1,46 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; padding: 40px; }
+        .header { text-align: right; margin-bottom: 40px; }
+        .subject { font-weight: bold; margin-bottom: 30px; text-decoration: underline; }
+        .content { margin-bottom: 30px; }
+        .footer { margin-top: 50px; }
+        .signature { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        Tarih: 08.04.2026
+    </div>
+
+    <div class="subject">
+        Konu: REST API Entegrasyonu Hakkında Yetkilendirme Ve Bilgi Talebi
+    </div>
+
+    <p>Merhaba Hepsijet Destek Ekibi,</p>
+
+    <div class="content">
+        <p><b>Kurumsal Tedarikçi (yildirimtarhan@tedarikci.org.tr)</b> firması olarak kendi e-ticaret altyapımız üzerinden lojistik süreçlerimizi otomatize etmek amacıyla Hepsijet REST API entegrasyonu gerçekleştirmekteyiz.</p>
+
+        <p>Portal giriş bilgilerimiz tarafımıza ulaşmıştır ancak yazılımsal süreçleri (Gönderi Oluşturma ve Takip Servisleri) tamamlayabilmemiz için aşağıdaki spesifik bilgilere ihtiyacımız bulunmaktadır:</p>
+
+        <ul>
+            <li><b>API Müşteri Kodu (Customer Code):</b> API isteklerinde "customerCode" parametresine girilecek olan benzersiz firma ID'miz.</li>
+            <li><b>API Erişim Yetkisi:</b> Mevcut portal kullanıcı adı ve şifremizin REST API erişimine (ve Bearer Token alımına) tanımlanması.</li>
+            <li><b>Test Ortamı Bilgileri:</b> Canlı gönderi oluşturmadan önce deneme yapabileceğimiz Test URL'si ve Test hesabı bilgileri.</li>
+        </ul>
+
+        <p>Konuyla ilgili gerekli tanımlamaların yapılarak tarafımıza bilgi verilmesini rica eder, iyi çalışmalar dileriz.</p>
+    </div>
+
+    <div class="footer">
+        <p>Saygılarımızla,</p>
+        <p class="signature">Firma Adı: Kurumsal Tedarikçi</p>
+        <p>Yetkili: Yıldırım Tarhan</p>
+        <p>E-posta: yildirimtarhan@tedarikci.org.tr</p>
+        <p>Telefon: 0505 911 27 49</p>
+    </div>
+</body>
+</html>

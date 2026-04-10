@@ -6,6 +6,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const Order = require("../models/Order");
 const BayiBasvuru = require("../models/BayiBasvuru");
+const SupportTicket = require("../models/SupportTicket");
 
 const { JWT_SECRET } = require('../config/jwt');
 
@@ -608,12 +609,10 @@ if (!hasKargo) {
     } catch (emailErr) {
       console.error('Kargo e-posta hatası:', emailErr.message);
     }
-
     res.json({
       success: true,
       message: "Kargo bildirimi gönderildi",
-      email: emailSent,
-      sms: false,
+      emailSent,
       details: {
         siparisId: order._id,
         email: order.email,
@@ -630,6 +629,46 @@ if (!hasKargo) {
     });
   }
 });
+
+// ============================================
+// HEPSİJET ENTEGRASYONU (Yeni Gönderi Oluştur)
+// ============================================
+router.post("/orders/:id/hepsijet", adminOnly, async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ success: false, message: "Sipariş bulunamadı" });
+
+    const hepsijetService = require('../services/hepsijetService');
+    const result = await hepsijetService.createDelivery(order);
+
+    if (result.success) {
+      // Siparişi güncelle
+      order.kargoBilgisi = {
+        ...order.kargoBilgisi,
+        firma: "hepsijet",
+        takipNo: result.trackingNo,
+        kargolamaTarihi: new Date(),
+        durum: "Kargoya Verildi"
+      };
+      order.status = "Kargoya Verildi";
+      await order.save();
+
+      res.json({ 
+        success: true, 
+        message: "Hepsijet gönderisi başarıyla oluşturuldu ✅", 
+        trackingNo: result.trackingNo 
+      });
+    } else {
+      res.status(400).json({ 
+        success: false, 
+        message: "Hepsijet Hatası: " + result.error 
+      });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 
 // ============================================
 // ERP ÜRÜNLERİ
@@ -736,8 +775,6 @@ router.get("/cari-stats", adminOnly, async (req, res) => {
   }
 });
 
-// Cari listesi - adminOnly EKLENDİ, FİLTRELER EKLENDİ
-// Cari listesi - adminOnly EKLENDİ, FİLTRELER EKLENDİ
 // Cari listesi - adminOnly EKLENDİ, FİLTRELER EKLENDİ
 router.get("/cariler", adminOnly, async (req, res) => {
   try {
@@ -895,9 +932,7 @@ router.put("/cari/:id", adminOnly, async (req, res) => {
   }
 });
 
-// Yeni Cari Oluştur - adminOnly EKLENDİ, DETAYLI LOG
-// Yeni Cari Oluştur - adminOnly EKLENDİ, DETAYLI LOG
-// Yeni Cari Oluştur - adminOnly EKLENDİ, DETAYLI LOG
+// Yeni Cari Oluştur
 router.post("/cari-olustur", adminOnly, async (req, res) => {
   try {
     console.log('📥 Cari oluşturma isteği:', JSON.stringify(req.body, null, 2));
@@ -911,33 +946,15 @@ router.post("/cari-olustur", adminOnly, async (req, res) => {
 
     // Validasyon
     if (!ad || !email || !telefon || !password) {
-      console.log('❌ Validasyon hatası: Zorunlu alanlar eksik');
       return res.status(400).json({ 
         success: false, 
         message: "Ad, email, telefon ve şifre zorunludur" 
       });
     }
 
-    if (uyelikTipi === 'kurumsal' && (!firma || !vergiNo)) {
-      console.log('❌ Validasyon hatası: Kurumsal alanlar eksik');
-      return res.status(400).json({ 
-        success: false, 
-        message: "Kurumsal cari için firma ve vergi no zorunludur" 
-      });
-    }
-
-    if (uyelikTipi === 'bireysel' && !tcNo) {
-      console.log('❌ Validasyon hatası: TC No eksik');
-      return res.status(400).json({ 
-        success: false, 
-        message: "Bireysel cari için TC Kimlik No zorunludur" 
-      });
-    }
-
     // Email kontrol
     const existing = await User.findOne({ email: email.toLowerCase() });
     if (existing) {
-      console.log('❌ Email zaten kayıtlı:', email);
       return res.status(400).json({ 
         success: false, 
         message: "Bu email adresi zaten kayıtlı" 
@@ -946,7 +963,6 @@ router.post("/cari-olustur", adminOnly, async (req, res) => {
 
     // Şifre hash
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log('🔐 Şifre hashlendi');
 
     // Cari oluştur
     const newUser = new User({
@@ -970,75 +986,38 @@ router.post("/cari-olustur", adminOnly, async (req, res) => {
     });
 
     await newUser.save();
-    console.log('✅ Kullanıcı MongoDB\'ye kaydedildi:', newUser._id);
 
-    // ERP'ye gönder - DÜZELTİLDİ: sendCustomerToERP kullanılıyor
-    // ERP'ye gönder - GEÇİCİ ÇÖZÜM
-let erpResult = { success: false, error: 'ERP sync disabled' };
-
-if (syncERP !== false) {
-  try {
-    console.log('🚀 ERP\'ye gönderiliyor...');
-    
-    // GEÇİCİ: sendOrderToERP kullan (sendCustomerToERP yerine)
-    const { sendCustomerToERP } = require('../services/erpService');
-    
-    erpResult = await sendCustomerToERP(newUser);
-        
+    // ERP'ye gönder
+    if (syncERP !== false) {
+      try {
+        const { sendCustomerToERP } = require('../services/erpService');
+        const erpResult = await sendCustomerToERP(newUser);
         if (erpResult.success) {
           newUser.erpSynced = true;
           newUser.erpCariId = erpResult.erpCariId || '';
           newUser.erpSyncDate = new Date();
           await newUser.save();
-          console.log('✅ ERP\'ye aktarıldı:', erpResult.erpCustomerId);
-        } else {
-          console.error('❌ ERP aktarım başarısız:', erpResult.error);
         }
       } catch (erpErr) {
         console.error('❌ ERP hatası:', erpErr.message);
-        erpResult = { success: false, error: erpErr.message };
       }
-    } else {
-      console.log('ℹ️ ERP sync pasif');
-    }
-
-    // Email gönder (simülasyon)
-    let emailSent = false;
-    if (sendEmail) {
-      console.log('📧 Email gönderimi simüle edildi:', email);
-      emailSent = true;
     }
 
     res.json({
       success: true,
       message: "Cari başarıyla oluşturuldu",
-      userId: newUser._id,
-      erpSync: erpResult.success,
-      erpError: erpResult.error,
-      emailSent
+      userId: newUser._id
     });
 
   } catch (err) {
     console.error('❌ Cari oluşturma hatası:', err);
-    res.status(500).json({ 
-      success: false, 
-      message: err.message || "Sunucu hatası" 
-    });
+    res.status(500).json({ success: false, message: err.message || "Sunucu hatası" });
   }
 });
 
-// Manuel ERP Senkronizasyonu - adminOnly EKLENDİ
-// Manuel ERP Senkronizasyonu - adminOnly EKLENDİ
-// Manuel ERP Senkronizasyonu - adminOnly EKLENDİ
-// Manuel ERP Senkronizasyonu - adminOnly EKLENDİ
+// Manuel ERP Senkronizasyonu
 router.post("/cari-sync-erp/:id", adminOnly, async (req, res) => {
   try {
-    console.log('🔄 Manuel ERP sync:', req.params.id);
-
-    if (!req.params.id || req.params.id === 'unknown' || req.params.id.length !== 24) {
-      return res.status(400).json({ success: false, message: "Geçersiz cari ID" });
-    }
-    
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ success: false, message: "Cari bulunamadı" });
@@ -1052,22 +1031,85 @@ router.post("/cari-sync-erp/:id", adminOnly, async (req, res) => {
       user.erpCariId = erpResult.erpCariId || '';
       user.erpSyncDate = new Date();
       await user.save();
-      console.log('✅ ERP sync başarılı:', erpResult.erpCariId);
-    } else {
-      console.error('❌ ERP sync başarısız:', erpResult.error);
     }
 
     res.json({
       success: erpResult.success,
       message: erpResult.success ? "ERP'ye aktarıldı" : "Aktarım başarısız",
-      erpOrderId: erpResult.erpOrderId,
       error: erpResult.error
     });
 
   } catch (err) {
-    console.error('❌ ERP sync hatası:', err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
-// 🔴 BU EN SONA EKLENMELİ!
+
+// ==========================================
+// DESTEK TALEPLERİ YÖNETİMİ (ADMIN)
+// ==========================================
+
+// Tüm destek taleplerini listele
+router.get("/support/tickets", adminOnly, async (req, res) => {
+  try {
+    const tickets = await SupportTicket.find()
+      .populate("userId", "ad email telefon")
+      .sort({ updatedAt: -1 });
+    res.json({ success: true, tickets });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Tek bir bilet detayını getir
+router.get("/support/tickets/:id", adminOnly, async (req, res) => {
+  try {
+    const ticket = await SupportTicket.findById(req.params.id)
+      .populate("userId", "ad email telefon firma");
+    if (!ticket) return res.status(404).json({ success: false, message: "Bilet bulunamadı" });
+    res.json({ success: true, ticket });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Admin yanıtı ekle
+router.post("/support/tickets/:id/reply", adminOnly, async (req, res) => {
+  try {
+    const { mesaj } = req.body;
+    if (!mesaj) return res.status(400).json({ success: false, message: "Mesaj gerekli" });
+
+    const ticket = await SupportTicket.findById(req.params.id);
+    if (!ticket) return res.status(404).json({ success: false, message: "Bilet bulunamadı" });
+
+    ticket.mesajlar.push({
+      from: "admin",
+      text: mesaj,
+      createdAt: new Date()
+    });
+    
+    ticket.durum = "beklemede"; 
+    ticket.updatedAt = new Date();
+    await ticket.save();
+
+    res.json({ success: true, message: "Yanıt gönderildi", ticket });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Bilet durumunu güncelle
+router.put("/support/tickets/:id/status", adminOnly, async (req, res) => {
+  try {
+    const { durum } = req.body;
+    const ticket = await SupportTicket.findByIdAndUpdate(
+      req.params.id,
+      { durum, updatedAt: new Date() },
+      { new: true }
+    );
+    res.json({ success: true, ticket });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 module.exports = router;

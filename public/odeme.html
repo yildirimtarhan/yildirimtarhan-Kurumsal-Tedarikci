@@ -5,38 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>Ödeme - Kurumsal Tedarikçi</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background: #f5f7ff;
-            padding-top: 70px;
+            padding-top: 80px;
         }
-
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            z-index: 1000;
-            padding: 15px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 70px;
-        }
-
-        .logo {
-            font-size: 22px;
-            font-weight: bold;
-            color: #1f2937;
-            text-decoration: none;
-        }
-
-        .logo span { color: #6366f1; }
 
         .container {
             max-width: 1200px;
@@ -331,7 +309,8 @@
             background: white;
             border-radius: 16px;
             padding: 25px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid #f1f5f9;
         }
 
         .summary-header {
@@ -356,9 +335,9 @@
 
         .cart-item {
             display: flex;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid #f3f4f6;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #f1f5f9;
         }
 
         .cart-item:last-child {
@@ -401,21 +380,24 @@
         }
 
         .qty-btn {
-            width: 28px;
-            height: 28px;
-            border: 1px solid #e5e7eb;
+            width: 32px;
+            height: 32px;
+            border: 1px solid #e2e8f0;
             background: white;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 14px;
+            color: #6366f1;
             transition: all 0.2s;
         }
 
-        .qty-btn:hover {
-            background: #f3f4f6;
+        .qty-btn:hover:not(:disabled) {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
         }
 
         .qty-btn:disabled {
@@ -425,9 +407,10 @@
 
         .qty-value {
             font-weight: 700;
-            color: #374151;
+            color: #1e293b;
             min-width: 24px;
             text-align: center;
+            font-size: 15px;
         }
 
         .btn-remove {
@@ -488,6 +471,88 @@
             padding: 2px 6px;
             border-radius: 4px;
             font-size: 10px;
+        }
+
+        /* Yasal Onay Kutuları */
+        .legal-check-wrapper {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .legal-check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .legal-check-item:last-child { margin-bottom: 0; }
+
+        .legal-check-item input {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            accent-color: #6366f1;
+        }
+
+        .legal-check-item span {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .legal-link {
+            color: #6366f1;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        /* Modal Stili */
+        .legal-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .legal-modal.show { display: flex; }
+
+        .legal-modal-content {
+            background: white;
+            width: 100%;
+            max-width: 800px;
+            max-height: 80vh;
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .legal-modal-header {
+            padding: 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .legal-modal-body {
+            padding: 30px;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.7;
+            color: #334155;
         }
 
         .btn-checkout {
@@ -621,6 +686,8 @@
 
         @media (max-width: 968px) {
             body { padding-top: 60px; }
+            .container { grid-template-columns: 1fr; margin: 10px auto; }
+            .order-summary { position: static; }
             
             .navbar {
                 height: 60px;
@@ -694,17 +761,84 @@
             font-weight: 600;
         }
     </style>
+    <link rel="stylesheet" href="css/mobile.css">
 </head>
 <body>
 
-    <nav class="navbar">
-        <a href="index.html" class="logo">Kurumsal<span>Tedarikçi</span></a>
-        <a href="sepet.html" style="color:#6366f1;text-decoration:none;font-weight:600;">
-            <i class="fas fa-arrow-left"></i> Sepete Dön
-        </a>
-    </nav>
+<nav class="navbar">
+<a class="logo" href="index.html">Kurumsal<span>Tedarikçi</span></a>
+<button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()">
+<i class="fas fa-bars" id="menuIcon"></i>
+</button>
+<ul class="nav-links" id="navLinks">
+<button aria-label="Menüyü Kapat" class="close-menu" onclick="toggleMenu()">
+<i class="fas fa-times"></i>
+</button>
+<li><a href="index.html">Anasayfa</a></li>
+<li><a href="hizmetler.html">Hizmetler</a></li>
+<li><a href="paketler.html">Paketler</a></li>
+<li class="nav-item-dropdown" id="urunlerNavItem">
+<a href="urunler.html" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('urunlerDropdown'); return false;">Ürünler <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="urunlerDropdown">
+  <!-- JS tarafından dinamik olarak doldurulacak -->
+  <a href="urunler.html?kategori=e-imza"><i class="fas fa-pen-fancy"></i> Elektronik İmza (E-İmza)</a>
+  <a href="urunler.html?kategori=e-fatura"><i class="fas fa-file-invoice"></i> E-Fatura</a>
+  <a href="urunler.html"><i class="fas fa-th-list"></i> Tümünü göster</a>
+</div>
+</li>
+<li class="nav-item-dropdown">
+<a href="#" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('kurumsalDropdown'); return false;">Kurumsal <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="kurumsalDropdown">
+<a href="referanslar.html"><i class="fas fa-handshake"></i> Referanslar</a>
+<a href="bayilik-basvuru.html"><i class="fas fa-file-signature"></i> Bayilik Başvurusu</a>
+<a href="bayi-giris.html"><i class="fas fa-user-tie"></i> Bayi Girişi</a>
+<a href="iletisim.html"><i class="fas fa-map-marker-alt"></i> İletişim</a>
+</div>
+</li>
 
-    <div class="container">
+<li><a href="teklif.html" style="color: #f59e0b; font-weight: 700;">Teklif Al</a></li>
+</ul>
+<div class="nav-right" id="navUserArea">
+  <!-- JS burayı dolduracak -->
+  <a class="login-btn" href="giris.html">Giriş Yap</a>
+  <a class="register-btn" href="kayit.html">Kayıt Ol</a>
+  <a class="cart-btn" href="odeme.html">
+    <i class="fas fa-shopping-cart"></i>
+    <span class="cart-count" id="cart-count">0</span>
+  </a>
+</div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="bayilik-basvuru.html">Bayilik Başvurusu</a></li><li><a href="bayi-giris.html">Bayi Girişi</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
+
+    <div class="container" style="margin-top: 20px;">
+        <!-- Professional Checkout Steps -->
+        <div class="checkout-steps">
+            <div class="step completed">
+                <span class="step-number">1</span>
+                <span>Sepetim</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step active">
+                <span class="step-number">2</span>
+                <span>Teslimat</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <span class="step-number">3</span>
+                <span>Ödeme</span>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+            <a href="sepet.html" class="btn-back-nav">
+                <i class="fas fa-arrow-left"></i> Sepete Geri Dön
+            </a>
+            <a href="index.html" class="btn-back-nav" style="background: none; border: 1px solid #e5e7eb;">
+                <i class="fas fa-home"></i> Anasayfa
+            </a>
+        </div>
+
         <!-- Sol Taraf -->
         <div class="checkout-form">
             
@@ -914,6 +1048,21 @@
                     </div>
                 </div>
 
+                <div class="legal-check-wrapper">
+                    <label class="legal-check-item">
+                        <input type="checkbox" id="legalConfirm1">
+                        <span><a href="javascript:void(0)" onclick="showLegalModal('onbilgi')" class="legal-link">Ön Bilgilendirme Formu</a>'nu okudum ve onaylıyorum.</span>
+                    </label>
+                    <label class="legal-check-item">
+                        <input type="checkbox" id="legalConfirm2">
+                        <span><a href="javascript:void(0)" onclick="showLegalModal('mesafeli')" class="legal-link">Mesafeli Satış Sözleşmesi</a>'ni okudum ve onaylıyorum.</span>
+                    </label>
+                    <label class="legal-check-item">
+                        <input type="checkbox" id="legalKvkk">
+                        <span><a href="javascript:void(0)" onclick="showLegalModal('kvkk')" class="legal-link">KVKK Aydınlatma Metni</a>'ni okudum ve içeriğini anladım.</span>
+                    </label>
+                </div>
+
                 <button class="btn-checkout" id="completeOrderBtn" onclick="completeOrder()">
                     <i class="fas fa-lock"></i> Siparişi Tamamla
                 </button>
@@ -934,6 +1083,53 @@
     <div class="toast" id="toast">
         <i class="fas fa-check-circle"></i>
         <span id="toastMessage">İşlem başarılı!</span>
+    </div>
+
+        </div>
+    </div>
+
+    <!-- Yasal Metin Modalı -->
+    <div id="legalModal" class="legal-modal">
+        <div class="legal-modal-content">
+            <div class="legal-modal-header">
+                <h3 id="legalModalTitle">Sözleşme</h3>
+                <button onclick="hideLegalModal()" style="background:none; border:none; font-size:24px; cursor:pointer; color:#64748b;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="legal-modal-body" id="legalModalBody">
+                <!-- Dinamik içerik -->
+            </div>
+            <div class="legal-modal-footer" style="padding: 15px; border-top: 1px solid #f1f5f9; text-align: right;">
+                <button onclick="hideLegalModal()" class="qty-btn" style="width:auto; padding:0 25px; border-color:#6366f1; color:#6366f1;">
+                    Kapat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yasal Uyarı Modalı (Profesyonel) -->
+    <div id="agreementWarningModal" class="legal-modal">
+        <div class="legal-modal-content" style="max-width: 450px;">
+            <div class="legal-modal-header" style="background: #fffbeb; border-bottom: 1px solid #fef3c7;">
+                <h3 style="color: #92400e; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-exclamation-circle"></i> Hatırlatma
+                </h3>
+                <button onclick="closeWarningModal()" style="background:none; border:none; font-size:20px; cursor:pointer; color:#92400e;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="legal-modal-body" style="text-align: center; padding: 40px 25px;">
+                <p style="font-size: 15px; color: #4b5563; line-height: 1.7; margin-bottom: 25px;">
+                    Devam edebilmek için lütfen <strong>Ön Bilgilendirme</strong>, <strong>Mesafeli Satış Sözleşmesi</strong> ve <strong>KVKK</strong> metinlerini okuyup onaylayınız.
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button onclick="closeWarningModal()" class="btn-checkout" style="margin-top:0; background: #6366f1;">
+                        Sözleşmeleri Onayla
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="js/turkiye-adresler.js"></script>
@@ -1023,9 +1219,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const userStr = localStorage.getItem("user") || sessionStorage.getItem("user");
     
      loadCart(); // ✅ SEPETİ MUTLAKA YÜKLE
-
-    console.log("Token:", authToken ? "Mevcut" : "Yok");
-    console.log("User:", userStr);
 
     if (!authToken) {
         showLoginPrompt();
@@ -1197,27 +1390,21 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <a href="giris.html" class="btn-login">Giriş Yap</a>
                 </div>
             `;
-            document.querySelector('.btn-add-address').style.display = 'none';
+            const addBtn = document.querySelector('.btn-add-address');
+            if (addBtn) addBtn.style.display = 'none';
         }
 
         // ==================== SEPET İŞLEMLERİ ====================
         function loadCart() {
             const savedCart = localStorage.getItem('cart');
             if (savedCart) {
-                try {
-                    cart = JSON.parse(savedCart);
-                } catch (e) {
-                    cart = [];
-                }
-            } else {
-                cart = [];
-            }
+                try { cart = JSON.parse(savedCart); } catch (e) { cart = []; }
+            } else { cart = []; }
             renderCart();
         }
 
         function renderCart() {
             const container = document.getElementById('cartItems');
-            
             if (!cart || cart.length === 0) {
                 container.innerHTML = `
                     <div class="empty-cart">
@@ -1227,364 +1414,110 @@ document.addEventListener("DOMContentLoaded", async () => {
                     </div>
                 `;
                 updateTotals();
-                document.getElementById('completeOrderBtn').disabled = true;
                 return;
             }
 
             container.innerHTML = cart.map((item, index) => {
-                const adet = parseInt(item.qty || item.adet || 1);
                 const birimFiyat = parseFloat(item.price || item.fiyat || 0);
-                const toplamFiyat = birimFiyat * adet;
-                
+                const adet = parseInt(item.qty || item.adet || 1);
                 return `
-                <div class="cart-item" data-index="${index}">
-                    <div class="item-image">
-                        <i class="fas fa-box"></i>
-                    </div>
-                    <div class="item-details">
-                        <h4>${item.name || item.ad || 'Ürün'}</h4>
-                        <p>${item.category || 'Ürün'}</p>
-                        <div class="item-qty">
-                            <button class="qty-btn" onclick="updateQty(${index}, -1)" ${adet <= 1 ? 'disabled' : ''}>
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <span class="qty-value">${adet}</span>
-                            <button class="qty-btn" onclick="updateQty(${index}, 1)">
-                                <i class="fas fa-plus"></i>
-                            </button>
+                    <div class="cart-item">
+                        <div class="item-image"><i class="fas fa-box"></i></div>
+                        <div class="item-details">
+                            <h4>${item.name || item.ad}</h4>
+                            <p>${adet} Adet x ₺${birimFiyat.toLocaleString('tr-TR')}</p>
                         </div>
-                        <button class="btn-remove" onclick="removeItem(${index})">
-                            <i class="fas fa-trash"></i> Kaldır
-                        </button>
+                        <div class="item-price">₺${(birimFiyat * adet).toLocaleString('tr-TR')}</div>
                     </div>
-                    <div class="item-price">
-                        ₺${formatMoney(toplamFiyat)}
-                        <div class="kdv-info">KDV Dahil</div>
-                    </div>
-                </div>
-            `}).join('');
-
+                `;
+            }).join('');
             updateTotals();
-            document.getElementById('completeOrderBtn').disabled = false;
-        }
-
-        function updateQty(index, change) {
-            const item = cart[index];
-            const yeniAdet = (parseInt(item.qty) || parseInt(item.adet) || 1) + change;
-            
-            if (yeniAdet <= 0) return;
-            
-            cart[index].qty = yeniAdet;
-            cart[index].adet = yeniAdet;
-            
-            localStorage.setItem('cart', JSON.stringify(cart));
-            renderCart();
-        }
-
-        function removeItem(index) {
-            cart.splice(index, 1);
-            localStorage.setItem('cart', JSON.stringify(cart));
-            renderCart();
         }
 
         function updateTotals() {
-            const araToplamKDVsiz = cart.reduce((sum, item) => {
-                const adet = parseInt(item.qty || item.adet || 1);
-                const fiyat = parseFloat(item.price || item.fiyat || 0);
-                const kdvHaric = fiyat / (1 + KDV_ORANI);
-                return sum + (kdvHaric * adet);
+            const totalPrice = cart.reduce((toplam, item) => {
+                return toplam + (parseFloat(item.price || item.fiyat || 0) * parseInt(item.qty || item.adet || 1));
             }, 0);
             
-            const kdvTutari = araToplamKDVsiz * KDV_ORANI;
-            const araToplamKDVli = araToplamKDVsiz + kdvTutari;
-            const shipping = araToplamKDVli > 500 ? 0 : 29.90;
-            const total = araToplamKDVli + shipping;
+            const araToplamKDVsiz = totalPrice / (1 + KDV_ORANI);
+            const kdvTutari = totalPrice - araToplamKDVsiz;
+            const kargo = totalPrice > 500 ? 0 : 29.90;
+            const genelToplam = totalPrice + kargo;
 
-            document.getElementById('subtotalWithoutKDV').textContent = '₺' + formatMoney(araToplamKDVsiz);
-            document.getElementById('kdvAmount').textContent = '₺' + formatMoney(kdvTutari);
-            document.getElementById('subtotal').textContent = '₺' + formatMoney(araToplamKDVli);
-            document.getElementById('shipping').textContent = shipping === 0 ? 'Ücretsiz' : '₺' + formatMoney(shipping);
-            document.getElementById('total').textContent = '₺' + formatMoney(total);
-        }
-
-        function formatMoney(amount) {
-            return parseFloat(amount).toLocaleString('tr-TR', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
+            document.getElementById('subtotalWithoutKDV').textContent = `₺${araToplamKDVsiz.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('kdvAmount').textContent = `₺${kdvTutari.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('subtotal').textContent = `₺${totalPrice.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('shipping').textContent = kargo === 0 ? 'Ücretsiz' : `₺${kargo.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('total').textContent = `₺${genelToplam.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         }
 
         // ==================== ADRES İŞLEMLERİ ====================
         async function loadAddresses() {
-            if (!authToken) {
-                console.log('Token yok, adresler yüklenmiyor');
-                return;
-            }
-
+            if (!authToken) return;
             try {
-                console.log('Adresler yükleniyor...');
-                
                 const response = await fetch(`${API_URL}/addresses`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${authToken}`,
-                        'Content-Type': 'application/json'
-                    }
+                    headers: { 'Authorization': `Bearer ${authToken}` }
                 });
-
-                console.log('Adres yanıtı status:', response.status);
-                
                 const data = await response.json();
-                console.log('Adres yanıtı:', data);
-
-                if (!response.ok) {
-                   if (response.status === 401 || response.status === 403) {
-
-                        // Token geçersiz, çıkış yap
-                        console.log('Token geçersiz, çıkış yapılıyor');
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('user');
-                        showLoginPrompt();
-                        showToast('Oturum süreniz doldu, lütfen tekrar giriş yapın', 'error');
-                        return;
-                    }
-                    throw new Error(data.message || 'Adresler yüklenemedi');
-                }
-
+                if (!response.ok) throw new Error(data.message || 'Adresler yüklenemedi');
                 addresses = data.addresses || [];
                 renderAddresses();
             } catch (error) {
                 console.error('Adres yükleme hatası:', error);
-                document.getElementById('addressSelector').innerHTML = `
-                    <div style="text-align:center;padding:30px;color:#ef4444;">
-                        <i class="fas fa-exclamation-circle" style="font-size:32px;margin-bottom:10px;display:block;"></i>
-                        <p>Adresler yüklenirken hata oluştu.</p>
-                        <p style="font-size:13px;margin-top:5px;">${error.message}</p>
-                    </div>
-                `;
             }
         }
 
-        let editingAddressId = null;
-
         function renderAddresses() {
             const container = document.getElementById('addressSelector');
-            
             if (addresses.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align:center;padding:30px;color:#6b7280;">
-                        <i class="fas fa-map-marker-alt" style="font-size:32px;margin-bottom:10px;display:block;"></i>
-                        <p>Kayıtlı adresiniz bulunmuyor.</p>
-                        <p style="font-size:13px;margin-top:5px;">Yukarıdan yeni adres ekleyin.</p>
-                    </div>
-                `;
+                container.innerHTML = '<p style="text-align:center;padding:20px;color:#64748b;">Kayıtlı adres seçiminiz bulunmuyor.</p>';
                 selectedAddressId = null;
-                renderInvoiceAddresses();
                 return;
             }
-
             container.innerHTML = addresses.map((addr, index) => `
                 <div class="address-option ${index === 0 ? 'selected' : ''}" onclick="selectAddress(${index}, this)">
-                    <input type="radio" name="address" value="${index}" ${index === 0 ? 'checked' : ''}>
-                    <div class="address-info" style="flex:1;">
-                        <h4>
-                            ${addr.title || addr.baslik || 'Adres'}
-                            ${index === 0 ? '<span class="badge">Varsayılan</span>' : ''}
-                        </h4>
-                        <p><strong>${addr.fullName || addr.adSoyad || ''}</strong> | ${addr.phone || addr.telefon || ''}</p>
-                        <p>${[addr.mahalle, addr.sokak, addr.address || addr.acikAdres].filter(Boolean).join(', ') || (addr.address || addr.acikAdres || '')}, ${addr.district || addr.ilce || ''}/${addr.city || addr.sehir || ''}</p>
+                    <input type="radio" name="address" value="${index}" ${index === 0 ? 'checked' : ''} style="display:none;">
+                    <div class="address-info">
+                        <h4>${addr.title || addr.baslik || 'Adres'}</h4>
+                        <p><strong>${addr.fullName || addr.adSoyad || ''}</strong></p>
+                        <p>${addr.acikAdres || addr.address}</p>
                     </div>
-                    <button type="button" style="margin-left:10px;padding:6px 12px;font-size:12px;background:#6366f1;color:white;border:none;border-radius:8px;cursor:pointer;white-space:nowrap;" onclick="event.stopPropagation(); editAddress(${index})">
-                        <i class="fas fa-edit"></i> Düzenle
-                    </button>
                 </div>
             `).join('');
-
             selectedAddressId = 0;
             renderInvoiceAddresses();
         }
 
         function renderInvoiceAddresses() {
             const container = document.getElementById('invoiceAddressSelector');
-            if (!container) return;
-            
-            if (addresses.length === 0) {
-                container.innerHTML = '<p style="color:#6b7280;text-align:center;">Adres bulunmuyor</p>';
-                return;
-            }
-            
+            if (!container || addresses.length === 0) return;
             container.innerHTML = addresses.map((addr, index) => `
                 <div class="address-option ${index === 0 ? 'selected' : ''}" onclick="selectInvoiceAddress(${index}, this)">
-                    <input type="radio" name="invoiceAddress" value="${index}" ${index === 0 ? 'checked' : ''}>
-                    <div class="address-info" style="flex:1;">
-                        <h4>${addr.title || addr.baslik || 'Adres'}</h4>
-                        <p><strong>${addr.fullName || addr.adSoyad || ''}</strong> | ${addr.phone || addr.telefon || ''}</p>
-                        <p>${[addr.mahalle, addr.sokak, addr.address || addr.acikAdres].filter(Boolean).join(', ') || (addr.address || addr.acikAdres || '')}, ${addr.district || addr.ilce || ''}/${addr.city || addr.sehir || ''}</p>
+                    <input type="radio" name="invoiceAddress" value="${index}" ${index === 0 ? 'checked' : ''} style="display:none;">
+                    <div class="address-info">
+                        <h4>${addr.title || addr.baslik}</h4>
+                        <p>${addr.acikAdres || addr.address}</p>
                     </div>
-                    <button type="button" style="margin-left:10px;padding:6px 12px;font-size:12px;background:#6366f1;color:white;border:none;border-radius:8px;cursor:pointer;white-space:nowrap;" onclick="event.stopPropagation(); editAddress(${index})">
-                        <i class="fas fa-edit"></i> Düzenle
-                    </button>
                 </div>
             `).join('');
-
-            if (addresses.length > 0 && selectedInvoiceAddressId === null) {
-                selectedInvoiceAddressId = 0;
-            }
+            selectedInvoiceAddressId = 0;
         }
 
         function selectAddress(index, element) {
             selectedAddressId = index;
-            document.querySelectorAll('#addressSelector .address-option').forEach(el => {
-                el.classList.remove('selected');
-                el.querySelector('input').checked = false;
-            });
+            document.querySelectorAll('#addressSelector .address-option').forEach(el => el.classList.remove('selected'));
             element.classList.add('selected');
-            element.querySelector('input').checked = true;
         }
 
         function selectInvoiceAddress(index, element) {
             selectedInvoiceAddressId = index;
-            document.querySelectorAll('#invoiceAddressSelector .address-option').forEach(el => {
-                el.classList.remove('selected');
-                el.querySelector('input').checked = false;
-            });
+            document.querySelectorAll('#invoiceAddressSelector .address-option').forEach(el => el.classList.remove('selected'));
             element.classList.add('selected');
-            element.querySelector('input').checked = true;
-        }
-
-        function editAddress(index) {
-            editingAddressId = addresses[index]?._id || null;
-            const addr = addresses[index];
-            if (!addr) return;
-            initOdemeAdresDropdowns();
-
-            document.getElementById('newFullName').value = addr.fullName || addr.adSoyad || '';
-            document.getElementById('newPhone').value = addr.phone || addr.telefon || '';
-            document.getElementById('newCity').value = addr.city || addr.sehir || '';
-            odemeIlDegisti(addr.city || addr.sehir || '');
-            document.getElementById('newDistrict').value = addr.district || addr.ilce || '';
-            const mEl = document.getElementById('newMahalle'); if (mEl) mEl.value = addr.mahalle || '';
-            const sEl = document.getElementById('newSokak'); if (sEl) sEl.value = addr.sokak || '';
-            document.getElementById('newAddress').value = addr.address || addr.acikAdres || '';
-            document.getElementById('newPostalCode').value = addr.postalCode || addr.postaKodu || '';
-            document.getElementById('newAddressTitle').value = addr.title || addr.baslik || '';
-
-            const form = document.getElementById('newAddressForm');
-            form.classList.add('show');
-            document.getElementById('autoTeslimatAdresi').style.display = 'none';
-            document.getElementById('manualAddressSection').style.display = 'block';
-            form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-
-        async function saveNewAddress() {
-            const fullName = document.getElementById('newFullName').value.trim();
-            const phone = document.getElementById('newPhone').value.trim();
-            const city = document.getElementById('newCity').value;
-            const districtEl = document.getElementById('newDistrict');
-            const district = districtEl ? (districtEl.value || '').trim() : '';
-            const mahalle = document.getElementById('newMahalle')?.value?.trim() || '';
-            const sokak = document.getElementById('newSokak')?.value?.trim() || '';
-            const address = document.getElementById('newAddress').value.trim();
-            const postalCode = document.getElementById('newPostalCode').value.trim();
-            const title = document.getElementById('newAddressTitle').value.trim() || 'Yeni Adres';
-
-            if (!fullName || !phone || !city || !district || !mahalle || !address || !postalCode) {
-                showToast('Lütfen tüm zorunlu alanları doldurun (Ad Soyad, Telefon, İl, İlçe, Mahalle, Açık Adres, Posta Kodu)', 'error');
-                return;
-            }
-
-            if (!authToken) {
-                showToast('Oturum süreniz doldu, lütfen tekrar giriş yapın', 'error');
-                setTimeout(() => window.location.href = 'giris.html', 1500);
-                return;
-            }
-
-            const newAddress = {
-                title,
-                fullName,
-                phone,
-                city,
-                district,
-                mahalle,
-                sokak,
-                address,
-                postalCode,
-                baslik: title,
-                adSoyad: fullName,
-                telefon: phone,
-                sehir: city,
-                ilce: district,
-                acikAdres: address,
-                postaKodu: postalCode,
-                isDefault: addresses.length === 0
-            };
-
-            try {
-                console.log('Adres kaydediliyor:', newAddress);
-                
-                let url = `${API_URL}/addresses`;
-                let method = 'POST';
-                let successMsg = 'Adres başarıyla eklendi';
-
-                if (editingAddressId) {
-                    url = `${API_URL}/addresses/${editingAddressId}`;
-                    method = 'PUT';
-                    successMsg = 'Adres başarıyla güncellendi';
-                }
-
-                const response = await fetch(url, {
-                    method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    },
-                    body: JSON.stringify(newAddress)
-                });
-
-                console.log('Kayıt yanıtı status:', response.status);
-                
-                const data = await response.json();
-                console.log('Kayıt yanıtı:', data);
-
-                if (!response.ok) {
-                   if (response.status === 401 || response.status === 403) {
-
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('user');
-                        showLoginPrompt();
-                        throw new Error('Oturum süreniz doldu');
-                    }
-                    throw new Error(data.message || 'Adres eklenemedi');
-                }
-
-                addresses = data.addresses || [];
-                renderAddresses();
-                toggleNewAddress();
-                showToast(successMsg);
-                editingAddressId = null;
-                
-                // Formu temizle
-                document.getElementById('newFullName').value = '';
-                document.getElementById('newPhone').value = '';
-                document.getElementById('newCity').value = '';
-                document.getElementById('newDistrict').innerHTML = '<option value="">Önce İl Seçiniz</option>';
-                document.getElementById('newDistrict').disabled = true;
-                const m = document.getElementById('newMahalle'); if (m) m.value = '';
-                const s = document.getElementById('newSokak'); if (s) s.value = '';
-                document.getElementById('newAddress').value = '';
-                document.getElementById('newPostalCode').value = '';
-                document.getElementById('newAddressTitle').value = '';
-                
-            } catch (error) {
-                console.error('Adres ekleme hatası:', error);
-                showToast('Adres eklenirken hata: ' + error.message, 'error');
-            }
         }
 
         function toggleInvoiceAddress() {
             const checkbox = document.getElementById('sameAddress');
             const section = document.getElementById('invoiceAddressSection');
-            
             if (checkbox.checked) {
                 section.style.display = 'none';
                 selectedInvoiceAddressId = selectedAddressId;
@@ -1597,172 +1530,81 @@ document.addEventListener("DOMContentLoaded", async () => {
         // ==================== ÖDEME İŞLEMLERİ ====================
         function selectPayment(method) {
             selectedPayment = method;
-            
-            document.querySelectorAll('.payment-option').forEach(el => {
-                el.classList.remove('selected');
-            });
+            document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
             event.currentTarget.classList.add('selected');
-            
             const transferInfo = document.getElementById('transferInfo');
-            if (method === 'transfer') {
-                transferInfo.classList.add('show');
-            } else {
-                transferInfo.classList.remove('show');
+            if (method === 'transfer') transferInfo.classList.add('show');
+            else transferInfo.classList.remove('show');
+        }
+
+        async function completeOrder() {
+            if (!authToken) { showToast("Lütfen önce giriş yapın", "error"); return; }
+            if (cart.length === 0) { showToast('Sepetiniz boş', 'error'); return; }
+
+            // Yasal Onay Kontrolü (Profesyonel Uyarı)
+            const c1 = document.getElementById('legalConfirm1');
+            const c2 = document.getElementById('legalConfirm2');
+            const kvkk = document.getElementById('legalKvkk');
+
+            if (!c1.checked || !c2.checked || !kvkk.checked) {
+                showAgreementWarning();
+                return;
             }
-        }
-
-        function copyIBAN() {
-            navigator.clipboard.writeText('TR00 1234 5678 9012 3456 7890 12');
-            showToast('IBAN kopyalandı');
-        }
-
-      async function completeOrder() {
-    const ok = await ensureAuth();
-    if (!ok) {
-        showToast("Lütfen önce giriş yapın", "error");
-        setTimeout(() => (window.location.href = "giris.html"), 1200);
-        return;
-    }
-
-    if (cart.length === 0) {
-        showToast('Sepetiniz boş', 'error');
-        return;
-    }
-
-    if (selectedAddressId === null || !addresses[selectedAddressId]) {
-        showToast('Lütfen teslimat adresi seçin', 'error');
-        return;
-    }
-
-    // Bayi alt limit kontrolü: ürün en az 5, paket en az 3 adet
-    if (currentUser && currentUser.rol === 'bayi') {
-        for (var i = 0; i < cart.length; i++) {
-            var it = cart[i];
-            var q = parseInt(it.qty || it.adet || 1);
-            var tip = (it.itemType || it.tip || '').toLowerCase();
-            if (tip === 'package' || tip === 'paket') {
-                if (q < 3) {
-                    showToast('Bayi için paket alımında en az 3 adet olmalıdır: ' + (it.name || it.ad), 'error');
-                    return;
-                }
-            } else {
-                if (q < 5) {
-                    showToast('Bayi için ürün alımında en az 5 adet olmalıdır: ' + (it.name || it.ad), 'error');
-                    return;
-                }
-            }
-        }
-    }
-
-    showLoading(true);
-
-    // Sipariş kalemleri: backend bayi için itemType bekliyor (ürün min 5, paket min 3)
-        const orderItems = cart.map(function(item) {
-            return {
-                name: item.name || item.ad,
-                ad: item.name || item.ad,
-                price: item.price || item.fiyat,
-                fiyat: item.price || item.fiyat,
-                quantity: item.qty || item.adet || 1,
-                qty: item.qty || item.adet || 1,
-                adet: item.qty || item.adet || 1,
-                itemType: item.itemType || null
+            
+            showLoading(true);
+            const orderData = {
+                items: cart,
+                shippingAddressId: addresses[selectedAddressId]?._id,
+                invoiceAddressId: document.getElementById('sameAddress').checked ? addresses[selectedAddressId]?._id : addresses[selectedInvoiceAddressId]?._id,
+                paymentMethod: selectedPayment,
+                total: document.getElementById('total').textContent
             };
-        });
-        const orderData = {
-        items: orderItems,
-        shippingAddressId: addresses[selectedAddressId]?._id,
-        invoiceAddressId: document.getElementById('sameAddress').checked
-            ? addresses[selectedAddressId]?._id
-            : addresses[selectedInvoiceAddressId]?._id,
-        paymentMethod: selectedPayment,
-        subtotal: document.getElementById('subtotal').textContent,
-        total: document.getElementById('total').textContent
-    };
 
-    try {
-        const response = await fetch(`${API_URL}/orders`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
-            },
-            body: JSON.stringify(orderData)
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-            throw new Error(result.message || 'Sipariş oluşturulamadı');
-        }
-
-        // Kart ödemesinde sipariş tamamlandı olarak işle
-        if (selectedPayment === 'card') {
-            localStorage.removeItem('cart');
-            showToast('Siparişiniz başarıyla oluşturuldu!');
-            setTimeout(() => {
-                window.location.href = `siparisler.html?success=true`;
-            }, 1500);
-        } else {
-            // Havale / Kapıda ödeme: sipariş tamam
-            localStorage.removeItem('cart');
-            showToast('Siparişiniz başarıyla oluşturuldu!');
-            setTimeout(() => {
-                window.location.href = `siparisler.html?success=true`;
-            }, 1500);
-        }
-
-    } catch (error) {
-        showToast('Sipariş oluşturulurken hata: ' + error.message, 'error');
-    } finally {
-        showLoading(false);
-    }
-}
-
-
-
-        // ==================== AUTH KONTROL ====================
-async function ensureAuth() {
-    authToken = localStorage.getItem("token") || sessionStorage.getItem("token");
-
-    if (!authToken) return false;
-
-    try {
-        const res = await fetch(`${API_URL}/auth/profile`, {
-            headers: {
-                Authorization: `Bearer ${authToken}`
+            try {
+                const response = await fetch(`${API_URL}/orders`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                    body: JSON.stringify(orderData)
+                });
+                if (response.ok) {
+                    localStorage.removeItem('cart');
+                    showToast('Siparişiniz başarıyla oluşturuldu!');
+                    setTimeout(() => window.location.href = 'siparisler.html?success=true', 1500);
+                } else {
+                    const res = await response.json();
+                    throw new Error(res.message);
+                }
+            } catch (error) {
+                showToast('Hata: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
             }
-        });
-
-        if (!res.ok) return false;
-
-        const data = await res.json();
-        if (!data.success) return false;
-
-        currentUser = data.user;
-        return true;
-
-    } catch (err) {
-        return false;
-    }
-}
+        }
 
         // ==================== YARDIMCI FONKSİYONLAR ====================
-        function showLoading(show) {
-            document.getElementById('loadingOverlay').classList.toggle('show', show);
+        function showLegalModal(type) {
+            document.getElementById('legalModal').classList.add('show');
+            document.getElementById('legalModalTitle').textContent = type.toUpperCase();
+            document.getElementById('legalModalBody').innerHTML = "<p>Sözleşme içeriği yükleniyor...</p>";
+        }
+        function hideLegalModal() { document.getElementById('legalModal').classList.remove('show'); }
+        
+        // Yeni: Uyarı Modalı Fonksiyonları
+        function showAgreementWarning() {
+            document.getElementById('agreementWarningModal').classList.add('show');
+        }
+        function closeWarningModal() {
+            document.getElementById('agreementWarningModal').classList.remove('show');
         }
 
+        function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('show', show); }
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
-            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-            
             toast.className = `toast ${type} show`;
-            toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            toast.innerHTML = `<span>${message}</span>`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
     </script>
+    <script src="js/main.js"></script>
 </body>
 </html>

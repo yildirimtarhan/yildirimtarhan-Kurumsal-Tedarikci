@@ -5,39 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>Adreslerim - Kurumsal Tedarikçi</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
             min-height: 100vh;
             padding-top: 80px;
         }
-
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: white;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
-            z-index: 1000;
-            padding: 15px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 70px;
-        }
-
-        .logo {
-            font-size: 22px;
-            font-weight: 800;
-            color: #1f2937;
-            text-decoration: none;
-        }
-
-        .logo span { color: #6366f1; }
 
         .nav-back {
             display: flex;
@@ -99,17 +76,21 @@
 
         .address-list {
             display: grid;
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 20px;
         }
 
         .address-card {
             background: white;
             border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
             border: 2px solid transparent;
             transition: all 0.3s;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .address-card:hover {
@@ -273,9 +254,9 @@
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #374151;
+            color: #475569;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .form-group input,
@@ -371,22 +352,72 @@
 </head>
 <body>
 
-    <nav class="navbar">
-        <a href="index.html" class="logo">Kurumsal<span>Tedarikçi</span></a>
-        <a href="profil.html" class="nav-back">
-            <i class="fas fa-arrow-left"></i> Profile Dön
-        </a>
-    </nav>
+<nav class="navbar">
+<a class="logo" href="index.html">Kurumsal<span>Tedarikçi</span></a>
+<button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()">
+<i class="fas fa-bars" id="menuIcon"></i>
+</button>
+<ul class="nav-links" id="navLinks">
+<button aria-label="Menüyü Kapat" class="close-menu" onclick="toggleMenu()">
+<i class="fas fa-times"></i>
+</button>
+<li><a href="index.html">Anasayfa</a></li>
+<li><a href="hizmetler.html">Hizmetler</a></li>
+<li><a href="paketler.html">Paketler</a></li>
+<li class="nav-item-dropdown" id="urunlerNavItem">
+<a href="urunler.html" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('urunlerDropdown'); return false;">Ürünler <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="urunlerDropdown">
+  <!-- JS tarafından dinamik olarak doldurulacak -->
+  <a href="urunler.html?kategori=e-imza"><i class="fas fa-pen-fancy"></i> Elektronik İmza (E-İmza)</a>
+  <a href="urunler.html?kategori=e-fatura"><i class="fas fa-file-invoice"></i> E-Fatura</a>
+  <a href="urunler.html"><i class="fas fa-th-list"></i> Tümünü göster</a>
+</div>
+</li>
+<li class="nav-item-dropdown">
+<a href="#" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('kurumsalDropdown'); return false;">Kurumsal <i class="fas fa-chevron-down"></i></a>
+<div class="nav-dropdown-menu" id="kurumsalDropdown">
+<a href="referanslar.html"><i class="fas fa-handshake"></i> Referanslar</a>
+<a href="bayilik-basvuru.html"><i class="fas fa-file-signature"></i> Bayilik Başvurusu</a>
+<a href="bayi-giris.html"><i class="fas fa-user-tie"></i> Bayi Girişi</a>
+<a href="iletisim.html"><i class="fas fa-map-marker-alt"></i> İletişim</a>
+</div>
+</li>
+
+<li><a href="teklif.html" style="color: #f59e0b; font-weight: 700;">Teklif Al</a></li>
+</ul>
+<div class="nav-right" id="navUserArea">
+  <!-- JS burayı dolduracak -->
+  <a class="login-btn" href="giris.html">Giriş Yap</a>
+  <a class="register-btn" href="kayit.html">Kayıt Ol</a>
+  <a class="cart-btn" href="odeme.html">
+    <i class="fas fa-shopping-cart"></i>
+    <span class="cart-count" id="cart-count">0</span>
+  </a>
+</div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="bayilik-basvuru.html">Bayilik Başvurusu</a></li><li><a href="bayi-giris.html">Bayi Girişi</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
 
     <div class="container">
-        <div class="page-header">
-            <h1><i class="fas fa-map-marker-alt"></i> Adreslerim</h1>
-            <p>Kayıtlı adreslerinizi yönetin</p>
+        <!-- Navigation -->
+        <div style="margin-bottom: 25px; display: flex; gap: 10px;">
+            <a href="index.html" class="btn-back-nav" style="background: white; border: 1px solid #e5e7eb; color: #6b7280; padding: 10px 18px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s;">
+                <i class="fas fa-home"></i> Anasayfa
+            </a>
+            <a href="profil.html" class="btn-back-nav" style="background: #f5f3ff; border: 1px solid #e0e7ff; color: #4f46e5; padding: 10px 18px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s;">
+                <i class="fas fa-user"></i> Profilim
+            </a>
         </div>
 
-        <button class="btn-add" onclick="openModal()">
-            <i class="fas fa-plus"></i> Yeni Adres Ekle
-        </button>
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <h1><i class="fas fa-map-marker-alt"></i> Adreslerim</h1>
+                <p>Kayıtlı adreslerinizi profesyonelce yönetin</p>
+            </div>
+            <button class="btn-add" onclick="openModal()" style="margin: 0;">
+                <i class="fas fa-plus"></i> Yeni Adres Ekle
+            </button>
+        </div>
 
         <div class="address-list" id="addressList">
             <!-- Adresler JS ile doldurulacak -->
@@ -682,7 +713,11 @@
                 phone: document.getElementById('phone').value,
                 city: document.getElementById('city').value,
                 district: document.getElementById('district').value,
-                address: document.getElementById('fullAddress').value
+                mahalle: document.getElementById('mahalle').value,
+                sokak: document.getElementById('sokak').value,
+                address: document.getElementById('fullAddress').value,
+                postalCode: document.getElementById('postalCode').value,
+                isDefault: document.getElementById('isDefault').checked
             };
 
             const method = id ? 'PUT' : 'POST';
@@ -783,6 +818,6 @@
             if (e.target === this) closeModal();
         });
     </script>
-
+    <script src="js/main.js"></script>
 </body>
 </html>

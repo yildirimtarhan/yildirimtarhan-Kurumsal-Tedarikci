@@ -13,6 +13,8 @@ const PackageSchema = new mongoose.Schema({
   featuresExcluded: [{ type: String }],
   isPopular: { type: Boolean, default: false },
   accentColor: { type: String, default: "#6366f1" },
+  stock: { type: Number, default: 9999 },
+  minStock: { type: Number, default: 0 },
   sortOrder: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },

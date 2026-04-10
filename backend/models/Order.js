@@ -71,7 +71,15 @@ const OrderSchema = new mongoose.Schema({
     parcaSayisi: { type: Number, default: 1 },
     durum: { type: String, default: null },
     kargolamaTarihi: { type: Date, default: null },
-    teslimTarihi: { type: Date, default: null }
+    teslimTarihi: { type: Date, default: null },
+    hareketler: [
+      {
+        tarih: { type: Date, default: Date.now },
+        durum: String,
+        aciklama: String,
+        konum: String
+      }
+    ]
   },
 
   createdAt: {
