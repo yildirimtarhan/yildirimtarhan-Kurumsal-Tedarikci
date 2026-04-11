@@ -156,6 +156,8 @@ const musteriRoutes = require('./routes/musteri');
 // OAuth kaldırıldı (Kullanıcı isteği: Sosyal medya kalmasın)
 // const oauthRoutes = require('./routes/oauth');
 
+const marketingRoutes = require('./routes/marketing');
+
 // Route Kullanımları
 app.use("/api/auth", authRoutes);
 app.use("/api/addresses", addressRoutes);
@@ -175,6 +177,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/muhasebe', muhasebeRoutes);
 app.use('/api/kasa', kasaRoutes);
 app.use('/api/musteri', musteriRoutes);
+app.use('/api/marketing', marketingRoutes);
 
 
 
@@ -258,7 +261,7 @@ app.use(express.static(publicPath));
 /* ======================================================
    ✅ HTML Sayfa Route Garantisi
 ====================================================== */
-const htmlPages = ['index', 'sepet', 'profil', 'odeme', 'siparisler', 'giris', 'kayit', 'sifremi-unuttum', 'hakkimizda', 'hizmetlerimiz', 'urunler', 'referanslarimiz', 'iletisim', 'teklif-al', 'destek-sorularim', 'kargo-takip', 'gizlilik-ve-guvenlik-politikasi', 'mesafeli-satis-sozlesmesi', 'iptal-ve-iade-kosullari', 'kullanim-kosullari', 'on-bilgilendirme-formu'];
+const htmlPages = ['index', 'sepet', 'profil', 'odeme', 'siparisler', 'giris', 'kayit', 'sifremi-unuttum', 'hakkimizda', 'hizmetlerimiz', 'urunler', 'referanslarimiz', 'iletisim', 'teklif-al', 'destek-sorularim', 'kargo-takip', 'gizlilik-ve-guvenlik-politikasi', 'mesafeli-satis-sozlesmesi', 'iptal-ve-iade-kosullari', 'kullanim-kosullari', 'on-bilgilendirme-formu', 'faturalarim', 'faturalar'];
 htmlPages.forEach(page => {
   app.get(`/${page}.html`, (req, res) => {
     res.sendFile(path.join(publicPath, `${page}.html`));

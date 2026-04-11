@@ -2,6 +2,7 @@ const axios = require("axios");
 
 const ERP_BASE_URL = "https://satistakip.online/api/integration";
 const ERP_API_KEY = process.env.ERP_API_KEY || "";
+const ERP_REPRESENTATIVE_EMAIL = "yildirimtarhan@tedarikci.org.tr";
 
 const ERP_HEADERS = {
   'x-api-key': ERP_API_KEY,
@@ -52,7 +53,9 @@ async function sendCustomerToERP(userData) {
       name: fullName,
       email: userData.email,
       phone: userData.telefon || '05000000000',
-      adres: getUserAdres(userData)
+      adres: getUserAdres(userData),
+      representative: ERP_REPRESENTATIVE_EMAIL,
+      staff_email: ERP_REPRESENTATIVE_EMAIL
     };
 
     console.log("📤 Gönderilen veri:", JSON.stringify(payload, null, 2));
@@ -118,7 +121,9 @@ async function sendOrderToERP(orderData, userData) {
       payment: {
         method: getPaymentMethod(orderData.paymentMethod),
         status: getPaymentStatus(orderData.paymentMethod)
-      }
+      },
+      representative: ERP_REPRESENTATIVE_EMAIL,
+      staff_email: ERP_REPRESENTATIVE_EMAIL
     };
 
     console.log("📤 Gönderilen veri:", JSON.stringify(erpPayload, null, 2));
@@ -155,14 +160,14 @@ function getPaymentMethod(paymentMethod) {
   const methodMap = {
     'Kredi Kartı': 'credit_card',
     'credit_card': 'credit_card',
-    'Havale/EFT': 'transfer',
-    'transfer': 'transfer',
+    'Havale / EFT': 'bank_transfer',
+    'transfer': 'bank_transfer',
     'Kapıda Ödeme': 'cash_on_delivery',
     'cash': 'cash_on_delivery',
     'Açık Hesap': 'open_account',
     'open': 'open_account'
   };
-  return methodMap[paymentMethod] || 'open_account';
+  return methodMap[paymentMethod] || 'bank_transfer';
 }
 
 function getPaymentStatus(paymentMethod) {

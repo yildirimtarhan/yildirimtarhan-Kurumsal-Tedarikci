@@ -133,10 +133,9 @@
     </div>
   </div>
 
+  <script src="../js/api-config.js"></script>
   <script>
-    const API_URL = window.location.hostname.includes("localhost") 
-      ? "http://localhost:3000/api" 
-      : "/api";
+    const API_URL = window.KT_API_URL;
 
     // Zaten giriş yapmışsa yönlendir
     if (localStorage.getItem("adminToken")) {
@@ -163,7 +162,16 @@
           body: JSON.stringify({ username, password })
         });
 
-        const data = await res.json();
+        const raw = await res.text();
+        let data;
+        try {
+          data = raw ? JSON.parse(raw) : {};
+        } catch {
+          const hint =
+            "Sunucu JSON yerine başka bir yanıt döndü. Canlıda /api isteklerinin Node.js backend'e yönlendirildiğini (nginx/Caddy proxy_pass vb.) ve uygulamanın çalıştığını kontrol edin.";
+          console.error("Admin login beklenmeyen yanıt:", res.status, raw.slice(0, 300));
+          throw new Error(hint);
+        }
 
         if (!res.ok || !data.success) {
           throw new Error(data.error || data.message || "Giriş başarısız");

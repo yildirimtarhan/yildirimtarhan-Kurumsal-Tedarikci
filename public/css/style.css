@@ -1305,7 +1305,7 @@ img {
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .nav-menu {
         position: fixed;
         top: 80px;
@@ -1631,7 +1631,7 @@ img {
     .hero h1 { font-size: 3rem; }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .navbar { height: 70px; padding: 0 15px; }
     .nav-links { display: none; } /* Standard behavior, main.js handles mobile menu */
     .hero-container { grid-template-columns: 1fr; text-align: center; }
@@ -1665,7 +1665,7 @@ img {
 /* MOBİL UYUMLULUK - Media Queries */
 
 /* Tablet ve altı */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   /* Genel düzen */
   .container { padding: 0 15px; }
   
@@ -1756,7 +1756,7 @@ img {
   cursor: pointer;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .hamburger { display: block; }
 }
 
@@ -1773,12 +1773,12 @@ img {
 /* MOBILE SLIDE MENU - unified across pages */
 
 .mobile-menu-btn{
-  display:none !important;
+  display:none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .mobile-menu-btn {
-    display: flex;
+    display: flex !important;
     background: #f3f4f6;
     border: none;
     font-size: 24px;
@@ -1794,10 +1794,10 @@ img {
 }
 
 .close-menu {
-    display: none !important;
+    display: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .close-menu {
         display: flex;
         position: absolute;
@@ -1879,7 +1879,7 @@ body.menu-open{
   touch-action:none;
 }
 
-@media (max-width: 768px){
+@media (max-width: 1024px){
   .nav-links, .nav-right .teklif-btn, .nav-right #navUserAreaContent { display: none !important; }
   .mobile-menu-btn{ display:flex !important; }
   .navbar{ height:60px !important; padding:10px 15px !important; }
@@ -2379,7 +2379,7 @@ body.home .hero-stats{
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .checkout-steps {
         gap: 15px;
         padding: 15px 10px;
@@ -2649,4 +2649,14 @@ body.home .hero-stats{
 
 .order-items-wrapper.show {
     max-height: 1000px;
+}
+
+/* FINAL MOBILE OVERRIDES - Ensure mobile menu works on all standard devices up to 1024px */
+@media (max-width: 1024px) {
+    .nav-links, #navLinks, .nav-right .register-btn, .nav-right .login-btn { 
+        display: none !important; 
+    }
+    .mobile-menu-btn { 
+        display: flex !important; 
+    }
 }

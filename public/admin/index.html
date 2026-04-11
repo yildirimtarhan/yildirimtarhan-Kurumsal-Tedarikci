@@ -345,6 +345,7 @@
       <a href="tahsilat-yonetim.html"><i class="fas fa-money-bill-wave"></i> Tahsilatlar</a>
       <a href="muhasebe.html"><i class="fas fa-calculator"></i> Muhasebe & Beyan</a>
       <a href="raporlar.html"><i class="fas fa-chart-bar"></i> Raporlar</a>
+      <a href="pazarlama.html"><i class="fas fa-bullhorn" style="color: #6366f1;"></i> AI Pazarlama</a>
       
       <a href="products.html"><i class="fas fa-cubes"></i> Ürünler (ERP)</a>
       <a href="kargo-bildirim.html"><i class="fas fa-truck"></i> Kargo Bildirim</a>
@@ -444,10 +445,9 @@
     </div>
   </div>
 
+  <script src="../js/api-config.js"></script>
   <script>
-    const API_URL = window.location.hostname.includes("localhost") 
-      ? "http://localhost:3000/api" 
-      : "/api";
+    const API_URL = window.KT_API_URL;
 
     const token = localStorage.getItem("adminToken");
 

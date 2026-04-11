@@ -239,12 +239,14 @@
         </div>
     </div>
 
+    <script src="../js/api-config.js"></script>
     <script>
+        const API_URL = window.KT_API_URL;
         let currentTicketId = null;
 
         async function loadTickets() {
             try {
-                const res = await fetch('/api/admin/support/tickets', {
+                const res = await fetch(`${API_URL}/admin/support/tickets`, {
                     headers: { 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') }
                 });
                 const data = await res.json();
@@ -268,7 +270,7 @@
         async function viewTicket(id) {
             currentTicketId = id;
             try {
-                const res = await fetch('/api/admin/support/tickets/' + id, {
+                const res = await fetch(`${API_URL}/admin/support/tickets/` + id, {
                     headers: { 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') }
                 });
                 const data = await res.json();
@@ -295,7 +297,7 @@
             if (!text) return;
 
             try {
-                const res = await fetch(`/api/admin/support/tickets/${currentTicketId}/reply`, {
+                const res = await fetch(`${API_URL}/admin/support/tickets/${currentTicketId}/reply`, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
@@ -316,7 +318,7 @@
 
         async function updateStatus(durum) {
             try {
-                const res = await fetch(`/api/admin/support/tickets/${currentTicketId}/status`, {
+                const res = await fetch(`${API_URL}/admin/support/tickets/${currentTicketId}/status`, {
                     method: 'PUT',
                     headers: { 
                         'Content-Type': 'application/json',

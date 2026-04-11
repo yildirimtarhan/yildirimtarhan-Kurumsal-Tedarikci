@@ -257,10 +257,48 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // -------------------------
+  // 4) Mobil Menü Dinamik İçerik (Giriş/Çıkış Linkleri)
+  // -------------------------
+  function renderMobileMenu() {
+    const mobileNavLinks = document.querySelector(".mobile-nav-links");
+    if (!mobileNavLinks) return;
+
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const userStr = localStorage.getItem("user") || sessionStorage.getItem("user");
+
+    // Mevcut linkleri koruyalım ama kullanıcıya özel olanları güncelleyelim
+    // Veya basitleştirmek için sadece auth linklerini sona ekleyelim/güncelleyelim
+    
+    // Önce varsa eski auth linklerini temizleyelim (dinamik eklenenler)
+    document.querySelectorAll(".mobile-auth-link").forEach(el => el.remove());
+
+    if (!token || !userStr) {
+      mobileNavLinks.insertAdjacentHTML('beforeend', `
+        <li class="mobile-auth-link"><a href="giris.html" style="color: var(--secondary); border-top: 1px solid #f1f5f9; margin-top: 10px;"><i class="fas fa-sign-in-alt"></i> Giriş Yap</a></li>
+        <li class="mobile-auth-link"><a href="kayit.html" style="color: var(--accent);"><i class="fas fa-user-plus"></i> Kayıt Ol</a></li>
+      `);
+    } else {
+      try {
+        const user = JSON.parse(userStr);
+        mobileNavLinks.insertAdjacentHTML('beforeend', `
+          <li class="mobile-auth-link" style="background: #f8fafc; margin-top: 10px; border-top: 1px solid #f1f5f9;">
+            <a href="profil.html"><i class="fas fa-user-circle"></i> ${user.ad || 'Profilim'}</a>
+          </li>
+          <li class="mobile-auth-link"><a href="siparisler.html"><i class="fas fa-box"></i> Siparişlerim</a></li>
+          <li class="mobile-auth-link"><a href="#" onclick="logout(); return false;" style="color: #ef4444;"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</a></li>
+        `);
+      } catch (e) {
+        console.error("Mobil menü render hatası:", e);
+      }
+    }
+  }
+
   // İlk yükleme
   renderNavbarUser();
   loadNavbarData();
   updateCartCount();
+  renderMobileMenu();
 
   // Sepet değişince sayıyı güncelle
   window.addEventListener("storage", updateCartCount);

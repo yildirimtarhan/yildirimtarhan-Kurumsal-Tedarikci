@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/turkiye-adresler.js"></script>
     <style>
         * {
             margin: 0;
@@ -582,18 +583,20 @@
                         
                         <div class="form-group">
     <label>İlçe <span class="required">*</span></label>
-    <select id="faturaIlce" required disabled>
+    <select id="faturaIlce" required disabled onchange="generateAdresSuggestions('fatura')">
         <option value="">Önce İl Seçiniz</option>
     </select>
 </div>
                         
                         <div class="form-group">
                             <label>Mahalle <span class="required">*</span></label>
-                            <input type="text" id="faturaMahalle" required placeholder="Mahalle adı">
+                            <input type="text" id="faturaMahalle" list="faturaMahalleList" required placeholder="Mahalle adı veya listeden seçin" onfocus="generateAdresSuggestions('fatura')">
+                            <datalist id="faturaMahalleList"></datalist>
                         </div>
                         <div class="form-group">
                             <label>Sokak</label>
-                            <input type="text" id="faturaSokak" placeholder="Sokak, cadde adı">
+                            <input type="text" id="faturaSokak" list="faturaSokakList" placeholder="Sokak, cadde adı veya listeden seçin" onfocus="generateAdresSuggestions('fatura', 'sokak')">
+                            <datalist id="faturaSokakList"></datalist>
                         </div>
                         <div class="form-group">
                             <label>Posta Kodu <span class="required">*</span></label>
@@ -631,18 +634,20 @@
                             
                             <div class="form-group">
     <label>İlçe <span class="required">*</span></label>
-    <select id="teslimatIlce" disabled>
+    <select id="teslimatIlce" disabled onchange="generateAdresSuggestions('teslimat')">
         <option value="">Önce İl Seçiniz</option>
     </select>
 </div>
                             
                             <div class="form-group">
                                 <label>Mahalle <span class="required">*</span></label>
-                                <input type="text" id="teslimatMahalle" placeholder="Mahalle adı">
+                                <input type="text" id="teslimatMahalle" list="teslimatMahalleList" placeholder="Mahalle adı veya listeden seçin" onfocus="generateAdresSuggestions('teslimat')">
+                                <datalist id="teslimatMahalleList"></datalist>
                             </div>
                             <div class="form-group">
                                 <label>Sokak</label>
-                                <input type="text" id="teslimatSokak" placeholder="Sokak, cadde adı">
+                                <input type="text" id="teslimatSokak" list="teslimatSokakList" placeholder="Sokak, cadde adı veya listeden seçin" onfocus="generateAdresSuggestions('teslimat', 'sokak')">
+                                <datalist id="teslimatSokakList"></datalist>
                             </div>
                             <div class="form-group">
                                 <label>Posta Kodu <span class="required">*</span></label>
@@ -699,432 +704,284 @@
     </div>
 
     <script>
-        
-    // ==========================================
-    // TÜRKİYE İL VE İLÇE VERİLERİ
-    // ==========================================
-    const TURKIYE_ADRESLER = {
-        "Adana": ["Aladağ", "Ceyhan", "Çukurova", "Feke", "İmamoğlu", "Karaisalı", "Karataş", "Kozan", "Pozantı", "Saimbeyli", "Sarıçam", "Seyhan", "Tufanbeyli", "Yumurtalık", "Yüreğir"],
-        "Adıyaman": ["Besni", "Çelikhan", "Gerger", "Gölbaşı", "Kahta", "Merkez", "Samsat", "Sincik", "Tut"],
-        "Afyonkarahisar": ["Başmakçı", "Bayat", "Bolvadin", "Çay", "Çobanlar", "Dazkırı", "Dinar", "Emirdağ", "Evciler", "Hocalar", "İhsaniye", "İscehisar", "Kızılören", "Merkez", "Sandıklı", "Sinanpaşa", "Sultandağı", "Şuhut"],
-        "Ağrı": ["Diyadin", "Doğubayazıt", "Eleşkirt", "Hamur", "Merkez", "Patnos", "Taşlıçay", "Tutak"],
-        "Amasya": ["Göynücek", "Gümüşhacıköy", "Hamamözü", "Merkez", "Merzifon", "Suluova", "Taşova"],
-        "Ankara": ["Akyurt", "Altındağ", "Ayaş", "Bala", "Beypazarı", "Çamlıdere", "Çankaya", "Çubuk", "Elmadağ", "Etimesgut", "Evren", "Gölbaşı", "Güdül", "Haymana", "Kahramankazan", "Kalecik", "Keçiören", "Kızılcahamam", "Mamak", "Nallıhan", "Polatlı", "Pursaklar", "Sincan", "Şereflikoçhisar", "Yenimahalle"],
-        "Antalya": ["Akseki", "Aksu", "Alanya", "Döşemealtı", "Elmalı", "Finike", "Gazipaşa", "Gündoğmuş", "İbradı", "Demre", "Kaş", "Kemer", "Kepez", "Konyaaltı", "Korkuteli", "Kumluca", "Manavgat", "Muratpaşa", "Serik"],
-        "Artvin": ["Ardanuç", "Arhavi", "Borçka", "Hopa", "Merkez", "Murgul", "Şavşat", "Yusufeli"],
-        "Aydın": ["Bozdoğan", "Buharkent", "Çine", "Didim", "Efeler", "Germencik", "İncirliova", "Karacasu", "Karpuzlu", "Koçarlı", "Köşk", "Kuşadası", "Kuyucak", "Nazilli", "Söke", "Sultanhisar", "Yenipazar"],
-        "Balıkesir": ["Altıeylül", "Ayvalık", "Balya", "Bandırma", "Bigadiç", "Burhaniye", "Dursunbey", "Edremit", "Erdek", "Gömeç", "Gönen", "Havran", "İvrindi", "Karesi", "Kepsut", "Manyas", "Marmara", "Savaştepe", "Sındırgı", "Susurluk"],
-        "Bilecik": ["Bozüyük", "Gölpazarı", "İnhisar", "Merkez", "Osmaneli", "Pazaryeri", "Söğüt", "Yenipazar"],
-        "Bingöl": ["Adaklı", "Genç", "Karlıova", "Kiğı", "Merkez", "Solhan", "Yayladere", "Yedisu"],
-        "Bitlis": ["Adilcevaz", "Ahlat", "Güroymak", "Hizan", "Merkez", "Mutki", "Tatvan"],
-        "Bolu": ["Dörtdivan", "Gerede", "Göynük", "Kıbrıscık", "Mengen", "Merkez", "Mudurnu", "Seben", "Yeniçağa"],
-        "Burdur": ["Ağlasun", "Altınyayla", "Bucak", "Çavdır", "Çeltikçi", "Gölhisar", "Karamanlı", "Kemer", "Merkez", "Tefenni", "Yeşilova"],
-        "Bursa": ["Büyükorhan", "Gemlik", "Gürsu", "Harmancık", "İnegöl", "İznik", "Karacabey", "Keles", "Kestel", "Mudanya", "Mustafakemalpaşa", "Nilüfer", "Orhaneli", "Orhangazi", "Osmangazi", "Yenişehir", "Yıldırım"],
-        "Çanakkale": ["Ayvacık", "Bayramiç", "Biga", "Bozcaada", "Çan", "Eceabat", "Ezine", "Gelibolu", "Gökçeada", "Lapseki", "Merkez", "Yenice"],
-        "Çankırı": ["Atkaracalar", "Bayramören", "Çerkeş", "Eldivan", "Ilgaz", "Kızılırmak", "Korgun", "Kurşunlu", "Merkez", "Orta", "Şabanözü", "Yapraklı"],
-        "Çorum": ["Alaca", "Bayat", "Boğazkale", "Dodurga", "İskilip", "Kargı", "Laçin", "Mecitözü", "Merkez", "Oğuzlar", "Ortaköy", "Osmancık", "Sungurlu", "Uğurludağ"],
-        "Denizli": ["Acıpayam", "Babadağ", "Baklan", "Bekilli", "Beyağaç", "Bozkurt", "Buldan", "Çal", "Çameli", "Çardak", "Çivril", "Güney", "Honaz", "Kale", "Merkezefendi", "Pamukkale", "Sarayköy", "Serinhisar", "Tavas"],
-        "Diyarbakır": ["Bağlar", "Bismil", "Çermik", "Çınar", "Çüngüş", "Dicle", "Eğil", "Ergani", "Hani", "Hazro", "Kayapınar", "Kocaköy", "Kulp", "Lice", "Silvan", "Sur", "Yenişehir"],
-        "Edirne": ["Enez", "Havsa", "İpsala", "Keşan", "Lalapaşa", "Meriç", "Merkez", "Süloğlu", "Uzunköprü"],
-        "Elazığ": ["Ağın", "Alacakaya", "Arıcak", "Baskil", "Karakoçan", "Keban", "Kovancılar", "Maden", "Merkez", "Palu", "Sivrice"],
-        "Erzincan": ["Çayırlı", "İliç", "Kemah", "Kemaliye", "Merkez", "Otlukbeli", "Refahiye", "Tercan", "Üzümlü"],
-        "Erzurum": ["Aşkale", "Aziziye", "Çat", "Hınıs", "Horasan", "İspir", "Karaçoban", "Karayazı", "Köprüköy", "Narman", "Oltu", "Olur", "Palandöken", "Pasinler", "Pazaryolu", "Şenkaya", "Tekman", "Tortum", "Uzundere", "Yakutiye"],
-        "Eskişehir": ["Alpu", "Beylikova", "Çifteler", "Günyüzü", "Han", "İnönü", "Mahmudiye", "Mihalgazi", "Mihalıççık", "Odunpazarı", "Sarıcakaya", "Seyitgazi", "Sivrihisar", "Tepebaşı"],
-        "Gaziantep": ["Araban", "İslahiye", "Karkamış", "Nizip", "Nurdağı", "Oğuzeli", "Şahinbey", "Şehitkamil", "Yavuzeli"],
-        "Giresun": ["Alucra", "Bulancak", "Çamoluk", "Çanakçı", "Dereli", "Doğankent", "Espiye", "Eynesil", "Görele", "Güce", "Keşap", "Merkez", "Piraziz", "Şebinkarahisar", "Tirebolu", "Yağlıdere"],
-        "Gümüşhane": ["Kelkit", "Köse", "Kürtün", "Merkez", "Şiran", "Torul"],
-        "Hakkari": ["Çukurca", "Derecik", "Merkez", "Şemdinli", "Yüksekova"],
-        "Hatay": ["Altınözü", "Antakya", "Arsuz", "Belen", "Defne", "Dörtyol", "Erzin", "Hassa", "İskenderun", "Kırıkhan", "Kumlu", "Payas", "Reyhanlı", "Samandağ", "Yayladağı"],
-        "Iğdır": ["Aralık", "Karakoyunlu", "Merkez", "Tuzluca"],
-        "Isparta": ["Aksu", "Atabey", "Eğirdir", "Gelendost", "Gönen", "Keçiborlu", "Merkez", "Şarkikaraağaç", "Senirkent", "Sütçüler", "Uluborlu", "Yalvaç", "Yenişarbademli"],
-        "İstanbul": ["Adalar", "Arnavutköy", "Ataşehir", "Avcılar", "Bağcılar", "Bahçelievler", "Bakırköy", "Başakşehir", "Bayrampaşa", "Beşiktaş", "Beykoz", "Beylikdüzü", "Beyoğlu", "Büyükçekmece", "Çatalca", "Çekmeköy", "Esenler", "Esenyurt", "Eyüpsultan", "Fatih", "Gaziosmanpaşa", "Güngören", "Kadıköy", "Kağıthane", "Kartal", "Küçükçekmece", "Maltepe", "Pendik", "Sancaktepe", "Sarıyer", "Silivri", "Sultanbeyli", "Sultangazi", "Şile", "Şişli", "Tuzla", "Ümraniye", "Üsküdar", "Zeytinburnu"],
-        "İzmir": ["Aliağa", "Balçova", "Bayındır", "Bayraklı", "Bergama", "Beydağ", "Bornova", "Buca", "Çeşme", "Çiğli", "Dikili", "Foça", "Gaziemir", "Güzelbahçe", "Karabağlar", "Karaburun", "Karşıyaka", "Kemalpaşa", "Kınık", "Kiraz", "Konak", "Menderes", "Menemen", "Narlıdere", "Ödemiş", "Seferihisar", "Selçuk", "Tire", "Torbalı", "Urla"],
-        "Kahramanmaraş": ["Afşin", "Andırın", "Çağlayancerit", "Dulkadiroğlu", "Ekinözü", "Elbistan", "Göksun", "Nurhak", "Onikişubat", "Pazarcık", "Türkoğlu"],
-        "Karabük": ["Eflani", "Eskipazar", "Merkez", "Ovacık", "Safranbolu", "Yenice"],
-        "Karaman": ["Ayrancı", "Başyayla", "Ermenek", "Kazımkarabekir", "Merkez", "Sarıveliler"],
-        "Kars": ["Akyaka", "Arpaçay", "Digor", "Kağızman", "Merkez", "Sarıkamış", "Selim", "Susuz"],
-        "Kastamonu": ["Abana", "Ağlı", "Araç", "Azdavay", "Bozkurt", "Cide", "Çatalzeytin", "Daday", "Devrekani", "Doğanyurt", "Hanönü", "İhsangazi", "İnebolu", "Küre", "Merkez", "Pınarbaşı", "Seydiler", "Şenpazar", "Taşköprü", "Tosya"],
-        "Kayseri": ["Akkışla", "Bünyan", "Develi", "Felahiye", "Hacılar", "İncesu", "Kocasinan", "Melikgazi", "Özvatan", "Pınarbaşı", "Sarıoğlan", "Sarız", "Talas", "Tomarza", "Yahyalı", "Yeşilhisar"],
-        "Kırıkkale": ["Bahşılı", "Balışeyh", "Çelebi", "Delice", "Karakeçili", "Keskin", "Merkez", "Sulakyurt", "Yahşihan"],
-        "Kırklareli": ["Babaeski", "Demirköy", "Kofçaz", "Lüleburgaz", "Merkez", "Pehlivanköy", "Pınarhisar", "Vize"],
-        "Kırşehir": ["Akçakent", "Akpınar", "Boztepe", "Çiçekdağı", "Kaman", "Merkez", "Mucur"],
-        "Kilis": ["Elbeyli", "Merkez", "Musabeyli", "Polateli"],
-        "Kocaeli": ["Başiskele", "Çayırova", "Darıca", "Derince", "Dilovası", "Gebze", "Gölcük", "İzmit", "Kandıra", "Karamürsel", "Kartepe", "Körfez"],
-        "Konya": ["Ahırlı", "Akören", "Akşehir", "Altınekin", "Beyşehir", "Bozkır", "Cihanbeyli", "Çeltik", "Çumra", "Derbent", "Derebucak", "Doğanhisar", "Emirgazi", "Ereğli", "Güneysınır", "Hadim", "Halkapınar", "Hüyük", "Ilgın", "Kadınhanı", "Karapınar", "Karatay", "Kulu", "Meram", "Sarayönü", "Selçuklu", "Seydişehir", "Taşkent", "Tuzlukçu", "Yalıhüyük", "Yunak"],
-        "Kütahya": ["Altıntaş", "Aslanapa", "Çavdarhisar", "Domaniç", "Dumlupınar", "Emet", "Gediz", "Hisarcık", "Merkez", "Pazarlar", "Şaphane", "Simav", "Tavşanlı"],
-        "Malatya": ["Akçadağ", "Arapgir", "Arguvan", "Battalgazi", "Darende", "Doğanşehir", "Doğanyol", "Hekimhan", "Kale", "Kuluncak", "Pütürge", "Yazıhan", "Yeşilyurt"],
-        "Manisa": ["Ahmetli", "Akhisar", "Alaşehir", "Demirci", "Gölmarmara", "Gördes", "Kırkağaç", "Köprübaşı", "Kula", "Salihli", "Sarıgöl", "Saruhanlı", "Selendi", "Soma", "Şehzadeler", "Turgutlu", "Yunusemre"],
-        "Mardin": ["Artuklu", "Dargeçit", "Derik", "Kızıltepe", "Mazıdağı", "Midyat", "Nusaybin", "Ömerli", "Savur", "Yeşilli"],
-        "Mersin": ["Akdeniz", "Anamur", "Aydıncık", "Bozyazı", "Çamlıyayla", "Erdemli", "Gülnar", "Mezitli", "Mut", "Silifke", "Tarsus", "Toroslar", "Yenişehir"],
-        "Muğla": ["Bodrum", "Dalaman", "Datça", "Fethiye", "Kavaklıdere", "Köyceğiz", "Marmaris", "Menteşe", "Milas", "Ortaca", "Seydikemer", "Ula", "Yatağan"],
-        "Muş": ["Bulanık", "Hasköy", "Korkut", "Malazgirt", "Merkez", "Varto"],
-        "Nevşehir": ["Acıgöl", "Avanos", "Derinkuyu", "Gülşehir", "Hacıbektaş", "Kozaklı", "Merkez", "Ürgüp"],
-        "Niğde": ["Altunhisar", "Bor", "Çamardı", "Çiftlik", "Merkez", "Ulukışla"],
-        "Ordu": ["Akkuş", "Altınordu", "Aybastı", "Çamaş", "Çatalpınar", "Çaybaşı", "Fatsa", "Gölköy", "Gülyalı", "Gürgentepe", "İkizce", "Kabadüz", "Kabataş", "Korgan", "Kumru", "Mesudiye", "Perşembe", "Ulubey", "Ünye"],
-        "Osmaniye": ["Bahçe", "Düziçi", "Hasanbeyli", "Kadirli", "Merkez", "Sumbas", "Toprakkale"],
-        "Rize": ["Ardeşen", "Çamlıhemşin", "Çayeli", "Derepazarı", "Fındıklı", "Güneysu", "Hemşin", "İkizdere", "İyidere", "Kalkandere", "Merkez", "Pazar"],
-        "Sakarya": ["Adapazarı", "Akyazı", "Arifiye", "Erenler", "Ferizli", "Geyve", "Hendek", "Karapürçek", "Karasu", "Kaynarca", "Kocaali", "Pamukova", "Sapanca", "Serdivan", "Söğütlü", "Taraklı"],
-        "Samsun": ["Alaçam", "Asarcık", "Atakum", "Ayvacık", "Bafra", "Canik", "Çarşamba", "Havza", "İlkadım", "Kavak", "Ladik", "Ondokuzmayıs", "Salıpazarı", "Tekkeköy", "Terme", "Vezirköprü", "Yakakent"],
-        "Siirt": ["Baykan", "Eruh", "Kurtalan", "Merkez", "Pervari", "Şirvan", "Tillo"],
-        "Sinop": ["Ayancık", "Boyabat", "Dikmen", "Durağan", "Erfelek", "Gerze", "Merkez", "Saraydüzü", "Türkeli"],
-        "Sivas": ["Akıncılar", "Altınyayla", "Divriği", "Doğanşar", "Gemerek", "Gölova", "Gürün", "Hafik", "İmranlı", "Kangal", "Koyulhisar", "Merkez", "Suşehri", "Şarkışla", "Ulaş", "Yıldızeli", "Zara"],
-        "Şanlıurfa": ["Akçakale", "Birecik", "Bozova", "Ceylanpınar", "Eyyübiye", "Halfeti", "Haliliye", "Harran", "Hilvan", "Karaköprü", "Siverek", "Suruç", "Viranşehir"],
-        "Şırnak": ["Beytüşşebap", "Cizre", "Güçlükonak", "İdil", "Merkez", "Silopi", "Uludere"],
-        "Tekirdağ": ["Çerkezköy", "Çorlu", "Ergene", "Hayrabolu", "Kapaklı", "Malkara", "Marmaraereğlisi", "Muratlı", "Saray", "Süleymanpaşa", "Şarköy"],
-        "Tokat": ["Almus", "Artova", "Başçiftlik", "Erbaa", "Merkez", "Niksar", "Pazar", "Reşadiye", "Sulusaray", "Turhal", "Yeşilyurt", "Zile"],
-        "Trabzon": ["Akçaabat", "Araklı", "Arsin", "Beşikdüzü", "Çarşıbaşı", "Çaykara", "Dernekpazarı", "Düzköy", "Hayrat", "Köprübaşı", "Maçka", "Of", "Ortahisar", "Şalpazarı", "Sürmene", "Tonya", "Vakfıkebir", "Yomra"],
-        "Tunceli": ["Çemişgezek", "Hozat", "Mazgirt", "Merkez", "Nazımiye", "Ovacık", "Pertek", "Pülümür"],
-        "Uşak": ["Banaz", "Eşme", "Karahallı", "Merkez", "Sivaslı", "Ulubey"],
-        "Van": ["Bahçesaray", "Başkale", "Çaldıran", "Çatak", "Edremit", "Erciş", "Gevaş", "Gürpınar", "İpekyolu", "Muradiye", "Özalp", "Saray", "Tuşba"],
-        "Yalova": ["Altınova", "Armutlu", "Çınarcık", "Çiftlikköy", "Merkez", "Termal"],
-        "Yozgat": ["Akdağmadeni", "Aydıncık", "Boğazlıyan", "Çandır", "Çayıralan", "Çekerek", "Kadışehri", "Merkez", "Sarıkaya", "Sorgun", "Şefaatli", "Yenifakılı", "Yerköy"],
-        "Zonguldak": ["Alaplı", "Çaycuma", "Devrek", "Ereğli", "Gökçebey", "Kilimli", "Kozlu", "Merkez"]
-    };
+        // ============================================================
+        // KAYIT FORMU - ADRES & FORM LOJİĞİ
+        // TURKIYE_ADRESLER ve getMahallelerAsync → turkiye-adresler.js'den gelir
+        // ============================================================
 
-    function getIller() {
-        return Object.keys(TURKIYE_ADRESLER).sort();
-    }
-
-    function getIlceler(ilAdi) {
-        if (!ilAdi || !TURKIYE_ADRESLER[ilAdi]) return [];
-        return [...TURKIYE_ADRESLER[ilAdi]].sort();
-    }
-
-    // Dropdown doldurma fonksiyonları
-    function faturaIlDegisti(ilAdi) {
-        const ilceSelect = document.getElementById('faturaIlce');
-        ilceSelect.innerHTML = '<option value="">İlçe Seçiniz</option>';
-        
-        if (!ilAdi) {
-            ilceSelect.disabled = true;
-            return;
-        }
-        
-        const ilceler = getIlceler(ilAdi);
-        ilceler.forEach(ilce => {
-            const option = document.createElement('option');
-            option.value = ilce;
-            option.textContent = ilce;
-            ilceSelect.appendChild(option);
-        });
-        
-        ilceSelect.disabled = false;
-        
-        // Eğer teslimat adresi aynıysa, teslimat ilini de güncelle
-        if (document.getElementById('sameAddress').checked) {
-            document.getElementById('teslimatSehir').value = ilAdi;
-            teslimatIlDegisti(ilAdi);
-        }
-    }
-
-    function teslimatIlDegisti(ilAdi) {
-        const ilceSelect = document.getElementById('teslimatIlce');
-        ilceSelect.innerHTML = '<option value="">İlçe Seçiniz</option>';
-        
-        if (!ilAdi) {
-            ilceSelect.disabled = true;
-            return;
-        }
-        
-        const ilceler = getIlceler(ilAdi);
-        ilceler.forEach(ilce => {
-            const option = document.createElement('option');
-            option.value = ilce;
-            option.textContent = ilce;
-            ilceSelect.appendChild(option);
-        });
-        
-        ilceSelect.disabled = false;
-    }
-
-    function getApiBase() {
-        return (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        // API base URL (turkiye-adresler.js de bunu kullanıyor)
+        window.ADRES_API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
             ? 'http://localhost:3000'
             : 'https://backend-api-7s13.onrender.com';
-    }
 
+        // ---- Mahalle & Sokak öneri fonksiyonu ----
+        async function generateAdresSuggestions(type, subType) {
+            subType = subType || 'mahalle';
+            var il   = document.getElementById(type + 'Sehir') ? document.getElementById(type + 'Sehir').value : '';
+            var ilce = document.getElementById(type + 'Ilce')  ? document.getElementById(type + 'Ilce').value  : '';
+            var listId = type + (subType === 'mahalle' ? 'MahalleList' : 'SokakList');
+            var list = document.getElementById(listId);
+            if (!list || !il || !ilce) return;
 
-    // Sayfa yüklendiğinde illeri doldur
-    document.addEventListener('DOMContentLoaded', function() {
-        const faturaSehir = document.getElementById('faturaSehir');
-        const teslimatSehir = document.getElementById('teslimatSehir');
-        const iller = getIller();
-        
-        iller.forEach(il => {
-            const option1 = document.createElement('option');
-            option1.value = il;
-            option1.textContent = il;
-            faturaSehir.appendChild(option1);
-            
-            const option2 = document.createElement('option');
-            option2.value = il;
-            option2.textContent = il;
-            teslimatSehir.appendChild(option2);
-        });
+            if (subType === 'mahalle') {
+                var mahalleler = [];
+                if (typeof getMahallelerAsync === 'function') {
+                    mahalleler = await getMahallelerAsync(il, ilce);
+                } else if (typeof getMahalleler === 'function') {
+                    mahalleler = getMahalleler(il, ilce);
+                }
+                list.innerHTML = (mahalleler || []).map(function(m) {
+                    return '<option value="' + m.replace(/"/g, '&quot;') + '">';
+                }).join('');
+            } else {
+                var mahalle = document.getElementById(type + 'Mahalle') ? document.getElementById(type + 'Mahalle').value.trim() : '';
+                if (!mahalle) return;
+                var sokaklar = (typeof getSokaklar === 'function') ? getSokaklar(il, ilce, mahalle) : [];
+                list.innerHTML = (sokaklar || []).map(function(s) {
+                    return '<option value="' + s.replace(/"/g, '&quot;') + '">';
+                }).join('');
+            }
+        }
 
-    });
+        // ---- İl değişince ilçe doldur ----
+        function faturaIlDegisti(ilAdi) {
+            var ilceSelect = document.getElementById('faturaIlce');
+            ilceSelect.innerHTML = '<option value="">İlçe Seçiniz</option>';
+            if (!ilAdi) { ilceSelect.disabled = true; return; }
 
-            const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-                ? 'http://localhost:3000'
-                : 'https://backend-api-7s13.onrender.com';
-        
-        // Tab değiştirme
+            ilceSelect.disabled = false;
+            var ilceler = (typeof getIlceler === 'function') ? getIlceler(ilAdi) : (TURKIYE_ADRESLER[ilAdi] ? [...TURKIYE_ADRESLER[ilAdi]].sort() : []);
+            ilceler.forEach(function(ilce) {
+                var opt = document.createElement('option');
+                opt.value = ilce; opt.textContent = ilce;
+                ilceSelect.appendChild(opt);
+            });
+
+            // Fatura mahallesini güncelle
+            generateAdresSuggestions('fatura');
+
+            // Teslimat adresi aynıysa senkronize et
+            if (document.getElementById('sameAddress').checked) {
+                document.getElementById('teslimatSehir').value = ilAdi;
+                teslimatIlDegisti(ilAdi);
+            }
+        }
+
+        function teslimatIlDegisti(ilAdi) {
+            var ilceSelect = document.getElementById('teslimatIlce');
+            ilceSelect.innerHTML = '<option value="">İlçe Seçiniz</option>';
+            if (!ilAdi) { ilceSelect.disabled = true; return; }
+
+            ilceSelect.disabled = false;
+            var ilceler = (typeof getIlceler === 'function') ? getIlceler(ilAdi) : (TURKIYE_ADRESLER[ilAdi] ? [...TURKIYE_ADRESLER[ilAdi]].sort() : []);
+            ilceler.forEach(function(ilce) {
+                var opt = document.createElement('option');
+                opt.value = ilce; opt.textContent = ilce;
+                ilceSelect.appendChild(opt);
+            });
+            generateAdresSuggestions('teslimat');
+        }
+
+        function getApiBase() {
+            return window.ADRES_API_BASE || window.location.origin;
+        }
+
+        // ---- Teslimat adresi göster/gizle ----
+        function toggleTeslimatAdresi() {
+            var cb = document.getElementById('sameAddress');
+            var alan = document.getElementById('teslimatAdresiAlani');
+            if (cb.checked) {
+                alan.style.display = 'none';
+                // Fatura değerlerini teslimat alanlarına kopyala
+                var fields = ['AdresBaslik','Sehir','Adres','PostaKodu','Mahalle','Sokak'];
+                fields.forEach(function(f) {
+                    var src = document.getElementById('fatura' + f);
+                    var dst = document.getElementById('teslimat' + f);
+                    if (src && dst) dst.value = src.value;
+                });
+                // İlçe özel: select
+                var fi = document.getElementById('faturaIlce');
+                var ti = document.getElementById('teslimatIlce');
+                if (fi && ti) ti.value = fi.value;
+            } else {
+                alan.style.display = '';
+            }
+        }
+
+        // ---- Tab değiştirme ----
         function switchTab(type) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
             event.target.classList.add('active');
-            
             document.getElementById('uyelikTipi').value = type;
-            
-            const kurumsalFields = document.getElementById('kurumsalFields');
-            const firmaInput = document.getElementById('firma');
-            const vergiNoInput = document.getElementById('vergiNo');
-            const vergiDairesiInput = document.getElementById('vergiDairesi');
-            const faturaBilgiMesaji = document.getElementById('faturaBilgiMesaji');
-            
+
+            var kurumsalFields   = document.getElementById('kurumsalFields');
+            var firmaInput       = document.getElementById('firma');
+            var vergiNoInput     = document.getElementById('vergiNo');
+            var vergiDairesiInput= document.getElementById('vergiDairesi');
+            var faturaBilgiMesaji= document.getElementById('faturaBilgiMesaji');
+
             if (type === 'kurumsal') {
                 kurumsalFields.classList.remove('hidden');
                 firmaInput.required = true;
                 vergiNoInput.required = true;
                 vergiDairesiInput.required = true;
-                
-                // Kurumsal fatura bilgisi mesajı
                 faturaBilgiMesaji.className = 'kurumsal-fatura-info';
                 faturaBilgiMesaji.innerHTML = '<i class="fas fa-info-circle"></i> Kurumsal üyelikte fatura Firma Unvanı ve Vergi bilgilerinize düzenlenecektir.';
-                
-                // Fatura adres başlığını otomatik doldur
                 document.getElementById('faturaAdresBaslik').placeholder = 'Örn: İşyeri Merkez';
             } else {
                 kurumsalFields.classList.add('hidden');
                 firmaInput.required = false;
                 vergiNoInput.required = false;
                 vergiDairesiInput.required = false;
-                
-                // Bireysel fatura bilgisi mesajı
                 faturaBilgiMesaji.className = 'bireysel-fatura-info';
                 faturaBilgiMesaji.innerHTML = '<i class="fas fa-info-circle"></i> Bireysel üyelikte fatura Ad Soyad ve TC Kimlik No bilgilerinize düzenlenecektir.';
-                
-                // Fatura adres başlığını otomatik doldur
-                document.getElementById('faturaAdresBaslik').placeholder = 'Örn: Ev Adresi';
+                document.getElementById('faturaAdresBaslik').placeholder = 'Örn: Ev Adresi, İşyeri';
             }
         }
-        
-        // Teslimat adresi göster/gizle
-        function toggleTeslimatAdresi() {
-            const checkbox = document.getElementById('sameAddress');
-            const teslimatAlani = document.getElementById('teslimatAdresiAlani');
-            const teslimatInputs = teslimatAlani.querySelectorAll('input, select, textarea');
-            
-            if (checkbox.checked) {
-                teslimatAlani.style.display = 'none';
-                // Required attributelerini kaldır
-                teslimatInputs.forEach(input => {
-                    input.required = false;
+
+        // ---- Sayfa yüklendiğinde ----
+        document.addEventListener('DOMContentLoaded', function() {
+            var faturaSehir   = document.getElementById('faturaSehir');
+            var teslimatSehir = document.getElementById('teslimatSehir');
+
+            // İlleri doldur (turkiye-adresler.js'deki getIller fonksiyonu ile)
+            if (typeof getIller === 'function') {
+                var iller = getIller();
+                iller.forEach(function(il) {
+                    var o1 = document.createElement('option'); o1.value = il; o1.textContent = il;
+                    var o2 = document.createElement('option'); o2.value = il; o2.textContent = il;
+                    faturaSehir.appendChild(o1);
+                    teslimatSehir.appendChild(o2);
                 });
-                
-                // Fatura adresini teslimat adresine kopyala
-                document.getElementById('teslimatAdresBaslik').value = document.getElementById('faturaAdresBaslik').value;
-                document.getElementById('teslimatSehir').value = document.getElementById('faturaSehir').value;
-                document.getElementById('teslimatIlce').value = document.getElementById('faturaIlce').value;
-                document.getElementById('teslimatMahalle').value = document.getElementById('faturaMahalle').value;
-                document.getElementById('teslimatSokak').value = document.getElementById('faturaSokak').value;
-                document.getElementById('teslimatPostaKodu').value = document.getElementById('faturaPostaKodu').value;
-                document.getElementById('teslimatAdres').value = document.getElementById('faturaAdres').value;
-            } else {
-                teslimatAlani.style.display = 'block';
-                // Required attributelerini ekle
-                teslimatInputs.forEach(input => {
-                    if (input.id !== 'teslimatAdresBaslik') {
-                        input.required = true;
+            }
+
+            // ---- Form senkronizasyon dinleyicileri ----
+            var syncFields = ['AdresBaslik','Adres','PostaKodu','Mahalle','Sokak'];
+            syncFields.forEach(function(f) {
+                var el = document.getElementById('fatura' + f);
+                if (el) {
+                    el.addEventListener('input', function() {
+                        if (document.getElementById('sameAddress').checked) {
+                            var dst = document.getElementById('teslimat' + f);
+                            if (dst) dst.value = this.value;
+                        }
+                    });
+                }
+            });
+
+            document.getElementById('faturaSehir').addEventListener('change', function() {
+                if (document.getElementById('sameAddress').checked) {
+                    document.getElementById('teslimatSehir').value = this.value;
+                }
+            });
+
+            document.getElementById('faturaIlce').addEventListener('change', function() {
+                if (document.getElementById('sameAddress').checked) {
+                    document.getElementById('teslimatIlce').value = this.value;
+                    generateAdresSuggestions('teslimat');
+                }
+            });
+
+            // ---- Form gönderimi ----
+            var form = document.getElementById('kayitForm');
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    var submitBtn = document.getElementById('submitBtn');
+                    var btnText   = document.getElementById('btnText');
+                    var btnLoader = document.getElementById('btnLoader');
+                    if (submitBtn) submitBtn.disabled = true;
+                    if (btnText)   btnText.style.display = 'none';
+                    if (btnLoader) btnLoader.style.display = 'inline';
+
+                    var sameAddr = document.getElementById('sameAddress').checked;
+                    var data = {
+                        ad:           document.getElementById('ad').value.trim(),
+                        soyad:        document.getElementById('soyad').value.trim(),
+                        email:        document.getElementById('email').value.trim(),
+                        telefon:      document.getElementById('telefon').value.trim(),
+                        sifre:        document.getElementById('sifre').value,
+                        uyelikTipi:   document.getElementById('uyelikTipi').value,
+                        firma:        document.getElementById('firma') ? document.getElementById('firma').value.trim() : '',
+                        vergiNo:      document.getElementById('vergiNo') ? document.getElementById('vergiNo').value.trim() : '',
+                        vergiDairesi: document.getElementById('vergiDairesi') ? document.getElementById('vergiDairesi').value.trim() : '',
+                        faturaAdresi: {
+                            baslik:    document.getElementById('faturaAdresBaslik').value.trim(),
+                            sehir:     document.getElementById('faturaSehir').value,
+                            ilce:      document.getElementById('faturaIlce').value,
+                            mahalle:   document.getElementById('faturaMahalle').value.trim(),
+                            sokak:     document.getElementById('faturaSokak').value.trim(),
+                            postaKodu: document.getElementById('faturaPostaKodu').value.trim(),
+                            adres:     document.getElementById('faturaAdres').value.trim()
+                        },
+                        teslimatAdresi: sameAddr ? null : {
+                            baslik:    document.getElementById('teslimatAdresBaslik').value.trim(),
+                            sehir:     document.getElementById('teslimatSehir').value,
+                            ilce:      document.getElementById('teslimatIlce').value,
+                            mahalle:   document.getElementById('teslimatMahalle').value.trim(),
+                            sokak:     document.getElementById('teslimatSokak').value.trim(),
+                            postaKodu: document.getElementById('teslimatPostaKodu').value.trim(),
+                            adres:     document.getElementById('teslimatAdres').value.trim()
+                        },
+                        teslimatSameFatura: sameAddr
+                    };
+
+                    var sifreOnay = document.getElementById('sifreOnay').value;
+                    if (data.sifre !== sifreOnay) {
+                        alert('Şifreler eşleşmiyor!');
+                        if (submitBtn) submitBtn.disabled = false;
+                        if (btnText)   btnText.style.display = 'inline';
+                        if (btnLoader) btnLoader.style.display = 'none';
+                        return;
+                    }
+
+                    try {
+                        var base = window.ADRES_API_BASE || window.location.origin;
+                        var res = await fetch(base + '/api/auth/register', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data)
+                        });
+                        var result = await res.json();
+                        if (result.success) {
+                            window.location.href = 'giris.html?kayit=basarili';
+                        } else {
+                            alert(result.message || 'Kayıt sırasında hata oluştu.');
+                            if (submitBtn) submitBtn.disabled = false;
+                            if (btnText)   btnText.style.display = 'inline';
+                            if (btnLoader) btnLoader.style.display = 'none';
+                        }
+                    } catch(err) {
+                        alert('Sunucuya bağlanılamadı. Lütfen tekrar deneyin.');
+                        if (submitBtn) submitBtn.disabled = false;
+                        if (btnText)   btnText.style.display = 'inline';
+                        if (btnLoader) btnLoader.style.display = 'none';
                     }
                 });
-                
-                // Alanları temizle
-                teslimatInputs.forEach(input => {
-                    input.value = '';
+            }
+
+            // TC Kimlik No doğrulama
+            var tcEl = document.getElementById('tcKimlik');
+            if (tcEl) {
+                tcEl.addEventListener('input', function() {
+                    var v = this.value.replace(/[^0-9]/g, '');
+                    if (v.length > 11) v = v.slice(0, 11);
+                    this.value = v;
                 });
             }
-        }
-        
-        // Form gönderimi
-        document.getElementById('registerForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const submitBtn = document.getElementById('submitBtn');
-            const msgDiv = document.getElementById('message');
-            
-            // Şifre kontrolü
-            const password = document.getElementById('password').value;
-            const passwordConfirm = document.getElementById('passwordConfirm').value;
-            
-            if (password !== passwordConfirm) {
-                msgDiv.className = 'message error';
-                msgDiv.textContent = 'Şifreler eşleşmiyor!';
-                msgDiv.style.display = 'block';
-                return;
-            }
-            
-            if (password.length < 8) {
-                msgDiv.className = 'message error';
-                msgDiv.textContent = 'Şifre en az 8 karakter olmalıdır!';
-                msgDiv.style.display = 'block';
-                return;
-            }
-            
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'İşleniyor...';
-            
-            const uyelikTipi = document.getElementById('uyelikTipi').value;
-            
-            // Fatura adresi objesi
-            const faturaAdresi = {
-                baslik: document.getElementById('faturaAdresBaslik').value,
-                sehir: document.getElementById('faturaSehir').value,
-                ilce: document.getElementById('faturaIlce').value,
-                mahalle: document.getElementById('faturaMahalle').value,
-                sokak: document.getElementById('faturaSokak').value,
-                postaKodu: document.getElementById('faturaPostaKodu').value,
-                acikAdres: document.getElementById('faturaAdres').value
-            };
-            
-            // Teslimat adresi objesi (fatura ile aynı mı kontrol et)
-            const sameAddress = document.getElementById('sameAddress').checked;
-            const teslimatAdresi = sameAddress ? faturaAdresi : {
-                baslik: document.getElementById('teslimatAdresBaslik').value || faturaAdresi.baslik,
-                sehir: document.getElementById('teslimatSehir').value,
-                ilce: document.getElementById('teslimatIlce').value,
-                mahalle: document.getElementById('teslimatMahalle').value,
-                sokak: document.getElementById('teslimatSokak').value,
-                postaKodu: document.getElementById('teslimatPostaKodu').value,
-                acikAdres: document.getElementById('teslimatAdres').value
-            };
-            
-            const data = {
-                ad: document.getElementById('ad').value,
-                email: document.getElementById('email').value,
-                telefon: document.getElementById('telefon').value,
-                password: password,
-                uyelikTipi: uyelikTipi,
-                tcNo: document.getElementById('tcNo').value,
-                // YENİ: Adres bilgileri (objeler)
-                faturaAdresi: faturaAdresi,
-                teslimatAdresi: teslimatAdresi,
-                // Eski alanlar (geriye uyumluluk için)
-                city: faturaAdresi.sehir,
-                district: faturaAdresi.ilce
-            };
-            
-            // Kurumsal ise ek alanlar
-            if (uyelikTipi === 'kurumsal') {
-                data.firma = document.getElementById('firma').value;
-                data.vergiNo = document.getElementById('vergiNo').value;
-                data.vergiDairesi = document.getElementById('vergiDairesi').value;
-            }
-            
-            try {
-                const response = await fetch(`${API_URL}/api/auth/register`, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(data)
+
+            // Vergi no doğrulama
+            var vEl = document.getElementById('vergiNo');
+            if (vEl) {
+                vEl.addEventListener('input', function() {
+                    var v = this.value.replace(/[^0-9]/g, '');
+                    if (v.length > 10) v = v.slice(0, 10);
+                    this.value = v;
                 });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    msgDiv.className = 'message success';
-                    msgDiv.innerHTML = `
-                        <strong>✅ Kayıt başarılı!</strong><br>
-                        Hoş geldiniz, ${result.user.ad}!<br>
-                        ${result.user.erpSynced ? '📊 ERP\'ye aktarıldı.' : ''}
-                    `;
-                    msgDiv.style.display = 'block';
-                    
-                    // Token ve kullanıcı bilgilerini kaydet
-                    localStorage.setItem('token', result.token);
-                    localStorage.setItem('user', JSON.stringify(result.user));
-                    
-                    // returnTo varsa (örn. bayilik-basvuru) oraya yönlendir
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const returnTo = urlParams.get('returnTo');
-                    const redirectUrl = (returnTo && /^[a-zA-Z0-9_.-]+\.html$/.test(returnTo)) ? returnTo : 'index.html';
-                    setTimeout(() => {
-                        window.location.href = redirectUrl;
-                    }, 2500);
-                } else {
-                    msgDiv.className = 'message error';
-                    msgDiv.textContent = result.message || 'Kayıt başarısız oldu!';
-                    msgDiv.style.display = 'block';
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Hesap Oluştur →';
-                }
-            } catch (err) {
-                console.error('Kayıt hatası:', err);
-                msgDiv.className = 'message error';
-                msgDiv.textContent = 'Bağlantı hatası! Lütfen tekrar deneyin.';
-                msgDiv.style.display = 'block';
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Hesap Oluştur →';
             }
         });
-        
-        // TC No sadece rakam
-        document.getElementById('tcNo').addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);
-        });
-        
-        // Vergi No sadece rakam
-        document.getElementById('vergiNo').addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
-        });
-        
-        // Posta kodu sadece rakam
-        document.getElementById('faturaPostaKodu').addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 5);
-        });
-        
-        document.getElementById('teslimatPostaKodu').addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 5);
-        });
-        
-        // Telefon formatı
-        document.getElementById('telefon').addEventListener('input', function(e) {
-            let value = this.value.replace(/[^0-9]/g, '');
-            if (value.length > 10) value = value.slice(0, 10);
-            this.value = value;
-        });
-        
-        // Fatura adresi değiştiğinde teslimat adresini de güncelle (eğer aynı ise)
-        document.getElementById('faturaAdresBaslik').addEventListener('input', function() {
-            if (document.getElementById('sameAddress').checked) {
-                document.getElementById('teslimatAdresBaslik').value = this.value;
-            }
-        });
-        
-        document.getElementById('faturaSehir').addEventListener('change', function() {
-            if (document.getElementById('sameAddress').checked) {
-                document.getElementById('teslimatSehir').value = this.value;
-            }
-        });
-        
-        document.getElementById('faturaIlce').addEventListener('input', function() {
-            if (document.getElementById('sameAddress').checked) {
-                document.getElementById('teslimatIlce').value = this.value;
-            }
-        });
-        
-        document.getElementById('faturaPostaKodu').addEventListener('input', function() {
-            if (document.getElementById('sameAddress').checked) {
-                document.getElementById('teslimatPostaKodu').value = this.value;
-            }
-        });
-        
-        document.getElementById('faturaAdres').addEventListener('input', function() {
-            if (document.getElementById('sameAddress').checked) {
-                document.getElementById('teslimatAdres').value = this.value;
-            }
-        });
+
     </script>
     <script src="js/main.js"></script>
 </body>

@@ -111,11 +111,9 @@
     </table>
   </div>
 
+  <script src="../js/api-config.js"></script>
   <script>
-    const API_URL = window.location.hostname.includes("localhost") 
-      ? "http://localhost:3000/api" 
-      : "/api";
-
+    const API_URL = window.KT_API_URL;
 
     // ✅ Token kontrol
     const token = localStorage.getItem("adminToken");

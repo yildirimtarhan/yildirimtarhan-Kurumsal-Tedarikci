@@ -650,38 +650,158 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .payment-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 20px;
+            border: 2px solid #f1f5f9;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8fafc;
+            text-align: center;
+        }
+
+        .payment-option:hover {
+            border-color: #6366f1;
+            background: #f1f5f9;
+        }
+
+        .payment-option.selected {
+            border-color: #6366f1;
+            background: #eff6ff;
+            box-shadow: 0 4px 15px rgba(99,102,241,0.1);
+        }
+
+        .payment-option input { display: none; }
+        .payment-option i { font-size: 24px; color: #64748b; }
+        .payment-option.selected i { color: #6366f1; }
+        .payment-option span { font-weight: 700; color: #1e293b; font-size: 14px; }
+
+        /* Transfer Details */
         .transfer-info {
             display: none;
-            background: #f0fdf4;
-            border: 1px solid #86efac;
-            border-radius: 10px;
-            padding: 20px;
+            grid-column: 1 / -1;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 16px;
+            padding: 25px;
             margin-top: 15px;
         }
 
-        .transfer-info.show {
-            display: block;
+        .transfer-info.show { display: block; }
+        
+        .bank-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
         }
+        
+        .bank-card {
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .bank-card.active {
+            border-color: #6366f1;
+            background: #fdf2f8;
+        }
+        
+        .bank-card img {
+            height: 30px;
+            object-fit: contain;
+            margin-bottom: 5px;
+        }
+
+        .qr-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+        }
+
+        #qrImage {
+            width: 120px;
+            height: 120px;
+            border-radius: 8px;
+            padding: 5px;
+            background: white;
+            border: 1px solid #eee;
+        }
+
+        .qr-text { flex: 1; }
+        .qr-text h4 { font-size: 14px; color: #1e293b; margin-bottom: 5px; }
+        .qr-text p { font-size: 12px; color: #64748b; }
 
         .bank-detail {
+            background: white;
+            padding: 12px 15px;
+            border-radius: 12px;
+            margin-top: 10px;
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px dashed #86efac;
+            border: 1px solid #e2e8f0;
         }
-
-        .bank-detail:last-child {
-            border-bottom: none;
-        }
-
+        
+        .bank-detail span { font-size: 12px; color: #64748b; }
+        .bank-detail strong { font-size: 13px; color: #1e293b; }
+        
         .copy-btn {
-            background: #6366f1;
-            color: white;
+            background: #f1f5f9;
             border: none;
-            padding: 4px 12px;
+            padding: 5px 10px;
             border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #6366f1;
             cursor: pointer;
-            font-size: 12px;
+        }
+
+        .cash-info {
+            display: none;
+            grid-column: 1 / -1;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 15px;
+            color: #166534;
+            font-size: 14px;
+        }
+        .cash-info.show { display: block; }
+
+        /* Payment Badge Overlays */
+        .promo-badge {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #10b981;
+            color: white;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 800;
+            white-space: nowrap;
         }
 
         @media (max-width: 968px) {
@@ -969,45 +1089,73 @@
                 </div>
 
                 <div class="payment-methods">
-                    <label class="payment-option selected" onclick="selectPayment('card')">
-                        <input type="radio" name="payment" value="card" checked>
+                    <label class="payment-option selected" style="position:relative;" onclick="selectPayment('transfer')">
+                        <div class="promo-badge">ÖNERİLEN</div>
+                        <input type="radio" name="payment" value="transfer" checked>
+                        <i class="fas fa-university"></i>
+                        <span>Banka Havalesi (Hızlı QR)</span>
+                    </label>
+
+                    <label class="payment-option" onclick="selectPayment('cash')">
+                        <input type="radio" name="payment" value="cash">
+                        <i class="fas fa-truck-loading"></i>
+                        <span>Kapıda Ödeme</span>
+                    </label>
+
+                    <label class="payment-option" style="opacity: 0.6; cursor: not-allowed;">
+                        <input type="radio" name="payment" value="card" disabled>
                         <i class="fas fa-credit-card"></i>
-                        <span>Kredi / Banka Kartı</span>
+                        <span>Kredi Kartı (Bakımda)</span>
                     </label>
                     
-                    <label class="payment-option" onclick="selectPayment('transfer')">
-                        <input type="radio" name="payment" value="transfer">
-                        <i class="fas fa-university"></i>
-                        <span>Havale / EFT</span>
-                    </label>
-                    <div class="transfer-info" id="transferInfo">
-                        <h4 style="margin-bottom:15px;color:#166534;"><i class="fas fa-info-circle"></i> Havale/EFT Bilgileri</h4>
+                    <div class="transfer-info show" id="transferInfo">
+                        <h4 style="margin-bottom:15px;color:#1e40af;"><i class="fas fa-magic"></i> Akıllı QR Kod ile Hızlı Ödeme</h4>
+                        
+                        <div class="bank-cards">
+                            <div class="bank-card active" onclick="updateBank('TOM-BANK', 'TR69 0021 3000 0007 7934 7000 01', this)">
+                                <img src="https://logo.clearbit.com/tombank.com.tr" alt="TOM-BANK" onerror="this.style.display='none'">
+                                <div><strong>TOM-BANK</strong></div>
+                            </div>
+                            <div class="bank-card" onclick="updateBank('KUVEYT TÜRK', 'TR39 0020 5000 0005 6901 4000 04', this)">
+                                <img src="https://logo.clearbit.com/kuveytturk.com.tr" alt="KUVEYT TÜRK" onerror="this.style.display='none'">
+                                <div><strong>KUVEYT TÜRK</strong></div>
+                            </div>
+                        </div>
+
+                        <div class="qr-section">
+                            <img id="qrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=HizliHavale" alt="Hızlı Havale QR">
+                            <div class="qr-text">
+                                <h4>Mobil Bankacılıktan Taratın</h4>
+                                <p>Bankanızın uygulamasından "QR ile Öde" diyerek taratın, tutar ve açıklama otomatik gelsin.</p>
+                            </div>
+                        </div>
+
                         <div class="bank-detail">
                             <span>Banka:</span>
-                            <strong>Garanti BBVA</strong>
+                            <strong id="selectedBankName">TOM-BANK</strong>
+                        </div>
+                        <div class="bank-detail">
+                            <span>Hesap Sahibi:</span>
+                            <strong>YILDIRIM AYLUÇTARHAN</strong>
                         </div>
                         <div class="bank-detail">
                             <span>IBAN:</span>
                             <div>
-                                <strong>TR00 1234 5678 9012 3456 7890 12</strong>
+                                <strong id="selectedIBAN" style="font-family: monospace;">TR69 0021 3000 0007 7934 7000 01</strong>
                                 <button class="copy-btn" onclick="copyIBAN()">Kopyala</button>
                             </div>
                         </div>
-                        <div class="bank-detail">
-                            <span>Hesap Sahibi:</span>
-                            <strong>Kurumsal Tedarikçi A.Ş.</strong>
-                        </div>
-                        <p style="margin-top:15px;font-size:13px;color:#166534;">
-                            <i class="fas fa-exclamation-triangle"></i> 
-                            Sipariş notuna firma adınızı yazmayı unutmayın!
+
+                        <p style="margin-top:15px;font-size:12px;color:#1e40af; line-height: 1.4;">
+                            <i class="fas fa-info-circle"></i> 
+                            Ödemenizi yaparken açıklama kısmına <strong>sipariş numaranızı</strong> veya <strong>adınızı</strong> yazmayı unutmayın.
                         </p>
                     </div>
 
-                    <label class="payment-option" onclick="selectPayment('cash')">
-                        <input type="radio" name="payment" value="cash">
-                        <i class="fas fa-money-bill-wave"></i>
-                        <span>Kapıda Ödeme</span>
-                    </label>
+                    <div class="cash-info" id="cashInfo">
+                        <h4 style="margin-bottom:10px;"><i class="fas fa-truck"></i> Kapıda Ödeme Hakkında</h4>
+                        <p>Siparişiniz kargoya verilir ve ödemeyi kapıda nakit veya kartla yapabilirsiniz. (Hizmet bedeli +₺15 yansıtılabilir).</p>
+                    </div>
                 </div>
             </div>
 
@@ -1135,10 +1283,8 @@
     <script src="js/turkiye-adresler.js"></script>
     <script>
         // ==================== DEĞİŞKENLER ====================
-        const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-            ? 'http://localhost:3000/api'
-            : '/api';
-        window.ADRES_API_BASE = (API_URL || '').replace(/\/api\/?$/, '') || window.location.origin;
+        const API_URL = '/api';
+        window.ADRES_API_BASE = window.location.origin;
 
         // Türkiye il/ilçe - ödeme sayfası yeni adres formu
         async function initOdemeAdresDropdowns() {
@@ -1206,7 +1352,7 @@
         let addresses = [];
         let selectedAddressId = null;
         let selectedInvoiceAddressId = null;
-        let selectedPayment = 'card';
+        let selectedPayment = 'transfer';
         const KDV_ORANI = 0.20;
         let currentUser = null;
         let authToken = null;
@@ -1218,7 +1364,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     authToken = localStorage.getItem("token") || sessionStorage.getItem("token");
     const userStr = localStorage.getItem("user") || sessionStorage.getItem("user");
     
-     loadCart(); // ✅ SEPETİ MUTLAKA YÜKLE
+    loadCart();
+    renderCart();
 
     if (!authToken) {
         showLoginPrompt();
@@ -1293,68 +1440,83 @@ document.addEventListener("DOMContentLoaded", async () => {
             
             // Teslimat adresi
             const teslimat = userAddresses.teslimatAdresi;
-            if (teslimat && teslimat.acikAdres) {
+            const hasValidTeslimat = teslimat && (teslimat.acikAdres || teslimat.sehir || teslimat.ilce);
+            if (hasValidTeslimat) {
                 document.getElementById('autoTeslimatAdresi').style.display = 'block';
                 document.getElementById('manualAddressSection').style.display = 'none';
                 const teslimatSatirlar = [teslimat.mahalle, teslimat.sokak, teslimat.acikAdres].filter(Boolean).join(', ');
+                const satir2 = [teslimat.ilce, teslimat.sehir, teslimat.postaKodu].filter(Boolean).join(' / ');
                 document.getElementById('teslimatAdresContent').innerHTML = `
                     <strong>${teslimat.baslik || 'Teslimat Adresi'}</strong><br>
-                    ${teslimatSatirlar || teslimat.acikAdres}<br>
-                    ${teslimat.ilce || ''} / ${teslimat.sehir || ''} ${teslimat.postaKodu || ''}<br>
-                    <strong>Telefon:</strong> ${currentUser?.telefon || ''}
+                    ${teslimatSatirlar || '—'}<br>
+                    ${satir2}${currentUser?.telefon ? '<br><strong>Tel:</strong> ' + currentUser.telefon : ''}
                 `;
                 
-                // Yeni adres formunu otomatik doldur (değiştirme durumu için)
-                document.getElementById('newCity').value = teslimat.sehir || '';
-                odemeIlDegisti(teslimat.sehir || '');
-                document.getElementById('newDistrict').value = teslimat.ilce || '';
-                if (typeof odemeMahalleSokakListesiGuncelle === 'function') odemeMahalleSokakListesiGuncelle();
+                // Formu da doldur (değiştirme için hazır olsun)
+                if (teslimat.sehir) {
+                    document.getElementById('newCity').value = teslimat.sehir;
+                    odemeIlDegisti(teslimat.sehir).then(() => {
+                        document.getElementById('newDistrict').value = teslimat.ilce || '';
+                        if (typeof odemeMahalleSokakListesiGuncelle === 'function') odemeMahalleSokakListesiGuncelle();
+                    });
+                }
                 const mEl = document.getElementById('newMahalle'); if (mEl) mEl.value = teslimat.mahalle || '';
                 const sEl = document.getElementById('newSokak'); if (sEl) sEl.value = teslimat.sokak || '';
                 document.getElementById('newAddress').value = teslimat.acikAdres || '';
                 document.getElementById('newPostalCode').value = teslimat.postaKodu || '';
                 document.getElementById('newAddressTitle').value = teslimat.baslik || '';
                 if (currentUser) {
-                    document.getElementById('newFullName').value = currentUser.ad || '';
+                    document.getElementById('newFullName').value = (currentUser.ad || '') + ' ' + (currentUser.soyad || '');
                     document.getElementById('newPhone').value = currentUser.telefon || '';
                 }
             }
             
             // Fatura adresi
             const fatura = userAddresses.faturaAdresi;
-            const faturaBilgi = userAddresses.faturaBilgisi;
+            const faturaBilgi = userAddresses.faturaBilgisi || null;
+            const hasValidFatura = fatura && (fatura.acikAdres || fatura.sehir || fatura.ilce);
             
-            if (fatura && fatura.acikAdres) {
-                document.getElementById('autoFaturaAdresi').style.display = 'block';
+            if (hasValidFatura) {
+                const autoFaturaEl = document.getElementById('autoFaturaAdresi');
+                if (autoFaturaEl) autoFaturaEl.style.display = 'block';
                 const faturaSatirlar = [fatura.mahalle, fatura.sokak, fatura.acikAdres].filter(Boolean).join(', ');
+                const satir2f = [fatura.ilce, fatura.sehir, fatura.postaKodu].filter(Boolean).join(' / ');
                 let faturaHTML = `
                     <strong>${fatura.baslik || 'Fatura Adresi'}</strong><br>
-                    ${faturaSatirlar || fatura.acikAdres}<br>
-                    ${fatura.ilce || ''} / ${fatura.sehir || ''} ${fatura.postaKodu || ''}
+                    ${faturaSatirlar || '—'}<br>
+                    ${satir2f}
                 `;
+                const faturaEl = document.getElementById('faturaAdresContent');
+                if (faturaEl) faturaEl.innerHTML = faturaHTML;
                 
-                document.getElementById('faturaAdresContent').innerHTML = faturaHTML;
-                
-                // Vergi bilgileri
+                // Vergi bilgileri — null-safe
                 let taxHTML = '';
-                if (faturaBilgi.firma) {
-                    // Kurumsal
+                if (faturaBilgi) {
+                    if (faturaBilgi.firma) {
+                        taxHTML = `
+                            <strong><i class="fas fa-building"></i> Kurumsal Fatura</strong><br>
+                            Firma: ${faturaBilgi.firma}<br>
+                            Vergi No: ${faturaBilgi.vergiNo || '-'}<br>
+                            Vergi Dairesi: ${faturaBilgi.vergiDairesi || '-'}
+                        `;
+                    } else if (faturaBilgi.adSoyad) {
+                        taxHTML = `
+                            <strong><i class="fas fa-user"></i> Bireysel Fatura</strong><br>
+                            Ad Soyad: ${faturaBilgi.adSoyad}<br>
+                            TC Kimlik No: ${faturaBilgi.tcNo || '-'}
+                        `;
+                    }
+                } else if (currentUser) {
                     taxHTML = `
-                        <strong><i class="fas fa-building"></i> Kurumsal Fatura</strong><br>
-                        Firma: ${faturaBilgi.firma}<br>
-                        Vergi No: ${faturaBilgi.vergiNo || '-'}<br>
-                        Vergi Dairesi: ${faturaBilgi.vergiDairesi || '-'}
-                    `;
-                } else {
-                    // Bireysel
-                    taxHTML = `
-                        <strong><i class="fas fa-user"></i> Bireysel Fatura</strong><br>
-                        Ad Soyad: ${faturaBilgi.adSoyad}<br>
-                        TC Kimlik No: ${faturaBilgi.tcNo || '-'}
+                        <strong><i class="fas fa-user"></i> Fatura Bilgisi</strong><br>
+                        Ad Soyad: ${(currentUser.ad || '') + ' ' + (currentUser.soyad || '')}<br>
+                        ${currentUser.firma ? 'Firma: ' + currentUser.firma + '<br>' : ''}
+                        ${currentUser.vergiNo ? 'Vergi No: ' + currentUser.vergiNo : ''}
                     `;
                 }
                 
-                document.getElementById('faturaTaxInfo').innerHTML = taxHTML;
+                const taxEl = document.getElementById('faturaTaxInfo');
+                if (taxEl && taxHTML) taxEl.innerHTML = taxHTML;
             }
         }
 
@@ -1396,10 +1558,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // ==================== SEPET İŞLEMLERİ ====================
         function loadCart() {
-            const savedCart = localStorage.getItem('cart');
-            if (savedCart) {
-                try { cart = JSON.parse(savedCart); } catch (e) { cart = []; }
-            } else { cart = []; }
+            try {
+                const legacy = JSON.parse(localStorage.getItem("kurumsalSepet") || "[]");
+                const modern = JSON.parse(localStorage.getItem("cart") || "[]");
+                cart = (Array.isArray(modern) && modern.length) ? modern : legacy;
+                console.log('Sepet yüklendi:', cart);
+            } catch (e) {
+                console.error('Sepet okuma hatası:', e);
+                cart = [];
+            }
             renderCart();
         }
 
@@ -1455,13 +1622,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         async function loadAddresses() {
             if (!authToken) return;
             try {
-                const response = await fetch(`${API_URL}/addresses`, {
+                // Not: /addresses diye bir route yok, /auth/adreslerim kullanılıyor
+                const response = await fetch(`${API_URL}/auth/adreslerim`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.message || 'Adresler yüklenemedi');
+                
+                // backend /auth/adreslerim formatına göre (success, addresses, faturaAdresi, teslimatAdresi)
                 addresses = data.addresses || [];
+                userAddresses = data; // displayAutoAddresses için
+                
                 renderAddresses();
+                displayAutoAddresses();
             } catch (error) {
                 console.error('Adres yükleme hatası:', error);
             }
@@ -1469,21 +1642,29 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         function renderAddresses() {
             const container = document.getElementById('addressSelector');
+            if (!container) return;
             if (addresses.length === 0) {
                 container.innerHTML = '<p style="text-align:center;padding:20px;color:#64748b;">Kayıtlı adres seçiminiz bulunmuyor.</p>';
                 selectedAddressId = null;
                 return;
             }
-            container.innerHTML = addresses.map((addr, index) => `
+            container.innerHTML = addresses.map((addr, index) => {
+                const title = addr.baslik || addr.title || 'Adres';
+                const adSoyad = addr.adSoyad || addr.fullName || '';
+                const satir1 = [addr.mahalle, addr.sokak, addr.acikAdres || addr.address].filter(Boolean).join(', ');
+                const satir2 = [addr.ilce, addr.sehir].filter(Boolean).join(' / ');
+                
+                return `
                 <div class="address-option ${index === 0 ? 'selected' : ''}" onclick="selectAddress(${index}, this)">
                     <input type="radio" name="address" value="${index}" ${index === 0 ? 'checked' : ''} style="display:none;">
                     <div class="address-info">
-                        <h4>${addr.title || addr.baslik || 'Adres'}</h4>
-                        <p><strong>${addr.fullName || addr.adSoyad || ''}</strong></p>
-                        <p>${addr.acikAdres || addr.address}</p>
+                        <h4>${title}</h4>
+                        <p><strong>${adSoyad}</strong></p>
+                        <p>${satir1 || 'Adres detayı belirtilmemiş'}</p>
+                        <p style="font-size: 13px; color: #64748b;">${satir2}</p>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
             selectedAddressId = 0;
             renderInvoiceAddresses();
         }
@@ -1491,15 +1672,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         function renderInvoiceAddresses() {
             const container = document.getElementById('invoiceAddressSelector');
             if (!container || addresses.length === 0) return;
-            container.innerHTML = addresses.map((addr, index) => `
+            container.innerHTML = addresses.map((addr, index) => {
+                const title = addr.baslik || addr.title || 'Adres';
+                const satir1 = [addr.mahalle, addr.sokak, addr.acikAdres || addr.address].filter(Boolean).join(', ');
+                const satir2 = [addr.ilce, addr.sehir].filter(Boolean).join(' / ');
+
+                return `
                 <div class="address-option ${index === 0 ? 'selected' : ''}" onclick="selectInvoiceAddress(${index}, this)">
                     <input type="radio" name="invoiceAddress" value="${index}" ${index === 0 ? 'checked' : ''} style="display:none;">
                     <div class="address-info">
-                        <h4>${addr.title || addr.baslik}</h4>
-                        <p>${addr.acikAdres || addr.address}</p>
+                        <h4>${title}</h4>
+                        <p>${satir1 || 'Adres detayı belirtilmemiş'}</p>
+                        <p style="font-size: 13px; color: #64748b;">${satir2}</p>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
             selectedInvoiceAddressId = 0;
         }
 
@@ -1528,13 +1715,48 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         // ==================== ÖDEME İŞLEMLERİ ====================
+
         function selectPayment(method) {
             selectedPayment = method;
             document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
             event.currentTarget.classList.add('selected');
+            
             const transferInfo = document.getElementById('transferInfo');
-            if (method === 'transfer') transferInfo.classList.add('show');
-            else transferInfo.classList.remove('show');
+            const cashInfo = document.getElementById('cashInfo');
+            
+            transferInfo.classList.remove('show');
+            cashInfo.classList.remove('show');
+            
+            if (method === 'transfer') {
+                transferInfo.classList.add('show');
+                updateQR(); // Update QR with current total
+            } else if (method === 'cash') {
+                cashInfo.classList.add('show');
+            }
+        }
+
+        function updateBank(name, iban, el) {
+            document.querySelectorAll('.bank-card').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById('selectedBankName').innerText = name;
+            document.getElementById('selectedIBAN').innerText = iban;
+            updateQR();
+        }
+
+        function updateQR() {
+            const total = document.getElementById('total').textContent.replace('₺', '').trim();
+            const iban = document.getElementById('selectedIBAN').innerText.replace(/\s/g, '');
+            // Sample QR data format for FAST/EFT (simplified)
+            const qrData = `IBAN:${iban};Amount:${total};Desc:Siparis`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}`;
+            document.getElementById('qrImage').src = qrUrl;
+        }
+
+        function copyIBAN() {
+            const iban = document.getElementById('selectedIBAN').innerText;
+            navigator.clipboard.writeText(iban).then(() => {
+                showToast("IBAN kopyalandı!");
+            });
         }
 
         async function completeOrder() {
@@ -1605,6 +1827,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
     </script>
+    <script src="js/turkiye-adresler.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

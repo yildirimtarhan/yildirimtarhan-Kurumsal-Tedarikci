@@ -155,9 +155,10 @@
     </div>
   </div>
 
+  <script src="../js/api-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
-    const API_URL = window.location.hostname.includes("localhost") ? "http://localhost:3000/api" : "/api";
+    const API_URL = window.KT_API_URL;
     let allTickets = [];
     let selectedTicketId = null;
 
