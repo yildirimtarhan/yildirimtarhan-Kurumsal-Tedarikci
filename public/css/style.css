@@ -1669,27 +1669,29 @@ img {
   /* Genel düzen */
   .container { padding: 0 15px; }
   
-  /* Navigasyon - Hamburger menü */
+  /* Navigasyon — yatay tek bar: logo | sepet | hamburger (menü slide panelde) */
   .navbar {
-    flex-direction: column;
-    padding: 1rem;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 10px 15px !important;
+    height: 60px !important;
+    min-height: 60px;
   }
-  
+
   .nav-links {
-    display: none;
-    width: 100%;
-    flex-direction: column;
-    background: #2c3e50;
-    position: absolute;
-    top: 60px;
-    left: 0;
+    display: none !important;
+    position: absolute !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
   }
-  
-  .nav-links.active { display: flex; }
-  
-  .nav-links a {
-    padding: 1rem;
-    border-bottom: 1px solid #34495e;
+
+  .nav-links.active {
+    display: none !important;
   }
   
   /* Form elemanları */
@@ -2023,6 +2025,35 @@ body.home .hero-stats{
   body.home .card-1{ left: 10px; top: 20px; }
   body.home .card-2{ right: 10px; top: 90px; }
   body.home .card-3{ right: 10px; bottom: 30px; }
+}
+
+/* Ana sayfa — mobilde masaüstü iki sütun / hero görseli kapansın */
+@media (max-width: 1024px) {
+  body.home .hero-container {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 20px 16px 36px !important;
+    gap: 16px !important;
+    text-align: center;
+  }
+  body.home .hero-content {
+    flex: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  body.home .hero-visual {
+    display: none !important;
+  }
+  body.home .hero h1 {
+    font-size: clamp(1.55rem, 5.2vw, 2.05rem) !important;
+    line-height: 1.18 !important;
+  }
+  body.home .hero-stats {
+    justify-content: center;
+    width: 100%;
+  }
 }
 
 /* Modal */
