@@ -370,9 +370,6 @@
 <i class="fas fa-bars" id="menuIcon"></i>
 </button>
 <ul class="nav-links" id="navLinks">
-<button aria-label="Menüyü Kapat" class="close-menu" onclick="toggleMenu()">
-<i class="fas fa-times"></i>
-</button>
 <li><a href="index.html">Anasayfa</a></li>
 <li><a href="hizmetler.html">Hizmetler</a></li>
 <li><a href="paketler.html">Paketler</a></li>
@@ -605,44 +602,7 @@
 </footer>
 
 <!-- ================= SCRIPTS ================= -->
-<script>
-(function() {
-  function setOpen(next) {
-    const menu = document.getElementById('mobileMenu');
-    if (!menu) return;
-    menu.classList.toggle('active', next);
-    document.body.classList.toggle('menu-open', next);
-    const icon = document.getElementById('menuIcon');
-    if (icon) icon.className = next ? 'fas fa-times' : 'fas fa-bars';
-  }
-
-  window.toggleMenu = function(forceClose) {
-    const menu = document.getElementById('mobileMenu');
-    if (!menu) return;
-    const isOpen = menu.classList.contains('active');
-    const next = forceClose === true ? false : !isOpen;
-    setOpen(next);
-  };
-
-  // Overlay click closes menu
-  document.addEventListener('click', function(e) {
-    const menu = document.getElementById('mobileMenu');
-    if (!menu || !menu.classList.contains('active')) return;
-    if (e.target === menu) toggleMenu(true);
-  });
-
-  // Close after clicking any link in mobile menu
-  document.addEventListener('click', function(e) {
-    const a = e.target.closest && e.target.closest('#mobileMenu a');
-    if (a) toggleMenu(true);
-  });
-
-  // ESC closes
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') toggleMenu(true);
-  });
-})();
-</script>
+<script src="js/api-config.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

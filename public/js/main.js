@@ -16,6 +16,48 @@ function ktApiUrl() {
   return typeof window.KT_API_URL === "string" ? window.KT_API_URL : "/api";
 }
 
+function escapeHtmlMobile(s) {
+  if (s == null) return "";
+  const d = document.createElement("div");
+  d.textContent = String(s);
+  return d.innerHTML;
+}
+
+/** Mobil slide menüdeki "Ürünler" altına API kategorilerini ekler (masaüstü dropdown ile uyum) */
+function populateMobileUrunlerSubnav(categories) {
+  if (!categories || !categories.length) return;
+  const mobileNav = document.querySelector("#mobileMenu .mobile-nav-links");
+  if (!mobileNav) return;
+  let urunlerLi = null;
+  mobileNav.querySelectorAll(":scope > li > a").forEach((a) => {
+    if (a.getAttribute("href") === "urunler.html") urunlerLi = a.closest("li");
+  });
+  if (!urunlerLi) return;
+  let sub = urunlerLi.querySelector(".mobile-subnav");
+  if (!sub) {
+    sub = document.createElement("ul");
+    sub.className = "mobile-subnav";
+    sub.setAttribute("aria-label", "Ürün kategorileri");
+    urunlerLi.appendChild(sub);
+  }
+  let html = "";
+  categories.forEach((cat) => {
+    const name = cat.name || "";
+    let icon = "fa-tag";
+    const n = name.toLowerCase();
+    if (n.includes("imza")) icon = "fa-pen-fancy";
+    else if (n.includes("fatura")) icon = "fa-file-invoice";
+    else if (n.includes("kep")) icon = "fa-envelope";
+    else if (n.includes("mühür")) icon = "fa-stamp";
+    else if (n.includes("damga")) icon = "fa-clock";
+    else if (n.includes("irsaliye")) icon = "fa-truck-loading";
+    else if (n.includes("defter")) icon = "fa-book";
+    html += `<li><a href="urunler.html?kategori=${encodeURIComponent(name)}"><i class="fas ${icon}"></i> ${escapeHtmlMobile(name)}</a></li>`;
+  });
+  html += `<li><a href="urunler.html"><i class="fas fa-th-list"></i> Tümünü göster</a></li>`;
+  sub.innerHTML = html;
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     await ensureKtApiUrl();
@@ -110,6 +152,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         html += `<a href="urunler.html" style="border-top: 1px solid #f1f5f9; padding-top: 10px; margin-top: 5px;"><i class="fas fa-th-list"></i> Tümünü Göster</a>`;
         
         urunlerDropdown.innerHTML = html;
+        populateMobileUrunlerSubnav(data.categories);
         console.log("✅ Kategoriler başarıyla yüklendi.");
       }
     } catch (err) {
@@ -301,11 +344,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       try {
         const user = JSON.parse(userStr);
+        const ad = escapeHtmlMobile(user.ad || "Hesabım");
         mobileNavLinks.insertAdjacentHTML('beforeend', `
-          <li class="mobile-auth-link" style="background: #f8fafc; margin-top: 10px; border-top: 1px solid #f1f5f9;">
-            <a href="profil.html"><i class="fas fa-user-circle"></i> ${user.ad || 'Profilim'}</a>
+          <li class="mobile-auth-link mobile-auth-heading" style="background: #f8fafc; margin-top: 10px; border-top: 1px solid #f1f5f9;">
+            <span style="display:block;padding:12px 28px;font-size:13px;font-weight:800;color:#6366f1;text-transform:uppercase;letter-spacing:.04em;">Hesabım</span>
           </li>
+          <li class="mobile-auth-link"><a href="profil.html"><i class="fas fa-user-circle"></i> ${ad}</a></li>
           <li class="mobile-auth-link"><a href="siparisler.html"><i class="fas fa-box"></i> Siparişlerim</a></li>
+          <li class="mobile-auth-link"><a href="faturalarim.html"><i class="fas fa-file-invoice"></i> Faturalarım</a></li>
+          <li class="mobile-auth-link"><a href="adreslerim.html"><i class="fas fa-map-marker-alt"></i> Adreslerim</a></li>
+          <li class="mobile-auth-link"><a href="destek-sorularim.html"><i class="fas fa-headset"></i> Destek</a></li>
+          <li class="mobile-auth-link"><a href="sifre-degistir.html"><i class="fas fa-lock"></i> Şifre Değiştir</a></li>
+          <li class="mobile-auth-link"><a href="odeme.html"><i class="fas fa-shopping-cart"></i> Sepet / Ödeme</a></li>
           <li class="mobile-auth-link"><a href="#" onclick="logout(); return false;" style="color: #ef4444;"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</a></li>
         `);
       } catch (e) {

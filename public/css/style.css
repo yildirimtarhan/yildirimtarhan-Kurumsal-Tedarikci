@@ -1874,6 +1874,28 @@ img {
 .mobile-nav-links a:active{ background:#f3f4f6; color:#6366f1; }
 .mobile-nav-links a.active{ color:#f59e0b; }
 
+/* Ürünler → API kategorileri (main.js: populateMobileUrunlerSubnav) */
+.mobile-subnav {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 6px 0;
+  background: #fafafa;
+  border-top: 1px solid #f3f4f6;
+}
+.mobile-subnav li { border-bottom: none; }
+.mobile-subnav a {
+  padding: 11px 24px 11px 44px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #4b5563 !important;
+}
+.mobile-subnav a i {
+  width: 1.1em;
+  margin-right: 8px;
+  color: #6366f1;
+  opacity: 0.85;
+}
+
 body.menu-open{
   overflow:hidden !important;
   touch-action:none;
@@ -1881,9 +1903,13 @@ body.menu-open{
 
 @media (max-width: 1024px){
   .nav-links, .nav-right .teklif-btn, .nav-right #navUserAreaContent { display: none !important; }
+  /* Kullanıcı dropdown masaüstüne ait; mobilde tekrarlayıp karışıklık yaratmasın — hesap slide menüde */
+  .nav-right .user-menu,
+  .nav-right .user-btn { display: none !important; }
+  .nav-right .cart-btn { display: inline-flex !important; align-items: center; justify-content: center; }
   .mobile-menu-btn{ display:flex !important; }
   .navbar{ height:60px !important; padding:10px 15px !important; }
-  .nav-right { display: flex; align-items: center; margin-right: 50px; }
+  .nav-right { display: flex; align-items: center; margin-right: 50px; gap: 8px; }
 }
 
 /* ============================= */
@@ -2653,10 +2679,12 @@ body.home .hero-stats{
 
 /* FINAL MOBILE OVERRIDES - Ensure mobile menu works on all standard devices up to 1024px */
 @media (max-width: 1024px) {
-    .nav-links, #navLinks, .nav-right .register-btn, .nav-right .login-btn { 
-        display: none !important; 
+    .nav-links, #navLinks, .nav-right .register-btn, .nav-right .login-btn,
+    .nav-right .user-menu, .nav-right .user-btn {
+        display: none !important;
     }
-    .mobile-menu-btn { 
-        display: flex !important; 
+    .nav-right .cart-btn { display: inline-flex !important; }
+    .mobile-menu-btn {
+        display: flex !important;
     }
 }
