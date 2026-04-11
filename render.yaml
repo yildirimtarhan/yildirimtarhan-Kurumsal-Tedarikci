@@ -1,25 +1,12 @@
+# Render.com: New + Blueprint → bu repo'yu seçin; ortam değişkenlerini Dashboard'dan ekleyin.
+# https://render.com/docs/blueprint-spec
 services:
   - type: web
-    name: kurumsal-tedarikci-api
-    env: node
+    name: kurumsal-tedarikci
+    runtime: node
+    region: frankfurt
+    plan: free
     rootDir: backend
     buildCommand: npm install
-    startCommand: node server.js
-    plan: free
-    envVars:
-      - key: NODE_VERSION
-        value: 18.17.0
-      - key: SMTP_HOST
-        value: smtp-relay.brevo.com
-      - key: SMTP_PORT
-        value: 587
-      - key: SMTP_SECURE
-        value: false
-      - key: SMTP_USER
-        value: a04977001@smtp-brevo.com
-      - key: SMTP_FROM_EMAIL
-        value: yildirimtarhan@tedarikci.org.tr
-      - key: SMTP_FROM_NAME
-        value: Kurumsal Tedarikci
-      - key: PORT
-        value: 10000  # Render 10000 portunu kullanır
+    startCommand: npm start
+    healthCheckPath: /

@@ -1,9 +1,12 @@
 /**
- * Statik hosting (ör. Vercel) kullanıyorsanız, Node backend'in /api kökünün tam URL'sini yazın.
- * Boş bırakılırsa tarayıcı aynı siteden /api kullanır (sunucu + nginx/Vercel rewrite gerekir).
- * Örnek: window.__KT_API_BASE__ = "https://kurumsal-backend.onrender.com/api";
+ * API Render'da, site Vercel/statik başka yerdeyse: aşağıdaki sabiti Render'daki servis URL'nizle doldurun.
+ * Örnek: "https://kurumsal-api-xxxx.onrender.com/api" (Render Dashboard → servis → URL, sonuna /api ekleyin)
+ *
+ * Site ile API aynı domainde tek Node'da ise boş bırakın.
  */
-window.__KT_API_BASE__ = window.__KT_API_BASE__ || "";
+const KT_RENDER_API_BASE = "https://api.tedarikci.org.tr/api";
+
+window.__KT_API_BASE__ = window.__KT_API_BASE__ || KT_RENDER_API_BASE;
 
 (function () {
   const h = window.location.hostname;
