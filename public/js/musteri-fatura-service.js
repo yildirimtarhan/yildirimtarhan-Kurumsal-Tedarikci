@@ -3,13 +3,18 @@
  * Müşterilerin kendi faturalarını görüntülemesi ve indirmesi için
  */
 
+function ktPublicApiBase() {
+    if (typeof window !== 'undefined' && typeof window.KT_API_URL === 'string' && window.KT_API_URL) {
+        return window.KT_API_URL;
+    }
+    const h = typeof window !== 'undefined' ? window.location.hostname : '';
+    if (h === 'localhost' || h === '127.0.0.1') return 'http://localhost:3000/api';
+    return '/api';
+}
+
 class MusteriFaturaService {
     constructor() {
-        // Backend API'yi kendi domain'imizden çağırıyoruz.
-        // localhost geliştirme için port farklı olabiliyor.
-        this.baseUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-            ? 'http://localhost:3000/api'
-            : '/api';
+        this.baseUrl = ktPublicApiBase();
         this.token = localStorage.getItem('token') || sessionStorage.getItem('token');
         this.musteriId = localStorage.getItem('musteriId') || sessionStorage.getItem('musteriId');
     }

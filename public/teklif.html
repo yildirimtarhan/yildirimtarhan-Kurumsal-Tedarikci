@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 
 <html lang="tr">
 <head>
@@ -225,8 +225,7 @@
   </div>
 </footer>
 <!-- INLINE JAVASCRIPT -->
-
-
+<script src="js/api-config.js"></script>
 <script>
 (function() {
   function setOpen(next) {
@@ -295,10 +294,7 @@
     if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gönderiliyor...'; }
 
     try {
-      const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-        ? 'http://localhost:3000/api'
-        : '/api';
-      const res = await fetch(API_URL + '/teklif', {
+      const res = await fetch(window.KT_API_URL + '/teklif', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ad, firma, email, telefon, hizmetler, kullaniciSayisi, mesaj })

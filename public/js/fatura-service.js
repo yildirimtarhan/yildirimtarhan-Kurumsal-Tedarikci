@@ -3,11 +3,18 @@
  * Taxten e-fatura entegrasyonu için API çağrıları
  */
 
+function ktPublicApiBase() {
+    if (typeof window !== 'undefined' && typeof window.KT_API_URL === 'string' && window.KT_API_URL) {
+        return window.KT_API_URL;
+    }
+    const h = typeof window !== 'undefined' ? window.location.hostname : '';
+    if (h === 'localhost' || h === '127.0.0.1') return 'http://localhost:3000/api';
+    return '/api';
+}
+
 class FaturaService {
     constructor() {
-        this.baseUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-            ? 'http://localhost:3000/api'
-            : '/api';
+        this.baseUrl = ktPublicApiBase();
         this.token = localStorage.getItem('token');
     }
 

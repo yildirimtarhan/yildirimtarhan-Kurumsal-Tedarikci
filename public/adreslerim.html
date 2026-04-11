@@ -500,12 +500,11 @@
         </div>
     </div>
 
+    <script src="js/api-config.js"></script>
     <script src="js/turkiye-adresler.js"></script>
     <script>
-        const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-            ? 'http://localhost:3000/api'
-            : '/api';
-        window.ADRES_API_BASE = (API_URL || '').replace(/\/api\/?$/, '') || window.location.origin;
+        const API_URL = window.KT_API_URL;
+        window.ADRES_API_BASE = String(API_URL || '').replace(/\/api\/?$/, '') || window.location.origin;
 
         let currentUser = null;
         let addresses = [];

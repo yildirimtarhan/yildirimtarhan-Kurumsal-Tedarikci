@@ -710,10 +710,8 @@
         // TURKIYE_ADRESLER ve getMahallelerAsync → turkiye-adresler.js'den gelir
         // ============================================================
 
-        // API base URL (turkiye-adresler.js de bunu kullanıyor)
-        window.ADRES_API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-            ? 'http://localhost:3000'
-            : 'https://backend-api-7s13.onrender.com';
+        // API kökü (turkiye-adresler.js: /api/adres/... için origin)
+        window.ADRES_API_BASE = String(window.KT_API_URL || '').replace(/\/api\/?$/, '') || window.location.origin;
 
         // ---- Mahalle & Sokak öneri fonksiyonu ----
         async function generateAdresSuggestions(type, subType) {

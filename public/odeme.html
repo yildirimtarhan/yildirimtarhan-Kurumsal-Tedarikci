@@ -1280,11 +1280,12 @@
         </div>
     </div>
 
+    <script src="js/api-config.js"></script>
     <script src="js/turkiye-adresler.js"></script>
     <script>
         // ==================== DEĞİŞKENLER ====================
-        const API_URL = '/api';
-        window.ADRES_API_BASE = window.location.origin;
+        const API_URL = window.KT_API_URL;
+        window.ADRES_API_BASE = String(API_URL || '').replace(/\/api\/?$/, '') || window.location.origin;
 
         // Türkiye il/ilçe - ödeme sayfası yeni adres formu
         async function initOdemeAdresDropdowns() {

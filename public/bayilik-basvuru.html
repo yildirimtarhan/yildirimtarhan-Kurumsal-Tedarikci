@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="utf-8"/>
@@ -292,13 +292,12 @@
   </div>
 </footer>
 
+  <script src="js/api-config.js"></script>
   <script src="js/turkiye-adresler.js"></script>
   <script>
     (function() {
-      const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-        ? 'http://localhost:3000/api'
-        : '/api';
-      window.ADRES_API_BASE = (API_URL || '').replace(/\/api\/?$/, '') || window.location.origin;
+      const API_URL = window.KT_API_URL;
+      window.ADRES_API_BASE = String(API_URL || '').replace(/\/api\/?$/, '') || window.location.origin;
 
       function fillIlSelect(selectId) {
         const sel = document.getElementById(selectId);

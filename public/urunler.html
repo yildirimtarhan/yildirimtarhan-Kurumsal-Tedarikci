@@ -348,11 +348,10 @@
 <p>© 2025 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
 </footer>
 <!-- Sepet JS -->
+<script src="js/api-config.js"></script>
 <script src="js/sepet.js"></script>
 <script>
-        const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-            ? 'http://localhost:3000/api'
-            : '/api';
+        const API_URL = window.KT_API_URL;
 
         const STATIK_URUNLER = [
             { name: 'E-Fatura Modülü', price: 899, category: 'E-Fatura', description: 'Gelen ve giden efatura yönetimi, otomatik kontrol, raporlama ve entegrasyon özellikleri.', icon: '📄', birim: '/yıl' },

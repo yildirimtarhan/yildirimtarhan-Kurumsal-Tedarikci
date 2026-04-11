@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -166,12 +166,11 @@
         </div>
     </div>
 
+    <script src="js/api-config.js"></script>
     <script src="js/main.js"></script>
     <script>
         (function() {
-            const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-                ? 'http://localhost:3000/api'
-                : '/api';
+            const API_URL = window.KT_API_URL;
 
             function showAlert(msg, type) {
                 const box = document.getElementById('alertBox');

@@ -214,6 +214,9 @@ function getSokaklar(ilAdi, ilceAdi, mahalleAdi) {
 function getAdresApiBase() {
   if (typeof window !== 'undefined' && window.ADRES_API_BASE) return window.ADRES_API_BASE;
   if (typeof API_URL !== 'undefined' && API_URL) return String(API_URL).replace(/\/api\/?$/, '');
+  if (typeof window !== 'undefined' && typeof window.KT_API_URL === 'string' && window.KT_API_URL) {
+    return String(window.KT_API_URL).replace(/\/api\/?$/, '');
+  }
   return window.location.origin;
 }
 
