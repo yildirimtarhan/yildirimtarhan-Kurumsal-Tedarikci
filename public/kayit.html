@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -703,6 +703,7 @@
         </div>
     </div>
 
+    <script src="js/api-config.js"></script>
     <script>
         // ============================================================
         // KAYIT FORMU - ADRES & FORM LOJİĞİ
@@ -937,8 +938,7 @@
                     }
 
                     try {
-                        var base = window.ADRES_API_BASE || window.location.origin;
-                        var res = await fetch(base + '/api/auth/register', {
+                        var res = await fetch(window.KT_API_URL + '/auth/register', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(data)

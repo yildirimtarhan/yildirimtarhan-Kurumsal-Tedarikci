@@ -73,10 +73,39 @@ app.use(helmet({ contentSecurityPolicy: false }));
 /* ======================================================
    ✅ Middleware
 ====================================================== */
-app.use(cors({
-  origin: ["http://localhost:3000", "http://localhost:5500", "https://tedarikci.org.tr", "https://www.tedarikci.org.tr"],
-  credentials: true,
-}));
+const corsAllowList = new Set([
+  "http://localhost:3000",
+  "http://localhost:5500",
+  "https://tedarikci.org.tr",
+  "https://www.tedarikci.org.tr",
+]);
+if (process.env.CORS_ORIGINS) {
+  process.env.CORS_ORIGINS.split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .forEach((o) => corsAllowList.add(o));
+}
+
+function isAllowedCorsOrigin(origin) {
+  if (!origin) return false;
+  if (corsAllowList.has(origin)) return true;
+  try {
+    const u = new URL(origin);
+    if (u.protocol === "https:" && u.hostname.endsWith(".vercel.app")) return true;
+  } catch (_) {}
+  return false;
+}
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (isAllowedCorsOrigin(origin)) return callback(null, origin);
+      callback(null, false);
+    },
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

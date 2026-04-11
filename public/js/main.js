@@ -1,7 +1,27 @@
 
 console.log("✅ main.js yüklendi!");
 
-document.addEventListener("DOMContentLoaded", () => {
+async function ensureKtApiUrl() {
+  if (typeof window.KT_API_URL === "string") return;
+  await new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = "/js/api-config.js";
+    s.onload = resolve;
+    s.onerror = () => reject(new Error("api-config"));
+    document.head.appendChild(s);
+  });
+}
+
+function ktApiUrl() {
+  return typeof window.KT_API_URL === "string" ? window.KT_API_URL : "/api";
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    await ensureKtApiUrl();
+  } catch (_) {
+    /* localhost / tek sunucu: /api yeter */
+  }
   // -------------------------
   // 1) Mobil Menü (eski HTML yapına uyumlu)
   // -------------------------
@@ -63,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!urunlerDropdown) return;
 
     try {
-      const response = await fetch("/api/categories/public");
+      const response = await fetch(`${ktApiUrl()}/categories/public`);
       const data = await response.json();
 
       if (data.success && data.categories && data.categories.length > 0) {
