@@ -3,25 +3,16 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const SibApiV3Sdk = require('sib-api-v3-sdk');
 const { sendCustomerToERP } = require('../services/erpService');
+const emailService = require('../services/emailService');
 
 const { JWT_SECRET } = require('../config/jwt');
 
-// Brevo Setup
-const defaultClient = SibApiV3Sdk.ApiClient.instance;
-const apiKey = defaultClient.authentications["api-key"];
-apiKey.apiKey = process.env.BREVO_API_KEY;
-
 const resetCodes = new Map();
 
-// Hoşgeldin e-postası
 async function sendWelcomeEmail(toEmail, userName, uyelikTipi) {
   try {
-    const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-    sendSmtpEmail.subject = "Hoş Geldiniz - Kurumsal Tedarikçi";
-    sendSmtpEmail.htmlContent = `
+    const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 30px; text-align: center; color: white;">
           <h1>Kurumsal Tedarikçi'ye Hoş Geldiniz!</h1>
@@ -45,9 +36,11 @@ async function sendWelcomeEmail(toEmail, userName, uyelikTipi) {
         </div>
       </div>
     `;
-    sendSmtpEmail.sender = { name: "Kurumsal Tedarikçi", email: process.env.SMTP_FROM_EMAIL || "noreply@tedarikci.org.tr" };
-    sendSmtpEmail.to = [{ email: toEmail }];
-    await apiInstance.sendTransacEmail(sendSmtpEmail);
+    await emailService.send({
+      to: toEmail,
+      subject: "Hoş Geldiniz - Kurumsal Tedarikçi",
+      htmlContent
+    });
     console.log("✅ Hoşgeldin e-postası gönderildi:", toEmail);
     return true;
   } catch (err) {
@@ -56,14 +49,9 @@ async function sendWelcomeEmail(toEmail, userName, uyelikTipi) {
   }
 }
 
-// Reset Mail Gönderme
 async function sendResetEmail(toEmail, kod, userName) {
   try {
-    const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-
-    sendSmtpEmail.subject = "Şifre Sıfırlama Kodunuz";
-    sendSmtpEmail.htmlContent = `
+    const htmlContent = `
       <h2>Merhaba ${userName}</h2>
       <p>Şifre sıfırlama kodunuz:</p>
       <h1 style="color: #2563eb; font-size: 32px; letter-spacing: 5px;">${kod}</h1>
@@ -71,10 +59,11 @@ async function sendResetEmail(toEmail, kod, userName) {
       <hr>
       <p style="color: #666; font-size: 12px;">Kurumsal Tedarikçi Platformu</p>
     `;
-    sendSmtpEmail.sender = { name: "Kurumsal Tedarikçi", email: process.env.SMTP_FROM_EMAIL };
-    sendSmtpEmail.to = [{ email: toEmail }];
-
-    await apiInstance.sendTransacEmail(sendSmtpEmail);
+    await emailService.send({
+      to: toEmail,
+      subject: "Şifre Sıfırlama Kodunuz",
+      htmlContent
+    });
     return true;
   } catch (err) {
     console.error("Mail hatası:", err.message);

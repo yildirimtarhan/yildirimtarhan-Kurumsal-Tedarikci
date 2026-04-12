@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const MarketingLead = require('../models/MarketingLead');
 const { generateBusinessProposal } = require('../services/marketingService');
-const SibApiV3Sdk = require('sib-api-v3-sdk');
+const emailService = require('../services/emailService');
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../config/jwt');
 
@@ -74,23 +74,19 @@ router.post('/leads/:id/send', async (req, res) => {
       return res.status(400).json({ success: false, message: "Teklif metni henüz hazır değil" });
     }
 
-    const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-
-    // AI çıktısından konu başlığını ve gövdeyi ayırmaya çalış (basit bir regexle veya AI'dan belli formatta isteyerek)
     let subject = "Kurumsal Tedarik Çözümleri Teklifimiz";
-    let htmlContent = lead.sonTeklifMetni.replace(/\n/g, '<br>');
-
-    sendSmtpEmail.subject = subject;
-    sendSmtpEmail.htmlContent = `
+    const body = lead.sonTeklifMetni.replace(/\n/g, '<br>');
+    const htmlContent = `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-        ${htmlContent}
+        ${body}
       </div>
     `;
-    sendSmtpEmail.sender = { name: "Kurumsal Tedarikçi", email: process.env.SMTP_FROM_EMAIL };
-    sendSmtpEmail.to = [{ email: lead.email, name: lead.yetkiliAdSoyad }];
 
-    await apiInstance.sendTransacEmail(sendSmtpEmail);
+    await emailService.send({
+      to: lead.email,
+      subject,
+      htmlContent
+    });
 
     lead.durum = 'teklif_gonderildi';
     lead.gonderimTarihi = new Date();

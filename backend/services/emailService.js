@@ -1,64 +1,125 @@
 // services/emailService.js
+const nodemailer = require('nodemailer');
 const SibApiV3Sdk = require('sib-api-v3-sdk');
 
 class EmailService {
     constructor() {
-        // Brevo API yapılandırması
         this.client = SibApiV3Sdk.ApiClient.instance;
         this.apiKey = this.client.authentications['api-key'];
         this.apiKey.apiKey = process.env.BREVO_API_KEY;
-        
+
         this.apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-        
-        // Varsayılan gönderici
+
         this.sender = {
-            email: process.env.EMAIL_FROM || 'noreply@tedarikci.org.tr',
-            name: process.env.EMAIL_FROM_NAME || 'Kurumsal Tedarikçi'
+            email: process.env.SMTP_FROM_EMAIL || process.env.EMAIL_FROM || 'noreply@tedarikci.org.tr',
+            name: process.env.SMTP_FROM_NAME || process.env.EMAIL_FROM_NAME || 'Kurumsal Tedarikçi'
         };
     }
 
-    // Tek e-posta gönder
+    _smtpConfigured() {
+        return !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+    }
+
+    _smtpTransporter() {
+        return nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: Number(process.env.SMTP_PORT || 587),
+            secure: process.env.SMTP_SECURE === 'true',
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS
+            }
+        });
+    }
+
+    _normalizeRecipients(to) {
+        const list = Array.isArray(to) ? to : [to];
+        return list.map((e) => String(e).trim()).filter(Boolean);
+    }
+
+    async sendViaSmtp({ to, subject, htmlContent }) {
+        if (!this._smtpConfigured()) {
+            throw new Error('SMTP eksik: SMTP_HOST, SMTP_USER, SMTP_PASS (veya BREVO_API_KEY) gerekli');
+        }
+        const recipients = this._normalizeRecipients(to);
+        if (!recipients.length) throw new Error('Alıcı e-posta yok');
+        const transporter = this._smtpTransporter();
+        const fromEmail = this.sender.email;
+        const fromName = this.sender.name;
+        await transporter.sendMail({
+            from: `"${fromName}" <${fromEmail}>`,
+            to: recipients.join(', '),
+            subject,
+            html: htmlContent
+        });
+        console.log('✅ E-posta gönderildi (SMTP):', subject);
+        return { success: true, messageId: 'smtp' };
+    }
+
+    async sendViaBrevo({ to, subject, htmlContent, templateId, params }) {
+        const sendSmtpEmail = {
+            to: Array.isArray(to) ? to.map((email) => ({ email })) : [{ email: to }],
+            sender: this.sender,
+            replyTo: this.sender
+        };
+        if (templateId) {
+            sendSmtpEmail.templateId = templateId;
+            sendSmtpEmail.params = params || {};
+        } else {
+            sendSmtpEmail.subject = subject;
+            sendSmtpEmail.htmlContent = htmlContent;
+        }
+        const response = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
+        console.log('✅ E-posta gönderildi (Brevo):', response.messageId);
+        return { success: true, messageId: response.messageId };
+    }
+
+    /**
+     * Önce Brevo API (BREVO_API_KEY), başarısız veya yoksa SMTP (SMTP_HOST + USER + PASS).
+     * Şablonlu posta (templateId) yalnızca Brevo ile.
+     */
     async send({ to, subject, htmlContent, templateId, params }) {
         try {
-            const sendSmtpEmail = {
-                to: Array.isArray(to) ? to.map(email => ({ email })) : [{ email: to }],
-                sender: this.sender,
-                replyTo: this.sender
-            };
-
-            // Template kullanımı veya direkt HTML
             if (templateId) {
-                sendSmtpEmail.templateId = templateId;
-                sendSmtpEmail.params = params || {};
-            } else {
-                sendSmtpEmail.subject = subject;
-                sendSmtpEmail.htmlContent = htmlContent;
+                if (!process.env.BREVO_API_KEY) {
+                    throw new Error('Şablonlu e-posta için BREVO_API_KEY gerekli');
+                }
+                return await this.sendViaBrevo({ to, subject, htmlContent, templateId, params });
             }
 
-            const response = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
-            
-            console.log('✅ E-posta gönderildi:', response.messageId);
-            return { success: true, messageId: response.messageId };
-            
+            if (process.env.BREVO_API_KEY) {
+                try {
+                    return await this.sendViaBrevo({ to, subject, htmlContent });
+                } catch (brevoErr) {
+                    console.warn('⚠️ Brevo gönderilemedi, SMTP deneniyor:', brevoErr.message);
+                }
+            }
+
+            return await this.sendViaSmtp({ to, subject, htmlContent });
         } catch (error) {
             console.error('❌ E-posta gönderme hatası:', error);
             throw new Error(`E-posta gönderilemedi: ${error.message}`);
         }
     }
 
-    // Toplu e-posta gönder
     async sendBulk({ recipients, subject, htmlContent }) {
         try {
-            const sendSmtpEmail = {
-                to: recipients.map(r => ({ email: r.email, name: r.name })),
-                sender: this.sender,
-                subject,
-                htmlContent
-            };
-
-            const response = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
-            return { success: true, messageId: response.messageId };
-            
+            if (process.env.BREVO_API_KEY) {
+                try {
+                    const sendSmtpEmail = {
+                        to: recipients.map((r) => ({ email: r.email, name: r.name })),
+                        sender: this.sender,
+                        subject,
+                        htmlContent
+                    };
+                    const response = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
+                    return { success: true, messageId: response.messageId };
+                } catch (e) {
+                    console.warn('⚠️ Brevo toplu gönderim hatası, SMTP:', e.message);
+                }
+            }
+            const emails = recipients.map((r) => r.email).filter(Boolean);
+            return await this.sendViaSmtp({ to: emails, subject, htmlContent });
         } catch (error) {
             console.error('Toplu e-posta hatası:', error);
             throw error;

@@ -17,15 +17,31 @@ dns.setDefaultResultOrder('ipv4first');
 dns.setServers(['8.8.8.8', '8.8.4.4']);
 console.log('✅ Google DNS ayarlandı');
 // (İsteğe bağlı) Sadece var mı diye kontrol et, secret'ı basma!
+const hasBrevo = !!process.env.BREVO_API_KEY;
+const hasSmtp = !!(
+  process.env.SMTP_HOST &&
+  process.env.SMTP_USER &&
+  process.env.SMTP_PASS
+);
 console.log("ENV OK:", {
   MONGODB_URI: !!process.env.MONGODB_URI,
   JWT_SECRET: !!process.env.JWT_SECRET,
-  SMTP_HOST: !!process.env.SMTP_HOST,
+  BREVO_API_KEY: hasBrevo,
+  SMTP_READY: hasSmtp,
   ERP_BASE_URL: !!process.env.ERP_BASE_URL,
 });
+if (!hasBrevo && !hasSmtp) {
+  console.warn(
+    "⚠️ E-posta kapalı: Render’da BREVO_API_KEY veya SMTP_HOST+SMTP_USER+SMTP_PASS tanımlayın (kayıt, sipariş, kargo mailleri)."
+  );
+} else {
+  console.log(
+    "📧 E-posta:",
+    hasBrevo ? "Brevo API" + (hasSmtp ? " (SMTP yedek)" : "") : "SMTP"
+  );
+}
 
 // 2) Sonra importlar
-const nodemailer = require("nodemailer");
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -34,7 +50,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const path = require("path");
-const SibApiV3Sdk = require("sib-api-v3-sdk");
 const { JWT_SECRET } = require("./config/jwt");
 
 // ... gerisi aynı kalacak
@@ -226,17 +241,6 @@ app.post("/api/teklif", (req, res) => {
   }
 });
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT || 587),
-  secure: process.env.SMTP_SECURE === "true", // 587 => false
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
-
-
 /* ======================================================
    ✅ AUTHENTICATE TOKEN MIDDLEWARE
 ====================================================== */
@@ -268,14 +272,6 @@ function authenticateToken(req, res, next) {
     });
   }
 }
-
-
-/* ======================================================
-   ✅ Brevo Mail Setup
-====================================================== */
-const defaultClient = SibApiV3Sdk.ApiClient.instance;
-const apiKey = defaultClient.authentications["api-key"];
-apiKey.apiKey = process.env.BREVO_API_KEY;
 
 /* ======================================================
    ✅ Public Static Dosyalar

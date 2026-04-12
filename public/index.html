@@ -358,7 +358,19 @@
             color: rgba(255,255,255,0.35);
             user-select: none;
         }
-        
+
+        /* Mobil: inline grid iki sütunu kapat (mobile.css’ten önce yüklense bile yedek) */
+        @media (max-width: 1024px) {
+            body.home .hero-container {
+                display: flex !important;
+                flex-direction: column !important;
+                grid-template-columns: 1fr !important;
+                align-items: center !important;
+                text-align: center !important;
+            }
+            body.home .hero-visual { display: none !important; }
+            body.home .hero-content { width: 100% !important; max-width: 100% !important; }
+        }
 
     </style>
     <link href="css/mobile.css" rel="stylesheet"/>

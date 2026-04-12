@@ -225,6 +225,46 @@
     .stat-number { font-size: 1.8rem !important; }
 }
 
+/* Ana sayfa (body.home): index’teki grid + style.css flex çakışmasını mobilde tek sütuna zorla */
+@media (max-width: 1024px) {
+    body.home .hero-container {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 20px 16px 32px !important;
+        gap: 18px !important;
+        box-sizing: border-box !important;
+        grid-template-columns: none !important;
+    }
+    body.home .hero-visual {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+    body.home .hero-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: none !important;
+        text-align: center !important;
+    }
+    body.home .hero h1,
+    body.home .hero p,
+    body.home .hero .badge {
+        text-align: center !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+}
+
 /* ========== QUICK ACCESS CARDS ========== */
 @media (max-width: 1024px) {
     .quick-access { padding: 50px 15px !important; }
