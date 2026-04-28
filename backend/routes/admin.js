@@ -7,6 +7,8 @@ const User = require("../models/User");
 const Order = require("../models/Order");
 const BayiBasvuru = require("../models/BayiBasvuru");
 const SupportTicket = require("../models/SupportTicket");
+const { execFile } = require("child_process");
+const path = require("path");
 
 const { JWT_SECRET } = require('../config/jwt');
 
@@ -641,12 +643,12 @@ router.post("/orders/:id/hepsijet", adminOnly, async (req, res) => {
     const hepsijetService = require('../services/hepsijetService');
     const result = await hepsijetService.createDelivery(order);
 
-    if (result.success) {
+    if (result && result.success) {
       // Siparişi güncelle
       order.kargoBilgisi = {
         ...order.kargoBilgisi,
         firma: "hepsijet",
-        takipNo: result.trackingNo,
+        takipNo: result.trackingNo || order.kargoBilgisi?.takipNo || '',
         kargolamaTarihi: new Date(),
         durum: "Kargoya Verildi"
       };
@@ -656,17 +658,62 @@ router.post("/orders/:id/hepsijet", adminOnly, async (req, res) => {
       res.json({ 
         success: true, 
         message: "Hepsijet gönderisi başarıyla oluşturuldu ✅", 
-        trackingNo: result.trackingNo 
+        trackingNo: result.trackingNo || null,
+        hepsijet: result.data
       });
     } else {
       res.status(400).json({ 
         success: false, 
-        message: "Hepsijet Hatası: " + result.error 
+        message: "Hepsijet Hatası: " + (result?.error || "Bilinmeyen hata"),
+        hepsijet: result?.data
       });
     }
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
+});
+
+// ============================================
+// HEPSIJET SMOKE TEST (ADMIN)
+// ============================================
+router.post("/hepsijet/smoke", adminOnly, async (req, res) => {
+  const scriptPath = path.join(__dirname, "..", "scripts", "hepsijet_smoke_test.js");
+  const timeoutMs = 3 * 60 * 1000;
+
+  execFile(
+    process.execPath,
+    [scriptPath],
+    {
+      cwd: path.join(__dirname, ".."),
+      timeout: timeoutMs,
+      windowsHide: true,
+      maxBuffer: 5 * 1024 * 1024,
+      env: {
+        ...process.env,
+        HEPSIJET_DEBUG: "0",
+      },
+    },
+    (err, stdout, stderr) => {
+      if (err) {
+        const code = typeof err.code === "number" ? err.code : null;
+        return res.status(500).json({
+          success: false,
+          message: "Hepsijet smoke test başarısız",
+          exitCode: code,
+          error: err.message,
+          stdout: String(stdout || ""),
+          stderr: String(stderr || ""),
+        });
+      }
+
+      res.json({
+        success: true,
+        message: "Hepsijet smoke test tamamlandı",
+        stdout: String(stdout || ""),
+        stderr: String(stderr || ""),
+      });
+    }
+  );
 });
 
 

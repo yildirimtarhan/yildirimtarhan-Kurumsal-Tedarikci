@@ -1,0 +1,869 @@
+{
+  "startedAt": "2026-04-13T10:02:53.687Z",
+  "env": {
+    "baseUrl": "https://integration-apitest.hepsijet.com/",
+    "merchantId": "KURUMSAL",
+    "customerCode": "KURUMSAL",
+    "companyAddressId": "kuru-kurumsal-202",
+    "xDockCode": "KURUMSALBANDIRMA"
+  },
+  "scenarios": [
+    {
+      "name": "STD",
+      "ok": true,
+      "request": {
+        "url": "https://integration-apitest.hepsijet.com/delivery/sendDeliveryOrderEnhanced",
+        "payload": {
+          "company": {
+            "name": "KURUMSAL TEDARİKÇİ",
+            "abbreviationCode": "KURUMSAL"
+          },
+          "delivery": {
+            "customerDeliveryNo": "TST20260413100254STD",
+            "customerOrderId": "TST20260413100254STD",
+            "totalParcels": "1",
+            "desi": "1",
+            "deliverySlotOriginal": "0",
+            "deliveryDateOriginal": "2026-04-14",
+            "deliveryType": "RETAIL",
+            "product": {
+              "productCode": "HX_STD"
+            },
+            "senderAddress": {
+              "companyAddressId": "kuru-kurumsal-202",
+              "country": {
+                "name": "Türkiye"
+              },
+              "city": {
+                "name": "BALIKESİR"
+              },
+              "town": {
+                "name": "BANDIRMA"
+              },
+              "district": {
+                "name": ""
+              },
+              "addressLine1": "HACI YUSUF MH. ESER SK. NO:4-10 BANDIRMA-BALIKESİR"
+            },
+            "receiver": {
+              "companyCustomerId": "0463831b-645e-459c-8633-fe83bdd66cda",
+              "firstName": "Test",
+              "lastName": "Müşteri",
+              "phone1": "05000000000",
+              "phone2": "",
+              "email": ""
+            },
+            "recipientAddress": {
+              "companyAddressId": "ebc9aadd-3d50-4d41-9f1b-492a184589cf",
+              "country": {
+                "name": "Türkiye"
+              },
+              "city": {
+                "name": "BALIKESİR"
+              },
+              "town": {
+                "name": "BANDIRMA"
+              },
+              "district": {
+                "name": ""
+              },
+              "addressLine1": "Test adres (lütfen HEPSIJET_TEST_ADDRESS_LINE1 ile gerçek teslimat adresi girin)"
+            },
+            "recipientPerson": "Test Müşteri",
+            "recipientPersonPhone1": "05000000000"
+          },
+          "currentXDock": {
+            "abbreviationCode": "KURUMSALBANDIRMA"
+          }
+        }
+      },
+      "response": {
+        "status": "OK",
+        "data": {
+          "customerDeliveryNo": "TST20260413100254STD",
+          "zplBarcodeDTOList": [
+            {
+              "sender": "KURUMSAL TEDARİKÇİ",
+              "receiverCity": "Balıkesir",
+              "receiverTown": "BANDIRMA",
+              "receiverXDock": "BANDIRMA",
+              "transferXdockName": "Bursa TM",
+              "productName": "Standart Teslimat",
+              "deliveryDateOriginal": "14.04.2026",
+              "deliveryDatePromised": "14.04.2026",
+              "receiver": "Test Müşteri",
+              "receiverAddress": "Test adres (lütfen HEPSIJET_TEST_ADDRESS_LINE1 ile gerçek teslimat adresi girin)",
+              "parcelNo": 1,
+              "totalParcels": 1,
+              "trackingUrl": "https://hepsijet.com/gonderi-takibi/TST20260413100254STD",
+              "barcodeNo": "TST20260413100254STD",
+              "senderXDock": "KURUMSALTEDARIKCI_BANDIRMA",
+              "barcodePrintDate": "13.04.2026 13:02",
+              "desiSize": "Çok Küçük 0.0 - 1.0 Desi",
+              "zplBarcode": "^XA^MMT^CI28^LS0^FO7,0^GFA,08960,08960,00020,:Z64:eJzt2qERgDAQRNFlEMg0wAwtICMoComktJSSElIBQZOsQCGYv/KJuwa+xPyW+lyRhobqJU2t1VMhtbeSlvb+mDV3T7O2zopiZ/tLO4xFDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMN+Y6sx3xW4JsG1C65xCF0fkWwz4dqKD3YDHMQlsg==:FD24^FO260,0^GFA,21504,21504,00048,:Z64:eJzt3LENg0AQRUEQASENINGGAxd3pVGSC0BgLxXsImEHnh9sNMFdA6/rzL665ciuBe/T/HiFH/N+Cz+t6Zfv5/MLP40z5/0Y51nw7XMeeT/c7dea73me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53/lW80PV3y1L1ft11X7eFO+13f296p9v2o/8L/2BiKPmDA=:695B^FO165,0^GFA,03584,03584,00008,:Z64:eJzt18EJgEAMRNGI4N60JFuxBEvY0raULcEChGyiEcSTJw/yB4ZXwxf5eLPuh6rqJDO7WVIxJ5GumqP96RauiIiIiIiIP3UJ683BOqnI2U9uHx11ddXbNawC5uo=:6087^FO197,0^GFA,05376,05376,00012,:Z64:eJzt2LEJgDAQRuGIhWNkESGrOEJKOx3NUTJCJkjMeSkOQRCshPcXx1eEDPCc+8u2KsvC6WItYq+ue3PQl/5oZ1aP4lU9pHZi/+7J2ThijDHGGGOMMcYYY4xfezFON9tGZ9td6H1PbFufbYAfdgJ/9KFe:9582^FO189,415^GFA,00256,00256,00004,:Z64:eJxjYBggwALEckAsz2rAYF8PpOsFGHjkFRgEBAUY7HkYGGplGBjqK4D4A5D9gIGhzgHIZsDE5Q0MDNVAXHgAFT8E4gcHGBgPAvGBB2DM3ACkGRxQnAEAQ+kang==:238F^FO565,224^GFA,01792,01792,00008,:Z64:eJzV0zFugzAUBmBShkhdOAI+Qm+Qq/gIjBmqAsrQsVfo7FM4ygF6BXfN0hd1CAPyK/B+p8QiCgwdypBPJnn2ez8kSf77ldvuQ0Edrac8mgfjOpn3LDpI5TzdYLffLVlcwRSWOIev9MlmsE2ywQa/J9S7yz7Y19nBPUkftZO+drE0fb926J8q0WFfjfMgFdJHo6Uv1tInH6/6fzTG9PZXucCcSsn/E/nvke8B7m5YX5Q5Kq4m8w+5EfIMuXrkzDZ6DqXYvCD/Z+SxRT6/lpJ/gpyfkO8WNoOvsRZzwNriOaxsUPZPRZdKPrQ+SF/Zx+T745Qq8H4XGqoZxvtwLrYZcoAE3RpibTcQ9RWsmb/hCVJQjaygDeZMevQ/dZBgAz3k4NGY99Ec3XJYh31m22Zyvs8orNV4HRt/f6+e3+DX1dzE7Htb5nNf77v8MM8Jz4fUTPXE/SU5TNUvsEG9x/qsojnuzNNG9dz5t9cPOn5toQ==:AA55^BY2,3,90^FT196,608^BCN,,N,Y^FD>:TST20260413100254STD^FS^FT487,180^A0R,27,18^FDTST20260413100254STD^FS^FT555,19^A0R,17,16^FDVARIS ILCESI:^FS^FT490,19^A0R,17,16^FDVARIS MAHALLESI:^FS^FT141,19^A0R,20,19^FDALICI:^FS^FT609,19^A0R,17,16^FDVARIS ILI:^FS^FT84,20^A0R,25,21^FDess_line1 ile gercek teslimat adresi girin)^FS^FT113,83^A0R,25,21^FDtest adres (lutfen hepsijet_test_addr^FS^FT54,20^A0R,25,21^FD^FS^FT25,20^A0R,25,21^FD^FS^FT113,19^A0R,20,19^FDADRES:^FS^FT177,19^A0R,20,19^FDGONDERICI:^FS^FT516,19^A0R,34,33^FDBANDIRMA^FS^FT452,19^A0R,34,33^FD^FS^FT215,19^A0R,23,24^FD14.04.2026 /  - ^FS^FT141,69^A0R,20,19^FDTest Musteri^FS^FT345,19^A0R,17,16^FDCALISMA ALANI:^FS^FT245,19^A0R,25,24^FDStandart Teslimat^FS^FT287,19^A0R,22,24^FDCIKIS: KURUMSALTEDARIKCI_BANDIRMA^FS^FT378,19^A0R,72,44^FDBANDIRMA^FS^FT318,19^A0R,24,28^FD^FS^FT581,19^A0R,23,26^FDBalikesir^FS^FT178,115^A0R,20,19^FDKURUMSAL TEDARIKCI^FS^FT644,180^A0R,18,20^FD1/1^FS^FT644,308^A0R,16,18^FD13.04.2026 13:02^FS^FT672,402^A0R,12,17^FD108078^FS^FT225,471^A0N,20,25^FD^FS^FT195,500^A0N,20,25^FDTST20260413100254STD^FS^FT480,501^A0N,24,25^FDDesi: Cok Kucuk 0.0 - 1.0 Desi^FS^FT707,171^A0R,105,32^FDBursa (Dis)^FS^FO703,380^GB80,80,4^FS^FT717,395^A0R,70,50^FD09^FS^FT674,171^A0R,14,18^FD^FS^FO32,470^BXN,8,200,,,,,1^FDTST20260413100254STD^FS^FO650,23^BXN,8,200,,,,,1^FDTST20260413100254STD^FS^FT639,228^A0R,34,28^FD^FS^FT555,245^A0R,28,26^FD^FS^LRY^FO362,16^GB0,424,87^FS^LRN^LRY^FO634,170^GB0,273,35^FS^LRN^LRY^FO584,248^GB1,188,40^FS^LRN^PQ1,0,1,Y^XZ",
+              "deliveryPom": false,
+              "customerOrderId": "TST20260413100254STD",
+              "transferXDockNo": "09"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "SD",
+      "ok": false,
+      "request": {
+        "url": "https://integration-apitest.hepsijet.com/delivery/sendDeliveryOrderEnhanced",
+        "payload": {
+          "company": {
+            "name": "KURUMSAL TEDARİKÇİ",
+            "abbreviationCode": "KURUMSAL"
+          },
+          "delivery": {
+            "customerDeliveryNo": "TST20260413100255SD",
+            "customerOrderId": "TST20260413100255SD",
+            "totalParcels": "1",
+            "desi": "1",
+            "deliverySlotOriginal": "1",
+            "deliveryDateOriginal": "2026-04-14",
+            "deliveryType": "RETAIL",
+            "product": {
+              "productCode": "HX_SD"
+            },
+            "senderAddress": {
+              "companyAddressId": "kuru-kurumsal-202",
+              "country": {
+                "name": "Türkiye"
+              },
+              "city": {
+                "name": "BALIKESİR"
+              },
+              "town": {
+                "name": "BANDIRMA"
+              },
+              "district": {
+                "name": ""
+              },
+              "addressLine1": "HACI YUSUF MH. ESER SK. NO:4-10 BANDIRMA-BALIKESİR"
+            },
+            "receiver": {
+              "companyCustomerId": "0b3e240f-24ce-442d-8f9c-bf8f70f85142",
+              "firstName": "Test",
+              "lastName": "Müşteri",
+              "phone1": "05000000000",
+              "phone2": "",
+              "email": ""
+            },
+            "recipientAddress": {
+              "companyAddressId": "64343265-3cb2-4b7a-bd58-833bc3be8a5d",
+              "country": {
+                "name": "Türkiye"
+              },
+              "city": {
+                "name": "İstanbul"
+              },
+              "town": {
+                "name": "ADALAR"
+              },
+              "district": {
+                "name": "MADEN"
+              },
+              "addressLine1": "Test adres (lütfen HEPSIJET_TEST_ADDRESS_LINE1 ile gerçek teslimat adresi girin)"
+            },
+            "recipientPerson": "Test Müşteri",
+            "recipientPersonPhone1": "05000000000"
+          },
+          "currentXDock": {
+            "abbreviationCode": "KURUMSALBANDIRMA"
+          }
+        }
+      },
+      "error": {
+        "message": "Request failed with status code 400",
+        "status": 400,
+        "data": {
+          "status": "FAIL",
+          "message": "Fiyat hesaplanırken hata oluştu. Destek birimiyle iletişime geçiniz"
+        }
+      }
+    },
+    {
+      "name": "ND",
+      "ok": false,
+      "request": {
+        "url": "https://integration-apitest.hepsijet.com/delivery/sendDeliveryOrderEnhanced",
+        "payload": {
+          "company": {
+            "name": "KURUMSAL TEDARİKÇİ",
+            "abbreviationCode": "KURUMSAL"
+          },
+          "delivery": {
+            "customerDeliveryNo": "TST20260413100255ND",
+            "customerOrderId": "TST20260413100255ND",
+            "totalParcels": "1",
+            "desi": "1",
+            "deliverySlotOriginal": "1",
+            "deliveryDateOriginal": "2026-04-14",
+            "deliveryType": "RETAIL",
+            "product": {
+              "productCode": "HX_ND"
+            },
+            "senderAddress": {
+              "companyAddressId": "kuru-kurumsal-202",
+              "country": {
+                "name": "Türkiye"
+              },
+              "city": {
+                "name": "BALIKESİR"
+              },
+              "town": {
+                "name": "BANDIRMA"
+              },
+              "district": {
+                "name": ""
+              },
+              "addressLine1": "HACI YUSUF MH. ESER SK. NO:4-10 BANDIRMA-BALIKESİR"
+            },
+            "receiver": {
+              "companyCustomerId": "af70cd50-1416-420d-a2c6-a0e42c5bcd36",
+              "firstName": "Test",
+              "lastName": "Müşteri",
+              "phone1": "05000000000",
+              "phone2": "",
+              "email": ""
+            },
+            "recipientAddress": {
+              "companyAddressId": "b131240b-2aee-425c-8968-f0a14dba53b9",
+              "country": {
+                "name": "Türkiye"
+              },
+              "city": {
+                "name": "İstanbul"
+              },
+              "town": {
+                "name": "ADALAR"
+              },
+              "district": {
+                "name": "MADEN"
+              },
+              "addressLine1": "Test adres (lütfen HEPSIJET_TEST_ADDRESS_LINE1 ile gerçek teslimat adresi girin)"
+            },
+            "recipientPerson": "Test Müşteri",
+            "recipientPersonPhone1": "05000000000"
+          },
+          "currentXDock": {
+            "abbreviationCode": "KURUMSALBANDIRMA"
+          }
+        }
+      },
+      "error": {
+        "message": "Request failed with status code 400",
+        "status": 400,
+        "data": {
+          "status": "FAIL",
+          "message": "Fiyat hesaplanırken hata oluştu. Destek birimiyle iletişime geçiniz"
+        }
+      }
+    },
+    {
+      "name": "DT",
+      "ok": false,
+      "request": {
+        "url": "https://integration-apitest.hepsijet.com/delivery/sendDeliveryOrderEnhanced",
+        "payload": {
+          "company": {
+            "name": "KURUMSAL TEDARİKÇİ",
+            "abbreviationCode": "KURUMSAL"
+          },
+          "delivery": {
+            "customerDeliveryNo": "TST20260413100256DT",
+            "customerOrderId": "TST20260413100256DT",
+            "totalParcels": "1",
+            "desi": "1",
+            "deliverySlotOriginal": "0",
+            "deliveryDateOriginal": "2026-04-14",
+            "deliveryType": "RETAIL",
+            "product": {
+              "productCode": "HJ_DT"
+            },
+            "senderAddress": {
+              "companyAddressId": "kuru-kurumsal-202",
+              "country": {
+                "name": "Türkiye"
+              },
+              "city": {
+                "name": "BALIKESİR"
+              },
+              "town": {
+                "name": "BANDIRMA"
+              },
+              "district": {
+                "name": ""
+              },
+              "addressLine1": "HACI YUSUF MH. ESER SK. NO:4-10 BANDIRMA-BALIKESİR"
+            },
+            "receiver": {
+              "companyCustomerId": "ccfd7560-f014-4bbb-8c22-6949e4d1ba60",
+              "firstName": "Test",
+              "lastName": "Müşteri",
+              "phone1": "05000000000",
+              "phone2": "",
+              "email": ""
+            },
+            "recipientAddress": {
+              "companyAddressId": "86a8e08c-8bbf-45f7-8b08-d595d5a188ec",
+              "country": {
+                "name": "Türkiye"
+              },
+              "city": {
+                "name": "İstanbul"
+              },
+              "town": {
+                "name": "ADALAR"
+              },
+              "district": {
+                "name": "MADEN"
+              },
+              "addressLine1": "Test adres (lütfen HEPSIJET_TEST_ADDRESS_LINE1 ile gerçek teslimat adresi girin)"
+            },
+            "recipientPerson": "Test Müşteri",
+            "recipientPersonPhone1": "05000000000"
+          },
+          "currentXDock": {
+            "abbreviationCode": "KURUMSALBANDIRMA"
+          }
+        }
+      },
+      "error": {
+        "message": "Request failed with status code 400",
+        "status": 400,
+        "data": {
+          "status": "FAIL",
+          "message": "Fiyat hesaplanırken hata oluştu. Destek birimiyle iletişime geçiniz"
+        }
+      }
+    },
+    {
+      "name": "XL",
+      "ok": true,
+      "request": {
+        "url": "https://integration-apitest.hepsijet.com/delivery/sendDeliveryOrderEnhanced",
+        "payload": {
+          "company": {
+            "name": "KURUMSAL TEDARİKÇİ",
+            "abbreviationCode": "KURUMSAL"
+          },
+          "delivery": {
+            "customerDeliveryNo": "TST20260413100256XL",
+            "customerOrderId": "TST20260413100256XL",
+            "totalParcels": "1",
+            "desi": "41.11",
+            "deliverySlotOriginal": "0",
+            "deliveryDateOriginal": "2026-04-14",
+            "deliveryType": "RETAIL",
+            "product": {
+              "productCode": "HX_STD"
+            },
+            "senderAddress": {
+              "companyAddressId": "kuru-kurumsal-202",
+              "country": {
+                "name": "Türkiye"
+              },
+              "city": {
+                "name": "BALIKESİR"
+              },
+              "town": {
+                "name": "BANDIRMA"
+              },
+              "district": {
+                "name": ""
+              },
+              "addressLine1": "HACI YUSUF MH. ESER SK. NO:4-10 BANDIRMA-BALIKESİR"
+            },
+            "receiver": {
+              "companyCustomerId": "f242349a-c611-42ba-8997-3977df59cded",
+              "firstName": "Test",
+              "lastName": "Müşteri",
+              "phone1": "05000000000",
+              "phone2": "",
+              "email": ""
+            },
+            "recipientAddress": {
+              "companyAddressId": "fa83d431-dd03-474c-9b99-62aa63226536",
+              "country": {
+                "name": "Türkiye"
+              },
+              "city": {
+                "name": "BALIKESİR"
+              },
+              "town": {
+                "name": "BANDIRMA"
+              },
+              "district": {
+                "name": ""
+              },
+              "addressLine1": "Test adres (lütfen HEPSIJET_TEST_ADDRESS_LINE1 ile gerçek teslimat adresi girin)"
+            },
+            "recipientPerson": "Test Müşteri",
+            "recipientPersonPhone1": "05000000000"
+          },
+          "currentXDock": {
+            "abbreviationCode": "KURUMSALBANDIRMA"
+          },
+          "serviceType": [
+            "TMH"
+          ]
+        }
+      },
+      "response": {
+        "status": "OK",
+        "data": {
+          "customerDeliveryNo": "TST20260413100256XL",
+          "zplBarcodeDTOList": [
+            {
+              "sender": "KURUMSAL TEDARİKÇİ",
+              "receiverCity": "Balıkesir",
+              "receiverTown": "BANDIRMA",
+              "receiverXDock": "BANDIRMA",
+              "transferXdockName": "Bursa TM",
+              "productName": "Standart Teslimat",
+              "deliveryDateOriginal": "14.04.2026",
+              "deliveryDatePromised": "14.04.2026",
+              "receiver": "Test Müşteri",
+              "receiverAddress": "Test adres (lütfen HEPSIJET_TEST_ADDRESS_LINE1 ile gerçek teslimat adresi girin)",
+              "parcelNo": 1,
+              "totalParcels": 1,
+              "trackingUrl": "https://hepsijet.com/gonderi-takibi/TST20260413100256XL",
+              "barcodeNo": "TST20260413100256XL",
+              "senderXDock": "KURUMSALTEDARIKCI_BANDIRMA",
+              "barcodePrintDate": "13.04.2026 13:02",
+              "serviceList": "TMH",
+              "desiSize": "HJ - XL 41.1+ Desi",
+              "zplBarcode": "^XA^MMT^CI28^LS0^FO7,0^GFA,08960,08960,00020,:Z64:eJzt2qERgDAQRNFlEMg0wAwtICMoComktJSSElIBQZOsQCGYv/KJuwa+xPyW+lyRhobqJU2t1VMhtbeSlvb+mDV3T7O2zopiZ/tLO4xFDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMN+Y6sx3xW4JsG1C65xCF0fkWwz4dqKD3YDHMQlsg==:FD24^FO260,0^GFA,21504,21504,00048,:Z64:eJzt3LENg0AQRUEQASENINGGAxd3pVGSC0BgLxXsImEHnh9sNMFdA6/rzL665ciuBe/T/HiFH/N+Cz+t6Zfv5/MLP40z5/0Y51nw7XMeeT/c7dea73me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53/lW80PV3y1L1ft11X7eFO+13f296p9v2o/8L/2BiKPmDA=:695B^FO165,0^GFA,03584,03584,00008,:Z64:eJzt18EJgEAMRNGI4N60JFuxBEvY0raULcEChGyiEcSTJw/yB4ZXwxf5eLPuh6rqJDO7WVIxJ5GumqP96RauiIiIiIiIP3UJ683BOqnI2U9uHx11ddXbNawC5uo=:6087^FO197,0^GFA,05376,05376,00012,:Z64:eJzt2LEJgDAQRuGIhWNkESGrOEJKOx3NUTJCJkjMeSkOQRCshPcXx1eEDPCc+8u2KsvC6WItYq+ue3PQl/5oZ1aP4lU9pHZi/+7J2ThijDHGGGOMMcYYY4xfezFON9tGZ9td6H1PbFufbYAfdgJ/9KFe:9582^FO189,415^GFA,00256,00256,00004,:Z64:eJxjYBggwALEckAsz2rAYF8PpOsFGHjkFRgEBAUY7HkYGGplGBjqK4D4A5D9gIGhzgHIZsDE5Q0MDNVAXHgAFT8E4gcHGBgPAvGBB2DM3ACkGRxQnAEAQ+kang==:238F^FO565,224^GFA,01792,01792,00008,:Z64:eJzV0zFugzAUBmBShkhdOAI+Qm+Qq/gIjBmqAsrQsVfo7FM4ygF6BXfN0hd1CAPyK/B+p8QiCgwdypBPJnn2ez8kSf77ldvuQ0Edrac8mgfjOpn3LDpI5TzdYLffLVlcwRSWOIev9MlmsE2ywQa/J9S7yz7Y19nBPUkftZO+drE0fb926J8q0WFfjfMgFdJHo6Uv1tInH6/6fzTG9PZXucCcSsn/E/nvke8B7m5YX5Q5Kq4m8w+5EfIMuXrkzDZ6DqXYvCD/Z+SxRT6/lpJ/gpyfkO8WNoOvsRZzwNriOaxsUPZPRZdKPrQ+SF/Zx+T745Qq8H4XGqoZxvtwLrYZcoAE3RpibTcQ9RWsmb/hCVJQjaygDeZMevQ/dZBgAz3k4NGY99Ec3XJYh31m22Zyvs8orNV4HRt/f6+e3+DX1dzE7Htb5nNf77v8MM8Jz4fUTPXE/SU5TNUvsEG9x/qsojnuzNNG9dz5t9cPOn5toQ==:AA55^BY2,3,90^FT196,608^BCN,,N,Y^FD>:TST20260413100256XL^FS^FT487,180^A0R,27,18^FDTST20260413100256XL^FS^FT555,19^A0R,17,16^FDVARIS ILCESI:^FS^FT490,19^A0R,17,16^FDVARIS MAHALLESI:^FS^FT141,19^A0R,20,19^FDALICI:^FS^FT609,19^A0R,17,16^FDVARIS ILI:^FS^FT84,20^A0R,25,21^FDess_line1 ile gercek teslimat adresi girin)^FS^FT113,83^A0R,25,21^FDtest adres (lutfen hepsijet_test_addr^FS^FT54,20^A0R,25,21^FD^FS^FT25,20^A0R,25,21^FD^FS^FT113,19^A0R,20,19^FDADRES:^FS^FT177,19^A0R,20,19^FDGONDERICI:^FS^FT516,19^A0R,34,33^FDBANDIRMA^FS^FT452,19^A0R,34,33^FD^FS^FT215,19^A0R,23,24^FD14.04.2026 /  - ^FS^FT141,69^A0R,20,19^FDTest Musteri^FS^FT345,19^A0R,17,16^FDCALISMA ALANI:^FS^FT245,19^A0R,25,24^FDStandart Teslimat^FS^FT287,19^A0R,22,24^FDCIKIS: KURUMSALTEDARIKCI_BANDIRMA^FS^FT378,19^A0R,72,44^FDBANDIRMA^FS^FT318,19^A0R,24,28^FD^FS^FT581,19^A0R,23,26^FDBalikesir^FS^FT178,115^A0R,20,19^FDKURUMSAL TEDARIKCI^FS^FT644,180^A0R,18,20^FD1/1^FS^FT644,308^A0R,16,18^FD13.04.2026 13:02^FS^FT672,402^A0R,12,17^FD108078^FS^FT225,471^A0N,20,25^FDTMH^FS^FT195,500^A0N,20,25^FDTST20260413100256XL^FS^FT480,501^A0N,24,25^FDDesi: HJ - XL 41.1+ Desi^FS^FT707,171^A0R,105,32^FDBursa (Dis)^FS^FO703,380^GB80,80,4^FS^FT717,395^A0R,70,50^FD09^FS^FT674,171^A0R,14,18^FD^FS^FO32,470^BXN,8,200,,,,,1^FDTST20260413100256XL^FS^FO650,23^BXN,8,200,,,,,1^FDTST20260413100256XL^FS^FT639,228^A0R,34,28^FD^FS^FT555,245^A0R,28,26^FD^FS^LRY^FO362,16^GB0,424,87^FS^LRN^LRY^FO634,170^GB0,273,35^FS^LRN^LRY^FO584,248^GB1,188,40^FS^LRN^PQ1,0,1,Y^XZ",
+              "deliveryPom": false,
+              "customerOrderId": "TST20260413100256XL",
+              "transferXDockNo": "09"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "POD",
+      "ok": true,
+      "request": {
+        "url": "https://integration-apitest.hepsijet.com/delivery/sendDeliveryOrderEnhanced",
+        "payload": {
+          "company": {
+            "name": "KURUMSAL TEDARİKÇİ",
+            "abbreviationCode": "KURUMSAL"
+          },
+          "delivery": {
+            "customerDeliveryNo": "TST20260413100257POD",
+            "customerOrderId": "TST20260413100257POD",
+            "totalParcels": "1",
+            "desi": "1",
+            "deliverySlotOriginal": "0",
+            "deliveryDateOriginal": "2026-04-14",
+            "deliveryType": "RETAIL",
+            "product": {
+              "productCode": "HX_STD"
+            },
+            "senderAddress": {
+              "companyAddressId": "kuru-kurumsal-202",
+              "country": {
+                "name": "Türkiye"
+              },
+              "city": {
+                "name": "BALIKESİR"
+              },
+              "town": {
+                "name": "BANDIRMA"
+              },
+              "district": {
+                "name": ""
+              },
+              "addressLine1": "HACI YUSUF MH. ESER SK. NO:4-10 BANDIRMA-BALIKESİR"
+            },
+            "receiver": {
+              "companyCustomerId": "770b21b9-9dbc-493a-bb93-b4acb1b3f462",
+              "firstName": "Test",
+              "lastName": "Müşteri",
+              "phone1": "05000000000",
+              "phone2": "",
+              "email": ""
+            },
+            "recipientAddress": {
+              "companyAddressId": "ef0537d3-3a77-4e78-9e04-a31e202ae686",
+              "country": {
+                "name": "Türkiye"
+              },
+              "city": {
+                "name": "BALIKESİR"
+              },
+              "town": {
+                "name": "BANDIRMA"
+              },
+              "district": {
+                "name": ""
+              },
+              "addressLine1": "Test adres (lütfen HEPSIJET_TEST_ADDRESS_LINE1 ile gerçek teslimat adresi girin)"
+            },
+            "recipientPerson": "Test Müşteri",
+            "recipientPersonPhone1": "05000000000"
+          },
+          "currentXDock": {
+            "abbreviationCode": "KURUMSALBANDIRMA"
+          },
+          "serviceType": [
+            "POD"
+          ],
+          "deliveryAmountList": [
+            {
+              "amount": "10000",
+              "description": "Ürün Bedeli",
+              "type": "PRODUCT_AMOUNT",
+              "currency": "TRY"
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": "OK",
+        "data": {
+          "customerDeliveryNo": "TST20260413100257POD",
+          "totalAmount": 10000,
+          "deliveryAmountList": [
+            {
+              "description": "Ürün Bedeli",
+              "amount": 10000,
+              "currency": "TRY",
+              "type": "PRODUCT_AMOUNT"
+            }
+          ],
+          "zplBarcodeDTOList": [
+            {
+              "sender": "KURUMSAL TEDARİKÇİ",
+              "receiverCity": "Balıkesir",
+              "receiverTown": "BANDIRMA",
+              "receiverXDock": "BANDIRMA",
+              "transferXdockName": "Bursa TM",
+              "productName": "Standart Teslimat",
+              "deliveryDateOriginal": "14.04.2026",
+              "deliveryDatePromised": "14.04.2026",
+              "receiver": "Test Müşteri",
+              "receiverAddress": "Test adres (lütfen HEPSIJET_TEST_ADDRESS_LINE1 ile gerçek teslimat adresi girin)",
+              "parcelNo": 1,
+              "totalParcels": 1,
+              "trackingUrl": "https://hepsijet.com/gonderi-takibi/TST20260413100257POD",
+              "barcodeNo": "TST20260413100257POD",
+              "senderXDock": "KURUMSALTEDARIKCI_BANDIRMA",
+              "barcodePrintDate": "13.04.2026 13:02",
+              "serviceList": "TAHSILATLI",
+              "desiSize": "Çok Küçük 0.0 - 1.0 Desi",
+              "zplBarcode": "^XA^MMT^CI28^LS0^FO7,0^GFA,08960,08960,00020,:Z64:eJzt2qERgDAQRNFlEMg0wAwtICMoComktJSSElIBQZOsQCGYv/KJuwa+xPyW+lyRhobqJU2t1VMhtbeSlvb+mDV3T7O2zopiZ/tLO4xFDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMN+Y6sx3xW4JsG1C65xCF0fkWwz4dqKD3YDHMQlsg==:FD24^FO260,0^GFA,21504,21504,00048,:Z64:eJzt3LENg0AQRUEQASENINGGAxd3pVGSC0BgLxXsImEHnh9sNMFdA6/rzL665ciuBe/T/HiFH/N+Cz+t6Zfv5/MLP40z5/0Y51nw7XMeeT/c7dea73me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53/lW80PV3y1L1ft11X7eFO+13f296p9v2o/8L/2BiKPmDA=:695B^FO165,0^GFA,03584,03584,00008,:Z64:eJzt18EJgEAMRNGI4N60JFuxBEvY0raULcEChGyiEcSTJw/yB4ZXwxf5eLPuh6rqJDO7WVIxJ5GumqP96RauiIiIiIiIP3UJ683BOqnI2U9uHx11ddXbNawC5uo=:6087^FO197,0^GFA,05376,05376,00012,:Z64:eJzt2LEJgDAQRuGIhWNkESGrOEJKOx3NUTJCJkjMeSkOQRCshPcXx1eEDPCc+8u2KsvC6WItYq+ue3PQl/5oZ1aP4lU9pHZi/+7J2ThijDHGGGOMMcYYY4xfezFON9tGZ9td6H1PbFufbYAfdgJ/9KFe:9582^FO189,415^GFA,00256,00256,00004,:Z64:eJxjYBggwALEckAsz2rAYF8PpOsFGHjkFRgEBAUY7HkYGGplGBjqK4D4A5D9gIGhzgHIZsDE5Q0MDNVAXHgAFT8E4gcHGBgPAvGBB2DM3ACkGRxQnAEAQ+kang==:238F^FO565,224^GFA,01792,01792,00008,:Z64:eJzV0zFugzAUBmBShkhdOAI+Qm+Qq/gIjBmqAsrQsVfo7FM4ygF6BXfN0hd1CAPyK/B+p8QiCgwdypBPJnn2ez8kSf77ldvuQ0Edrac8mgfjOpn3LDpI5TzdYLffLVlcwRSWOIev9MlmsE2ywQa/J9S7yz7Y19nBPUkftZO+drE0fb926J8q0WFfjfMgFdJHo6Uv1tInH6/6fzTG9PZXucCcSsn/E/nvke8B7m5YX5Q5Kq4m8w+5EfIMuXrkzDZ6DqXYvCD/Z+SxRT6/lpJ/gpyfkO8WNoOvsRZzwNriOaxsUPZPRZdKPrQ+SF/Zx+T745Qq8H4XGqoZxvtwLrYZcoAE3RpibTcQ9RWsmb/hCVJQjaygDeZMevQ/dZBgAz3k4NGY99Ec3XJYh31m22Zyvs8orNV4HRt/f6+e3+DX1dzE7Htb5nNf77v8MM8Jz4fUTPXE/SU5TNUvsEG9x/qsojnuzNNG9dz5t9cPOn5toQ==:AA55^BY2,3,90^FT196,608^BCN,,N,Y^FD>:TST20260413100257POD^FS^FT487,180^A0R,27,18^FDTST20260413100257POD^FS^FT555,19^A0R,17,16^FDVARIS ILCESI:^FS^FT490,19^A0R,17,16^FDVARIS MAHALLESI:^FS^FT141,19^A0R,20,19^FDALICI:^FS^FT609,19^A0R,17,16^FDVARIS ILI:^FS^FT84,20^A0R,25,21^FDess_line1 ile gercek teslimat adresi girin)^FS^FT113,83^A0R,25,21^FDtest adres (lutfen hepsijet_test_addr^FS^FT54,20^A0R,25,21^FD^FS^FT25,20^A0R,25,21^FD^FS^FT113,19^A0R,20,19^FDADRES:^FS^FT177,19^A0R,20,19^FDGONDERICI:^FS^FT516,19^A0R,34,33^FDBANDIRMA^FS^FT452,19^A0R,34,33^FD^FS^FT215,19^A0R,23,24^FD14.04.2026 /  - ^FS^FT141,69^A0R,20,19^FDTest Musteri^FS^FT345,19^A0R,17,16^FDCALISMA ALANI:^FS^FT245,19^A0R,25,24^FDStandart Teslimat^FS^FT287,19^A0R,22,24^FDCIKIS: KURUMSALTEDARIKCI_BANDIRMA^FS^FT378,19^A0R,72,44^FDBANDIRMA^FS^FT318,19^A0R,24,28^FD^FS^FT581,19^A0R,23,26^FDBalikesir^FS^FT178,115^A0R,20,19^FDKURUMSAL TEDARIKCI^FS^FT644,180^A0R,18,20^FD1/1^FS^FT644,308^A0R,16,18^FD13.04.2026 13:02^FS^FT672,402^A0R,12,17^FD108078^FS^FT225,471^A0N,20,25^FDTAHSILATLI^FS^FT195,500^A0N,20,25^FDTST20260413100257POD^FS^FT480,501^A0N,24,25^FDDesi: Cok Kucuk 0.0 - 1.0 Desi^FS^FT707,171^A0R,105,32^FDBursa (Dis)^FS^FO703,380^GB80,80,4^FS^FT717,395^A0R,70,50^FD09^FS^FT674,171^A0R,14,18^FD^FS^FO32,470^BXN,8,200,,,,,1^FDTST20260413100257POD^FS^FO650,23^BXN,8,200,,,,,1^FDTST20260413100257POD^FS^FT639,228^A0R,34,28^FD^FS^FT555,245^A0R,28,26^FD^FS^LRY^FO362,16^GB0,424,87^FS^LRN^LRY^FO634,170^GB0,273,35^FS^LRN^LRY^FO584,248^GB1,188,40^FS^LRN^PQ1,0,1,Y^XZ",
+              "deliveryPom": false,
+              "customerOrderId": "TST20260413100257POD",
+              "transferXDockNo": "09"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "RETURNED",
+      "ok": false,
+      "request": {
+        "url": "https://integration-apitest.hepsijet.com/delivery/sendDeliveryOrderEnhanced",
+        "payload": {
+          "company": {
+            "name": "KURUMSAL TEDARİKÇİ",
+            "abbreviationCode": "KURUMSAL"
+          },
+          "delivery": {
+            "customerDeliveryNo": "TST20260413100258RET",
+            "customerOrderId": "TST20260413100258RET",
+            "totalParcels": "1",
+            "desi": "1",
+            "deliverySlotOriginal": "0",
+            "deliveryDateOriginal": "2026-04-14",
+            "deliveryType": "RETURNED",
+            "product": {
+              "productCode": "HX_STD"
+            },
+            "senderAddress": {
+              "companyAddressId": "b0122a4d-01b1-4186-8651-37de12dd7708",
+              "country": {
+                "name": "Türkiye"
+              },
+              "city": {
+                "name": "İstanbul"
+              },
+              "town": {
+                "name": "ADALAR"
+              },
+              "district": {
+                "name": "MADEN"
+              },
+              "addressLine1": "Test iade alım adresi (lütfen HEPSIJET_TEST_ADDRESS_LINE1 girin)"
+            },
+            "receiver": {
+              "companyCustomerId": "290716ea-a0bf-4887-8b3d-40be14a39c4c",
+              "firstName": "Test",
+              "lastName": "Müşteri",
+              "phone1": "05000000000",
+              "phone2": "",
+              "email": ""
+            },
+            "recipientAddress": {
+              "companyAddressId": "kuru-kurumsal-202",
+              "country": {
+                "name": "Türkiye"
+              },
+              "city": {
+                "name": "BALIKESİR"
+              },
+              "town": {
+                "name": "BANDIRMA"
+              },
+              "district": {
+                "name": ""
+              },
+              "addressLine1": "HACI YUSUF MH. ESER SK. NO:4-10 BANDIRMA-BALIKESİR"
+            },
+            "recipientPerson": "İade Depo",
+            "recipientPersonPhone1": "05000000000"
+          },
+          "currentXDock": {
+            "abbreviationCode": "KURUMSALBANDIRMA"
+          },
+          "__returnedDates": {
+            "status": "OK",
+            "message": "Sorgulanan tarih aralığı için randevulu iade limiti tükenmiştir."
+          }
+        }
+      },
+      "returnedDates": {
+        "status": "OK",
+        "message": "Sorgulanan tarih aralığı için randevulu iade limiti tükenmiştir."
+      },
+      "error": {
+        "message": "Request failed with status code 400",
+        "status": 400,
+        "data": {
+          "status": "FAIL",
+          "message": "Fiyat hesaplanırken hata oluştu. Destek birimiyle iletişime geçiniz"
+        }
+      }
+    },
+    {
+      "name": "XL_RETURNED_TMH",
+      "ok": false,
+      "request": {
+        "url": "https://integration-apitest.hepsijet.com/delivery/sendDeliveryOrderEnhanced",
+        "payload": {
+          "company": {
+            "name": "KURUMSAL TEDARİKÇİ",
+            "abbreviationCode": "KURUMSAL"
+          },
+          "delivery": {
+            "customerDeliveryNo": "TST20260413100258XLR",
+            "customerOrderId": "TST20260413100258XLR",
+            "totalParcels": "1",
+            "desi": "41.11",
+            "deliverySlotOriginal": "0",
+            "deliveryDateOriginal": "2026-04-14",
+            "deliveryType": "RETURNED",
+            "product": {
+              "productCode": "HX_STD"
+            },
+            "senderAddress": {
+              "companyAddressId": "03be2c46-6f21-49bc-a0b8-53e7a778d5ff",
+              "country": {
+                "name": "Türkiye"
+              },
+              "city": {
+                "name": "İstanbul"
+              },
+              "town": {
+                "name": "BAKIRKÖY"
+              },
+              "district": {
+                "name": "ATAKÖY 1. KISIM"
+              },
+              "addressLine1": "Test iade alım adresi (lütfen HEPSIJET_TEST_ADDRESS_LINE1 girin)"
+            },
+            "receiver": {
+              "companyCustomerId": "cfed4fca-e903-455e-a7be-2fa97cde2db3",
+              "firstName": "Test",
+              "lastName": "Müşteri",
+              "phone1": "05000000000",
+              "phone2": "",
+              "email": ""
+            },
+            "recipientAddress": {
+              "companyAddressId": "kuru-kurumsal-202",
+              "country": {
+                "name": "Türkiye"
+              },
+              "city": {
+                "name": "BALIKESİR"
+              },
+              "town": {
+                "name": "BANDIRMA"
+              },
+              "district": {
+                "name": ""
+              },
+              "addressLine1": "HACI YUSUF MH. ESER SK. NO:4-10 BANDIRMA-BALIKESİR"
+            },
+            "recipientPerson": "İade Depo",
+            "recipientPersonPhone1": "05000000000"
+          },
+          "currentXDock": {
+            "abbreviationCode": "KURUMSALBANDIRMA"
+          },
+          "serviceType": [
+            "TMH"
+          ]
+        }
+      },
+      "error": {
+        "message": "Request failed with status code 400",
+        "status": 400,
+        "data": {
+          "status": "FAIL",
+          "message": "Fiyat hesaplanırken hata oluştu. Destek birimiyle iletişime geçiniz"
+        }
+      }
+    },
+    {
+      "name": "TRACKING",
+      "ok": true,
+      "request": {
+        "url": "https://integration-apitest.hepsijet.com/deliveryTransaction/getDeliveryTracking",
+        "payload": {
+          "deliveries": [
+            {
+              "customerDeliveryNo": "TST20260413100254STD"
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": "OK"
+      }
+    },
+    {
+      "name": "UPDATE_TOTAL_PARCEL",
+      "ok": true,
+      "request": {
+        "url": "https://integration-apitest.hepsijet.com/delivery-update",
+        "payload": {
+          "deliveryUpdateType": "TOTAL_PARCEL",
+          "customerDeliveryNo": "TST20260413100254STD",
+          "totalParcelInfo": {
+            "totalParcel": 3,
+            "desi": [
+              1,
+              2,
+              3
+            ]
+          }
+        }
+      },
+      "response": {
+        "status": "OK",
+        "data": {
+          "customerDeliveryNo": "TST20260413100254STD",
+          "zplBarcodeDTOList": [
+            {
+              "sender": "KURUMSAL TEDARİKÇİ",
+              "receiverCity": "Balıkesir",
+              "receiverTown": "BANDIRMA",
+              "receiverXDock": "BANDIRMA",
+              "transferXdockName": "Bursa TM",
+              "productName": "Standart Teslimat",
+              "deliveryDateOriginal": "14.04.2026",
+              "deliveryDatePromised": "14.04.2026",
+              "receiver": "Test Müşteri",
+              "receiverAddress": "Test adres (lütfen HEPSIJET_TEST_ADDRESS_LINE1 ile gerçek teslimat adresi girin)",
+              "parcelNo": 1,
+              "totalParcels": 3,
+              "trackingUrl": "https://hepsijet.com/gonderi-takibi/TST20260413100254STD",
+              "barcodeNo": "TST20260413100254STD",
+              "senderXDock": "KURUMSALTEDARIKCI_BANDIRMA",
+              "barcodePrintDate": "13.04.2026 13:02",
+              "desiSize": "Çok Küçük 0.0 - 1.0 Desi",
+              "zplBarcode": "^XA^MMT^CI28^LS0^FO7,0^GFA,08960,08960,00020,:Z64:eJzt2qERgDAQRNFlEMg0wAwtICMoComktJSSElIBQZOsQCGYv/KJuwa+xPyW+lyRhobqJU2t1VMhtbeSlvb+mDV3T7O2zopiZ/tLO4xFDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMN+Y6sx3xW4JsG1C65xCF0fkWwz4dqKD3YDHMQlsg==:FD24^FO260,0^GFA,21504,21504,00048,:Z64:eJzt3LENg0AQRUEQASENINGGAxd3pVGSC0BgLxXsImEHnh9sNMFdA6/rzL665ciuBe/T/HiFH/N+Cz+t6Zfv5/MLP40z5/0Y51nw7XMeeT/c7dea73me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53/lW80PV3y1L1ft11X7eFO+13f296p9v2o/8L/2BiKPmDA=:695B^FO165,0^GFA,03584,03584,00008,:Z64:eJzt18EJgEAMRNGI4N60JFuxBEvY0raULcEChGyiEcSTJw/yB4ZXwxf5eLPuh6rqJDO7WVIxJ5GumqP96RauiIiIiIiIP3UJ683BOqnI2U9uHx11ddXbNawC5uo=:6087^FO197,0^GFA,05376,05376,00012,:Z64:eJzt2LEJgDAQRuGIhWNkESGrOEJKOx3NUTJCJkjMeSkOQRCshPcXx1eEDPCc+8u2KsvC6WItYq+ue3PQl/5oZ1aP4lU9pHZi/+7J2ThijDHGGGOMMcYYY4xfezFON9tGZ9td6H1PbFufbYAfdgJ/9KFe:9582^FO189,415^GFA,00256,00256,00004,:Z64:eJxjYBggwALEckAsz2rAYF8PpOsFGHjkFRgEBAUY7HkYGGplGBjqK4D4A5D9gIGhzgHIZsDE5Q0MDNVAXHgAFT8E4gcHGBgPAvGBB2DM3ACkGRxQnAEAQ+kang==:238F^FO565,224^GFA,01792,01792,00008,:Z64:eJzV0zFugzAUBmBShkhdOAI+Qm+Qq/gIjBmqAsrQsVfo7FM4ygF6BXfN0hd1CAPyK/B+p8QiCgwdypBPJnn2ez8kSf77ldvuQ0Edrac8mgfjOpn3LDpI5TzdYLffLVlcwRSWOIev9MlmsE2ywQa/J9S7yz7Y19nBPUkftZO+drE0fb926J8q0WFfjfMgFdJHo6Uv1tInH6/6fzTG9PZXucCcSsn/E/nvke8B7m5YX5Q5Kq4m8w+5EfIMuXrkzDZ6DqXYvCD/Z+SxRT6/lpJ/gpyfkO8WNoOvsRZzwNriOaxsUPZPRZdKPrQ+SF/Zx+T745Qq8H4XGqoZxvtwLrYZcoAE3RpibTcQ9RWsmb/hCVJQjaygDeZMevQ/dZBgAz3k4NGY99Ec3XJYh31m22Zyvs8orNV4HRt/f6+e3+DX1dzE7Htb5nNf77v8MM8Jz4fUTPXE/SU5TNUvsEG9x/qsojnuzNNG9dz5t9cPOn5toQ==:AA55^BY2,3,90^FT196,608^BCN,,N,Y^FD>:TST20260413100254STD^FS^FT487,180^A0R,27,18^FDTST20260413100254STD^FS^FT555,19^A0R,17,16^FDVARIS ILCESI:^FS^FT490,19^A0R,17,16^FDVARIS MAHALLESI:^FS^FT141,19^A0R,20,19^FDALICI:^FS^FT609,19^A0R,17,16^FDVARIS ILI:^FS^FT84,20^A0R,25,21^FDess_line1 ile gercek teslimat adresi girin)^FS^FT113,83^A0R,25,21^FDtest adres (lutfen hepsijet_test_addr^FS^FT54,20^A0R,25,21^FD^FS^FT25,20^A0R,25,21^FD^FS^FT113,19^A0R,20,19^FDADRES:^FS^FT177,19^A0R,20,19^FDGONDERICI:^FS^FT516,19^A0R,34,33^FDBANDIRMA^FS^FT452,19^A0R,34,33^FD^FS^FT215,19^A0R,23,24^FD14.04.2026 /  - ^FS^FT141,69^A0R,20,19^FDTest Musteri^FS^FT345,19^A0R,17,16^FDCALISMA ALANI:^FS^FT245,19^A0R,25,24^FDStandart Teslimat^FS^FT287,19^A0R,22,24^FDCIKIS: KURUMSALTEDARIKCI_BANDIRMA^FS^FT378,19^A0R,72,44^FDBANDIRMA^FS^FT318,19^A0R,24,28^FD^FS^FT581,19^A0R,23,26^FDBalikesir^FS^FT178,115^A0R,20,19^FDKURUMSAL TEDARIKCI^FS^FT644,180^A0R,18,20^FD1/3^FS^FT644,308^A0R,16,18^FD13.04.2026 13:02^FS^FT672,402^A0R,12,17^FD108078^FS^FT225,471^A0N,20,25^FD^FS^FT195,500^A0N,20,25^FDTST20260413100254STD^FS^FT480,501^A0N,24,25^FDDesi: Cok Kucuk 0.0 - 1.0 Desi^FS^FT707,171^A0R,105,32^FDBursa (Dis)^FS^FO703,380^GB80,80,4^FS^FT717,395^A0R,70,50^FD09^FS^FT674,171^A0R,14,18^FD^FS^FO32,470^BXN,8,200,,,,,1^FDTST20260413100254STD^FS^FO650,23^BXN,8,200,,,,,1^FDTST20260413100254STD^FS^FT639,228^A0R,34,28^FD^FS^FT555,245^A0R,28,26^FD^FS^LRY^FO362,16^GB0,424,87^FS^LRN^LRY^FO634,170^GB0,273,35^FS^LRN^LRY^FO584,248^GB1,188,40^FS^LRN^PQ1,0,1,Y^XZ",
+              "deliveryPom": false,
+              "customerOrderId": "TST20260413100254STD",
+              "transferXDockNo": "09"
+            },
+            {
+              "sender": "KURUMSAL TEDARİKÇİ",
+              "receiverCity": "Balıkesir",
+              "receiverTown": "BANDIRMA",
+              "receiverXDock": "BANDIRMA",
+              "transferXdockName": "Bursa TM",
+              "productName": "Standart Teslimat",
+              "deliveryDateOriginal": "14.04.2026",
+              "deliveryDatePromised": "14.04.2026",
+              "receiver": "Test Müşteri",
+              "receiverAddress": "Test adres (lütfen HEPSIJET_TEST_ADDRESS_LINE1 ile gerçek teslimat adresi girin)",
+              "parcelNo": 2,
+              "totalParcels": 3,
+              "trackingUrl": "https://hepsijet.com/gonderi-takibi/TST20260413100254STD",
+              "barcodeNo": "TST20260413100254STD",
+              "senderXDock": "KURUMSALTEDARIKCI_BANDIRMA",
+              "barcodePrintDate": "13.04.2026 13:03",
+              "desiSize": "Küçük 2.0 - 4.0 Desi",
+              "zplBarcode": "^XA^MMT^CI28^LS0^FO7,0^GFA,08960,08960,00020,:Z64:eJzt2qERgDAQRNFlEMg0wAwtICMoComktJSSElIBQZOsQCGYv/KJuwa+xPyW+lyRhobqJU2t1VMhtbeSlvb+mDV3T7O2zopiZ/tLO4xFDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMN+Y6sx3xW4JsG1C65xCF0fkWwz4dqKD3YDHMQlsg==:FD24^FO260,0^GFA,21504,21504,00048,:Z64:eJzt3LENg0AQRUEQASENINGGAxd3pVGSC0BgLxXsImEHnh9sNMFdA6/rzL665ciuBe/T/HiFH/N+Cz+t6Zfv5/MLP40z5/0Y51nw7XMeeT/c7dea73me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53/lW80PV3y1L1ft11X7eFO+13f296p9v2o/8L/2BiKPmDA=:695B^FO165,0^GFA,03584,03584,00008,:Z64:eJzt18EJgEAMRNGI4N60JFuxBEvY0raULcEChGyiEcSTJw/yB4ZXwxf5eLPuh6rqJDO7WVIxJ5GumqP96RauiIiIiIiIP3UJ683BOqnI2U9uHx11ddXbNawC5uo=:6087^FO197,0^GFA,05376,05376,00012,:Z64:eJzt2LEJgDAQRuGIhWNkESGrOEJKOx3NUTJCJkjMeSkOQRCshPcXx1eEDPCc+8u2KsvC6WItYq+ue3PQl/5oZ1aP4lU9pHZi/+7J2ThijDHGGGOMMcYYY4xfezFON9tGZ9td6H1PbFufbYAfdgJ/9KFe:9582^FO189,415^GFA,00256,00256,00004,:Z64:eJxjYBggwALEckAsz2rAYF8PpOsFGHjkFRgEBAUY7HkYGGplGBjqK4D4A5D9gIGhzgHIZsDE5Q0MDNVAXHgAFT8E4gcHGBgPAvGBB2DM3ACkGRxQnAEAQ+kang==:238F^FO565,224^GFA,01792,01792,00008,:Z64:eJzV0zFugzAUBmBShkhdOAI+Qm+Qq/gIjBmqAsrQsVfo7FM4ygF6BXfN0hd1CAPyK/B+p8QiCgwdypBPJnn2ez8kSf77ldvuQ0Edrac8mgfjOpn3LDpI5TzdYLffLVlcwRSWOIev9MlmsE2ywQa/J9S7yz7Y19nBPUkftZO+drE0fb926J8q0WFfjfMgFdJHo6Uv1tInH6/6fzTG9PZXucCcSsn/E/nvke8B7m5YX5Q5Kq4m8w+5EfIMuXrkzDZ6DqXYvCD/Z+SxRT6/lpJ/gpyfkO8WNoOvsRZzwNriOaxsUPZPRZdKPrQ+SF/Zx+T745Qq8H4XGqoZxvtwLrYZcoAE3RpibTcQ9RWsmb/hCVJQjaygDeZMevQ/dZBgAz3k4NGY99Ec3XJYh31m22Zyvs8orNV4HRt/f6+e3+DX1dzE7Htb5nNf77v8MM8Jz4fUTPXE/SU5TNUvsEG9x/qsojnuzNNG9dz5t9cPOn5toQ==:AA55^BY2,3,90^FT196,608^BCN,,N,Y^FD>:TST20260413100254STD^FS^FT487,180^A0R,27,18^FDTST20260413100254STD^FS^FT555,19^A0R,17,16^FDVARIS ILCESI:^FS^FT490,19^A0R,17,16^FDVARIS MAHALLESI:^FS^FT141,19^A0R,20,19^FDALICI:^FS^FT609,19^A0R,17,16^FDVARIS ILI:^FS^FT84,20^A0R,25,21^FDess_line1 ile gercek teslimat adresi girin)^FS^FT113,83^A0R,25,21^FDtest adres (lutfen hepsijet_test_addr^FS^FT54,20^A0R,25,21^FD^FS^FT25,20^A0R,25,21^FD^FS^FT113,19^A0R,20,19^FDADRES:^FS^FT177,19^A0R,20,19^FDGONDERICI:^FS^FT516,19^A0R,34,33^FDBANDIRMA^FS^FT452,19^A0R,34,33^FD^FS^FT215,19^A0R,23,24^FD14.04.2026 /  - ^FS^FT141,69^A0R,20,19^FDTest Musteri^FS^FT345,19^A0R,17,16^FDCALISMA ALANI:^FS^FT245,19^A0R,25,24^FDStandart Teslimat^FS^FT287,19^A0R,22,24^FDCIKIS: KURUMSALTEDARIKCI_BANDIRMA^FS^FT378,19^A0R,72,44^FDBANDIRMA^FS^FT318,19^A0R,24,28^FD^FS^FT581,19^A0R,23,26^FDBalikesir^FS^FT178,115^A0R,20,19^FDKURUMSAL TEDARIKCI^FS^FT644,180^A0R,18,20^FD2/3^FS^FT644,308^A0R,16,18^FD13.04.2026 13:03^FS^FT672,402^A0R,12,17^FD108078^FS^FT225,471^A0N,20,25^FD^FS^FT195,500^A0N,20,25^FDTST20260413100254STD^FS^FT480,501^A0N,24,25^FDDesi: Kucuk 2.0 - 4.0 Desi^FS^FT707,171^A0R,105,32^FDBursa (Dis)^FS^FO703,380^GB80,80,4^FS^FT717,395^A0R,70,50^FD09^FS^FT674,171^A0R,14,18^FD^FS^FO32,470^BXN,8,200,,,,,1^FDTST20260413100254STD^FS^FO650,23^BXN,8,200,,,,,1^FDTST20260413100254STD^FS^FT639,228^A0R,34,28^FD^FS^FT555,245^A0R,28,26^FD^FS^LRY^FO362,16^GB0,424,87^FS^LRN^LRY^FO634,170^GB0,273,35^FS^LRN^LRY^FO584,248^GB1,188,40^FS^LRN^PQ1,0,1,Y^XZ",
+              "deliveryPom": false,
+              "customerOrderId": "TST20260413100254STD",
+              "transferXDockNo": "09"
+            },
+            {
+              "sender": "KURUMSAL TEDARİKÇİ",
+              "receiverCity": "Balıkesir",
+              "receiverTown": "BANDIRMA",
+              "receiverXDock": "BANDIRMA",
+              "transferXdockName": "Bursa TM",
+              "productName": "Standart Teslimat",
+              "deliveryDateOriginal": "14.04.2026",
+              "deliveryDatePromised": "14.04.2026",
+              "receiver": "Test Müşteri",
+              "receiverAddress": "Test adres (lütfen HEPSIJET_TEST_ADDRESS_LINE1 ile gerçek teslimat adresi girin)",
+              "parcelNo": 3,
+              "totalParcels": 3,
+              "trackingUrl": "https://hepsijet.com/gonderi-takibi/TST20260413100254STD",
+              "barcodeNo": "TST20260413100254STD",
+              "senderXDock": "KURUMSALTEDARIKCI_BANDIRMA",
+              "barcodePrintDate": "13.04.2026 13:03",
+              "desiSize": "Küçük 2.0 - 4.0 Desi",
+              "zplBarcode": "^XA^MMT^CI28^LS0^FO7,0^GFA,08960,08960,00020,:Z64:eJzt2qERgDAQRNFlEMg0wAwtICMoComktJSSElIBQZOsQCGYv/KJuwa+xPyW+lyRhobqJU2t1VMhtbeSlvb+mDV3T7O2zopiZ/tLO4xFDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMN+Y6sx3xW4JsG1C65xCF0fkWwz4dqKD3YDHMQlsg==:FD24^FO260,0^GFA,21504,21504,00048,:Z64:eJzt3LENg0AQRUEQASENINGGAxd3pVGSC0BgLxXsImEHnh9sNMFdA6/rzL665ciuBe/T/HiFH/N+Cz+t6Zfv5/MLP40z5/0Y51nw7XMeeT/c7dea73me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53me53/lW80PV3y1L1ft11X7eFO+13f296p9v2o/8L/2BiKPmDA=:695B^FO165,0^GFA,03584,03584,00008,:Z64:eJzt18EJgEAMRNGI4N60JFuxBEvY0raULcEChGyiEcSTJw/yB4ZXwxf5eLPuh6rqJDO7WVIxJ5GumqP96RauiIiIiIiIP3UJ683BOqnI2U9uHx11ddXbNawC5uo=:6087^FO197,0^GFA,05376,05376,00012,:Z64:eJzt2LEJgDAQRuGIhWNkESGrOEJKOx3NUTJCJkjMeSkOQRCshPcXx1eEDPCc+8u2KsvC6WItYq+ue3PQl/5oZ1aP4lU9pHZi/+7J2ThijDHGGGOMMcYYY4xfezFON9tGZ9td6H1PbFufbYAfdgJ/9KFe:9582^FO189,415^GFA,00256,00256,00004,:Z64:eJxjYBggwALEckAsz2rAYF8PpOsFGHjkFRgEBAUY7HkYGGplGBjqK4D4A5D9gIGhzgHIZsDE5Q0MDNVAXHgAFT8E4gcHGBgPAvGBB2DM3ACkGRxQnAEAQ+kang==:238F^FO565,224^GFA,01792,01792,00008,:Z64:eJzV0zFugzAUBmBShkhdOAI+Qm+Qq/gIjBmqAsrQsVfo7FM4ygF6BXfN0hd1CAPyK/B+p8QiCgwdypBPJnn2ez8kSf77ldvuQ0Edrac8mgfjOpn3LDpI5TzdYLffLVlcwRSWOIev9MlmsE2ywQa/J9S7yz7Y19nBPUkftZO+drE0fb926J8q0WFfjfMgFdJHo6Uv1tInH6/6fzTG9PZXucCcSsn/E/nvke8B7m5YX5Q5Kq4m8w+5EfIMuXrkzDZ6DqXYvCD/Z+SxRT6/lpJ/gpyfkO8WNoOvsRZzwNriOaxsUPZPRZdKPrQ+SF/Zx+T745Qq8H4XGqoZxvtwLrYZcoAE3RpibTcQ9RWsmb/hCVJQjaygDeZMevQ/dZBgAz3k4NGY99Ec3XJYh31m22Zyvs8orNV4HRt/f6+e3+DX1dzE7Htb5nNf77v8MM8Jz4fUTPXE/SU5TNUvsEG9x/qsojnuzNNG9dz5t9cPOn5toQ==:AA55^BY2,3,90^FT196,608^BCN,,N,Y^FD>:TST20260413100254STD^FS^FT487,180^A0R,27,18^FDTST20260413100254STD^FS^FT555,19^A0R,17,16^FDVARIS ILCESI:^FS^FT490,19^A0R,17,16^FDVARIS MAHALLESI:^FS^FT141,19^A0R,20,19^FDALICI:^FS^FT609,19^A0R,17,16^FDVARIS ILI:^FS^FT84,20^A0R,25,21^FDess_line1 ile gercek teslimat adresi girin)^FS^FT113,83^A0R,25,21^FDtest adres (lutfen hepsijet_test_addr^FS^FT54,20^A0R,25,21^FD^FS^FT25,20^A0R,25,21^FD^FS^FT113,19^A0R,20,19^FDADRES:^FS^FT177,19^A0R,20,19^FDGONDERICI:^FS^FT516,19^A0R,34,33^FDBANDIRMA^FS^FT452,19^A0R,34,33^FD^FS^FT215,19^A0R,23,24^FD14.04.2026 /  - ^FS^FT141,69^A0R,20,19^FDTest Musteri^FS^FT345,19^A0R,17,16^FDCALISMA ALANI:^FS^FT245,19^A0R,25,24^FDStandart Teslimat^FS^FT287,19^A0R,22,24^FDCIKIS: KURUMSALTEDARIKCI_BANDIRMA^FS^FT378,19^A0R,72,44^FDBANDIRMA^FS^FT318,19^A0R,24,28^FD^FS^FT581,19^A0R,23,26^FDBalikesir^FS^FT178,115^A0R,20,19^FDKURUMSAL TEDARIKCI^FS^FT644,180^A0R,18,20^FD3/3^FS^FT644,308^A0R,16,18^FD13.04.2026 13:03^FS^FT672,402^A0R,12,17^FD108078^FS^FT225,471^A0N,20,25^FD^FS^FT195,500^A0N,20,25^FDTST20260413100254STD^FS^FT480,501^A0N,24,25^FDDesi: Kucuk 2.0 - 4.0 Desi^FS^FT707,171^A0R,105,32^FDBursa (Dis)^FS^FO703,380^GB80,80,4^FS^FT717,395^A0R,70,50^FD09^FS^FT674,171^A0R,14,18^FD^FS^FO32,470^BXN,8,200,,,,,1^FDTST20260413100254STD^FS^FO650,23^BXN,8,200,,,,,1^FDTST20260413100254STD^FS^FT639,228^A0R,34,28^FD^FS^FT555,245^A0R,28,26^FD^FS^LRY^FO362,16^GB0,424,87^FS^LRN^LRY^FO634,170^GB0,273,35^FS^LRN^LRY^FO584,248^GB1,188,40^FS^LRN^PQ1,0,1,Y^XZ",
+              "deliveryPom": false,
+              "customerOrderId": "TST20260413100254STD",
+              "transferXDockNo": "09"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "DELETE",
+      "ok": true,
+      "request": {
+        "url": "https://integration-apitest.hepsijet.com/delivery/deleteDeliveryOrder/TST20260413100254STD",
+        "payload": {
+          "deleteReason": "IPTAL"
+        }
+      },
+      "response": {
+        "status": "OK",
+        "message": "Gönderi başarıyla silindi"
+      }
+    }
+  ],
+  "finishedAt": "2026-04-13T10:02:59.976Z"
+}

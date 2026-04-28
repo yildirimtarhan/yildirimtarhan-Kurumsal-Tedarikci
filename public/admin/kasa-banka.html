@@ -38,6 +38,14 @@
                 <i class="fas fa-home w-5"></i>
                 <span class="menu-text">Dashboard</span>
             </a>
+            <a href="users.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-users w-5"></i>
+                <span class="menu-text">Kullanıcılar</span>
+            </a>
+            <a href="orders.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-box w-5"></i>
+                <span class="menu-text">Siparişler</span>
+            </a>
             <a href="fatura-yonetim.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
                 <i class="fas fa-file-invoice w-5"></i>
                 <span class="menu-text">Faturalar</span>
@@ -57,6 +65,50 @@
             <a href="muhasebe.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
                 <i class="fas fa-calculator w-5"></i>
                 <span class="menu-text">Muhasebe & Beyan</span>
+            </a>
+            <a href="raporlar.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-chart-bar w-5"></i>
+                <span class="menu-text">Raporlar</span>
+            </a>
+            <a href="pazarlama.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-bullhorn w-5"></i>
+                <span class="menu-text">AI Pazarlama</span>
+            </a>
+            <a href="products.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-cubes w-5"></i>
+                <span class="menu-text">Ürünler (ERP)</span>
+            </a>
+            <a href="kargo-bildirim.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-truck w-5"></i>
+                <span class="menu-text">Kargo Bildirim</span>
+            </a>
+            <a href="hepsijet-test.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-vial w-5"></i>
+                <span class="menu-text">Hepsijet Test</span>
+            </a>
+            <a href="products-manage.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-warehouse w-5"></i>
+                <span class="menu-text">Stok Yönetimi</span>
+            </a>
+            <a href="paket-yonetim.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-box-open w-5"></i>
+                <span class="menu-text">Paket Yönetimi</span>
+            </a>
+            <a href="kategori-yonetim.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-folder-tree w-5"></i>
+                <span class="menu-text">Kategori Yönetimi</span>
+            </a>
+            <a href="bayilik-basvurulari.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-store w-5"></i>
+                <span class="menu-text">Bayilik Başvuruları</span>
+            </a>
+            <a href="support.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-headset w-5"></i>
+                <span class="menu-text">Destek Talepleri</span>
+            </a>
+            <a href="#" onclick="logout()" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-slate-800 hover:text-white rounded-lg mb-1">
+                <i class="fas fa-sign-out-alt w-5"></i>
+                <span class="menu-text">Çıkış Yap</span>
             </a>
         </nav>
     </div>
@@ -261,8 +313,21 @@
 
 
     <script src="../js/api-config.js"></script>
+    <script src="admin-menu.js"></script>
     <script>
         const API_URL = window.KT_API_URL;
+        const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = "login.html";
+        }
+
+        function logout() {
+            localStorage.removeItem("adminToken");
+            localStorage.removeItem("token");
+            localStorage.removeItem("adminUser");
+            window.location.href = "login.html";
+        }
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');

@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "hepsijet:smoke": "node scripts/hepsijet_smoke_test.js"
   },
   "engines": {
     "node": ">=20.0.0"

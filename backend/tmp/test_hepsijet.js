@@ -9,12 +9,13 @@ async function testHepsijetAuth() {
 
     
     const baseUrl = process.env.HEPSIJET_API_URL || 'https://integration-apitest.hepsijet.com/';
+    const merchantId = process.env.HEPSIJET_MERCHANT_ID || process.env.HEPSIJET_CUSTOMER_CODE;
 
     try {
         const response = await axios.post(`${baseUrl}auth/getToken`, {
             username: process.env.HEPSIJET_USER,
             password: process.env.HEPSIJET_PASSWORD,
-            merchantId: process.env.HEPSIJET_CUSTOMER_CODE
+            merchantId
         });
 
         console.log('\n✅ Bağlantı Başarılı!');

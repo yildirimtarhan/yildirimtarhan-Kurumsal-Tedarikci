@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hepsijet Test - Admin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; display: flex; }
+
+    .sidebar {
+      width: 260px; height: 100vh;
+      background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+      position: fixed; left: 0; top: 0; color: white; padding-top: 1.5rem;
+      overflow-y: auto;
+    }
+    .sidebar .logo { text-align: center; padding: 0 1rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .sidebar .logo h2 { font-size: 1.3rem; font-weight: 600; }
+    .sidebar .logo span { color: #3498db; }
+    .sidebar nav { margin-top: 1rem; padding-bottom: 80px; }
+    .sidebar a {
+      display: flex; align-items: center; gap: 12px;
+      padding: 1rem 1.5rem; color: #bdc3c7; text-decoration: none;
+      transition: all 0.3s; border-left: 3px solid transparent;
+    }
+    .sidebar a:hover, .sidebar a.active { background: rgba(255,255,255,0.05); color: white; border-left-color: #3498db; }
+    .sidebar a i { width: 20px; text-align: center; }
+    .sidebar .logout { position: fixed; bottom: 0; width: 260px; background: linear-gradient(180deg, #1a252f 0%, #2c3e50 100%); border-top: 1px solid rgba(255,255,255,0.1); }
+
+    .main-content { margin-left: 260px; padding: 2rem; width: calc(100% - 260px); min-height: 100vh; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .header h1 { color: #2c3e50; font-size: 1.8rem; }
+
+    .card {
+      background: white; border-radius: 12px; padding: 1.5rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    .card h2 { color: #2c3e50; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white; border: none; border-radius: 10px;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+    .hint {
+      margin-top: 10px;
+      background: #e0f2fe; border: 1px solid #7dd3fc; color: #0369a1;
+      border-radius: 10px; padding: 12px;
+      font-size: 14px;
+    }
+
+    pre {
+      margin-top: 14px;
+      background: #0b1020;
+      color: #e5e7eb;
+      border-radius: 12px;
+      padding: 14px;
+      overflow: auto;
+      max-height: 60vh;
+      font-size: 12px;
+      line-height: 1.4;
+      border: 1px solid rgba(255,255,255,0.08);
+      white-space: pre-wrap;
+    }
+
+    .status {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main-content { margin-left: 0; width: 100%; padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo">
+      <h2>Kurumsal<span>Tedarikçi</span></h2>
+      <small>Admin Paneli</small>
+    </div>
+    <nav>
+      <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="users.html"><i class="fas fa-users"></i> Kullanıcılar</a>
+      <a href="orders.html"><i class="fas fa-box"></i> Siparişler</a>
+      <a href="kargo-bildirim.html"><i class="fas fa-truck"></i> Kargo Bildirim</a>
+      <a href="hepsijet-test.html" class="active"><i class="fas fa-vial"></i> Hepsijet Test</a>
+    </nav>
+    <a href="#" class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</a>
+  </div>
+
+  <div class="main-content">
+    <div class="header">
+      <h1>Hepsijet Test</h1>
+    </div>
+
+    <div class="card">
+      <h2><i class="fas fa-vial"></i> Smoke Test</h2>
+      <button class="btn" id="runBtn" onclick="runSmoke()">
+        <i class="fas fa-play"></i> Testleri Başlat
+      </button>
+      <div class="hint">
+        Bu ekran backend tarafındaki smoke test script’ini çalıştırır. Sonuçlar aşağıda log olarak görünür.
+        Token/şifre bilgileri ekrana basılmaz.
+      </div>
+      <div class="status" id="status"></div>
+      <pre id="output">Hazır.</pre>
+    </div>
+  </div>
+
+  <script src="../js/api-config.js"></script>
+  <script src="admin-menu.js"></script>
+  <script>
+    const API_URL = window.KT_API_URL;
+    const token = localStorage.getItem("adminToken");
+
+    if (!token) {
+      window.location.href = "login.html";
+    }
+
+    function logout() {
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminUser");
+      window.location.href = "login.html";
+    }
+
+    async function runSmoke() {
+      const btn = document.getElementById("runBtn");
+      const out = document.getElementById("output");
+      const status = document.getElementById("status");
+
+      btn.disabled = true;
+      status.textContent = "Çalışıyor... (1-2 dakika sürebilir)";
+      out.textContent = "Çalışıyor...";
+
+      try {
+        const res = await fetch(`${API_URL}/admin/hepsijet/smoke`, {
+          method: "POST",
+          headers: { Authorization: "Bearer " + token }
+        });
+
+        const raw = await res.text();
+        let data = null;
+        try { data = raw ? JSON.parse(raw) : {}; } catch { data = { success: false, message: "JSON parse hatası", raw }; }
+
+        if (!res.ok || !data.success) {
+          status.textContent = "Hata oluştu.";
+          out.textContent = (data.stdout || "") + (data.stderr ? "\n\n[stderr]\n" + data.stderr : "") + (data.error ? "\n\n[error]\n" + data.error : "");
+          return;
+        }
+
+        status.textContent = "Tamamlandı.";
+        out.textContent = (data.stdout || "") + (data.stderr ? "\n\n[stderr]\n" + data.stderr : "");
+      } catch (e) {
+        status.textContent = "Bağlantı hatası.";
+        out.textContent = e.message;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
+

@@ -56,8 +56,8 @@
         <!-- Top Bar -->
         <div class="flex justify-between items-center mb-10">
             <div>
-                <h1 class="text-3xl font-bold text-slate-900">AI Pazarlama Merkezi</h1>
-                <p class="text-slate-500 mt-1">Potansiyel kurumsal müşterileri yönetin ve AI destekli teklifler gönderin.</p>
+                <h1 class="text-3xl font-bold text-slate-900">Satış &amp; Pazarlama Merkezi</h1>
+                <p class="text-slate-500 mt-1">Türkiye kurumsal hunisi: takip, randevu, AI teklif ve e-posta — otomatik arama için altyapı sonraki fazda (SIP entegrasyonu).</p>
             </div>
             <button onclick="document.getElementById('addLeadModal').classList.remove('hidden')" class="ai-gradient text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 shadow-lg shadow-indigo-500/30 hover:opacity-90 transition-all">
                 <i class="fas fa-plus"></i> Yeni Aday Ekle
@@ -73,43 +73,36 @@
         <!-- Section: Leads (Müşteri Yönetimi) -->
         <div id="section-leads">
             <!-- Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm ai-card">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-user-plus text-xl"></i>
-                        </div>
-                    </div>
-                    <h3 class="text-slate-500 text-sm font-medium">Toplam Prospekt</h3>
-                    <p class="text-2xl font-bold text-slate-900 mt-1" id="stat-total">0</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-10">
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm ai-card">
+                    <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-user-plus"></i></div>
+                    <h3 class="text-slate-500 text-xs font-medium">Toplam aday</h3>
+                    <p class="text-xl font-bold text-slate-900 mt-1" id="stat-total">0</p>
                 </div>
-                <!-- ... other lead stats ... -->
-                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm ai-card">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-wand-magic-sparkles text-xl"></i>
-                        </div>
-                    </div>
-                    <h3 class="text-slate-500 text-sm font-medium">Hazır Teklifler</h3>
-                    <p class="text-2xl font-bold text-slate-900 mt-1" id="stat-ready">0</p>
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm ai-card">
+                    <div class="w-10 h-10 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-phone-volume"></i></div>
+                    <h3 class="text-slate-500 text-xs font-medium">Bugün takip</h3>
+                    <p class="text-xl font-bold text-slate-900 mt-1" id="stat-today-follow">0</p>
                 </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm ai-card">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-paper-plane text-xl"></i>
-                        </div>
-                    </div>
-                    <h3 class="text-slate-500 text-sm font-medium">Gönderilen Teklifler</h3>
-                    <p class="text-2xl font-bold text-slate-900 mt-1" id="stat-sent">0</p>
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm ai-card">
+                    <div class="w-10 h-10 bg-violet-50 text-violet-600 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-calendar-check"></i></div>
+                    <h3 class="text-slate-500 text-xs font-medium">Randevu (7 gün)</h3>
+                    <p class="text-xl font-bold text-slate-900 mt-1" id="stat-week-appt">0</p>
                 </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm ai-card">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-handshake text-xl"></i>
-                        </div>
-                    </div>
-                    <h3 class="text-slate-500 text-sm font-medium">Olumlu Dönüşler</h3>
-                    <p class="text-2xl font-bold text-slate-900 mt-1" id="stat-success">0</p>
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm ai-card">
+                    <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-wand-magic-sparkles"></i></div>
+                    <h3 class="text-slate-500 text-xs font-medium">AI teklif hazır</h3>
+                    <p class="text-xl font-bold text-slate-900 mt-1" id="stat-ready">0</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm ai-card">
+                    <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-paper-plane"></i></div>
+                    <h3 class="text-slate-500 text-xs font-medium">Teklif gönderildi</h3>
+                    <p class="text-xl font-bold text-slate-900 mt-1" id="stat-sent">0</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm ai-card">
+                    <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-handshake"></i></div>
+                    <h3 class="text-slate-500 text-xs font-medium">Kazanılan</h3>
+                    <p class="text-xl font-bold text-slate-900 mt-1" id="stat-success">0</p>
                 </div>
             </div>
 
@@ -122,9 +115,10 @@
                     <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
                         <tr>
                             <th class="px-6 py-4 font-semibold">Firma / Sektör</th>
-                            <th class="px-6 py-4 font-semibold">Yetkili İletişim</th>
-                            <th class="px-6 py-4 font-semibold">Durum</th>
-                            <th class="px-6 py-4 font-semibold">Son İşlem</th>
+                            <th class="px-6 py-4 font-semibold">Yetkili</th>
+                            <th class="px-6 py-4 font-semibold">Huni aşaması</th>
+                            <th class="px-6 py-4 font-semibold">Sonraki adım</th>
+                            <th class="px-6 py-4 font-semibold">Randevu</th>
                             <th class="px-6 py-4 font-semibold text-right">İşlemler</th>
                         </tr>
                     </thead>
@@ -211,12 +205,137 @@
                     <label class="text-sm font-semibold text-slate-700">Web Sitesi</label>
                     <input type="url" name="webSitesi" placeholder="https://" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:outline-none transition-all">
                 </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <label class="flex items-center gap-2 cursor-pointer bg-slate-50 p-2 rounded-xl border border-slate-100">
+                        <input type="checkbox" name="emailOnay" class="rounded border-slate-300 text-indigo-600">
+                        <span class="text-xs font-semibold text-slate-700">E-posta İzni</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-slate-50 p-2 rounded-xl border border-slate-100">
+                        <input type="checkbox" name="smsOnay" class="rounded border-slate-300 text-indigo-600">
+                        <span class="text-xs font-semibold text-slate-700">SMS İzni</span>
+                    </label>
+                </div>
                 <div class="pt-4">
                     <button type="submit" class="w-full ai-gradient text-white py-3 rounded-xl font-bold shadow-lg shadow-indigo-500/30">
                         Adayı Kaydet
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal: Lead CRM detayı -->
+    <div id="leadDetailModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden my-8">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-900 text-white">
+                <h2 class="text-lg font-bold" id="detailFirmaTitle">Aday detayı</h2>
+                <button type="button" onclick="document.getElementById('leadDetailModal').classList.add('hidden')" class="hover:opacity-80"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6 space-y-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Huni aşaması</label>
+                        <select id="detailDurum" class="w-full mt-1 px-4 py-2 border border-slate-200 rounded-xl"></select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">İletişim İzinleri (ETK)</label>
+                        <div class="flex gap-4 mt-2">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" id="detailEmailOnay" class="rounded border-slate-300 text-indigo-600">
+                                <span class="text-sm text-slate-600">E-posta</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" id="detailSmsOnay" class="rounded border-slate-300 text-indigo-600">
+                                <span class="text-sm text-slate-600">SMS</span>
+                            </label>
+                        </div>
+                        <div id="consentMeta" class="text-[10px] text-slate-400 mt-1 hidden italic"></div>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Sonraki eylem (arama / mail)</label>
+                        <input type="datetime-local" id="detailSonrakiEylem" class="w-full mt-1 px-4 py-2 border border-slate-200 rounded-xl">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Randevu kanalı</label>
+                        <select id="detailRandevuKanal" class="w-full mt-1 px-4 py-2 border border-slate-200 rounded-xl">
+                            <option value="">—</option>
+                            <option value="telefon">Telefon</option>
+                            <option value="teams">Teams / Meet</option>
+                            <option value="yuz_yuze">Yüz yüze</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Randevu başlangıç</label>
+                        <input type="datetime-local" id="detailRandevuBas" class="w-full mt-1 px-4 py-2 border border-slate-200 rounded-xl">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Randevu bitiş</label>
+                        <input type="datetime-local" id="detailRandevuBit" class="w-full mt-1 px-4 py-2 border border-slate-200 rounded-xl">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase">Randevu / görüşme notu</label>
+                    <textarea id="detailRandevuNotu" rows="2" class="w-full mt-1 px-4 py-2 border border-slate-200 rounded-xl text-sm"></textarea>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" onclick="saveLeadDetail()" class="px-5 py-2.5 bg-slate-900 text-white rounded-xl font-semibold text-sm">Kaydet</button>
+                    <button type="button" onclick="sendFollowupEmail()" class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-semibold text-sm">Takip e-postası gönder</button>
+                </div>
+                <div class="rounded-xl border border-violet-200 bg-violet-50/50 p-4 space-y-3">
+                    <h3 class="text-sm font-bold text-violet-900 flex items-center gap-2"><i class="fas fa-phone-volume"></i> Sesli otomatik arama (TTS)</h3>
+                    <p class="text-xs text-violet-800/90"><strong>NetGSM</strong> (<code class="bg-white/80 px-1 rounded">VOICE_PROVIDER=netgsm</code>, Sesli Mesaj API), Twilio veya <code class="bg-white/80 px-1 rounded">VOICE_WEBHOOK_URL</code>. Sadece <strong>ticari ileti izni</strong> olan kayıtlarda kullanın; İYS kurallarına uyun.</p>
+                    <div class="flex flex-wrap gap-2 items-end">
+                        <div class="flex-1 min-w-[140px]">
+                            <label class="text-[10px] font-bold text-violet-700 uppercase">Script</label>
+                            <select id="voiceScriptTur" class="w-full mt-1 px-3 py-2 border border-violet-200 rounded-lg text-sm bg-white">
+                                <option value="tanitim">Kısa tanıtım</option>
+                                <option value="randevu_hatirlatma">Randevu hatırlatma</option>
+                                <option value="ozel">Özel metin (aşağıya yazın)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <textarea id="voiceOzelMetin" rows="2" placeholder="Özel metin (max ~1200 karakter)" class="w-full px-3 py-2 border border-violet-200 rounded-lg text-sm bg-white"></textarea>
+                    <button type="button" onclick="startVoiceCall()" class="px-5 py-2.5 bg-violet-700 text-white rounded-xl font-semibold text-sm hover:bg-violet-800">Aramayı başlat</button>
+                    <button type="button" onclick="startAICall()" class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 flex items-center gap-2">
+                        <i class="fas fa-robot"></i> AI Akıllı Arama (ElevenLabs)
+                    </button>
+                </div>
+                <div id="aiNotesSection" class="hidden rounded-xl border border-indigo-200 bg-indigo-50/30 p-4">
+                    <h3 class="text-sm font-bold text-indigo-900 mb-2 flex items-center gap-2"><i class="fas fa-brain"></i> AI Görüşme Notları</h3>
+                    <div id="aiNotesContent" class="text-xs text-indigo-800 whitespace-pre-wrap"></div>
+                </div>
+                <div class="border-t border-slate-100 pt-4">
+                    <h3 class="text-sm font-bold text-slate-800 mb-2">Aktivite ekle</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
+                        <select id="actTip" class="px-3 py-2 border border-slate-200 rounded-lg text-sm">
+                            <option value="arama">Arama</option>
+                            <option value="email">E-posta</option>
+                            <option value="not">Not</option>
+                            <option value="randevu">Randevu kaydı</option>
+                            <option value="toplanti">Toplantı</option>
+                            <option value="diger">Diğer</option>
+                        </select>
+                        <select id="actSonuc" class="px-3 py-2 border border-slate-200 rounded-lg text-sm">
+                            <option value="">Sonuç —</option>
+                            <option value="ulasildi">Ulaşıldı</option>
+                            <option value="ulasilamadi">Ulaşılamadı</option>
+                            <option value="geri_donulecek">Geri dönülecek</option>
+                            <option value="iptal">İptal</option>
+                        </select>
+                        <input type="text" id="actBaslik" placeholder="Kısa başlık" class="px-3 py-2 border border-slate-200 rounded-lg text-sm">
+                    </div>
+                    <textarea id="actNot" rows="2" placeholder="Detay" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm mb-2"></textarea>
+                    <button type="button" onclick="addLeadActivity()" class="px-4 py-2 bg-slate-100 text-slate-800 rounded-lg text-sm font-semibold">Aktiviteyi kaydet</button>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-800 mb-2">AI Görüşme Geçmişi & E-posta Durumu</h3>
+                    <div id="sessionHistoryList" class="space-y-2 text-sm max-h-48 overflow-y-auto mb-4"></div>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-800 mb-2">Genel Aktivite Geçmişi</h3>
+                    <div id="detailActivityList" class="space-y-2 text-sm text-slate-600 max-h-48 overflow-y-auto"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -249,25 +368,69 @@
     </div>
 
     <script src="../js/api-config.js"></script>
+    <script src="admin-menu.js"></script>
     <script>
         const API_URL = window.KT_API_URL;
         const token = localStorage.getItem("adminToken");
         if (!token) window.location.href = "login.html";
         let currentLeadId = null;
+        let detailLeadId = null;
+        let leadsCache = [];
+
+        const DURUM_OPTIONS = [
+            { value: 'yeni', label: 'Yeni' },
+            { value: 'ilk_temas', label: 'İlk temas' },
+            { value: 'takipte', label: 'Takipte' },
+            { value: 'teklif_hazirlandi', label: 'AI teklif hazır' },
+            { value: 'teklif_gonderildi', label: 'Teklif gönderildi' },
+            { value: 'cevap_alindi', label: 'Cevap alındı' },
+            { value: 'randevu_planli', label: 'Randevu planlı' },
+            { value: 'gorusme_yapildi', label: 'Görüşme yapıldı' },
+            { value: 'olumlu', label: 'Kazanıldı' },
+            { value: 'olumsuz', label: 'Kaybedildi' },
+            { value: 'pasif', label: 'Pasif / ileride' }
+        ];
+
+        function esc(s) {
+            if (s == null) return '';
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function toDatetimeLocalValue(d) {
+            if (!d) return '';
+            const x = new Date(d);
+            if (Number.isNaN(x.getTime())) return '';
+            const p = (n) => String(n).padStart(2, '0');
+            return `${x.getFullYear()}-${p(x.getMonth() + 1)}-${p(x.getDate())}T${p(x.getHours())}:${p(x.getMinutes())}`;
+        }
+
+        function fillDurumSelect(sel) {
+            sel.innerHTML = DURUM_OPTIONS.map(o => `<option value="${o.value}">${esc(o.label)}</option>`).join('');
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
+            const ds = document.getElementById('detailDurum');
+            if (ds) fillDurumSelect(ds);
             fetchLeads();
+            fetchLeadSummary();
             fetchSocialPlans();
             
             const leadForm = document.getElementById('addLeadForm');
             if (leadForm) {
                 leadForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    const formData = new FormData(e.target);
-                    const data = Object.fromEntries(formData.entries());
-                    
-                    try {
-                        const res = await fetch(`${API_URL}/marketing/leads`, {
+                        const formData = new FormData(e.target);
+                        const data = Object.fromEntries(formData.entries());
+                        
+                        // Checkbox'ları boolean yap
+                        data.emailOnay = e.target.emailOnay.checked;
+                        data.smsOnay = e.target.smsOnay.checked;
+                        
+                        try {
+                            const res = await fetch(`${API_URL}/marketing/leads`, {
                             method: 'POST',
                             headers: { 
                                 'Content-Type': 'application/json',
@@ -280,6 +443,7 @@
                             document.getElementById('addLeadModal').classList.add('hidden');
                             e.target.reset();
                             fetchLeads();
+                            fetchLeadSummary();
                         }
                     } catch (err) {
                         alert('Hata: ' + err.message);
@@ -409,6 +573,39 @@
             return colors[p] || 'bg-slate-400';
         }
 
+        async function fetchLeads() {
+            try {
+                const res = await fetch(`${API_URL}/marketing/leads`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    leadsCache = data.leads;
+                    updateStats(data.leads);
+                    renderLeads(data.leads);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function fetchLeadSummary() {
+            try {
+                const res = await fetch(`${API_URL}/marketing/leads/summary`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    const el1 = document.getElementById('stat-today-follow');
+                    const el2 = document.getElementById('stat-week-appt');
+                    if (el1) el1.textContent = data.takipBugun ?? 0;
+                    if (el2) el2.textContent = data.randevuBuHafta ?? 0;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
         function updateStats(leads) {
             document.getElementById('stat-total').innerText = leads.length;
             document.getElementById('stat-ready').innerText = leads.filter(l => l.durum === 'teklif_hazirlandi').length;
@@ -421,25 +618,36 @@
             container.innerHTML = leads.map(lead => `
                 <tr class="hover:bg-slate-50/50 transition-all">
                     <td class="px-6 py-4">
-                        <div class="font-bold text-slate-900">${lead.firmaAdi}</div>
-                        <div class="text-xs text-slate-500">${lead.sektor || 'Sektör Belirtilmedi'}</div>
+                        <div class="font-bold text-slate-900 flex items-center gap-2">
+                            ${esc(lead.firmaAdi)}
+                            <div class="flex gap-1">
+                                <i class="fas fa-envelope text-[10px] ${lead.emailOnay ? 'text-emerald-500' : 'text-slate-300'}" title="E-posta İzni"></i>
+                                <i class="fas fa-sms text-[10px] ${lead.smsOnay ? 'text-emerald-500' : 'text-slate-300'}" title="SMS İzni"></i>
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-500">${esc(lead.sektor || 'Sektör belirtilmedi')}</div>
                     </td>
                     <td class="px-6 py-4">
-                        <div class="text-sm text-slate-700 font-medium">${lead.yetkiliAdSoyad || '-'}</div>
-                        <div class="text-xs text-slate-500">${lead.email}</div>
+                        <div class="text-sm text-slate-700 font-medium">${esc(lead.yetkiliAdSoyad || '—')}</div>
+                        <div class="text-xs text-slate-500 truncate max-w-[180px]" title="${esc(lead.email)}">${esc(lead.email)}</div>
+                        ${lead.telefon ? `<a href="tel:${esc(lead.telefon)}" class="text-xs text-indigo-600">${esc(lead.telefon)}</a>` : ''}
                     </td>
-                    <td class="px-6 py-4">
-                        ${getStatusBadge(lead.durum)}
+                    <td class="px-6 py-4">${getStatusBadge(lead.durum)}</td>
+                    <td class="px-6 py-4 text-xs text-slate-500">
+                        ${lead.sonrakiEylemTarihi ? new Date(lead.sonrakiEylemTarihi).toLocaleString('tr-TR') : '—'}
                     </td>
-                    <td class="px-6 py-4 text-xs text-slate-400">
-                        ${lead.gonderimTarihi ? new Date(lead.gonderimTarihi).toLocaleDateString('tr-TR') : 'İşlem Yok'}
+                    <td class="px-6 py-4 text-xs text-slate-500">
+                        ${lead.randevuBaslangic ? new Date(lead.randevuBaslangic).toLocaleString('tr-TR') : '—'}
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <div class="flex justify-end gap-2">
-                            <button onclick="generateProposal('${lead._id}')" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all" title="AI Teklif Üret">
+                        <div class="flex justify-end gap-1 flex-wrap">
+                            <button type="button" onclick="openLeadDetail('${lead._id}')" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg" title="CRM detay">
+                                <i class="fas fa-clipboard-list"></i>
+                            </button>
+                            <button type="button" onclick="generateProposal('${lead._id}')" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg" title="AI teklif">
                                 <i class="fas fa-wand-magic-sparkles"></i>
                             </button>
-                            <button onclick="deleteLead('${lead._id}')" class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-all" title="Sil">
+                            <button type="button" onclick="deleteLead('${lead._id}')" class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg" title="Sil">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -449,13 +657,253 @@
         }
 
         function getStatusBadge(status) {
-            const badges = {
-                'yeni': '<span class="px-2 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase rounded-md">Yeni</span>',
-                'teklif_hazirlandi': '<span class="px-2 py-1 bg-amber-50 text-amber-600 text-[10px] font-bold uppercase rounded-md">AI Hazırlandı</span>',
-                'teklif_gonderildi': '<span class="px-2 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold uppercase rounded-md">Gönderildi</span>',
-                'olumlu': '<span class="px-2 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase rounded-md">Müşteri</span>'
+            const map = {
+                yeni: ['bg-blue-50', 'text-blue-700', 'Yeni'],
+                ilk_temas: ['bg-sky-50', 'text-sky-700', 'İlk temas'],
+                takipte: ['bg-orange-50', 'text-orange-700', 'Takipte'],
+                teklif_hazirlandi: ['bg-amber-50', 'text-amber-700', 'AI teklif'],
+                teklif_gonderildi: ['bg-indigo-50', 'text-indigo-700', 'Gönderildi'],
+                cevap_alindi: ['bg-cyan-50', 'text-cyan-700', 'Cevap'],
+                randevu_planli: ['bg-violet-50', 'text-violet-700', 'Randevu'],
+                gorusme_yapildi: ['bg-teal-50', 'text-teal-700', 'Görüşüldü'],
+                olumlu: ['bg-emerald-50', 'text-emerald-700', 'Kazanıldı'],
+                olumsuz: ['bg-rose-50', 'text-rose-700', 'Kayıp'],
+                pasif: ['bg-slate-100', 'text-slate-600', 'Pasif']
             };
-            return badges[status] || status;
+            const m = map[status] || ['bg-slate-100', 'text-slate-600', status || '?'];
+            return `<span class="px-2 py-1 ${m[0]} ${m[1]} text-[10px] font-bold uppercase rounded-md">${m[2]}</span>`;
+        }
+
+        function openLeadDetail(id) {
+            const lead = leadsCache.find(l => l._id === id);
+            if (!lead) return;
+            detailLeadId = id;
+            document.getElementById('detailFirmaTitle').textContent = lead.firmaAdi;
+            document.getElementById('detailDurum').value = lead.durum || 'yeni';
+            document.getElementById('detailEmailOnay').checked = !!lead.emailOnay;
+            document.getElementById('detailSmsOnay').checked = !!lead.smsOnay;
+            
+            const meta = document.getElementById('consentMeta');
+            if (lead.onayTarihi) {
+                meta.classList.remove('hidden');
+                meta.textContent = `İzin Tarihi: ${new Date(lead.onayTarihi).toLocaleString('tr-TR')} (${lead.onayIp || 'IP Kaydı Yok'})`;
+            } else {
+                meta.classList.add('hidden');
+            }
+
+            document.getElementById('detailSonrakiEylem').value = toDatetimeLocalValue(lead.sonrakiEylemTarihi);
+            document.getElementById('detailRandevuKanal').value = lead.randevuKanal || '';
+            document.getElementById('detailRandevuBas').value = toDatetimeLocalValue(lead.randevuBaslangic);
+            document.getElementById('detailRandevuBit').value = toDatetimeLocalValue(lead.randevuBitis);
+            document.getElementById('detailRandevuNotu').value = lead.randevuNotu || '';
+            const list = document.getElementById('detailActivityList');
+            const acts = (lead.aktiviteler || []).slice().reverse();
+            list.innerHTML = acts.length ? acts.map(a => `
+                <div class="border border-slate-100 rounded-lg p-2 bg-slate-50/80">
+                    <span class="text-[10px] font-bold uppercase text-indigo-600">${esc(a.tip)}</span>
+                    ${a.baslik ? ` · <span class="font-semibold">${esc(a.baslik)}</span>` : ''}
+                    <div class="text-xs mt-1">${esc(a.not || '')}</div>
+                    <div class="text-[10px] text-slate-400 mt-1">${new Date(a.createdAt).toLocaleString('tr-TR')}</div>
+                </div>
+            `).join('') : '<p class="text-slate-400 text-xs">Henüz aktivite yok.</p>';
+            
+            const aiNotesSec = document.getElementById('aiNotesSection');
+            const aiNotesCont = document.getElementById('aiNotesContent');
+            if (lead.aiNotlari) {
+                aiNotesSec.classList.remove('hidden');
+                aiNotesCont.textContent = lead.aiNotlari;
+            } else {
+                aiNotesSec.classList.add('hidden');
+            }
+
+            document.getElementById('actBaslik').value = '';
+            document.getElementById('actNot').value = '';
+            document.getElementById('actSonuc').value = '';
+            document.getElementById('leadDetailModal').classList.remove('hidden');
+            
+            fetchLeadSessions(id);
+        }
+
+        async function fetchLeadSessions(id) {
+            const list = document.getElementById('sessionHistoryList');
+            list.innerHTML = '<div class="text-xs text-slate-400 animate-pulse">Yükleniyor...</div>';
+            
+            try {
+                const res = await fetch(`${API_URL}/marketing/leads/${id}/sessions`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success && data.sessions.length > 0) {
+                    list.innerHTML = data.sessions.map(s => `
+                        <div class="p-3 border border-indigo-100 rounded-xl bg-indigo-50/20">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-[10px] font-bold text-indigo-600 uppercase">Görüşme: ${new Date(s.createdAt).toLocaleString('tr-TR')}</span>
+                                ${s.emailSent ? 
+                                    '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-bold rounded-full flex items-center gap-1"><i class="fas fa-check"></i> Takip Maili Gönderildi</span>' : 
+                                    '<span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-bold rounded-full">Mail Gönderilmedi</span>'}
+                            </div>
+                            <div class="text-xs text-slate-700 leading-relaxed italic mb-2">"${s.summary || 'Özet çıkarılıyor...'}"</div>
+                            ${s.recordingUrl ? `
+                                <div class="mt-2 flex items-center gap-2 bg-white/50 p-2 rounded-lg border border-indigo-100">
+                                    <i class="fas fa-play-circle text-indigo-500"></i>
+                                    <audio controls class="h-6 w-full custom-audio-mini">
+                                        <source src="${s.recordingUrl}" type="audio/mpeg">
+                                        Tarayıcınız ses çalmayı desteklemiyor.
+                                    </audio>
+                                    <span class="text-[9px] text-slate-400 whitespace-nowrap">${s.duration}sn</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('');
+                } else {
+                    list.innerHTML = '<div class="text-xs text-slate-400">Henüz AI görüşmesi yapılmamış.</div>';
+                }
+            } catch (err) {
+                list.innerHTML = '<div class="text-xs text-rose-500">Geçmiş yüklenemedi.</div>';
+            }
+        }
+
+        async function saveLeadDetail() {
+            if (!detailLeadId) return;
+            const body = {
+                durum: document.getElementById('detailDurum').value,
+                emailOnay: document.getElementById('detailEmailOnay').checked,
+                smsOnay: document.getElementById('detailSmsOnay').checked,
+                sonrakiEylemTarihi: document.getElementById('detailSonrakiEylem').value || null,
+                randevuKanal: document.getElementById('detailRandevuKanal').value,
+                randevuBaslangic: document.getElementById('detailRandevuBas').value || null,
+                randevuBitis: document.getElementById('detailRandevuBit').value || null,
+                randevuNotu: document.getElementById('detailRandevuNotu').value
+            };
+            try {
+                const res = await fetch(`${API_URL}/marketing/leads/${detailLeadId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    await fetchLeads();
+                    await fetchLeadSummary();
+                    openLeadDetail(detailLeadId);
+                } else alert(data.message || 'Kaydedilemedi');
+            } catch (e) {
+                alert(e.message);
+            }
+        }
+
+        async function addLeadActivity() {
+            if (!detailLeadId) return;
+            const payload = {
+                tip: document.getElementById('actTip').value,
+                baslik: document.getElementById('actBaslik').value,
+                not: document.getElementById('actNot').value,
+                sonuc: document.getElementById('actSonuc').value
+            };
+            try {
+                const res = await fetch(`${API_URL}/marketing/leads/${detailLeadId}/activity`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    const idx = leadsCache.findIndex(l => l._id === detailLeadId);
+                    if (idx >= 0) leadsCache[idx] = data.lead;
+                    await fetchLeads();
+                    await fetchLeadSummary();
+                    openLeadDetail(detailLeadId);
+                } else alert(data.message || 'Hata');
+            } catch (e) {
+                alert(e.message);
+            }
+        }
+
+        async function startVoiceCall() {
+            if (!detailLeadId) return;
+            const tur = document.getElementById('voiceScriptTur').value;
+            const ozelMetin = document.getElementById('voiceOzelMetin').value.trim();
+            if (tur === 'ozel' && !ozelMetin) {
+                alert('Özel script için metin girin.');
+                return;
+            }
+            if (!confirm('Giden sesli arama başlatılsın mı? (Ücretli operatör / Twilio kullanımı)')) return;
+            try {
+                const res = await fetch(`${API_URL}/marketing/leads/${detailLeadId}/voice-call`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ tur, ozelMetin: tur === 'ozel' ? ozelMetin : undefined })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Arama tetiklendi: ' + (data.callSid || data.jobId || 'webhook'));
+                    await fetchLeads();
+                    openLeadDetail(detailLeadId);
+                } else alert(data.message || 'Hata');
+            } catch (e) {
+                alert(e.message);
+            }
+        }
+
+        async function startAICall() {
+            if (!detailLeadId) return;
+            if (!confirm('AI Akıllı Satış Araması başlatılsın mı? (Gemini + ElevenLabs aktif)')) return;
+            
+            try {
+                const res = await fetch(`${API_URL}/ai-agent/outbound/${detailLeadId}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('AI Araması Başlatıldı! CallSid: ' + data.callSid);
+                    await fetchLeads();
+                    openLeadDetail(detailLeadId);
+                } else {
+                    alert('Hata: ' + data.message);
+                }
+            } catch (err) {
+                alert('Arama hatası: ' + err.message);
+            }
+        }
+
+        async function sendFollowupEmail() {
+            if (!detailLeadId) return;
+            const not = prompt('E-postaya eklenecek kısa not (isteğe bağlı):', '') || '';
+            try {
+                const res = await fetch(`${API_URL}/marketing/leads/${detailLeadId}/followup-email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ not })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Gönderildi');
+                    await fetchLeads();
+                    openLeadDetail(detailLeadId);
+                } else alert(data.message || 'Hata');
+            } catch (e) {
+                alert(e.message);
+            }
+        }
+
+        async function deleteLead(id) {
+            if (!confirm('Bu adayı silmek istediğinize emin misiniz?')) return;
+            try {
+                const res = await fetch(`${API_URL}/marketing/leads/${id}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('leadDetailModal').classList.add('hidden');
+                    detailLeadId = null;
+                    await fetchLeads();
+                    await fetchLeadSummary();
+                } else alert(data.message || 'Silinemedi');
+            } catch (e) {
+                alert(e.message);
+            }
         }
 
         async function generateProposal(id) {

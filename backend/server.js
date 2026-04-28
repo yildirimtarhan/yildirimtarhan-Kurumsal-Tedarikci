@@ -40,6 +40,16 @@ if (!hasBrevo && !hasSmtp) {
     hasBrevo ? "Brevo API" + (hasSmtp ? " (SMTP yedek)" : "") : "SMTP"
   );
 }
+const vp = String(process.env.VOICE_PROVIDER || "none").toLowerCase();
+if (vp === "netgsm" && process.env.NETGSM_USERCODE && process.env.NETGSM_PASSWORD) {
+  console.log("📞 Sesli arama: NetGSM voicesms (TTS, api.netgsm.com.tr)");
+} else if (vp === "twilio" && process.env.TWILIO_VOICE_FROM) {
+  console.log("📞 Sesli arama: Twilio (TTS Polly Filiz)");
+} else if (vp === "webhook" && process.env.VOICE_WEBHOOK_URL) {
+  console.log("📞 Sesli arama: harici webhook");
+} else {
+  console.log("📞 Sesli arama: kapalı (netgsm|twilio|webhook)");
+}
 
 // 2) Sonra importlar
 const express = require("express");
@@ -107,7 +117,7 @@ function isAllowedCorsOrigin(origin) {
   try {
     const u = new URL(origin);
     if (u.protocol === "https:" && u.hostname.endsWith(".vercel.app")) return true;
-  } catch (_) {}
+  } catch (_) { }
   return false;
 }
 
@@ -173,9 +183,9 @@ app.get("/api/test/log", (req, res) => {
   console.log("🧪 Bu log Render'da görünmeli!");
   res.json({ success: true, message: "Log testi", time: new Date().toISOString() });
 
-  });
+});
 
- 
+
 // ===================== ROUTES =====================
 // Önce route'ları import et
 const authRoutes = require("./routes/auth");
@@ -201,6 +211,8 @@ const musteriRoutes = require('./routes/musteri');
 // const oauthRoutes = require('./routes/oauth');
 
 const marketingRoutes = require('./routes/marketing');
+const voiceRoutes = require('./routes/voice');
+const aiAgentRoutes = require('./routes/aiAgent');
 
 // Route Kullanımları
 app.use("/api/auth", authRoutes);
@@ -222,21 +234,45 @@ app.use('/api/muhasebe', muhasebeRoutes);
 app.use('/api/kasa', kasaRoutes);
 app.use('/api/musteri', musteriRoutes);
 app.use('/api/marketing', marketingRoutes);
-
+app.use('/api/voice', voiceRoutes);
+app.use('/api/ai-agent', aiAgentRoutes);
 
 
 /* ======================================================
    Teklif Al - Form gönderimi
 ====================================================== */
-app.post("/api/teklif", (req, res) => {
+app.post("/api/teklif", async (req, res) => {
   try {
-    const { ad, firma, email, telefon, hizmetler, kullaniciSayisi, mesaj } = req.body;
+    const { ad, firma, email, telefon, hizmetler, kullaniciSayisi, mesaj, emailOnay, smsOnay } = req.body;
     if (!ad || !email || !telefon) {
       return res.status(400).json({ success: false, message: "Ad, e-posta ve telefon zorunludur." });
     }
-    console.log("📋 Teklif talebi:", { ad, firma, email, telefon, hizmetler, kullaniciSayisi });
+
+    const MarketingLead = require('./models/MarketingLead');
+    const leadData = {
+      firmaAdi: firma || ad,
+      yetkiliAdSoyad: ad,
+      email,
+      telefon,
+      sektor: Array.isArray(hizmetler) ? hizmetler.join(', ') : '',
+      aiNotlari: `Teklif Talebi (Web Form):\nKullanıcı Sayısı: ${kullaniciSayisi}\nHizmetler: ${hizmetler}\nMesaj: ${mesaj}`,
+      emailOnay: !!emailOnay,
+      smsOnay: !!smsOnay
+    };
+
+    // Onay meta verileri
+    if (leadData.emailOnay || leadData.smsOnay) {
+      leadData.onayTarihi = new Date();
+      leadData.onayIp = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    }
+
+    const lead = new MarketingLead(leadData);
+    await lead.save();
+
+    console.log("📋 Teklif talebi kaydedildi:", lead._id);
     res.json({ success: true, message: "Teklif talebiniz alındı. En kısa sürede size dönüş yapacağız." });
   } catch (err) {
+    console.error("Teklif kaydetme hatası:", err);
     res.status(500).json({ success: false, message: "Bir hata oluştu." });
   }
 });
@@ -326,46 +362,46 @@ const TaxtenService = require('./services/taxtenService');
 // Her 4 saatte bir fatura durumlarını senkronize et
 cron.schedule('0 */4 * * *', async () => {
   console.log('[CRON] Taxten fatura durumları senkronize ediliyor...');
-  
+
   try {
     const Fatura = require('./models/Fatura');
     const taxtenService = new TaxtenService();
-    
+
     const birGunOnce = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    
+
     const faturalar = await Fatura.find({
       durum: { $in: ['GÖNDERİLDİ', 'BEKLİYOR'] },
       taxtenGonderimTarihi: { $gte: birGunOnce }
     }).select('uuid envUUID _id');
-    
+
     for (const fatura of faturalar) {
       try {
         const statusResult = await taxtenService.getInvoiceStatus(fatura.envUUID, fatura.uuid);
-        
+
         if (statusResult.success) {
           const code = statusResult.data.ResponseCode;
           let yeniDurum = fatura.durum;
-          
+
           if (code === '1300') yeniDurum = '1300-BAŞARILI';
           else if (code.startsWith('1')) yeniDurum = 'BEKLİYOR';
           else yeniDurum = 'HATA';
-          
+
           await Fatura.findByIdAndUpdate(fatura._id, {
             durum: yeniDurum,
             sistemYanitKodu: code,
             sistemYanitAciklama: taxtenService.getStatusDescription(code),
             sonGuncelleme: new Date()
           });
-          
+
           console.log(`[CRON] Fatura ${fatura._id} durumu: ${yeniDurum} (${code})`);
         }
       } catch (err) {
         console.error(`[CRON] Fatura ${fatura._id} hata:`, err.message);
       }
     }
-    
+
     console.log(`[CRON] ${faturalar.length} fatura kontrol edildi`);
-    
+
   } catch (error) {
     console.error('[CRON] Genel hata:', error);
   }

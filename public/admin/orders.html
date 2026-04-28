@@ -269,15 +269,21 @@
   <!-- Sidebar -->
   <div class="sidebar">
     <h2>Kurumsal Tedarikçi</h2>
-    <a href="index.html">Dashboard</a>
-    <a href="users.html">Kullanıcılar</a>
-    <a href="orders.html" class="active">Siparişler</a>
+    <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="users.html"><i class="fas fa-users"></i> Kullanıcılar</a>
+    <a href="orders.html" class="active"><i class="fas fa-box"></i> Siparişler</a>
     <a href="fatura-yonetim.html"><i class="fas fa-file-invoice-dollar"></i> Faturalar</a>
+    <a href="kasa-banka.html"><i class="fas fa-wallet"></i> Kasa & Banka</a>
     <a href="cari-yonetim.html"><i class="fas fa-users"></i> Cari Hesaplar</a>
     <a href="tahsilat-yonetim.html"><i class="fas fa-money-bill-wave"></i> Tahsilatlar</a>
+    <a href="muhasebe.html"><i class="fas fa-calculator"></i> Muhasebe & Beyan</a>
     <a href="raporlar.html"><i class="fas fa-chart-bar"></i> Raporlar</a>
-    <a href="products.html">Ürünler (ERP)</a>
+    <a href="pazarlama.html"><i class="fas fa-bullhorn"></i> AI Pazarlama</a>
+    <a href="products.html"><i class="fas fa-cubes"></i> Ürünler (ERP)</a>
     <a href="kargo-bildirim.html"><i class="fas fa-truck"></i> Kargo Bildirim</a>
+    <a href="hepsijet-test.html"><i class="fas fa-vial"></i> Hepsijet Test</a>
+    <a href="products-manage.html"><i class="fas fa-warehouse"></i> Stok Yönetimi</a>
+    <a href="paket-yonetim.html"><i class="fas fa-box-open"></i> Paket Yönetimi</a>
     <a href="kategori-yonetim.html"><i class="fas fa-folder-tree"></i> Kategori Yönetimi</a>
     <a href="bayilik-basvurulari.html"><i class="fas fa-store"></i> Bayilik Başvuruları</a>
     <a href="support.html"><i class="fas fa-headset"></i> Destek Talepleri</a>
@@ -321,6 +327,7 @@
   </div>
 
 <script src="../js/api-config.js"></script>
+<script src="admin-menu.js"></script>
 <script>
   const API_URL = window.KT_API_URL;
   const token = localStorage.getItem("adminToken");

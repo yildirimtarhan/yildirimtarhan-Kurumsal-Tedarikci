@@ -148,9 +148,19 @@
 <label>Proje Detayları / Notlarınız</label>
 <textarea id="mesaj" placeholder="Özel ihtiyaçlarınızı buraya yazabilirsiniz..."></textarea>
 </div>
+<div class="form-group grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+  <label class="hizmet-checkbox">
+    <input id="emailOnay" type="checkbox"/>
+    <span class="text-sm">E-posta ile bilgilendirme istiyorum.</span>
+  </label>
+  <label class="hizmet-checkbox">
+    <input id="smsOnay" type="checkbox"/>
+    <span class="text-sm">SMS ile bilgilendirme istiyorum.</span>
+  </label>
+</div>
 <button class="btn-gonder" type="submit">
-<i class="fas fa-paper-plane"></i> Teklif İste
-            </button>
+  <i class="fas fa-paper-plane"></i> Teklif İste
+</button>
 <p style="text-align: center; margin-top: 20px; color: #6b7280; font-size: 14px;">
 <i class="fas fa-lock" style="color: #10b981;"></i> Bilgileriniz güvenle saklanır.
             </p>
@@ -281,6 +291,9 @@
     const hizmetChecks = document.querySelectorAll('input[name="hizmet"]:checked');
     const hizmetler = Array.from(hizmetChecks).map(cb => cb.value);
 
+    const emailOnay = document.getElementById('emailOnay')?.checked || false;
+    const smsOnay = document.getElementById('smsOnay')?.checked || false;
+
     if (!ad || !email || !telefon) {
       alert('Lütfen Ad Soyad, E-posta ve Telefon alanlarını doldurun.');
       return;
@@ -297,7 +310,7 @@
       const res = await fetch(window.KT_API_URL + '/teklif', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ad, firma, email, telefon, hizmetler, kullaniciSayisi, mesaj })
+        body: JSON.stringify({ ad, firma, email, telefon, hizmetler, kullaniciSayisi, mesaj, emailOnay, smsOnay })
       });
       let data = {};
       try { data = await res.json(); } catch (_) { data = { success: false, message: 'Sunucu yanıtı işlenemedi.' }; }

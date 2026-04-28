@@ -466,6 +466,72 @@ class EmailService {
             htmlContent
         });
     }
+
+    /**
+     * AI Görüşme Takip E-postası (Profesyonel B2B)
+     */
+    async sendAIFollowUp(userEmail, leadName, companyName, emailBody, subject) {
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html lang="tr">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #1e293b; margin: 0; padding: 0; background-color: #f8fafc; }
+                    .wrapper { width: 100%; table-layout: fixed; background-color: #f8fafc; padding-bottom: 40px; }
+                    .main { background-color: #ffffff; width: 100%; max-width: 600px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); margin-top: 20px; }
+                    .header { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 40px 20px; text-align: center; }
+                    .header h1 { color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+                    .content { padding: 40px 30px; }
+                    .content p { margin-bottom: 20px; font-size: 16px; color: #334155; }
+                    .highlight-box { background-color: #f1f5f9; border-left: 4px solid #3b82f6; padding: 20px; margin: 25px 0; border-radius: 0 8px 8px 0; }
+                    .footer { padding: 30px; text-align: center; background-color: #f8fafc; color: #64748b; font-size: 13px; }
+                    .btn { display: inline-block; padding: 14px 30px; background-color: #1e40af; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; }
+                    .signature { margin-top: 30px; border-top: 1px solid #e2e8f0; pt: 20px; font-size: 14px; color: #475569; }
+                </style>
+            </head>
+            <body>
+                <div class="wrapper">
+                    <div class="main">
+                        <div class="header">
+                            <h1>Kurumsal Tedarikçi</h1>
+                        </div>
+                        <div class="content">
+                            <p>Sayın <strong>${leadName}</strong>,</p>
+                            <p><strong>${companyName}</strong> adına yaptığımız görüşmeye istinaden size bu bilgilendirme e-postasını iletiyorum.</p>
+                            
+                            <div class="email-body">
+                                ${emailBody}
+                            </div>
+                            
+                            <center>
+                                <a href="https://tedarikci.org.tr/hizmetlerimiz.html" class="btn">Hizmetlerimizi İnceleyin</a>
+                            </center>
+                            
+                            <div class="signature">
+                                <strong>Pelin</strong><br>
+                                Yapay Zeka Satış Operasyonları<br>
+                                <span style="color: #3b82f6;">www.tedarikci.org.tr</span><br>
+                                📞 0850 123 45 67
+                            </div>
+                        </div>
+                        <div class="footer">
+                            <p>Bu e-posta, yaptığımız telefon görüşmesine istinaden otomatik olarak oluşturulmuştur.</p>
+                            <p>© 2025 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
+                        </div>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        return await this.send({
+            to: userEmail,
+            subject: subject || `${companyName} — Görüşmemiz Hakkında`,
+            htmlContent
+        });
+    }
 }
 
 module.exports = new EmailService();

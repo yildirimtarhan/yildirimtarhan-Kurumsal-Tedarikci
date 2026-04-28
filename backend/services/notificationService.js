@@ -150,13 +150,15 @@ class NotificationService {
         try {
             console.log(`✉️ Yöneticiye bildirim gönderiliyor... Sipariş: #${orderData.siparisNo}`);
             
-            if (!process.env.ADMIN_PHONE && !process.env.ADMIN_ORDER_NOTIFY_EMAIL) {
+            const adminOrderEmailRaw =
+                process.env.ADMIN_ORDER_NOTIFY_EMAIL || process.env.NOTIFY_EMAIL;
+            if (!process.env.ADMIN_PHONE && !adminOrderEmailRaw) {
                 console.warn('⚠️ Bildirim için hedef (email veya telefon) tanımlı değil!');
                 return { skipped: true };
             }
 
-            // 1. E-posta Bildirimi
-            const adminNotifyRaw = process.env.ADMIN_ORDER_NOTIFY_EMAIL;
+            // 1. E-posta Bildirimi (ADMIN_ORDER_NOTIFY_EMAIL veya eski adı NOTIFY_EMAIL)
+            const adminNotifyRaw = adminOrderEmailRaw;
             const adminRecipients = adminNotifyRaw 
                 ? adminNotifyRaw.split(',').map(e => e.trim().toLowerCase()).filter(Boolean)
                 : [];
