@@ -79,6 +79,13 @@ const BeyanDurumSchema = new mongoose.Schema({
     ref: 'KasaIslem',
     default: null 
   },
+  
+  // İşletme Defteri Entegrasyonu
+  defterKaydiId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'DefterKaydi',
+    default: null
+  },
 
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }

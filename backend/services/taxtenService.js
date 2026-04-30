@@ -291,9 +291,10 @@ class TaxtenService {
         miktar: parseFloat(lineXml.match(/<[\w:]*?InvoicedQuantity[^>]*?>(.*?)<\/[\w:]*?InvoicedQuantity>/i)?.[1] || 1),
         birim: lineXml.match(/<[\w:]*?InvoicedQuantity[^>]*?unitCode="(.*?)">/i)?.[1] || 'ADET',
         birimFiyat: parseFloat(lineXml.match(/<[\w:]*?Price[\s\S]*?<[\w:]*?PriceAmount.*?>(.*?)<\/[\w:]*?PriceAmount>/i)?.[1] || 0),
+        tutar: parseFloat(lineXml.match(/<[\w:]*?LineExtensionAmount.*?>(.*?)<\/[\w:]*?LineExtensionAmount>/i)?.[1] || 0),
         kdvOrani: parseInt(lineXml.match(/<[\w:]*?TaxCategory[\s\S]*?<[\w:]*?Percent>(.*?)<\/[\w:]*?Percent>/i)?.[1] || 20),
         kdvTutari: parseFloat(lineXml.match(/<[\w:]*?TaxTotal[\s\S]*?<[\w:]*?TaxAmount.*?>(.*?)<\/[\w:]*?TaxAmount>/i)?.[1] || 0),
-        toplamTutar: parseFloat(lineXml.match(/<[\w:]*?LineExtensionAmount.*?>(.*?)<\/[\w:]*?LineExtensionAmount>/i)?.[1] || 0)
+        toplamTutar: parseFloat(lineXml.match(/<[\w:]*?LineExtensionAmount.*?>(.*?)<\/[\w:]*?LineExtensionAmount>/i)?.[1] || 0) + parseFloat(lineXml.match(/<[\w:]*?TaxTotal[\s\S]*?<[\w:]*?TaxAmount.*?>(.*?)<\/[\w:]*?TaxAmount>/i)?.[1] || 0)
       });
     }
 

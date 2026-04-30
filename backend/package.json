@@ -34,6 +34,7 @@
     "sib-api-v3-sdk": "^8.5.0",
     "twilio": "^5.12.1",
     "uuid": "^13.0.0",
+    "xlsx": "^0.18.5",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {

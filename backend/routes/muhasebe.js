@@ -35,20 +35,20 @@ function ayToQ(ay) {
 function sonGunHesapla(tur, yil, donem) {
   switch (tur) {
     case 'kdv':
-      // 3 aylık; son Q ayını izleyen ayın 26'sı
-      const kdvSonAy = { Q1: 4, Q2: 7, Q3: 10, Q4: 1 };
-      const kdvYil = donem === 'Q4' ? yil + 1 : yil;
-      return new Date(kdvYil, kdvSonAy[donem] - 1, 26);
+      // Her ayın 28'i
+      const kAy = parseInt(donem, 10);
+      const kYil = kAy === 12 ? yil + 1 : yil;
+      const kSonAy = kAy === 12 ? 1 : kAy + 1;
+      return new Date(kYil, kSonAy - 1, 28);
     case 'geciciVergi':
       const geciciMap = { G1: [5, 17], G2: [8, 17], G3: [11, 17] };
       const [gAy, gGun] = geciciMap[donem] || [5, 17];
       return new Date(yil, gAy - 1, gGun);
     case 'muhtasar':
-      // Her ayın 26'sı
-      const mAy = parseInt(donem, 10);
-      const mYil = mAy === 12 ? yil + 1 : yil;
-      const surAy = mAy === 12 ? 1 : mAy + 1;
-      return new Date(mYil, surAy - 1, 26);
+      // 1., 2., 3. ay aylık; sonrası 3 aylık
+      const mSonAy = { '01': 2, '02': 3, '03': 4, Q1: 4, Q2: 7, Q3: 10, Q4: 1 };
+      const mYil = donem === 'Q4' ? yil + 1 : yil;
+      return new Date(mYil, mSonAy[donem] - 1, 26);
     case 'gelirVergisi':
       return new Date(yil + 1, 2, 31); // 31 Mart
     case 'bagkur':
@@ -74,12 +74,23 @@ function durumHesapla(beyan) {
 // GET /api/muhasebe/defter?yil=2025&donem=Q1&tip=gelir
 router.get('/defter', adminAuth, async (req, res) => {
   try {
-    const { yil, donem, tip, ay, limit = 200, skip = 0 } = req.query;
+    const { yil, donem, tip, ay, startDate, endDate, limit = 200, skip = 0 } = req.query;
     const filter = {};
     if (yil) filter.yil = parseInt(yil);
     if (donem) filter.donem = donem;
     if (tip) filter.tip = tip;
     if (ay) filter.ay = parseInt(ay);
+    
+    if (startDate && endDate) {
+      console.log(`[Defter GET] Tarih filtresi devrede: ${startDate} - ${endDate}`);
+      filter.tarih = { 
+        $gte: new Date(startDate), 
+        $lte: new Date(endDate + 'T23:59:59.999Z') 
+      };
+      delete filter.donem;
+    } else {
+      console.log(`[Defter GET] Dönem filtresi devrede: yil=${yil}, donem=${donem}`);
+    }
 
     const kayitlar = await DefterKaydi.find(filter)
       .sort({ tarih: -1 })
@@ -309,12 +320,13 @@ router.post('/import-siparisler', adminAuth, async (req, res) => {
 //  KDV HESAPLAMA
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// GET /api/muhasebe/kdv-hesap?yil=2025&donem=Q1
+// GET /api/muhasebe/kdv-hesap?yil=2025&donem=01
 router.get('/kdv-hesap', adminAuth, async (req, res) => {
   try {
-    const { yil, donem } = req.query;
+    const { yil, donem, manuelDevir } = req.query;
     if (!yil || !donem) return res.status(400).json({ success: false, message: 'yil ve donem zorunlu' });
-    const docDonem = `${yil}-${donem}`;
+    const ay = parseInt(donem, 10);
+    const yilInt = parseInt(yil, 10);
 
     const oranlar = [20, 10, 1, 0];
     const matrahlar = {};
@@ -322,28 +334,34 @@ router.get('/kdv-hesap', adminAuth, async (req, res) => {
 
     for (const oran of oranlar) {
       const gelirAgg = await DefterKaydi.aggregate([
-        { $match: { donem: docDonem, tip: 'gelir', kdvOrani: oran } },
+        { $match: { yil: yilInt, ay: ay, tip: 'gelir', kdvOrani: oran } },
         { $group: { _id: null, matrahi: { $sum: '$kdvHaricTutar' }, kdv: { $sum: '$kdvTutari' } } }
       ]);
       matrahlar[`gelir_${oran}`] = gelirAgg[0]?.matrahi || 0;
       kdvler[`hesaplanan_${oran}`] = gelirAgg[0]?.kdv || 0;
 
       const giderAgg = await DefterKaydi.aggregate([
-        { $match: { donem: docDonem, tip: 'gider', kdvOrani: oran } },
+        { $match: { yil: yilInt, ay: ay, tip: 'gider', kdvOrani: oran } },
         { $group: { _id: null, matrahi: { $sum: '$kdvHaricTutar' }, kdv: { $sum: '$kdvTutari' } } }
       ]);
       matrahlar[`gider_${oran}`] = giderAgg[0]?.matrahi || 0;
       kdvler[`indirilecek_${oran}`] = giderAgg[0]?.kdv || 0;
     }
-
     const hesaplananKdv = oranlar.reduce((s, o) => s + (kdvler[`hesaplanan_${o}`] || 0), 0);
     const indirilecekKdv = oranlar.reduce((s, o) => s + (kdvler[`indirilecek_${o}`] || 0), 0);
 
     // Önceki dönemin devredenini bul
-    const oncekiBeyan = await BeyanDurum.findOne({
-      tur: 'kdv', yil: parseInt(yil), donem: oncekiDonem(donem, parseInt(yil)).donem
-    });
-    const devredenOnceki = oncekiBeyan?.devredenKdv || 0;
+    let devredenOnceki = 0;
+    if (manuelDevir !== undefined) {
+      devredenOnceki = parseFloat(manuelDevir);
+    } else {
+      const prevYil = ay === 1 ? parseInt(yil) - 1 : parseInt(yil);
+      const prevAyStr = ay === 1 ? '12' : String(ay - 1).padStart(2, '0');
+      const oncekiBeyan = await BeyanDurum.findOne({
+        tur: 'kdv', yil: prevYil, donem: prevAyStr
+      });
+      devredenOnceki = oncekiBeyan?.devredenKdv || oncekiBeyan?.devredenKdvOnceki || 0;
+    }
 
     const fark = hesaplananKdv - indirilecekKdv - devredenOnceki;
     const odenmesiGereken = fark > 0 ? parseFloat(fark.toFixed(2)) : 0;
@@ -351,7 +369,7 @@ router.get('/kdv-hesap', adminAuth, async (req, res) => {
 
     res.json({
       success: true,
-      donem: docDonem,
+      donem,
       matrahlar,
       kdvler,
       hesaplananKdv: parseFloat(hesaplananKdv.toFixed(2)),
@@ -364,11 +382,6 @@ router.get('/kdv-hesap', adminAuth, async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
-
-function oncekiDonem(donem, yil) {
-  const map = { Q1: { donem: 'Q4', yil: yil - 1 }, Q2: { donem: 'Q1', yil }, Q3: { donem: 'Q2', yil }, Q4: { donem: 'Q3', yil } };
-  return map[donem] || { donem: 'Q4', yil: yil - 1 };
-}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  GEÇİCİ VERGİ HESAPLAMA
@@ -541,14 +554,20 @@ router.put('/beyanlar/:id', adminAuth, async (req, res) => {
     const isNowReverted = (oldDurum === 'verildi' && durum && durum !== 'verildi');
 
     // 1. Ödeme İptali (Verildi'den başka bir duruma geçiş)
-    if (isNowReverted && beyan.kasaIslemId) {
-      const islem = await KasaIslem.findById(beyan.kasaIslemId);
-      if (islem) {
-        const kasa = await KasaBanka.findById(islem.kasaId);
-        if (kasa) await kasa.bakiyeGuncelle(islem.tutar, 'GİRİŞ');
-        await KasaIslem.findByIdAndDelete(islem._id);
+    if (isNowReverted) {
+      if (beyan.kasaIslemId) {
+        const islem = await KasaIslem.findById(beyan.kasaIslemId);
+        if (islem) {
+          const kasa = await KasaBanka.findById(islem.kasaId);
+          if (kasa) await kasa.bakiyeGuncelle(islem.tutar, 'GİRİŞ');
+          await KasaIslem.findByIdAndDelete(islem._id);
+        }
+        update.kasaIslemId = null;
       }
-      update.kasaIslemId = null;
+      if (beyan.defterKaydiId) {
+        await DefterKaydi.findByIdAndDelete(beyan.defterKaydiId);
+        update.defterKaydiId = null;
+      }
     }
 
     // 2. Yeni Ödeme (Kasa seçildiyse)
@@ -564,17 +583,39 @@ router.put('/beyanlar/:id', adminAuth, async (req, res) => {
         else if (beyan.tur === 'bagkur') tutar = beyan.bagkurPrimi;
 
         if (tutar > 0) {
+          const islemAciklamasi = `${beyan.tur.toUpperCase()} Beyan Ödemesi (${beyan.donem}/${beyan.yil})`;
           const yeniIslem = await KasaIslem.create({
             kasaId: kasa._id,
             islemTipi: 'ÇIKIŞ',
             tutar: tutar,
-            aciklama: `${beyan.tur.toUpperCase()} Beyan Ödemesi (${beyan.donem}/${beyan.yil})`,
+            aciklama: islemAciklamasi,
             ilgiliModul: 'GIDER',
             referansId: beyan._id,
             olusturanKullanici: req.user.userId
           });
           update.kasaIslemId = yeniIslem._id;
           await kasa.bakiyeGuncelle(tutar, 'ÇIKIŞ');
+          
+          // İşletme Defterine Ekle (Vergi/SGK Gideri)
+          const d = new Date();
+          const yeniDefterKaydi = await DefterKaydi.create({
+            tip: 'gider',
+            tarih: d,
+            aciklama: islemAciklamasi,
+            kategori: 'Vergi/SGK',
+            kdvHaricTutar: tutar,
+            kdvOrani: 0,
+            kdvTutari: 0,
+            kdvDahilTutar: tutar,
+            yil: d.getFullYear(),
+            ay: d.getMonth() + 1,
+            donem: `${d.getFullYear()}-${ayToQ(d.getMonth() + 1)}`,
+            kaynak: 'manuel',
+            notlar: 'Sistem tarafından otomatik eklendi',
+            kasaId: kasa._id,
+            kasaIslemId: yeniIslem._id
+          });
+          update.defterKaydiId = yeniDefterKaydi._id;
         }
       }
     }
@@ -592,8 +633,9 @@ router.post('/init-yil', adminAuth, async (req, res) => {
     const yil = parseInt(req.body.yil) || new Date().getFullYear();
     const olusan = [];
 
-    // KDV — 4 dönem
-    for (const donem of ['Q1', 'Q2', 'Q3', 'Q4']) {
+    // KDV — 12 ay
+    for (let ay = 1; ay <= 12; ay++) {
+      const donem = String(ay).padStart(2, '0');
       const var_ = await BeyanDurum.findOne({ tur: 'kdv', yil, donem });
       if (!var_) {
         const b = await BeyanDurum.create({ tur: 'kdv', yil, donem, sonGun: sonGunHesapla('kdv', yil, donem) });
@@ -608,9 +650,9 @@ router.post('/init-yil', adminAuth, async (req, res) => {
         olusan.push(b);
       }
     }
-    // Muhtasar — 12 ay
-    for (let ay = 1; ay <= 12; ay++) {
-      const donem = String(ay).padStart(2, '0');
+    // Muhtasar — 1. çeyrek aylık (01, 02, 03), kalanı 3 aylık (Q2, Q3, Q4)
+    const muhtasarDonemleri = ['01', '02', '03', 'Q2', 'Q3', 'Q4'];
+    for (const donem of muhtasarDonemleri) {
       const var_ = await BeyanDurum.findOne({ tur: 'muhtasar', yil, donem });
       if (!var_) {
         const b = await BeyanDurum.create({ tur: 'muhtasar', yil, donem, sonGun: sonGunHesapla('muhtasar', yil, donem) });

@@ -190,7 +190,23 @@
             <div class="flex justify-between items-center mb-6">
                 <div>
                     <h2 class="text-xl font-bold text-gray-800">KDV Beyanname Özeti</h2>
-                    <p class="text-sm text-gray-500">Seçili Dönem: <span id="kdvDonemSpan" class="font-bold"></span></p>
+                    <div class="flex items-center gap-3 mt-2">
+                        <p class="text-sm text-gray-500">Seçili Ay:</p>
+                        <select id="kdvAy" class="border rounded px-3 py-1.5 text-sm font-semibold text-gray-800 bg-white" onchange="loadKdvHesap()">
+                            <option value="01">01 - Ocak</option>
+                            <option value="02">02 - Şubat</option>
+                            <option value="03">03 - Mart</option>
+                            <option value="04">04 - Nisan</option>
+                            <option value="05">05 - Mayıs</option>
+                            <option value="06">06 - Haziran</option>
+                            <option value="07">07 - Temmuz</option>
+                            <option value="08">08 - Ağustos</option>
+                            <option value="09">09 - Eylül</option>
+                            <option value="10">10 - Ekim</option>
+                            <option value="11">11 - Kasım</option>
+                            <option value="12">12 - Aralık</option>
+                        </select>
+                    </div>
                 </div>
                 <button onclick="printDiv('printKdv')" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm">
                     <i class="fas fa-print"></i> PDF/Yazdır
@@ -244,8 +260,15 @@
                             <span class="font-bold text-teal-700 text-base" id="kdv_donemici_indirilecek">₺0.00</span>
                         </div>
                         <div class="flex justify-between items-center text-sm mb-3">
-                            <span class="text-gray-600">Önceki Dönemden Devreden:</span>
-                            <span class="text-gray-600" id="kdv_onceki_devreden">₺0.00</span>
+                            <span class="text-gray-600">Önceki Dönemden Devreden (Manuel Müdahale İçin):</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-gray-500">₺</span>
+                                <input type="number" step="0.01" id="manuelDevir" class="border rounded px-2 py-1 w-24 text-right text-gray-800" onchange="loadKdvHesap()" placeholder="Oto...">
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center text-sm mb-3">
+                            <span class="text-gray-600 font-medium">Hesaba Katılan Devreden KDV:</span>
+                            <span class="text-gray-800 font-bold" id="kdv_onceki_devreden">₺0.00</span>
                         </div>
                         <div class="flex justify-between items-center pt-3 border-t border-gray-200">
                             <span class="font-bold text-gray-700">Toplam İndirilecek KDV:</span>
@@ -586,9 +609,17 @@
         async function loadDefter() {
             const {yil, donem} = getYilDonem();
             const tip = document.getElementById('filterTip').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
             try {
-                let url = `${API_URL}/muhasebe/defter?yil=${yil}&donem=${donem}`;
+                let url = `${API_URL}/muhasebe/defter?yil=${yil}`;
                 if(tip) url += `&tip=${tip}`;
+                if(startDate && endDate) {
+                    url += `&startDate=${startDate}&endDate=${endDate}`;
+                } else {
+                    url += `&donem=${donem}`;
+                }
 
                 const res = await fetch(url, { headers: getAuthHeaders() });
                 const data = await res.json();
@@ -687,13 +718,21 @@
         }
 
         // ================= KDV HESAPLARI =================
+        let lastKdvData = null;
+
         async function loadKdvHesap() {
-            const {yil, donem} = getYilDonem();
-            document.getElementById('kdvDonemSpan').textContent = `${yil} - ${donem}`;
+            const yil = document.getElementById('globalYil').value;
+            const donem = document.getElementById('kdvAy').value;
+            const manuelDevir = document.getElementById('manuelDevir').value;
+            
             try {
-                const res = await fetch(`${API_URL}/muhasebe/kdv-hesap?yil=${yil}&donem=${donem}`, { headers: getAuthHeaders() });
+                let url = `${API_URL}/muhasebe/kdv-hesap?yil=${yil}&donem=${donem}`;
+                if (manuelDevir !== '') url += `&manuelDevir=${manuelDevir}`;
+
+                const res = await fetch(url, { headers: getAuthHeaders() });
                 const data = await res.json();
                 if(data.success) {
+                    lastKdvData = data;
                     
                     document.getElementById('kdv_matrah_gelir_20').textContent = formatTL(data.matrahlar.gelir_20);
                     document.getElementById('kdv_tutar_gelir_20').textContent = formatTL(data.kdvler.hesaplanan_20);
@@ -815,10 +854,31 @@
         async function beyanDurumIsaretle(tur) {
             const {yil, donem} = getYilDonem();
             let bDonem = donem;
+            let reqBody = { durum: 'verildi', verilmeTarihi: new Date() };
+
             if(tur === 'geciciVergi') {
                 const m = {Q1:'G1', Q2:'G2', Q3:'G3', Q4:'YILLIK'};
                 bDonem = m[donem];
+            } else if (tur === 'kdv') {
+                bDonem = document.getElementById('kdvAy').value;
+                const manuelDevir = document.getElementById('manuelDevir').value;
+                if (manuelDevir !== '') {
+                    reqBody.devredenKdvOnceki = parseFloat(manuelDevir);
+                }
+
+                if (lastKdvData) {
+                    reqBody.matrah_20 = lastKdvData.matrahlar.gelir_20;
+                    reqBody.matrah_10 = lastKdvData.matrahlar.gelir_10;
+                    reqBody.matrah_01 = lastKdvData.matrahlar.gelir_1;
+                    reqBody.matrah_00 = lastKdvData.matrahlar.gelir_0;
+                    reqBody.hesaplananKdv = lastKdvData.hesaplananKdv;
+                    reqBody.indirilecekKdv = lastKdvData.indirilecekKdv;
+                    reqBody.devredenKdvOnceki = lastKdvData.devredenOnceki;
+                    reqBody.odenmesiGerekenKdv = lastKdvData.odenmesiGereken;
+                    reqBody.devredenKdv = lastKdvData.devredenSonraki;
+                }
             }
+
             if(bDonem === 'YILLIK' && tur === 'geciciVergi') { alert('Q4 için Geçici Vergi verilmez. Yıllık Gelir Vergisi Beyannamesi verilir.'); return; }
 
             if(!confirm(`${yil} - ${bDonem} dönemi ${tur} beyannamesi VERİLDİ olarak işaretlenecek. Devam?`)) return;
@@ -832,7 +892,7 @@
                      await fetch(`${API_URL}/muhasebe/beyanlar/${b._id}`, {
                         method: 'PUT',
                         headers: getAuthHeaders(),
-                        body: JSON.stringify({ durum: 'verildi', verilmeTarihi: new Date() })
+                        body: JSON.stringify(reqBody)
                     });
                     alert('Sistem güncellendi!');
                     initData();
