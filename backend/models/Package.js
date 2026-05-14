@@ -4,6 +4,7 @@ const PackageSchema = new mongoose.Schema({
   name: { type: String, required: true },
   barcode: { type: String, default: "", unique: true, sparse: true },
   subtitle: { type: String, default: "" },
+  category: { type: String, default: "E-İmza Paketleri" }, // Ürünler sayfasında hangi accordion grubuna gireceği
   price: { type: Number, required: true },
   wholesalePrice: { type: Number, default: null }, // Bayi/toptan fiyat (B2B)
   kdvDahil: { type: Boolean, default: false },   // false = fiyat KDV hariç (artı KDV)
@@ -11,6 +12,7 @@ const PackageSchema = new mongoose.Schema({
   period: { type: String, default: "ay" },      // ay, yıl
   features: [{ type: String }],
   featuresExcluded: [{ type: String }],
+  integrations: [{ type: String }],
   isPopular: { type: Boolean, default: false },
   accentColor: { type: String, default: "#6366f1" },
   stock: { type: Number, default: 9999 },

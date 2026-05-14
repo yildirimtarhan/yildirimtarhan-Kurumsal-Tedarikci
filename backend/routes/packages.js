@@ -37,7 +37,7 @@ router.get("/public", async (req, res) => {
         isBayi = decoded.rol === "bayi";
       } catch (_) {}
     }
-    const select = "name subtitle price period features featuresExcluded isPopular accentColor kdvDahil stock";
+    const select = "name subtitle price period category features featuresExcluded integrations isPopular accentColor kdvDahil stock";
     const selectBayi = select + " wholesalePrice";
     const packages = await Package.find({ isActive: true })
       .sort({ sortOrder: 1, createdAt: 1 })
@@ -80,7 +80,7 @@ router.get("/:id", adminOnly, async (req, res) => {
 // Admin: Yeni paket
 router.post("/", adminOnly, async (req, res) => {
   try {
-    const { name, subtitle, price, period, features, featuresExcluded, isPopular, accentColor, sortOrder, barcode, kdvDahil, kdvOrani, wholesalePrice, stock, minStock } = req.body;
+    const { name, subtitle, price, period, category, features, featuresExcluded, integrations, isPopular, accentColor, sortOrder, barcode, kdvDahil, kdvOrani, wholesalePrice, stock, minStock } = req.body;
     const barcodeValue = barcode && String(barcode).trim()
       ? String(barcode).trim()
       : await generateUniqueBarcode(Package);
@@ -88,6 +88,7 @@ router.post("/", adminOnly, async (req, res) => {
       name: name || "Yeni Paket",
       barcode: barcodeValue,
       subtitle: subtitle || "",
+      category: category || "E-İmza Paketleri",
       price: parseFloat(price) || 0,
       wholesalePrice: wholesalePrice != null && wholesalePrice !== '' ? parseFloat(wholesalePrice) : null,
       kdvDahil: kdvDahil === true || kdvDahil === 'true',
@@ -95,6 +96,7 @@ router.post("/", adminOnly, async (req, res) => {
       period: period || "ay",
       features: Array.isArray(features) ? features : (features ? features.split("\n").filter(Boolean) : []),
       featuresExcluded: Array.isArray(featuresExcluded) ? featuresExcluded : (featuresExcluded ? featuresExcluded.split("\n").filter(Boolean) : []),
+      integrations: Array.isArray(integrations) ? integrations : (integrations ? integrations.split("\n").filter(Boolean) : []),
       isPopular: !!isPopular,
       accentColor: accentColor || "#6366f1",
       stock: parseInt(stock) || 0,
@@ -110,10 +112,11 @@ router.post("/", adminOnly, async (req, res) => {
 // Admin: Paket güncelle
 router.put("/:id", adminOnly, async (req, res) => {
   try {
-    const { name, subtitle, price, period, features, featuresExcluded, isPopular, accentColor, sortOrder, isActive, kdvDahil, kdvOrani, wholesalePrice, stock, minStock } = req.body;
+    const { name, subtitle, price, period, category, features, featuresExcluded, integrations, isPopular, accentColor, sortOrder, isActive, kdvDahil, kdvOrani, wholesalePrice, stock, minStock } = req.body;
     const updates = {};
     if (name !== undefined) updates.name = name;
     if (subtitle !== undefined) updates.subtitle = subtitle;
+    if (category !== undefined) updates.category = category;
     if (price !== undefined) updates.price = parseFloat(price);
     if (wholesalePrice !== undefined) updates.wholesalePrice = (wholesalePrice === '' || wholesalePrice == null) ? null : parseFloat(wholesalePrice);
     if (kdvDahil !== undefined) updates.kdvDahil = kdvDahil === true || kdvDahil === 'true';
@@ -124,6 +127,9 @@ router.put("/:id", adminOnly, async (req, res) => {
     }
     if (featuresExcluded !== undefined) {
       updates.featuresExcluded = Array.isArray(featuresExcluded) ? featuresExcluded : (featuresExcluded ? String(featuresExcluded).split("\n").filter(Boolean) : []);
+    }
+    if (integrations !== undefined) {
+      updates.integrations = Array.isArray(integrations) ? integrations : (integrations ? String(integrations).split("\n").filter(Boolean) : []);
     }
     if (isPopular !== undefined) updates.isPopular = !!isPopular;
     if (accentColor !== undefined) updates.accentColor = accentColor;
