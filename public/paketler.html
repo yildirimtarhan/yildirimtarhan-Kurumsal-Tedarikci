@@ -187,6 +187,12 @@
     const badge = p.isPopular ? '<div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: ' + accent + '; color: white; padding: 5px 20px; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">En Popüler</div>' : '';
     const featuresHtml = (p.features || []).map(f => '<li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;"><i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> ' + (f || '').replace(/</g,'&lt;') + '</li>').join('');
     const excludedHtml = (p.featuresExcluded || []).map(f => '<li style="padding: 10px 0; color: #9ca3af;"><i class="fas fa-times" style="margin-right: 10px;"></i> ' + (f || '').replace(/</g,'&lt;') + '</li>').join('');
+    const integrations = Array.isArray(p.integrations) ? p.integrations.filter(Boolean) : [];
+    const integrationsHtml = integrations.length
+      ? '<div style="margin: 8px 0 12px; text-align: left;"><div style="font-size: 0.78rem; font-weight: 700; color: #4f46e5; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em;">Entegrasyon</div><div style="display: flex; flex-wrap: wrap; gap: 6px;">' +
+          integrations.map(function(item){ return '<span style="display:inline-block; padding: 4px 10px; border-radius: 999px; background:#eef2ff; color:#4338ca; font-size:0.78rem; font-weight:600;">' + String(item).replace(/</g,'&lt;') + '</span>'; }).join('') +
+        '</div></div>'
+      : '';
     const cartName = (p.name || 'Paket') + ' Paketi';
     const artiKdv = (p.kdvDahil !== true);
     const kdvHtml = artiKdv ? '<div style="font-size: 0.85rem; color: #059669; font-weight: 600; margin-top: 4px;">+ KDV</div>' : '';
@@ -195,7 +201,8 @@
       '<div style="font-size: 3rem; font-weight: 800; color: #1f2937; margin-bottom: 4px;">₺' + priceVal.toLocaleString('tr-TR') + '<span style="font-size: 1rem; color: #6b7280; font-weight: 400;">/' + per + '</span></div>' + kdvHtml +
       '<div style="margin-bottom: 20px;"></div>' +
       '<p style="color: #6b7280; margin-bottom: 30px;">' + (p.subtitle || '').replace(/</g,'&lt;') + '</p>' +
-      '<ul style="list-style: none; padding: 0; margin-bottom: 30px; text-align: left;">' + featuresHtml + excludedHtml + '</ul>' +
+      '<ul style="list-style: none; padding: 0; margin-bottom: 18px; text-align: left;">' + featuresHtml + excludedHtml + '</ul>' +
+      integrationsHtml +
       '<div onclick="event.stopPropagation()"><button onclick="addToCart({name: \'' + cartName.replace(/'/g,"\\'") + '\', price: ' + priceVal + (window.isBayi ? ', qty: 3, itemType: \'package\'' : '') + '})" style="width: 100%; padding: 15px; background: ' + accent + '; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer;">Sepete Ekle</button></div>' +
       '</div>';
   }
@@ -225,6 +232,18 @@
       li.innerHTML = '<i class="fas fa-times" style="margin-right: 10px;"></i> ' + (f || '');
       ul.appendChild(li);
     });
+    if (Array.isArray(p.integrations) && p.integrations.length > 0) {
+      var sep = document.createElement('li');
+      sep.style.cssText = 'padding: 10px 0 6px; font-size: 0.78rem; font-weight: 700; color: #4f46e5; text-transform: uppercase; letter-spacing: .04em;';
+      sep.textContent = 'Entegrasyon';
+      ul.appendChild(sep);
+      p.integrations.forEach(function(item) {
+        var li = document.createElement('li');
+        li.style.cssText = 'padding: 4px 0; color: #4338ca; font-size: 0.92rem;';
+        li.innerHTML = '<i class="fas fa-plug" style="margin-right: 8px;"></i> ' + (item || '');
+        ul.appendChild(li);
+      });
+    }
     var cartOpts = { name: cartName, price: priceVal };
     if (window.isBayi) { cartOpts.qty = 3; cartOpts.itemType = 'package'; }
     document.getElementById('paketModalBtnSepet').onclick = function() {

@@ -323,6 +323,9 @@
   <!-- JS tarafından dinamik olarak doldurulacak -->
   <a href="urunler.html?kategori=e-imza"><i class="fas fa-pen-fancy"></i> Elektronik İmza (E-İmza)</a>
   <a href="urunler.html?kategori=e-fatura"><i class="fas fa-file-invoice"></i> E-Fatura</a>
+  <a href="urunler.html?kategori=e-irsaliye"><i class="fas fa-truck-loading"></i> E-İrsaliye</a>
+  <a href="urunler.html?kategori=e-smm"><i class="fas fa-receipt"></i> E-SMM (Serbest Meslek)</a>
+  <a href="urunler.html?kategori=e-mmm"><i class="fas fa-seedling"></i> E-MMM (Müstahsil)</a>
   <a href="urunler.html"><i class="fas fa-th-list"></i> Tümünü göster</a>
 </div>
 </li>
@@ -440,41 +443,45 @@
                 'KEP Paketleri': '📧',
                 'Mali Mühür Paketleri': '🔐',
                 'Zaman Damgası Paketleri': '⏱️',
+                'E-SMM Paketleri': '🧾',
+                'E-MMM Paketleri': '🌾',
                 'Diğer': '📦',
                 'E-Fatura': '📄', 'E-İrsaliye': '📦', 'Mali Mühür': '🔐', 'E-Defter': '📋',
                 'Raporlama': '📊', 'Entegrasyon': '🔐', 'Pazaryeri': '🛒', 'Yedekleme': '☁️'
             };
             // Ürünler: Paket kategorileri (tıklanınca altında içerik açılır) - sıra ve başlık
             const PAKET_KATEGORI_SIRASI = [
-                { key: 'E-İmza Paketleri', baslik: 'Elektronik İmza (E-İmza) Paketleri', aliases: ['E-İmza', 'Electronic Signature', 'E imza', 'E-imza Paketleri', 'Elektronik İmza Paketleri'] },
+                { key: 'E-İmza Paketleri', baslik: 'Elektronik İmza (E-İmza) Paketleri', aliases: ['E-İmza', 'Electronic Signature', 'E imza', 'E-imza Paketleri', 'Elektronik İmza Paketleri', 'E-İmza Paketleri'] },
                 { key: 'E-Dönüşüm (E-Fatura Köntörü) Paketleri', baslik: 'E-Fatura (E Fatura Köntörü)', aliases: ['E-Fatura (Köntörü)', 'E-Fatura Köntörü', 'E Fatura Kontörü', 'E-Fatura', 'E-Fatura Kontörleri', 'E-Fatura Köntörleri', 'Fatura Paketleri'] },
                 { key: 'KEP Paketleri', baslik: 'KEP Paketleri', aliases: ['KEP', 'Kayıtlı Elektronik Posta'] },
-                { key: 'Mali Mühür Paketleri', baslik: 'Mali Mühür Paketleri', aliases: ['Mali Mühür'] },
-                { key: 'Zaman Damgası Paketleri', baslik: 'Zaman Damgası Paketleri', aliases: ['Zaman Damgası'] },
-                { key: 'E-İrsaliye Paketleri', baslik: 'E-İrsaliye Paketleri', aliases: ['E-İrsaliye'] },
-                { key: 'E-Defter Paketleri', baslik: 'E-Defter Paketleri', aliases: ['E-Defter'] },
+                { key: 'Mali Mühür Paketleri', baslik: 'Mali Mühür Paketleri', aliases: ['Mali Mühür', 'Mali Mühür Paketleri'] },
+                { key: 'Zaman Damgası Paketleri', baslik: 'Zaman Damgası Paketleri', aliases: ['Zaman Damgası', 'Zaman Damgası Paketleri'] },
+                { key: 'E-İrsaliye Paketleri', baslik: 'E-İrsaliye Paketleri', aliases: ['E-İrsaliye', 'e-İrsaliye', 'E-irsaliye', 'E İrsaliye', 'Irsaliye', 'E-İrsaliye Paketleri', 'E-Irsaliye Paketleri'] },
+                { key: 'E-Defter Paketleri', baslik: 'E-Defter Paketleri', aliases: ['E-Defter', 'E Defter', 'Defter', 'E-Defter Paketleri'] },
+                { key: 'E-SMM Paketleri', baslik: 'E-SMM (Serbest Meslek Makbuzu)', aliases: ['E-SMM', 'e-smm', 'E SMM', 'Serbest Meslek Makbuzu', 'E-SM', 'ESMM', 'ESM', 'E-SMM Paketleri'] },
+                { key: 'E-MMM Paketleri', baslik: 'E-MMM (Müstahsil Makbuzu)', aliases: ['E-MMM', 'e-mmm', 'E MMM', 'Müstahsil Makbuzu', 'E-MM', 'EMMM', 'EMM', 'E-MMM Paketleri', 'E-MM Paketleri'] },
                 { key: 'Diğer', baslik: 'Diğer Ürünler', aliases: ['Genel', 'Diğer'] }
             ];
+
+            // Global normalize fonksiyonu - Türkçe karakterleri ve vurgulama işaretlerini temizler
+            window.normalizeText = function(str) {
+                if (!str) return '';
+                return String(str)
+                          .replace(/\u0130/g, 'i')   // İ (capital)
+                          .replace(/\u0307/g, '')    // Combining dot above (İ.toLowerCase() kalıntısı)
+                          .replace(/ı/g, 'i')
+                          .replace(/ğ/g, 'g')
+                          .replace(/ü/g, 'u')
+                          .replace(/ş/g, 's')
+                          .replace(/ö/g, 'o')
+                          .replace(/ç/g, 'c')
+                          .replace(/[-\s()]/g, '')
+                          .toLowerCase();
+            };
+
             function kategoriEslesiyorMu(urunKategori, paketKey) {
                 if (!urunKategori || !paketKey) return false;
-                var u = String(urunKategori).trim();
-                var p = String(paketKey).trim();
-                if (u === p) return true;
-                
-                // Daha esnek eşleşme: Boşlukları ve özel karakterleri normalize et
-                var normalize = function(str) {
-                    return str.replace(/\u0130/g, 'i')
-                              .replace(/ı/g, 'i')
-                              .replace(/ğ/g, 'g')
-                              .replace(/ü/g, 'u')
-                              .replace(/ş/g, 's')
-                              .replace(/ö/g, 'o')
-                              .replace(/ç/g, 'c')
-                              .replace(/[-\s()]/g, '')
-                              .toLowerCase();
-                };
-                
-                return normalize(u) === normalize(p);
+                return window.normalizeText(urunKategori) === window.normalizeText(paketKey);
             }
             function urunKategoriPaketeDusuyorMu(urunKategori, item) {
                 if (kategoriEslesiyorMu(urunKategori, item.key)) return true;
@@ -585,6 +592,35 @@
             const list = window.urunListesi;
             if (!list || typeof index !== 'number' || isNaN(index) || !list[index]) return;
             const p = list[index];
+            
+            // Eğer paketse, paket modalını açalım
+            if (p.isPackage || p.features) {
+                // Paket modalını hazırlayalım
+                var priceVal = parseFloat(p.effectivePrice != null ? p.effectivePrice : p.price) || 0;
+                var per = p.period || 'Adet';
+                
+                document.getElementById('paketModalTitle').textContent = p.name || 'Paket';
+                document.getElementById('paketModalSubtitle').textContent = p.subtitle || p.description || '';
+                document.getElementById('paketModalFiyat').innerHTML = '₺' + priceVal.toLocaleString('tr-TR') + ' <span style="font-size: 1rem; color: #6b7280;">/' + per + '</span>' + (p.kdvDahil !== true ? ' <span style="font-size: 0.9rem; color: #059669; font-weight: 600;">+ KDV</span>' : '');
+                
+                var ul = document.getElementById('paketModalFeatures');
+                ul.innerHTML = '';
+                (p.features || []).forEach(function(f) {
+                    var li = document.createElement('li');
+                    li.style.cssText = 'padding: 8px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;';
+                    li.innerHTML = '<i class="fas fa-check" style="color: #10b981; margin-right: 10px;"></i> ' + (f || '');
+                    ul.appendChild(li);
+                });
+                
+                var cartOpts = { name: p.name, price: priceVal };
+                if (window.isBayi) { cartOpts.qty = 3; cartOpts.itemType = 'package'; }
+                document.getElementById('paketModalBtnSepet').onclick = function() { addToCart(cartOpts); closePaketModal(); };
+                document.getElementById('paketModalBtnHemen').onclick = function() { addToCart(cartOpts); closePaketModal(); setTimeout(function() { window.location.href = 'odeme.html'; }, 300); };
+                
+                document.getElementById('paketModal').style.display = 'flex';
+                return;
+            }
+
             const id = p._id || p.sku || p.name || ('urun-' + index);
             const birim = p.birim || '/' + (p.unit || 'Adet');
             const name = (p.name || 'Ürün').replace(/"/g, '&quot;');
@@ -616,30 +652,106 @@
         async function urunleriYukle() {
             const accordion = document.getElementById('paketAccordion');
             if (!accordion) return;
+            
+            const params = new URLSearchParams(window.location.search);
+            let urlKategori = params.get('kategori');
+            let urlPaket = params.get('paket'); // Yeni: Paket adı parametresi
+
+            // Hero bölümünü güncelle
+            const heroH1 = document.querySelector('.urunler-hero h1');
+            const heroP = document.querySelector('.urunler-hero p');
+            
+            if (urlKategori || urlPaket) {
+                let displayTitle = '';
+                let displayDesc = '';
+                
+                if (urlKategori) {
+                    const catMap = {
+                        'e-imza': 'Elektronik İmza (E-İmza)',
+                        'e-fatura': 'E-Fatura Çözümleri',
+                        'kep': 'Kayıtlı Elektronik Posta (KEP)',
+                        'mali-muhur': 'Mali Mühür Paketleri',
+                        'zaman-damgasi': 'Zaman Damgası',
+                        'e-irsaliye': 'E-İrsaliye Paketleri',
+                        'e-defter': 'E-Defter Paketleri',
+                        'e-smm': 'E-SMM (Serbest Meslek Makbuzu)',
+                        'e-mmm': 'E-MMM (Müstahsil Makbuzu)',
+                        'diger': 'Diğer Ürünler'
+                    };
+                    displayTitle = catMap[urlKategori.toLowerCase()] || urlKategori;
+                    displayDesc = displayTitle + ' ile ilgili tüm ürün ve paketler aşağıda listelenmiştir.';
+                }
+                
+                if (urlPaket) {
+                    displayTitle = urlPaket;
+                    displayDesc = urlPaket + ' içeriği ve detaylı ürün listesi.';
+                }
+
+                if (heroH1) heroH1.textContent = displayTitle;
+                if (heroP) heroP.textContent = displayDesc;
+            }
+
             let products = [];
+            let packages = [];
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
             const headers = token ? { Authorization: 'Bearer ' + token } : {};
+            
             try {
-                const res = await fetch(API_URL + '/products/public', { headers });
-                const data = await res.json();
-                if (data.success && data.products && data.products.length > 0) {
-                    products = data.products;
-                    window.isBayi = data.isBayi === true;
-                } else {
-                    window.isBayi = false;
-                }
-            } catch (e) { console.warn('API yüklenemedi.', e); window.isBayi = false; }
+                // Hem ürünleri hem paketleri çekelim
+                const [prodRes, packRes] = await Promise.all([
+                    fetch(API_URL + '/products/public', { headers }),
+                    fetch(API_URL + '/packages/public', { headers })
+                ]);
+                
+                const prodData = await prodRes.json();
+                const packData = await packRes.json();
+                
+                if (prodData.success && prodData.products) products = prodData.products;
+                if (packData.success && packData.packages) packages = packData.packages;
+                
+                window.isBayi = (prodData.isBayi === true || packData.isBayi === true);
+            } catch (e) { 
+                console.warn('Veriler yüklenirken hata oluştu, statik veriler gösterilecek.', e); 
+            }
 
-            if (products.length === 0) products = STATIK_URUNLER;
+            // Paket ismine göre akıllı kategori tahmini (DB'de category alanı olmayanlar için)
+            function paketKategorisiTahminEt(pkg) {
+                if (pkg.category && pkg.category !== 'Paketler' && pkg.category !== 'Diğer') return pkg.category;
+                var isim = window.normalizeText(pkg.name || '');
+                if (isim.includes('irsaliye'))  return 'E-İrsaliye Paketleri';
+                if (isim.includes('smm') || isim.includes('serbest') || isim.includes('meslek')) return 'E-SMM Paketleri';
+                if (isim.includes('mmm') || isim.includes('mustahsil') ||
+                    (isim.includes('emm') && !isim.includes('esmm'))) return 'E-MMM Paketleri';
+                if (isim.includes('defter'))    return 'E-Defter Paketleri';
+                if (isim.includes('kep') || isim.includes('kayitli')) return 'KEP Paketleri';
+                if (isim.includes('muhur'))     return 'Mali Mühür Paketleri';
+                if (isim.includes('damga'))     return 'Zaman Damgası Paketleri';
+                if (isim.includes('fatura') || isim.includes('kontor') || isim.includes('arsiv')) return 'E-Dönüşüm (E-Fatura Köntörü) Paketleri';
+                if (isim.includes('imza'))      return 'E-İmza Paketleri';
+                return 'Diğer';
+            }
 
-            // Ürünleri paket kategorisine eşleştir (E-İmza / E-imza gibi eşleşme)
+            // Tüm öğeleri birleştirelim (Paketleri de ürün gibi gösterelim)
+            let allItems = [...products, ...packages.map(p => ({
+                ...p,
+                category: paketKategorisiTahminEt(p),
+                isPackage: true
+            }))];
+
+            if (allItems.length === 0) allItems = STATIK_URUNLER;
+
+            // Ürünleri paket kategorisine eşleştir
             const kategoriUrunleri = {};
             PAKET_KATEGORI_SIRASI.forEach(function(item) { kategoriUrunleri[item.key] = []; });
-            products.forEach(function(p) {
+
+            allItems.forEach(function(p) {
                 const cat = (p.category || '').trim();
                 var atanacak = null;
                 for (var i = 0; i < PAKET_KATEGORI_SIRASI.length; i++) {
-                    if (urunKategoriPaketeDusuyorMu(cat, PAKET_KATEGORI_SIRASI[i])) { atanacak = PAKET_KATEGORI_SIRASI[i].key; break; }
+                    if (urunKategoriPaketeDusuyorMu(cat, PAKET_KATEGORI_SIRASI[i])) {
+                        atanacak = PAKET_KATEGORI_SIRASI[i].key;
+                        break;
+                    }
                 }
                 if (!atanacak) atanacak = 'Diğer';
                 if (!kategoriUrunleri[atanacak]) kategoriUrunleri[atanacak] = [];
@@ -648,32 +760,32 @@
 
             const flatList = [];
             var globalIndex = 0;
-            var slugs = ['e-imza','e-fatura','kep','mali-muhur','zaman-damgasi','e-irsaliye','e-defter', 'diger'];
-            var urlKategori = (new URLSearchParams(window.location.search)).get('kategori');
-            if (urlKategori) urlKategori = urlKategori.toLowerCase().trim();
+            var slugs = ['e-imza','e-fatura','kep','mali-muhur','zaman-damgasi','e-irsaliye','e-defter', 'e-smm', 'e-mmm', 'diger'];
+            // urlKategori'yi toLowerCase ile önceden işleme - KALDIRILDI (Türkçe İ sorunu)
+            // normalizeText içinde yapılıyor
             var accordionHtml = '';
+            
             PAKET_KATEGORI_SIRASI.forEach(function(item, idx) {
                 var slug = slugs[idx] || '';
-                
-                // URL'de kategori seçiliyse:
-                // 1. Slug eşleşiyor mu? (e-imza)
-                // 2. Kategori adı (key) eşleşiyor mu? (E-İmza Paketleri)
-                // 3. Aliases eşleşiyor mu?
                 var urlEslesiyor = false;
+                
                 if (urlKategori) {
-                    if (slug === urlKategori) urlEslesiyor = true;
-                    else if (kategoriEslesiyorMu(urlKategori, item.key)) urlEslesiyor = true;
+                    // urlKategori'yi normalizeText ile karşılaştır (toLowerCase() önce uygulanmaz
+                    // çünkü Türkçe 'İ'.toLowerCase() → combining char bırakır ve eşleşme bozulur)
+                    const normalizedUrlCat = window.normalizeText(urlKategori);
+                    const normalizedKey = window.normalizeText(item.key);
+                    const normalizedSlug = window.normalizeText(slug);
+                    
+                    if (normalizedSlug === normalizedUrlCat) urlEslesiyor = true;
+                    else if (normalizedKey === normalizedUrlCat) urlEslesiyor = true;
                     else if (item.aliases && item.aliases.length) {
                         for (var a = 0; a < item.aliases.length; a++) {
-                            if (kategoriEslesiyorMu(urlKategori, item.aliases[a])) { urlEslesiyor = true; break; }
+                            if (window.normalizeText(item.aliases[a]) === normalizedUrlCat) { urlEslesiyor = true; break; }
                         }
                     }
                 }
 
-                if (urlKategori && !urlEslesiyor) {
-                    // Eğer bu döngüdeki kategori URL ile eşleşmiyorsa pas geç
-                    return;
-                }
+                if (urlKategori && !urlEslesiyor) return;
 
                 var list = kategoriUrunleri[item.key] || [];
                 var icon = KATEGORI_ICON[item.key] || '📦';
@@ -686,15 +798,12 @@
                         globalIndex++;
                     });
                 } else if (urlKategori) {
-                    // Eğer spesifik kategori seçiliyse ve ürün yoksa mesaj göster
                     cards = '<p style="padding: 24px; text-align: center; color: #9ca3af;">Bu kategoride henüz ürün yok.</p>';
                 } else {
-                    // Genel aramada ürün olmayan kategori accordion'u hiç çıkmasın da diyebiliriz veya böyle kalabilir
+                    if (idx !== 0) return;
                     cards = '<p style="padding: 24px; text-align: center; color: #9ca3af;">Bu kategoride henüz ürün yok.</p>';
-                    if (idx !== 0) return; // Sadece ilk kategori (E-imza) boşsa görünsün, diğerleri kalabalık yapmasın
                 }
 
-                // URL'de kategori seçiliyse sadece ürünleri göster, kategori ismi/başlığı gösterme
                 if (urlKategori && urlEslesiyor) {
                     accordionHtml += '<div class="urun-grid-tek">' + cards + '</div>';
                 } else {
@@ -709,14 +818,13 @@
             window.urunListesi = flatList;
             accordion.innerHTML = accordionHtml;
 
-            // Accordion başlığa tıklanınca aç/kapa
             accordion.querySelectorAll('.paket-kategori-baslik').forEach(function(el) {
                 el.addEventListener('click', function() {
                     var item = el.closest('.paket-kategori-item');
                     if (item) item.classList.toggle('acik');
                 });
             });
-            // URL'de ?kategori= varsa ilgili bölüme scroll
+            
             if (urlKategori) {
                 var el = accordion.querySelector('[data-paket-slug="' + (urlKategori || '').toLowerCase().replace(/"/g, '&quot;') + '"]');
                 if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });

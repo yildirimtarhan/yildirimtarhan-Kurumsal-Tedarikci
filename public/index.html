@@ -1,620 +1,366 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport"/>
-<title>Kurumsal Tedarikçi - Dijital Dönüşümde Güvenilir Çözüm Ortağınız</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-<link href="css/style.css" rel="stylesheet"/>
-<style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { 
-            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
-            line-height: 1.6; 
-            color: var(--text-main); 
-            padding-top: 80px;
-            overflow-x: hidden;
-            background-color: var(--bg-main);
-        }
-        
-        .hero {
-            min-height: calc(100vh - 70px);
-            display: flex;
-            align-items: center;
-            background: var(--light-gray);
-            padding: 60px 5%;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .hero-bg {
-            position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 800px;
-            height: 800px;
-            background: var(--gradient);
-            border-radius: 50%;
-            opacity: 0.05;
-            animation: float 20s infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            50% { transform: translate(-30px, -30px) rotate(180deg); }
-        }
-        
-        .hero-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            align-items: center;
-            position: relative;
-            z-index: 1;
-            width: 100%;
-        }
-        
-        .badge {
-            display: inline-block;
-            background: rgba(37, 99, 235, 0.1);
-            color: var(--accent);
-            padding: 8px 20px;
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            border: 1px solid rgba(37, 99, 235, 0.2);
-        }
-        
-        .hero h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            line-height: 1.1;
-            color: #1f2937;
-            margin-bottom: 20px;
-        }
-        
-        .gradient-text {
-            background: var(--gradient-accent);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .hero p {
-            font-size: 1.25rem;
-            color: #6b7280;
-            margin-bottom: 30px;
-            line-height: 1.8;
-        }
-        
-        .hero-buttons {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 16px 32px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 16px;
-            transition: all 0.3s;
-            border: none;
-            cursor: pointer;
-            min-height: 44px;
-        }
-        
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-        }
-        
-        .btn-primary:hover {
-            background: var(--accent-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
-        }
-        
-        .btn-whatsapp {
-            background: #25d366;
-            color: white;
-            box-shadow: 0 4px 15px rgba(37,211,102,0.3);
-        }
-        
-        .btn-whatsapp:hover {
-            background: #128c7e;
-            transform: translateY(-2px);
-        }
-        
-        .hero-visual {
-            position: relative;
-            height: 500px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .floating-card {
-            position: absolute;
-            background: white;
-            padding: 20px 30px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            animation: float-card 6s ease-in-out infinite;
-            font-weight: 600;
-            color: #1f2937;
-        }
-        
-        .floating-card i {
-            font-size: 24px;
-            color: var(--accent);
-        }
-        
-        .card-1 { top: 10%; left: 0; animation-delay: 0s; }
-        .card-2 { top: 40%; right: 0; animation-delay: 2s; }
-        .card-3 { bottom: 20%; left: 10%; animation-delay: 4s; }
-        
-        @keyframes float-card {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-        
-        .main-circle {
-            width: 300px;
-            height: 300px;
-            background: var(--gradient-accent);
-            border-radius: 50%;
-            opacity: 0.1;
-            position: absolute;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-        
-        .main-icon {
-            font-size: 80px;
-            color: var(--accent);
-            position: relative;
-            z-index: 2;
-        }
-        
-        .hero-stats {
-            display: flex;
-            gap: 40px;
-            padding-top: 30px;
-            border-top: 1px solid rgba(0,0,0,0.1);
-        }
-        
-        .stat-item { text-align: center; }
-        .stat-number {
-            display: block;
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--accent);
-        }
-        .stat-label { font-size: 14px; color: #6b7280; font-weight: 600; }
-        
-        .quick-access {
-            padding: 80px 5%;
-            background: white;
-        }
-        
-        .section-title {
-            text-align: center;
-            font-size: 2rem;
-            font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 50px;
-        }
-        
-        .cards-grid {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-        }
-        
-        .feature-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px 30px;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            border: 1px solid #e5e7eb;
-            transition: all 0.3s;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            border-color: var(--accent);
-        }
-        
-        .feature-icon {
-            width: 80px;
-            height: 80px;
-            background: rgba(37, 99, 235, 0.1);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 32px;
-            color: var(--accent);
-        }
-        
-        .feature-card h3 {
-            font-size: 1.25rem;
-            margin-bottom: 10px;
-            color: #1f2937;
-        }
-        
-        .feature-card p {
-            color: #6b7280;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        
-        footer {
-            background: #1f2937;
-            color: white;
-            padding: 40px 5%;
-            text-align: center;
-        }
-        
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .social-links a {
-            width: 45px;
-            height: 45px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-        
-        .social-links a:hover {
-            background: var(--accent);
-            transform: translateY(-3px);
-        }
-
-        .etbis-wrap {
-            margin: 24px auto 12px;
-            max-width: 520px;
-            padding: 14px 18px;
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 12px;
-            background: rgba(255,255,255,0.06);
-        }
-        .etbis-wrap .etbis-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            color: #fff;
-            margin-bottom: 10px;
-        }
-        .etbis-wrap .etbis-badge i {
-            color: #93c5fd;
-            font-size: 1.1rem;
-        }
-        .etbis-wrap .etbis-text {
-            display: block;
-            font-size: 12px;
-            color: rgba(255,255,255,0.78);
-            line-height: 1.55;
-            text-align: center;
-        }
-        .etbis-wrap .etbis-links {
-            margin-top: 12px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 8px 14px;
-            font-size: 12px;
-        }
-        .etbis-wrap .etbis-links a {
-            color: #93c5fd;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .etbis-wrap .etbis-links a:hover {
-            text-decoration: underline;
-        }
-        .etbis-wrap .etbis-links span {
-            color: rgba(255,255,255,0.35);
-            user-select: none;
-        }
-
-        /* Mobil: inline grid iki sütunu kapat (mobile.css’ten önce yüklense bile yedek) */
-        @media (max-width: 1024px) {
-            body.home .hero-container {
-                display: flex !important;
-                flex-direction: column !important;
-                grid-template-columns: 1fr !important;
-                align-items: center !important;
-                text-align: center !important;
-            }
-            body.home .hero-visual { display: none !important; }
-            body.home .hero-content { width: 100% !important; max-width: 100% !important; }
-        }
-
-    </style>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport"/>
+    <title>Kurumsal Tedarikçi - Dijital Dönüşümde Güvenilir Çözüm Ortağınız</title>
+    <meta name="description" content="E-Fatura, E-İmza, Mali Mühür ve kurumsal IT çözümleriyle işletmenizi geleceğe taşıyoruz. Profesyonel dijital dönüşüm hizmetleri.">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="css/style.css" rel="stylesheet"/>
     <link href="css/mobile.css" rel="stylesheet"/>
+    <style>
+        /* Page specific overrides */
+        .hero {
+            background-image: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 58, 138, 0.85) 100%), url('tech_corporate_background_1777641952625.png');
+            background-size: cover;
+            background-position: center;
+            color: #ffffff;
+            padding: 160px 0 120px;
+            min-height: 90vh;
+            /* display: flex and align-items removed to restore grid layout */
+        }
+        .hero-content h1 { color: #ffffff; }
+        .hero-content p { color: rgba(255, 255, 255, 0.85); font-size: 1.15rem; }
+        .hero-stats { border-top-color: rgba(255, 255, 255, 0.15); margin-top: 3rem; padding-top: 2rem; }
+        .stat-number { color: #ffffff; font-size: 2rem; font-weight: 800; }
+        .stat-label { color: rgba(255, 255, 255, 0.7); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px;}
+    </style>
 </head>
 <body class="home">
+
 <nav class="navbar">
-<a class="logo" href="index.html">Kurumsal<span>Tedarikçi</span></a>
-<button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()">
-<i class="fas fa-bars" id="menuIcon"></i>
-</button>
-<ul class="nav-links" id="navLinks">
-<li><a href="index.html">Anasayfa</a></li>
-<li><a href="hizmetler.html">Hizmetler</a></li>
-<li><a href="paketler.html">Paketler</a></li>
-<li class="nav-item-dropdown" id="urunlerNavItem">
-<a href="urunler.html" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('urunlerDropdown'); return false;">Ürünler <i class="fas fa-chevron-down"></i></a>
-<div class="nav-dropdown-menu" id="urunlerDropdown">
-  <!-- JS tarafından dinamik olarak doldurulacak -->
-<a href="urunler.html?kategori=e-imza"><i class="fas fa-pen-fancy"></i> Elektronik İmza (E-İmza)</a>
-<a href="urunler.html?kategori=e-fatura"><i class="fas fa-file-invoice"></i> E-Fatura</a>
-<a href="urunler.html"><i class="fas fa-th-list"></i> Tümünü göster</a>
-</div>
-</li>
-<li class="nav-item-dropdown">
-<a href="#" class="nav-link-dropdown" onclick="event.preventDefault(); toggleDropdown('kurumsalDropdown'); return false;">Kurumsal <i class="fas fa-chevron-down"></i></a>
-<div class="nav-dropdown-menu" id="kurumsalDropdown">
-<a href="referanslar.html"><i class="fas fa-handshake"></i> Referanslar</a>
-<a href="bayilik-basvuru.html"><i class="fas fa-file-signature"></i> Bayilik Başvurusu</a>
-<a href="bayi-giris.html"><i class="fas fa-user-tie"></i> Bayi Girişi</a>
-<a href="iletisim.html"><i class="fas fa-map-marker-alt"></i> İletişim</a>
-</div>
-</li>
+    <a class="logo" href="index.html">Kurumsal<span>Tedarikçi</span></a>
+    <button aria-label="Menüyü Aç" class="mobile-menu-btn" onclick="toggleMenu()">
+        <i class="fas fa-bars" id="menuIcon"></i>
+    </button>
+    <ul class="nav-links" id="navLinks">
+        <li><a href="index.html" class="active">Anasayfa</a></li>
+        <li><a href="hizmetler.html">Hizmetler</a></li>
+        <li><a href="paketler.html">Paketler</a></li>
+        <li class="nav-item-dropdown">
+            <a href="urunler.html" class="nav-link-dropdown">Ürünler <i class="fas fa-chevron-down"></i></a>
+            <div class="nav-dropdown-menu">
+                <a href="urunler.html?kategori=e-imza"><i class="fas fa-pen-fancy"></i> Elektronik İmza</a>
+                <a href="urunler.html?kategori=e-fatura"><i class="fas fa-file-invoice"></i> E-Fatura</a>
+                <a href="urunler.html?kategori=mali-muhur"><i class="fas fa-shield-halved"></i> Mali Mühür</a>
+                <a href="urunler.html"><i class="fas fa-th-list"></i> Tüm Ürünler</a>
+            </div>
+        </li>
+        <li class="nav-item-dropdown">
+            <a href="#" class="nav-link-dropdown">Kurumsal <i class="fas fa-chevron-down"></i></a>
+            <div class="nav-dropdown-menu">
+                <a href="referanslar.html"><i class="fas fa-handshake"></i> Referanslar</a>
+                <a href="bayilik-basvuru.html"><i class="fas fa-file-signature"></i> Bayilik Başvurusu</a>
+                <a href="bayi-giris.html"><i class="fas fa-user-tie"></i> Bayi Girişi</a>
+                <a href="iletisim.html"><i class="fas fa-map-marker-alt"></i> İletişim</a>
+            </div>
+        </li>
+        <li><a href="teklif.html" style="color: #f59e0b; font-weight: 700;">Teklif Al</a></li>
+    </ul>
+    <div class="nav-right" id="navUserArea">
+        <a class="login-btn" href="giris.html">Giriş Yap</a>
+        <a class="register-btn" href="kayit.html">Kayıt Ol</a>
+        <a class="cart-btn" href="odeme.html">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-count" id="cart-count">0</span>
+        </a>
+    </div>
+</nav>
 
-<li><a href="teklif.html" style="color: #f59e0b; font-weight: 700;">Teklif Al</a></li>
-</ul>
-<div class="nav-right" id="navUserArea">
-  <!-- JS burayı dolduracak -->
-  <a class="login-btn" href="giris.html">Giriş Yap</a>
-  <a class="register-btn" href="kayit.html">Kayıt Ol</a>
-  <a class="cart-btn" href="odeme.html">
-    <i class="fas fa-shopping-cart"></i>
-    <span class="cart-count" id="cart-count">0</span>
-  </a>
+<div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-panel">
+        <button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button>
+        <ul class="mobile-nav-links">
+            <li><a class="active" href="index.html">Anasayfa</a></li>
+            <li><a href="hizmetler.html">Hizmetler</a></li>
+            <li><a href="paketler.html">Paketler</a></li>
+            <li><a href="urunler.html">Ürünler</a></li>
+            <li><a href="referanslar.html">Referanslar</a></li>
+            <li><a href="teklif.html">Teklif Al</a></li>
+            <li><a href="bayilik-basvuru.html">Bayilik Başvurusu</a></li>
+            <li><a href="bayi-giris.html">Bayi Girişi</a></li>
+            <li><a href="iletisim.html">İletişim</a></li>
+        </ul>
+    </div>
 </div>
-
-</nav><div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-panel"><button aria-label="Menüyü Kapat" class="mobile-close-btn" onclick="toggleMenu()"><i class="fas fa-times"></i></button><ul class="mobile-nav-links"><li><a class="active" href="index.html">Anasayfa</a></li><li><a href="hizmetler.html">Hizmetler</a></li><li><a href="paketler.html">Paketler</a></li><li><a href="urunler.html">Ürünler</a></li><li><a href="referanslar.html">Referanslar</a></li><li><a href="teklif.html">Teklif Al</a></li><li><a href="bayilik-basvuru.html">Bayilik Başvurusu</a></li><li><a href="bayi-giris.html">Bayi Girişi</a></li><li><a href="iletisim.html">İletişim</a></li></ul></div></div>
 
 <!-- ================= HERO SECTION ================= -->
 <section class="hero">
-  <div class="hero-bg"></div>
+    <div class="container hero-container">
+        <div class="hero-content animate-up">
+            <span class="badge">✓ Kurumsal Tedarikçi & Dijital Çözüm Ortağınız</span>
+            <h1>Dijital Dünyada <br><span class="gradient-text">Sınırları Ortadan Kaldırın</span></h1>
+            <p>E-Dönüşüm ürünlerinden pazaryeri entegrasyonlarına, ERP hizmetlerinden yapay zeka destekli iş çözümlerine kadar işletmenizin tüm teknolojik ihtiyaçlarını tek bir çatı altında birleştiriyoruz.</p>
+            
+            <div class="hero-buttons">
+                <a class="btn btn-primary" href="urunler.html">Ürünleri İnceleyin <i class="fas fa-arrow-right"></i></a>
+                <a class="btn btn-whatsapp" href="https://wa.me/905059112749" target="_blank"><i class="fab fa-whatsapp"></i> Canlı Destek</a>
+            </div>
 
-  <div class="hero-container">
-    
-    <!-- SOL TARAF -->
-    <div class="hero-content">
-      <span class="badge">✓ 7/24 WhatsApp Destek</span>
-
-      <h1>
-        Dijital Dönüşümde<br />
-        <span class="gradient-text">Güvenilir Çözüm</span><br />
-        Ortağınız
-      </h1>
-
-      <p>
-        E-Fatura, E-İmza, Mali Mühür ve kurumsal IT çözümleriyle 
-        işletmenizi geleceğe taşıyoruz.
-      </p>
-
-      <div class="hero-buttons">
-        <a class="btn btn-primary" href="hizmetler.html">
-          <i class="fas fa-rocket"></i> Hizmetleri Keşfet
-        </a>
-
-        <a
-          class="btn btn-whatsapp"
-          href="https://wa.me/905059112749"
-          target="_blank"
-        >
-          <i class="fab fa-whatsapp"></i> WhatsApp
-        </a>
-      </div>
-
-      <!-- STATS -->
-      <div class="hero-stats">
-        <div class="stat-item">
-          <span class="stat-number">1500+</span>
-          <span class="stat-label">Mutlu Müşteri</span>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number">1500+</span>
+                    <span class="stat-label">İşletme</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">50+</span>
+                    <span class="stat-label">Entegrasyon</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">7/24</span>
+                    <span class="stat-label">Destek</span>
+                </div>
+            </div>
         </div>
 
-        <div class="stat-item">
-          <span class="stat-number">6</span>
-          <span class="stat-label">Hizmet</span>
+        <div class="hero-visual animate-right delay-2">
+            <a href="urunler.html?kategori=e-fatura" class="floating-card card-1 glass">
+                <i class="fas fa-file-invoice"></i>
+                <span>E-Fatura & E-Arşiv</span>
+            </a>
+            <a href="urunler.html?kategori=e-imza" class="floating-card card-2 glass">
+                <i class="fas fa-signature"></i>
+                <span>E-İmza & KEP</span>
+            </a>
+            <a href="teklif.html" class="floating-card card-3 glass">
+                <i class="fas fa-robot"></i>
+                <span>AI Çözümleri</span>
+            </a>
+            <i class="fas fa-microchip main-icon"></i>
         </div>
-
-        <div class="stat-item">
-          <span class="stat-number">24/7</span>
-          <span class="stat-label">Destek</span>
-        </div>
-      </div>
     </div>
-
-    <!-- SAĞ TARAF -->
-    <div class="hero-visual">
-      <div class="main-circle"></div>
-      <i class="fas fa-award main-icon"></i>
-
-      <div class="floating-card card-1">
-        <i class="fas fa-file-invoice"></i>
-        <span>E-Fatura</span>
-      </div>
-
-      <div class="floating-card card-2">
-        <i class="fas fa-signature"></i>
-        <span>E-İmza</span>
-      </div>
-
-      <div class="floating-card card-3">
-        <i class="fas fa-shield-alt"></i>
-        <span>Güvenlik</span>
-      </div>
-    </div>
-  </div>
 </section>
 
-<!-- ================= QUICK ACCESS ================= -->
+<!-- ================= MARKETPLACE LOGOS ================= -->
+<section class="logo-slider">
+    <div class="container">
+        <h3 style="text-align: center; margin-bottom: 40px; font-size: 1.5rem; color: var(--text-muted);">Pazaryeri Entegrasyonlarımız</h3>
+        <div class="logo-grid">
+            <div class="logo-item">
+                <img src="images/marketplaces/trendyol.png" alt="Trendyol" title="Trendyol">
+            </div>
+            <div class="logo-item">
+                <img src="images/marketplaces/hepsiburada.webp" alt="Hepsiburada" title="Hepsiburada">
+            </div>
+            <div class="logo-item">
+                <img src="images/marketplaces/amazon.svg" alt="Amazon" title="Amazon">
+            </div>
+            <div class="logo-item">
+                <img src="images/marketplaces/n11.jpg" alt="N11" title="N11">
+            </div>
+            <div class="logo-item">
+                <img src="images/marketplaces/ciceksepeti.jpg" alt="ÇiçekSepeti" title="ÇiçekSepeti">
+            </div>
+            <div class="logo-item">
+                <img src="images/marketplaces/pazarama.png" alt="Pazarama" title="Pazarama">
+            </div>
+            <div class="logo-item">
+                <img src="images/marketplaces/pttavm.webp" alt="PTT AVM" title="PTT AVM">
+            </div>
+            <div class="logo-item">
+                <img src="images/marketplaces/idefix.webp" alt="Idefix" title="Idefix">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= SERVICES SECTION ================= -->
 <section class="quick-access">
-  <h2 class="section-title">Hızlı Erişim</h2>
+    <div class="container">
+        <h2 class="section-title">Uçtan Uca Kurumsal Çözümler</h2>
+        <div class="cards-grid">
+            <!-- E-Dönüşüm -->
+            <a class="feature-card" href="urunler.html?kategori=e-fatura">
+                <div class="feature-icon"><i class="fas fa-sync"></i></div>
+                <h3>E-Dönüşüm Ürünleri</h3>
+                <p>E-Fatura, E-İrsaliye, E-Defter, E-Arşiv ve Mali Mühür ile kağıtsız dünyaya tam uyum sağlayın. Yasal süreçlerinizi hızlandırın.</p>
+            </a>
+            
+            <!-- Pazaryeri -->
+            <a class="feature-card" href="urunler.html?kategori=pazaryeri">
+                <div class="feature-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;"><i class="fas fa-boxes"></i></div>
+                <h3>Pazaryeri Entegrasyonu</h3>
+                <p>Stoklarınızı, siparişlerinizi ve fiyatlarınızı tüm pazaryerlerinde tek bir panelden yönetin. Operasyonel hatayı sıfıra indirin.</p>
+            </a>
 
-  <div class="cards-grid">
-    <a class="feature-card" href="hizmetler.html">
-      <div class="feature-icon">
-        <i class="fas fa-cogs"></i>
-      </div>
-      <h3>Tüm Hizmetler</h3>
-      <p>E-Dönüşüm çözümleri</p>
-    </a>
+            <!-- ERP & Mutabakat -->
+            <a class="feature-card" href="urunler.html?kategori=it">
+                <div class="feature-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;"><i class="fas fa-chart-line"></i></div>
+                <h3>ERP & E-Mutabakat</h3>
+                <p>Kurumsal kaynak planlama ve dijital mutabakat çözümleriyle finansal süreçlerinizi otomatikleştirin, zaman kazanın.</p>
+            </a>
 
-    <a class="feature-card" href="paketler.html">
-      <div
-        class="feature-icon"
-        style="background: rgba(245,158,11,0.1); color: #f59e0b;"
-      >
-        <i class="fas fa-box-open"></i>
-      </div>
-      <h3>Fiyatlandırma</h3>
-      <p>Uygun paketler</p>
-    </a>
+            <!-- Web Tasarım -->
+            <a class="feature-card" href="urunler.html?kategori=web">
+                <div class="feature-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;"><i class="fas fa-laptop-code"></i></div>
+                <h3>Kurumsal Web Tasarım</h3>
+                <p>Modern, responsive ve SEO uyumlu web siteleriyle dijital kimliğinizi güçlendirin. Markanızı dünyaya profesyonelce tanıtın.</p>
+            </a>
+        </div>
+    </div>
+</section>
 
-    <a class="feature-card" href="iletisim.html">
-      <div
-        class="feature-icon"
-        style="background: rgba(16,185,129,0.1); color: #10b981;"
-      >
-        <i class="fas fa-map-marker-alt"></i>
-      </div>
-      <h3>İletişim</h3>
-      <p>Bize ulaşın</p>
-    </a>
+<!-- ================= AI HIGHLIGHT ================= -->
+<section class="ai-section">
+    <div class="container ai-container">
+        <div class="ai-content animate-up">
+            <span class="ai-badge">Yeni Nesil Teknoloji</span>
+            <h2>Yapay Zeka Destekli İş Çözümleri</h2>
+            <p>İşletmenizi sadece dijitalleştirmiyoruz, aynı zamanda akıllandırıyoruz. Veri analitiği ve yapay zeka entegrasyonlarımızla satış tahminleri yapabilir, müşteri davranışlarını analiz edebilir ve operasyonel verimliliğinizi %40'a kadar artırabilirsiniz.</p>
+            <ul style="list-style: none; padding: 0; color: rgba(255,255,255,0.7); margin-bottom: 30px;">
+                <li style="margin-bottom: 10px;"><i class="fas fa-check-circle" style="color: #818cf8; margin-right: 10px;"></i> Akıllı Stok Yönetimi</li>
+                <li style="margin-bottom: 10px;"><i class="fas fa-check-circle" style="color: #818cf8; margin-right: 10px;"></i> Otomatik Müşteri Destek Sistemleri</li>
+                <li style="margin-bottom: 10px;"><i class="fas fa-check-circle" style="color: #818cf8; margin-right: 10px;"></i> Veri Odaklı Karar Destek Mekanizmaları</li>
+            </ul>
+            <a class="btn btn-primary" href="teklif.html" style="background: #ffffff; color: var(--primary);">AI Çözümleri İçin Teklif Al</a>
+        </div>
+        <div class="ai-visual animate-right delay-2" style="text-align: center;">
+            <i class="fas fa-brain" style="font-size: 15rem; color: #818cf8; filter: drop-shadow(0 0 30px rgba(129, 140, 248, 0.5)); animation: pulse-soft 3s infinite;"></i>
+        </div>
+    </div>
+</section>
 
-    <a class="feature-card" href="https://wa.me/905059112749" target="_blank">
-      <div
-        class="feature-icon"
-        style="background: rgba(37,211,102,0.1); color: #25d366;"
-      >
-        <i class="fab fa-whatsapp"></i>
-      </div>
-      <h3>WhatsApp</h3>
-      <p>7/24 destek</p>
-    </a>
-  </div>
+<!-- ================= WHY CHOOSE US ================= -->
+<section class="why-us">
+    <div class="container">
+        <h2 class="section-title">Neden Kurumsal Tedarikçi?</h2>
+        <div class="why-grid">
+            <div class="why-card">
+                <i class="fas fa-bolt"></i>
+                <h3>Hızlı Kurulum</h3>
+                <p>Tüm e-dönüşüm ve IT süreçlerinizi en kısa sürede aktif hale getiriyoruz.</p>
+            </div>
+            <div class="why-card">
+                <i class="fas fa-headset"></i>
+                <h3>7/24 Teknik Destek</h3>
+                <p>Yaşadığınız her sorunda uzman ekibimiz bir telefon uzağınızda.</p>
+            </div>
+            <div class="why-card">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Maksimum Güvenlik</h3>
+                <p>Verilerinizi en yüksek güvenlik standartlarıyla (ISO, SSL) koruyoruz.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= PROCESS ================= -->
+<section class="process">
+    <div class="container">
+        <h2 class="section-title">Nasıl Çalışıyoruz?</h2>
+        <div class="process-grid">
+            <div class="process-step">
+                <div class="step-number">1</div>
+                <h3>Analiz</h3>
+                <p>İşletmenizin ihtiyaçlarını analiz ediyor, en uygun çözümleri belirliyoruz.</p>
+            </div>
+            <div class="process-step">
+                <div class="step-number">2</div>
+                <h3>Kurulum</h3>
+                <p>Belirlenen sistemleri profesyonel ekiplerimizle hızlıca kuruyoruz.</p>
+            </div>
+            <div class="process-step">
+                <div class="step-number">3</div>
+                <h3>Destek</h3>
+                <p>Süreç bittikten sonra da her zaman yanınızda olmaya devam ediyoruz.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= FINAL CTA ================= -->
+<section class="final-cta">
+    <div class="container">
+        <div class="cta-content">
+            <h2>İşinizi Bir Üst Seviyeye Taşıyın</h2>
+            <p>Dijital dönüşüm yolculuğunuzda güvenilir bir yol arkadaşı arıyorsanız, hemen bugün bize ulaşın.</p>
+            <div class="hero-buttons" style="justify-content: center;">
+                <a class="btn btn-primary" href="teklif.html" style="background: #ffffff; color: var(--primary);">Teklif Alın <i class="fas fa-paper-plane"></i></a>
+                <a class="btn btn-whatsapp" href="https://wa.me/905059112749" target="_blank"><i class="fab fa-whatsapp"></i> Hemen Yazın</a>
+            </div>
+        </div>
+    </div>
 </section>
 
 <!-- ================= FOOTER ================= -->
 <footer class="footer">
-  <div class="container">
-    <div class="footer-top">
-      <div class="footer-col footer-about">
-        <a href="index.html" class="logo">Kurumsal<span>Tedarikçi</span></a>
-        <p>İşletmenizi dijital dünyaya taşıyan güvenilir çözüm ortağınız. E-dönüşüm süreçlerinizde her zaman yanınızdayız.</p>
-        <div class="footer-social">
-          <a href="mailto:iletisim@tedarikci.org.tr" class="social-link"><i class="fas fa-envelope"></i></a>
-          <a href="https://wa.me/905059112749" target="_blank" class="social-link" style="color:#25d366;"><i class="fab fa-whatsapp"></i></a>
-          <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
-          <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-        </div>
-      </div>
-      
-      <div class="footer-col">
-        <h4>Ürünlerimiz</h4>
-        <ul class="footer-links">
-          <li><a href="urunler.html?kategori=e-imza"><i class="fas fa-chevron-right"></i> Elektronik İmza</a></li>
-          <li><a href="urunler.html?kategori=e-fatura"><i class="fas fa-chevron-right"></i> E-Fatura</a></li>
-          <li><a href="urunler.html?kategori=kep"><i class="fas fa-chevron-right"></i> KEP Paketleri</a></li>
-          <li><a href="urunler.html?kategori=mali-muhur"><i class="fas fa-chevron-right"></i> Mali Mühür</a></li>
-        </ul>
-      </div>
-      
-      <div class="footer-col">
-        <h4>Kurumsal</h4>
-        <ul class="footer-links">
-          <li><a href="referanslar.html"><i class="fas fa-chevron-right"></i> Referanslar</a></li>
-          <li><a href="bayilik-basvuru.html"><i class="fas fa-chevron-right"></i> Bayilik Başvurusu</a></li>
-          <li><a href="iletisim.html"><i class="fas fa-chevron-right"></i> İletişim</a></li>
-          <li><a href="teklif.html"><i class="fas fa-chevron-right"></i> Teklif Al</a></li>
-        </ul>
-      </div>
-      
-      <div class="footer-col">
-        <h4>İletişim</h4>
-        <div class="footer-contact-item">
-          <i class="fas fa-map-marker-alt"></i>
-          <span>Hacı Yusuf Mah. Eser Sokak No:4/10 Bandırma/Balıkesir</span>
-        </div>
-        <div class="footer-contact-item">
-          <i class="fas fa-phone"></i>
-          <span>+90 505 911 27 49</span>
-        </div>
-        <div class="footer-contact-item">
-          <i class="fas fa-envelope"></i>
-          <span>iletisim@tedarikci.org.tr</span>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="footer-bottom">
     <div class="container">
-      <div class="etbis-footer-wrap">
-        <div class="etbis-footer-badge"><i class="fas fa-shield-halved"></i> ETBİS KAYITLI SİTE</div>
-        <p class="etbis-footer-text">Bu site, T.C. Ticaret Bakanlığı Elektronik Ticaret Bilgi Sistemi (ETBİS) kapsamında kayıtlı bir elektronik ticaret ortamıdır.</p>
-        <div class="legal-links">
-          <a href="gizlilik-ve-guvenlik-politikasi.html">Gizlilik Politikası</a>
-          <a href="mesafeli-satis-sozlesmesi.html">Mesafeli Satış Sözleşmesi</a>
-          <a href="iptal-ve-iade-kosullari.html">İade Koşulları</a>
-          <a href="kullanim-kosullari.html">Kullanım Şartları</a>
+        <div class="footer-top">
+            <div class="footer-col footer-about">
+                <a href="index.html" class="logo" style="color: #ffffff;">Kurumsal<span>Tedarikçi</span></a>
+                <p>İşletmenizi dijital dünyaya taşıyan güvenilir çözüm ortağınız. E-dönüşüm süreçlerinizde her zaman yanınızdayız.</p>
+                <div class="footer-social">
+                    <a href="mailto:iletisim@tedarikci.org.tr" class="social-link"><i class="fas fa-envelope"></i></a>
+                    <a href="https://wa.me/905059112749" target="_blank" class="social-link" style="color:#25d366;"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Hizmetlerimiz</h4>
+                <ul class="footer-links">
+                    <li><a href="hizmetler.html?tab=edonusum"><i class="fas fa-chevron-right"></i> E-Dönüşüm</a></li>
+                    <li><a href="hizmetler.html?tab=it"><i class="fas fa-chevron-right"></i> Kurumsal IT</a></li>
+                    <li><a href="hizmetler.html?tab=pazaryeri"><i class="fas fa-chevron-right"></i> Pazaryeri</a></li>
+                    <li><a href="hizmetler.html?tab=web"><i class="fas fa-chevron-right"></i> Yazılım & Web</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Kurumsal</h4>
+                <ul class="footer-links">
+                    <li><a href="referanslar.html"><i class="fas fa-chevron-right"></i> Referanslar</a></li>
+                    <li><a href="bayilik-basvuru.html"><i class="fas fa-chevron-right"></i> Bayilik Başvurusu</a></li>
+                    <li><a href="iletisim.html"><i class="fas fa-chevron-right"></i> İletişim</a></li>
+                    <li><a href="teklif.html"><i class="fas fa-chevron-right"></i> Teklif Al</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h4>İletişim</h4>
+                <div class="footer-contact-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Bandırma / Balıkesir</span>
+                </div>
+                <div class="footer-contact-item">
+                    <i class="fas fa-phone"></i>
+                    <span>+90 505 911 27 49</span>
+                </div>
+                <div class="footer-contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>iletisim@tedarikci.org.tr</span>
+                </div>
+            </div>
         </div>
-        <p class="footer-copyright">© 2026 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
-      </div>
     </div>
-  </div>
+    
+    <div class="footer-bottom">
+        <div class="container">
+            <div class="etbis-footer-wrap">
+                <div class="etbis-footer-badge"><i class="fas fa-shield-halved"></i> ETBİS KAYITLI SİTE</div>
+                <p class="footer-copyright">© 2026 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </div>
 </footer>
 
-<!-- ================= SCRIPTS ================= -->
 <script src="js/api-config.js"></script>
 <script src="js/main.js"></script>
+<script>
+    // Simple intersection observer for scroll animations
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-up');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.feature-card, .why-card, .process-step').forEach(el => {
+        el.style.opacity = '0'; // Initial state
+        observer.observe(el);
+    });
+</script>
 </body>
 </html>

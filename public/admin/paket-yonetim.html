@@ -95,9 +95,9 @@
                 <thead>
                     <tr>
                         <th>Paket Adı</th>
+                        <th>Kategori</th>
                         <th>Barkod</th>
                         <th>Fiyat</th>
-                        <th>Özellikler</th>
                         <th>Durum</th>
                         <th>İşlemler</th>
                     </tr>
@@ -126,6 +126,22 @@
                 <div class="form-group">
                     <label>Alt Başlık</label>
                     <input type="text" id="packageSubtitle" placeholder="Örn: Küçük işletmeler için ideal">
+                </div>
+                <div class="form-group">
+                    <label>Kategori (Ürünler sayfasında görüneceği grup) *</label>
+                    <select id="packageCategory">
+                        <option value="E-İmza Paketleri">E-İmza Paketleri</option>
+                        <option value="E-Dönüşüm (E-Fatura Köntörü) Paketleri">E-Fatura (Köntör) Paketleri</option>
+                        <option value="KEP Paketleri">KEP Paketleri</option>
+                        <option value="Mali Mühür Paketleri">Mali Mühür Paketleri</option>
+                        <option value="Zaman Damgası Paketleri">Zaman Damgası Paketleri</option>
+                        <option value="E-İrsaliye Paketleri">E-İrsaliye Paketleri</option>
+                        <option value="E-Defter Paketleri">E-Defter Paketleri</option>
+                        <option value="E-SMM Paketleri">E-SMM (Serbest Meslek Makbuzu) Paketleri</option>
+                        <option value="E-MMM Paketleri">E-MMM (Müstahsil Makbuzu) Paketleri</option>
+                        <option value="Diğer">Diğer</option>
+                    </select>
+                    <small>Bu seçim paketin "Ürünler" sayfasında hangi başlık altında görüneceğini belirler.</small>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
@@ -164,6 +180,11 @@
                     <label>Olmayan Özellikler (Opsiyonel)</label>
                     <textarea id="packageFeaturesExcluded" placeholder="Mali Mühür"></textarea>
                     <small>Her öğe ayrı satırda. ✗ ile gösterilir.</small>
+                </div>
+                <div class="form-group">
+                    <label>Entegrasyonlar (Her satıra bir entegrasyon)</label>
+                    <textarea id="packageIntegrations" placeholder="Logo\nMikro\nNetsis"></textarea>
+                    <small>Her entegrasyon ayrı satırda yazılır, kullanıcı tarafında "Entegrasyon" başlığı altında görünür.</small>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
@@ -215,9 +236,9 @@
                 tbody.innerHTML = data.packages.map(p => `
                     <tr>
                         <td><strong>${p.name}</strong>${p.isPopular ? ' <span class="badge badge-warning">Popüler</span>' : ''}<br><small style="color:#6b7280">${p.subtitle || ''}</small></td>
+                        <td><small style="background:#f0f9ff;padding:2px 8px;border-radius:12px;color:#2563eb;font-weight:600">${p.category || '—'}</small></td>
                         <td><code style="background:#f0f9ff;padding:2px 6px;border-radius:4px;">${p.barcode || '—'}</code></td>
                         <td>₺${parseFloat(p.price).toLocaleString('tr-TR')}/${p.period || 'ay'}${(p.kdvDahil !== true) ? ' <small style="color:#059669;">+ KDV</small>' : ''}</td>
-                        <td><small>${(p.features || []).length} özellik</small></td>
                         <td><span class="badge ${p.isActive ? 'badge-success' : 'badge-warning'}">${p.isActive ? 'Aktif' : 'Pasif'}</span></td>
                         <td>
                             <div class="actions">
@@ -244,6 +265,7 @@
             document.getElementById('packageBarcode').placeholder = 'Yeni kayıtta otomatik üretilir';
             document.getElementById('packageKdvDahil').checked = false;
             document.getElementById('packageKdvOrani').value = '20';
+            document.getElementById('packageCategory').value = 'E-İmza Paketleri';
             document.getElementById('modalTitle').textContent = 'Yeni Paket Ekle';
         }
 
@@ -254,10 +276,12 @@
             const id = document.getElementById('packageId').value;
             const featuresText = document.getElementById('packageFeatures').value;
             const featuresExcludedText = document.getElementById('packageFeaturesExcluded').value;
+            const integrationsText = document.getElementById('packageIntegrations').value;
 
             const body = {
                 name: document.getElementById('packageName').value.trim(),
                 subtitle: document.getElementById('packageSubtitle').value.trim(),
+                category: document.getElementById('packageCategory').value,
                 price: parseFloat(document.getElementById('packagePrice').value),
                 wholesalePrice: document.getElementById('packageWholesalePrice').value === '' ? null : parseFloat(document.getElementById('packageWholesalePrice').value),
                 kdvDahil: document.getElementById('packageKdvDahil').checked,
@@ -265,6 +289,7 @@
                 period: document.getElementById('packagePeriod').value,
                 features: featuresText ? featuresText.split('\n').map(s => s.trim()).filter(Boolean) : [],
                 featuresExcluded: featuresExcludedText ? featuresExcludedText.split('\n').map(s => s.trim()).filter(Boolean) : [],
+                integrations: integrationsText ? integrationsText.split('\n').map(s => s.trim()).filter(Boolean) : [],
                 accentColor: document.getElementById('packageAccentColor').value || '#6366f1',
                 sortOrder: parseInt(document.getElementById('packageSortOrder').value) || 0,
                 isPopular: document.getElementById('packageIsPopular').checked,
@@ -307,8 +332,10 @@
                 document.getElementById('packageKdvDahil').checked = !!p.kdvDahil;
                 document.getElementById('packageKdvOrani').value = p.kdvOrani !== undefined ? p.kdvOrani : 20;
                 document.getElementById('packagePeriod').value = p.period || 'ay';
+                document.getElementById('packageCategory').value = p.category || 'E-İmza Paketleri';
                 document.getElementById('packageFeatures').value = (p.features || []).join('\n');
                 document.getElementById('packageFeaturesExcluded').value = (p.featuresExcluded || []).join('\n');
+                document.getElementById('packageIntegrations').value = (p.integrations || []).join('\n');
                 document.getElementById('packageAccentColor').value = p.accentColor || '#6366f1';
                 document.getElementById('packageSortOrder').value = p.sortOrder || 0;
                 document.getElementById('packageIsPopular').checked = !!p.isPopular;
