@@ -1139,7 +1139,8 @@ img {
     text-align: center;
 }
 
-.etbis-footer-badge {
+.etbis-footer-badge,
+.etbis-footer-badge-link {
     display: inline-flex;
     align-items: center;
     gap: 10px;
@@ -1150,6 +1151,14 @@ img {
     font-weight: 700;
     margin-bottom: 20px;
     font-size: 0.9rem;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.etbis-footer-badge-link:hover {
+    background: rgba(147, 197, 253, 0.2);
+    color: #93c5fd;
+    transform: translateY(-1px);
 }
 
 .etbis-footer-text {
@@ -1158,6 +1167,20 @@ img {
     max-width: 800px;
     margin: 0 auto 30px;
     line-height: 1.6;
+}
+
+.etbis-footer-text a.etbis-official-link,
+.corp-legal-line a.etbis-official-link,
+a.etbis-official-link {
+    color: #93c5fd;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.etbis-footer-text a.etbis-official-link:hover,
+.corp-legal-line a.etbis-official-link:hover {
+    color: #bfdbfe;
 }
 
 .legal-links {

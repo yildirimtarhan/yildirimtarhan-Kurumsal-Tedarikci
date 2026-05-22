@@ -13,8 +13,6 @@ router.get('/corp-info', (req, res) => {
       kep: process.env.FIRMA_KEP || 'yildirim.ayluctarhan@hs03.kep.tr',
       vergiDairesi: process.env.FIRMA_VERGI_DAIRESI || 'BANDIRMA',
       vkn: process.env.FIRMA_VKN || process.env.TAXTEN_VKN || '1230162474',
-      mersisNo: process.env.FIRMA_MERSIS || '',
-      hasMersis: Boolean(process.env.FIRMA_MERSIS),
       etbisKayitli: true,
       etbisNo: process.env.FIRMA_ETBIS_NO || '',
       etbisSiteId: process.env.FIRMA_ETBIS_SITE_ID || '4974d453-abbd-4891-bfaa-fb75ec124785',
