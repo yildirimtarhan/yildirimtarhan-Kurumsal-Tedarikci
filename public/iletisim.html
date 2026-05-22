@@ -130,10 +130,15 @@
 <div class="corp-info-card">
     <h3>Kurumsal Bilgiler</h3>
     <div class="corp-grid">
-        <p><strong>Ünvan:</strong> KURUMSAL TEDARİKÇİ</p>
-        <p><strong>Adres:</strong> Hacı Yusuf Mah. Eser Sokak No:4/10 Bandırma/Balıkesir</p>
-        <p><strong>Vergi Dairesi:</strong> BANDIRMA</p>
-        <p><strong>KEP Adresi:</strong> yildirim.ayluctarhan@hs03.kep.tr</p>
+        <p><strong>Ünvan:</strong> <span data-corp="unvan">KURUMSAL TEDARİKÇİ - YILDIRIM AYLUÇTARHAN</span></p>
+        <p><strong>Adres:</strong> <span data-corp="adres">Hacı Yusuf Mah. Eser Sokak No:4/10 Bandırma/Balıkesir</span></p>
+        <p><strong>Telefon:</strong> <span data-corp="telefon">0505 911 27 49</span></p>
+        <p><strong>E-posta:</strong> <span data-corp="email">iletisim@tedarikci.org.tr</span></p>
+        <p><strong>Vergi Dairesi:</strong> <span data-corp="vergiDairesi">BANDIRMA</span></p>
+        <p><strong>Vergi No (VKN):</strong> <span data-corp="vkn">1230162474</span></p>
+        <p><strong>MERSİS No:</strong> <span data-corp="mersisNo">—</span></p>
+        <p><strong>KEP Adresi:</strong> <span data-corp="kep">yildirim.ayluctarhan@hs03.kep.tr</span></p>
+        <p><strong>Web:</strong> <a href="https://www.tedarikci.org.tr" data-corp-href="websiteUrl"><span data-corp="website">www.tedarikci.org.tr</span></a></p>
     </div>
 </div>
 
@@ -196,16 +201,21 @@
         <p class="etbis-footer-text">Bu site, T.C. Ticaret Bakanlığı Elektronik Ticaret Bilgi Sistemi (ETBİS) kapsamında kayıtlı bir elektronik ticaret ortamıdır.</p>
         <div class="legal-links">
           <a href="gizlilik-ve-guvenlik-politikasi.html">Gizlilik Politikası</a>
+          <a href="cerez-politikasi.html">Çerez Politikası</a>
           <a href="mesafeli-satis-sozlesmesi.html">Mesafeli Satış Sözleşmesi</a>
           <a href="iptal-ve-iade-kosullari.html">İade Koşulları</a>
           <a href="kullanim-kosullari.html">Kullanım Şartları</a>
         </div>
+        <div data-corp-legal-block></div>
         <p class="footer-copyright">© 2026 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
       </div>
     </div>
   </div>
 </footer>
 
+<script src="js/api-config.js"></script>
+<script src="js/corp-info.js"></script>
+<script src="js/cookie-consent.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

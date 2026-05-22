@@ -30,7 +30,14 @@ function authMiddleware(req, res, next) {
 // ==========================
 router.post("/", authMiddleware, async (req, res) => {
   try {
-    const { items, shippingAddressId, invoiceAddressId, paymentMethod } = req.body;
+    const { items, shippingAddressId, invoiceAddressId, paymentMethod, legalAcceptance } = req.body;
+
+    if (!legalAcceptance || !legalAcceptance.onBilgilendirme || !legalAcceptance.mesafeliSatis || !legalAcceptance.kvkk) {
+      return res.status(400).json({
+        success: false,
+        message: 'Sipariş için ön bilgilendirme, mesafeli satış ve KVKK onayları zorunludur.',
+      });
+    }
 
     const user = await User.findById(req.user.id);
     if (!user) {
@@ -158,6 +165,14 @@ router.post("/", authMiddleware, async (req, res) => {
         address: invoiceAddress.acikAdres || invoiceAddress.address || '',
       },
       paymentMethod: paymentMethod || "Kapıda Ödeme",
+      legalAcceptance: {
+        onBilgilendirme: true,
+        mesafeliSatis: true,
+        kvkk: true,
+        acceptedAt: new Date(),
+        ip: (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').toString().split(',')[0].trim(),
+        userAgent: (req.headers['user-agent'] || '').slice(0, 500),
+      },
       subtotal,
       kdv,
       toplam,

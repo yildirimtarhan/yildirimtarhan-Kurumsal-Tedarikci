@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="utf-8"/>
@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
     <link href="css/style.css" rel="stylesheet"/>
+<link href="css/mobile.css" rel="stylesheet"/>
     <style>
         .legal-content { padding: 120px 5% 80px; max-width: 1000px; margin: 0 auto; line-height: 1.8; color: var(--text-main); font-family: 'Inter', sans-serif; }
         .legal-content h1 { font-family: 'Outfit'; font-size: 2.5rem; margin-bottom: 2rem; color: var(--primary); text-align: center; }
@@ -142,16 +143,21 @@
         <p class="etbis-footer-text">Bu site, T.C. Ticaret Bakanlığı Elektronik Ticaret Bilgi Sistemi (ETBİS) kapsamında kayıtlı bir elektronik ticaret ortamıdır.</p>
         <div class="legal-links">
           <a href="gizlilik-ve-guvenlik-politikasi.html">Gizlilik Politikası</a>
+          <a href="cerez-politikasi.html">Çerez Politikası</a>
           <a href="mesafeli-satis-sozlesmesi.html">Mesafeli Satış Sözleşmesi</a>
           <a href="iptal-ve-iade-kosullari.html">İade Koşulları</a>
           <a href="kullanim-kosullari.html">Kullanım Şartları</a>
         </div>
+        <div data-corp-legal-block></div>
         <p class="footer-copyright">© 2026 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
       </div>
     </div>
   </div>
 </footer>
 
+<script src="js/api-config.js"></script>
+<script src="js/corp-info.js"></script>
+<script src="js/cookie-consent.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="utf-8"/>
@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
     <link href="css/style.css" rel="stylesheet"/>
+<link href="css/mobile.css" rel="stylesheet"/>
     <style>
         .legal-content { padding: 120px 5% 80px; max-width: 1000px; margin: 0 auto; line-height: 1.8; color: var(--text-main); font-family: 'Inter', sans-serif; }
         .legal-content h1 { font-family: 'Outfit'; font-size: 2.5rem; margin-bottom: 2rem; color: var(--primary); text-align: center; }
@@ -69,12 +70,16 @@
     <p>İşbu form, Alıcı’nın sipariş öncesinde 6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği hükümleri uyarınca bilgilendirilmesi amacıyla hazırlanmıştır.</p>
 
     <h2>1. SATICI BİLGİLERİ</h2>
-    <p>
-        <strong>Ünvan:</strong> KURUMSAL TEDARİKÇİ - YILDIRIM AYLUÇTARHAN<br>
-        <strong>Adres:</strong> Hacı Yusuf Mah. Eser Sokak No:4/10 Bandırma/Balıkesir<br>
-        <strong>Telefon:</strong> 0505 911 27 49<br>
-        <strong>E-posta:</strong> iletisim@tedarikci.org.tr
-    </p>
+    <div id="seller-info-block" class="seller-info-block">
+        <p><strong>Ünvan:</strong> <span data-corp="unvan">KURUMSAL TEDARİKÇİ - YILDIRIM AYLUÇTARHAN</span></p>
+        <p><strong>Adres:</strong> <span data-corp="adres">Hacı Yusuf Mah. Eser Sokak No:4/10 Bandırma/Balıkesir</span></p>
+        <p><strong>Telefon:</strong> <span data-corp="telefon">0505 911 27 49</span></p>
+        <p><strong>E-posta:</strong> <span data-corp="email">iletisim@tedarikci.org.tr</span></p>
+        <p><strong>KEP:</strong> <span data-corp="kep">yildirim.ayluctarhan@hs03.kep.tr</span></p>
+        <p><strong>Vergi Dairesi / No:</strong> <span data-corp="vergiDairesi">BANDIRMA</span> / <span data-corp="vkn">1230162474</span></p>
+        <p><strong>MERSİS No:</strong> <span data-corp="mersisNo">—</span> (<a href="https://mersis.ticaret.gov.tr/" target="_blank" rel="noopener">MERSİS sorgulama</a>)</p>
+        <p><strong>Web:</strong> <span data-corp="website">www.tedarikci.org.tr</span></p>
+    </div>
 
     <h2>2. ÜRÜN/HİZMETİN TEMEL NİTELİKLERİ VE FİYATI</h2>
     <p>Sipariş konusu ürün/hizmetin (E-İmza, E-Fatura, KEP vb.) temel özellikleri ve tüm vergiler dahil satış bedeli sipariş özetinde belirtildiği gibidir.</p>
@@ -151,16 +156,21 @@
         <p class="etbis-footer-text">Bu site, T.C. Ticaret Bakanlığı Elektronik Ticaret Bilgi Sistemi (ETBİS) kapsamında kayıtlı bir elektronik ticaret ortamıdır.</p>
         <div class="legal-links">
           <a href="gizlilik-ve-guvenlik-politikasi.html">Gizlilik Politikası</a>
+          <a href="cerez-politikasi.html">Çerez Politikası</a>
           <a href="mesafeli-satis-sozlesmesi.html">Mesafeli Satış Sözleşmesi</a>
           <a href="iptal-ve-iade-kosullari.html">İade Koşulları</a>
           <a href="kullanim-kosullari.html">Kullanım Şartları</a>
         </div>
+        <div data-corp-legal-block></div>
         <p class="footer-copyright">© 2026 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
       </div>
     </div>
   </div>
 </footer>
 
+<script src="js/api-config.js"></script>
+<script src="js/corp-info.js"></script>
+<script src="js/cookie-consent.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

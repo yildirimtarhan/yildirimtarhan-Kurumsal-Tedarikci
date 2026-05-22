@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="utf-8"/>
@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
     <link href="css/style.css" rel="stylesheet"/>
+<link href="css/mobile.css" rel="stylesheet"/>
     <style>
         .legal-content { padding: 120px 5% 80px; max-width: 1000px; margin: 0 auto; line-height: 1.8; color: var(--text-main); font-family: 'Inter', sans-serif; }
         .legal-content h1 { font-family: 'Outfit'; font-size: 2.5rem; margin-bottom: 2rem; color: var(--primary); text-align: center; }
@@ -75,12 +76,18 @@
     <h2>MADDE 1 - TARAFLAR</h2>
     
     <h3>1.1. SATICI BİLGİLERİ</h3>
-    <table class="info-table">
-        <tr><td>Ünvan:</td><td>KURUMSAL TEDARİKÇİ - YILDIRIM AYLUÇTARHAN</td></tr>
-        <tr><td>Adres:</td><td>Hacı Yusuf Mah. Eser Sokak No:4/10 Bandırma/Balıkesir</td></tr>
-        <tr><td>Telefon:</td><td>0505 911 27 49</td></tr>
-        <tr><td>E-posta:</td><td>iletisim@tedarikci.org.tr</td></tr>
-        <tr><td>Vergi dairesi / No:</td><td>BANDIRMA / 1230162474</td></tr>
+    <table class="info-table" id="seller-info-table">
+        <tbody id="seller-info-table-body">
+        <tr><td>Ünvan:</td><td data-corp="unvan">KURUMSAL TEDARİKÇİ - YILDIRIM AYLUÇTARHAN</td></tr>
+        <tr><td>Adres:</td><td data-corp="adres">Hacı Yusuf Mah. Eser Sokak No:4/10 Bandırma/Balıkesir</td></tr>
+        <tr><td>Telefon:</td><td data-corp="telefon">0505 911 27 49</td></tr>
+        <tr><td>E-posta:</td><td data-corp="email">iletisim@tedarikci.org.tr</td></tr>
+        <tr><td>KEP:</td><td data-corp="kep">yildirim.ayluctarhan@hs03.kep.tr</td></tr>
+        <tr><td>Vergi dairesi / No:</td><td><span data-corp="vergiDairesi">BANDIRMA</span> / <span data-corp="vkn">1230162474</span></td></tr>
+        <tr><td>MERSİS No:</td><td data-corp="mersisNo">—</td></tr>
+        <tr><td>ETBİS:</td><td><a href="https://etbis.ticaret.gov.tr/" target="_blank" rel="noopener">Kayıtlı site sorgulama</a></td></tr>
+        <tr><td>Web sitesi:</td><td data-corp="website">www.tedarikci.org.tr</td></tr>
+        </tbody>
     </table>
 
     <h3>1.2. ALICI BİLGİLERİ</h3>
@@ -187,10 +194,12 @@
         <p class="etbis-footer-text">Bu site, T.C. Ticaret Bakanlığı Elektronik Ticaret Bilgi Sistemi (ETBİS) kapsamında kayıtlı bir elektronik ticaret ortamıdır.</p>
         <div class="legal-links">
           <a href="gizlilik-ve-guvenlik-politikasi.html">Gizlilik Politikası</a>
+          <a href="cerez-politikasi.html">Çerez Politikası</a>
           <a href="mesafeli-satis-sozlesmesi.html">Mesafeli Satış Sözleşmesi</a>
           <a href="iptal-ve-iade-kosullari.html">İade Koşulları</a>
           <a href="kullanim-kosullari.html">Kullanım Şartları</a>
         </div>
+        <div data-corp-legal-block></div>
         <p class="footer-copyright">© 2026 Kurumsal Tedarikçi. Tüm hakları saklıdır.</p>
       </div>
     </div>

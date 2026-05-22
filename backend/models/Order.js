@@ -46,6 +46,15 @@ const OrderSchema = new mongoose.Schema({
   paymentProvider: { type: String, default: null },
   paymentStatus: { type: String, enum: ['pending', 'paid', 'failed', 'cancelled', null], default: null },
 
+  legalAcceptance: {
+    onBilgilendirme: { type: Boolean, default: false },
+    mesafeliSatis: { type: Boolean, default: false },
+    kvkk: { type: Boolean, default: false },
+    acceptedAt: { type: Date, default: null },
+    ip: { type: String, default: null },
+    userAgent: { type: String, default: null },
+  },
+
 
   orderType: { type: String, enum: ['b2c', 'b2b'], default: 'b2c' }, // b2b = toptan/bayi
 

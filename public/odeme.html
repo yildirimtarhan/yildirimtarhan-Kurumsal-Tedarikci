@@ -1216,7 +1216,7 @@
                 </button>
 
                 <p style="text-align:center;margin-top:15px;font-size:12px;color:#6b7280;">
-                    <i class="fas fa-shield-alt"></i> 256-bit SSL ile güvenli ödeme
+                    <i class="fas fa-shield-alt"></i> Bağlantınız SSL ile şifrelenir. Kredi kartı bilgileriniz yalnızca lisanslı ödeme kuruluşunda işlenir.
                 </p>
             </div>
         </div>
@@ -1780,7 +1780,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 shippingAddressId: addresses[selectedAddressId]?._id,
                 invoiceAddressId: document.getElementById('sameAddress').checked ? addresses[selectedAddressId]?._id : addresses[selectedInvoiceAddressId]?._id,
                 paymentMethod: selectedPayment,
-                total: document.getElementById('total').textContent
+                total: document.getElementById('total').textContent,
+                legalAcceptance: {
+                    onBilgilendirme: true,
+                    mesafeliSatis: true,
+                    kvkk: true
+                }
             };
 
             try {
@@ -1806,9 +1811,27 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // ==================== YARDIMCI FONKSİYONLAR ====================
         function showLegalModal(type) {
-            document.getElementById('legalModal').classList.add('show');
-            document.getElementById('legalModalTitle').textContent = type.toUpperCase();
-            document.getElementById('legalModalBody').innerHTML = "<p>Sözleşme içeriği yükleniyor...</p>";
+            const modal = document.getElementById('legalModal');
+            const body = document.getElementById('legalModalBody');
+            const title = document.getElementById('legalModalTitle');
+            modal.classList.add('show');
+            if (!window.KT_LEGAL_CHECKOUT) {
+                body.innerHTML = '<p>Metin yükleniyor… <a href="on-bilgilendirme-formu.html">Ön bilgilendirme</a></p>';
+                return;
+            }
+            if (type === 'onbilgi') {
+                title.textContent = 'Ön Bilgilendirme Formu';
+                body.innerHTML = KT_LEGAL_CHECKOUT.onBilgiHtml();
+            } else if (type === 'mesafeli') {
+                title.textContent = 'Mesafeli Satış Sözleşmesi';
+                body.innerHTML = KT_LEGAL_CHECKOUT.mesafeliHtml();
+            } else if (type === 'kvkk') {
+                title.textContent = 'KVKK Aydınlatma Metni';
+                body.innerHTML = KT_LEGAL_CHECKOUT.kvkkHtml();
+            } else {
+                title.textContent = 'Sözleşme';
+                body.innerHTML = '<p>Geçersiz metin türü.</p>';
+            }
         }
         function hideLegalModal() { document.getElementById('legalModal').classList.remove('show'); }
         
@@ -1828,7 +1851,32 @@ document.addEventListener("DOMContentLoaded", async () => {
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
     </script>
+<footer class="footer" style="margin-top: 40px;">
+  <div class="footer-bottom">
+    <div class="container">
+      <div class="etbis-footer-wrap">
+        <div class="etbis-footer-badge"><i class="fas fa-shield-halved"></i> ETBİS KAYITLI SİTE</div>
+        <p class="etbis-footer-text">Bu site, T.C. Ticaret Bakanlığı Elektronik Ticaret Bilgi Sistemi (ETBİS) kapsamında kayıtlı bir elektronik ticaret ortamıdır.</p>
+        <div class="legal-links">
+          <a href="gizlilik-ve-guvenlik-politikasi.html">Gizlilik</a>
+          <a href="cerez-politikasi.html">Çerez</a>
+          <a href="on-bilgilendirme-formu.html">Ön Bilgilendirme</a>
+          <a href="mesafeli-satis-sozlesmesi.html">Mesafeli Satış</a>
+          <a href="iptal-ve-iade-kosullari.html">İade</a>
+          <a href="iletisim.html">İletişim</a>
+        </div>
+        <div data-corp-legal-block></div>
+        <p class="footer-copyright">© 2026 Kurumsal Tedarikçi</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
     <script src="js/turkiye-adresler.js"></script>
+    <script src="js/api-config.js"></script>
+    <script src="js/corp-info.js"></script>
+    <script src="js/legal-checkout.js"></script>
+    <script src="js/cookie-consent.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
