@@ -2402,19 +2402,18 @@ body.home .hero-stats{
   margin-top: 28px;
 }
 
-/* responsive: küçük ekranda alt alta */
+/* responsive: küçük ekranda tek sütun, görsel gizli (taşmayı önler) */
 @media (max-width: 992px){
   body.home .hero-container{
     flex-direction: column;
     text-align: center;
+    padding: 20px 16px !important;
   }
   body.home .hero-visual{
-    min-height: 360px;
-    margin-top: 20px;
+    display: none !important;
+    min-height: 0 !important;
+    margin: 0 !important;
   }
-  body.home .card-1{ left: 10px; top: 20px; }
-  body.home .card-2{ right: 10px; top: 90px; }
-  body.home .card-3{ right: 10px; bottom: 30px; }
 }
 
 /* Ana sayfa — mobilde masaüstü iki sütun / hero görseli kapansın */

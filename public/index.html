@@ -9,21 +9,30 @@
     <link href="css/style.css" rel="stylesheet"/>
     <link href="css/mobile.css" rel="stylesheet"/>
     <style>
-        /* Page specific overrides */
-        .hero {
+        /* Page specific overrides — masaüstü */
+        body.home .hero {
             background-image: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 58, 138, 0.85) 100%), url('tech_corporate_background_1777641952625.png');
             background-size: cover;
             background-position: center;
             color: #ffffff;
             padding: 160px 0 120px;
             min-height: 90vh;
-            /* display: flex and align-items removed to restore grid layout */
         }
-        .hero-content h1 { color: #ffffff; }
-        .hero-content p { color: rgba(255, 255, 255, 0.85); font-size: 1.15rem; }
-        .hero-stats { border-top-color: rgba(255, 255, 255, 0.15); margin-top: 3rem; padding-top: 2rem; }
-        .stat-number { color: #ffffff; font-size: 2rem; font-weight: 800; }
-        .stat-label { color: rgba(255, 255, 255, 0.7); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px;}
+        body.home .hero-content h1 { color: #ffffff; }
+        body.home .hero-content p { color: rgba(255, 255, 255, 0.85); font-size: 1.15rem; }
+        body.home .hero-stats { border-top-color: rgba(255, 255, 255, 0.15); margin-top: 3rem; padding-top: 2rem; }
+        body.home .stat-number { color: #ffffff; font-size: 2rem; font-weight: 800; }
+        body.home .stat-label { color: rgba(255, 255, 255, 0.7); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        @media (max-width: 1024px) {
+            body.home .hero {
+                padding: 72px 0 48px !important;
+                min-height: auto !important;
+            }
+            body.home .hero-content p {
+                max-width: 100%;
+            }
+        }
     </style>
 </head>
 <body class="home">
