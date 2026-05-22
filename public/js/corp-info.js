@@ -1,7 +1,7 @@
 /**
  * Kurumsal yasal bilgiler — tek kaynak.
- * MERSİS / ETBİS no: Render/Vercel ortam değişkenleri veya bu dosyada güncelleyin.
- * FIRMA_MERSIS, FIRMA_ETBIS_NO → /api/public/corp-info
+ * ETBİS kayıt no: FIRMA_ETBIS_NO (Vercel/Render) veya etbisNo aşağıda.
+ * MERSİS: Bu işletmede MERSİS kaydı yoktur (şahıs işletmesi — ETBİS ile kayıtlı).
  */
 (function (global) {
   const DEFAULT = {
@@ -13,13 +13,16 @@
     kep: 'yildirim.ayluctarhan@hs03.kep.tr',
     vergiDairesi: 'BANDIRMA',
     vkn: '1230162474',
-    // POS incelemesi: Render/Vercel → FIRMA_MERSIS ve FIRMA_ETBIS_NO veya burayı doldurun
     mersisNo: '',
+    hasMersis: false,
+    etbisKayitli: true,
     etbisNo: '',
+    etbisSiteId: '4974d453-abbd-4891-bfaa-fb75ec124785',
+    etbisDogrulamaUrl: 'https://etbis.ticaret.gov.tr/tr/SiteSorgulamaSonuc?siteId=4974d453-abbd-4891-bfaa-fb75ec124785',
     website: 'www.tedarikci.org.tr',
     websiteUrl: 'https://www.tedarikci.org.tr',
     etbisSorguUrl: 'https://etbis.ticaret.gov.tr/',
-    mersisSorguUrl: 'https://mersis.ticaret.gov.tr/',
+    eticaretPortalUrl: 'https://www.eticaret.gov.tr/',
   };
 
   let corp = { ...DEFAULT };
@@ -43,50 +46,61 @@
     } catch (_) { /* statik varsayılanlar */ }
   }
 
-  function mersisLine() {
-    if (corp.mersisNo) return 'MERSİS No: ' + corp.mersisNo;
-    return 'MERSİS No: <a href="' + corp.mersisSorguUrl + '" target="_blank" rel="noopener">mersis.ticaret.gov.tr</a> üzerinden sorgulanabilir';
-  }
-
-  function etbisLine() {
-    if (corp.etbisNo) return 'ETBİS Kayıt No: ' + corp.etbisNo;
-    return 'ETBİS: <a href="' + corp.etbisSorguUrl + '" target="_blank" rel="noopener">Kayıtlı site sorgulama</a>';
+  function etbisLineHtml() {
+    const dogrulama = corp.etbisDogrulamaUrl || corp.etbisSorguUrl;
+    if (corp.etbisNo) {
+      return 'ETBİS Kayıt No: <strong>' + esc(corp.etbisNo) + '</strong> · ' +
+        '<a href="' + dogrulama + '" target="_blank" rel="noopener">Resmi doğrulama</a>';
+    }
+    if (corp.etbisSiteId) {
+      return 'ETBİS Kayıtlı Site · ' +
+        '<a href="' + dogrulama + '" target="_blank" rel="noopener">Ticaret Bakanlığı doğrulama sayfası</a>';
+    }
+    return 'ETBİS Kayıtlı Elektronik Ticaret Ortamı · ' +
+      '<a href="' + corp.etbisSorguUrl + '" target="_blank" rel="noopener">etbis.ticaret.gov.tr</a>';
   }
 
   function sellerInfoHtml() {
-    return (
+    let html =
       '<p><strong>Ünvan:</strong> ' + esc(corp.unvan) + '</p>' +
       '<p><strong>Adres:</strong> ' + esc(corp.adres) + '</p>' +
       '<p><strong>Telefon:</strong> ' + esc(corp.telefon) + '</p>' +
       '<p><strong>E-posta:</strong> <a href="mailto:' + esc(corp.email) + '">' + esc(corp.email) + '</a></p>' +
       '<p><strong>KEP:</strong> ' + esc(corp.kep) + '</p>' +
-      '<p><strong>Vergi Dairesi / No:</strong> ' + esc(corp.vergiDairesi) + ' / ' + esc(corp.vkn) + '</p>' +
-      '<p><strong>' + mersisLine() + '</strong></p>' +
-      '<p><strong>' + etbisLine() + '</strong></p>' +
-      '<p><strong>Web:</strong> <a href="' + esc(corp.websiteUrl) + '" target="_blank" rel="noopener">' + esc(corp.website) + '</a></p>'
-    );
+      '<p><strong>Vergi Dairesi / No:</strong> ' + esc(corp.vergiDairesi) + ' / ' + esc(corp.vkn) + '</p>';
+    if (corp.mersisNo) {
+      html += '<p><strong>MERSİS No:</strong> ' + esc(corp.mersisNo) + '</p>';
+    }
+    html +=
+      '<p><strong>ETBİS:</strong> ' + etbisLineHtml() + '</p>' +
+      '<p><strong>Web:</strong> <a href="' + esc(corp.websiteUrl) + '" target="_blank" rel="noopener">' + esc(corp.website) + '</a></p>';
+    return html;
   }
 
   function sellerTableRows() {
-    return (
+    let rows =
       '<tr><td>Ünvan</td><td>' + esc(corp.unvan) + '</td></tr>' +
       '<tr><td>Adres</td><td>' + esc(corp.adres) + '</td></tr>' +
       '<tr><td>Telefon</td><td>' + esc(corp.telefon) + '</td></tr>' +
       '<tr><td>E-posta</td><td>' + esc(corp.email) + '</td></tr>' +
       '<tr><td>KEP</td><td>' + esc(corp.kep) + '</td></tr>' +
-      '<tr><td>Vergi Dairesi / No</td><td>' + esc(corp.vergiDairesi) + ' / ' + esc(corp.vkn) + '</td></tr>' +
-      '<tr><td>MERSİS No</td><td>' + (corp.mersisNo ? esc(corp.mersisNo) : '<a href="' + corp.mersisSorguUrl + '" target="_blank" rel="noopener">MERSİS sorgulama</a>') + '</td></tr>' +
-      '<tr><td>ETBİS</td><td>' + (corp.etbisNo ? esc(corp.etbisNo) : '<a href="' + corp.etbisSorguUrl + '" target="_blank" rel="noopener">ETBİS kayıtlı site</a>') + '</td></tr>' +
-      '<tr><td>Web sitesi</td><td>' + esc(corp.website) + '</td></tr>'
-    );
+      '<tr><td>Vergi Dairesi / No</td><td>' + esc(corp.vergiDairesi) + ' / ' + esc(corp.vkn) + '</td></tr>';
+    if (corp.mersisNo) {
+      rows += '<tr><td>MERSİS No</td><td>' + esc(corp.mersisNo) + '</td></tr>';
+    }
+    rows +=
+      '<tr><td>ETBİS</td><td>' + etbisLineHtml() + '</td></tr>' +
+      '<tr><td>Web sitesi</td><td><a href="' + esc(corp.websiteUrl) + '" target="_blank" rel="noopener">' + esc(corp.website) + '</a></td></tr>';
+    return rows;
   }
 
   function footerLegalHtml() {
-    const mersis = corp.mersisNo ? 'MERSİS: ' + esc(corp.mersisNo) + ' · ' : '';
-    const etbis = corp.etbisNo ? 'ETBİS: ' + esc(corp.etbisNo) + ' · ' : '';
+    const etbis = corp.etbisNo
+      ? 'ETBİS: ' + esc(corp.etbisNo) + ' · '
+      : 'ETBİS Kayıtlı · ';
     return (
       '<p class="corp-legal-line">' +
-      esc(corp.unvan) + ' · ' + mersis + etbis +
+      esc(corp.unvan) + ' · ' + etbis +
       'VKN: ' + esc(corp.vkn) + ' · Vergi Dairesi: ' + esc(corp.vergiDairesi) + '<br>' +
       esc(corp.adres) + ' · Tel: ' + esc(corp.telefon) + ' · KEP: ' + esc(corp.kep) +
       '</p>'
@@ -96,6 +110,23 @@
   function applyDataCorpAttributes() {
     document.querySelectorAll('[data-corp]').forEach(function (el) {
       const key = el.getAttribute('data-corp');
+      if (key === 'mersisNo') {
+        if (corp.mersisNo) el.textContent = corp.mersisNo;
+        else if (el.closest('[data-hide-without-mersis]')) el.closest('[data-hide-without-mersis]').style.display = 'none';
+        else el.textContent = '';
+        return;
+      }
+      if (key === 'etbisNo') {
+        const dogrulama = corp.etbisDogrulamaUrl || corp.etbisSorguUrl;
+        if (corp.etbisNo) {
+          el.innerHTML = esc(corp.etbisNo);
+        } else if (corp.etbisSiteId) {
+          el.innerHTML = '<a href="' + dogrulama + '" target="_blank" rel="noopener">ETBİS kayıtlı site doğrulama</a>';
+        } else {
+          el.textContent = 'Kayıtlı — ' + corp.website;
+        }
+        return;
+      }
       const val = corp[key];
       if (val != null && val !== '') el.textContent = val;
     });
@@ -119,7 +150,7 @@
         const extra = document.createElement('p');
         extra.className = 'etbis-footer-meta';
         extra.style.cssText = 'font-size:0.8rem;margin-top:8px;';
-        extra.innerHTML = etbisLine() + (corp.etbisNo ? '' : ' · Domain: ' + esc(corp.website));
+        extra.innerHTML = etbisLineHtml();
         el.after(extra);
       }
     });
