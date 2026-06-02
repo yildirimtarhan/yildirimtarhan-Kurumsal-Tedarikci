@@ -565,6 +565,17 @@ router.post('/sync-taxten', authMiddleware, adminMiddleware, async (req, res) =>
           }
 
           // Fatura Kaydı
+          let kdvOrani = 20;
+          const matrahVal = (data.tutar || 0) - (data.kdv || 0);
+          if (data.kdv > 0 && matrahVal > 0) {
+            const calculatedRate = Math.round((data.kdv / matrahVal) * 100);
+            if (calculatedRate <= 2) kdvOrani = 1;
+            else if (calculatedRate <= 12) kdvOrani = 10;
+            else kdvOrani = 20;
+          } else if (data.kdv === 0) {
+            kdvOrani = 0;
+          }
+
           const faturaData = {
             uuid: uuid,
             faturaNo: data.faturaNo || inv.id || inv.ID,
@@ -573,8 +584,9 @@ router.post('/sync-taxten', authMiddleware, adminMiddleware, async (req, res) =>
             aliciUnvan: type === 'OUTBOUND' ? otherUnvan : 'Yıldırım Tarhan',
             faturaTarihi: data.tarih ? new Date(data.tarih) : new Date(),
             toplamTutar: data.tutar || 0,
-            matrah: (data.tutar || 0) - (data.kdv || 0),
+            matrah: matrahVal,
             kdvTutari: data.kdv || 0,
+            kdvOrani: kdvOrani,
             kalemler: data.kalemler || [],
             durum: '1300-BAŞARILI',
             faturaTipi: type === 'OUTBOUND' ? 'SATIŞ' : 'ALIŞ',
@@ -604,6 +616,7 @@ router.post('/sync-taxten', authMiddleware, adminMiddleware, async (req, res) =>
               karsiTaraf: otherUnvan,
               faturaNo: yeniFatura.faturaNo,
               kdvHaricTutar: yeniFatura.matrah,
+              kdvOrani: yeniFatura.kdvOrani,
               kdvTutari: yeniFatura.kdvTutari,
               kdvDahilTutar: yeniFatura.toplamTutar,
               yil: fYil,

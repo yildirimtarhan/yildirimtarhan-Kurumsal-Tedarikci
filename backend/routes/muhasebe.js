@@ -320,6 +320,53 @@ router.post('/import-siparisler', adminAuth, async (req, res) => {
 //  KDV HESAPLAMA
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// Yardımcı fonksiyon: Belirli bir ayın devreden KDV'sini hesaplar
+async function getDevredenKdvForMonth(yil, ay) {
+  if (ay <= 1) {
+    const oncekiBeyan = await BeyanDurum.findOne({
+      tur: 'kdv', yil: yil - 1, donem: '12'
+    });
+    return oncekiBeyan?.devredenKdv || oncekiBeyan?.devredenKdvOnceki || 0;
+  }
+
+  const prevAy = ay - 1;
+  const prevAyStr = String(prevAy).padStart(2, '0');
+  const oncekiBeyan = await BeyanDurum.findOne({
+    tur: 'kdv', yil: yil, donem: prevAyStr
+  });
+
+  // Eğer önceki ay onaylanmışsa (verildi), veritabanındaki değeri kullan
+  if (oncekiBeyan && oncekiBeyan.durum === 'verildi') {
+    return oncekiBeyan.devredenKdv || oncekiBeyan.devredenKdvOnceki || 0;
+  }
+
+  // Onaylanmamışsa dinamik hesapla
+  const oranlar = [20, 10, 1, 0];
+  let hesaplananKdv = 0;
+  let indirilecekKdv = 0;
+
+  for (const oran of oranlar) {
+    const gelirAgg = await DefterKaydi.aggregate([
+      { $match: { yil, ay: prevAy, tip: 'gelir', kdvOrani: oran } },
+      { $group: { _id: null, kdv: { $sum: '$kdvTutari' } } }
+    ]);
+    hesaplananKdv += gelirAgg[0]?.kdv || 0;
+
+    const giderAgg = await DefterKaydi.aggregate([
+      { $match: { yil, ay: prevAy, tip: 'gider', kdvOrani: oran } },
+      { $group: { _id: null, kdv: { $sum: '$kdvTutari' } } }
+    ]);
+    indirilecekKdv += giderAgg[0]?.kdv || 0;
+  }
+
+  const devredenOnceki = await getDevredenKdvForMonth(yil, prevAy);
+  const toplamIndirilecek = indirilecekKdv + devredenOnceki;
+  const fark = hesaplananKdv - toplamIndirilecek;
+  const devredenSonraki = fark < 0 ? parseFloat(Math.abs(fark).toFixed(2)) : 0;
+
+  return devredenSonraki;
+}
+
 // GET /api/muhasebe/kdv-hesap?yil=2025&donem=01
 router.get('/kdv-hesap', adminAuth, async (req, res) => {
   try {
@@ -355,12 +402,7 @@ router.get('/kdv-hesap', adminAuth, async (req, res) => {
     if (manuelDevir !== undefined) {
       devredenOnceki = parseFloat(manuelDevir);
     } else {
-      const prevYil = ay === 1 ? parseInt(yil) - 1 : parseInt(yil);
-      const prevAyStr = ay === 1 ? '12' : String(ay - 1).padStart(2, '0');
-      const oncekiBeyan = await BeyanDurum.findOne({
-        tur: 'kdv', yil: prevYil, donem: prevAyStr
-      });
-      devredenOnceki = oncekiBeyan?.devredenKdv || oncekiBeyan?.devredenKdvOnceki || 0;
+      devredenOnceki = await getDevredenKdvForMonth(yilInt, ay);
     }
 
     const fark = hesaplananKdv - indirilecekKdv - devredenOnceki;
