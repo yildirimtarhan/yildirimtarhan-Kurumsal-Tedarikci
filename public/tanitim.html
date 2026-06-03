@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kurumsal Tedarikçi - Tanıtım Videosu Gösterimi</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <style>
+        :root {
+            --bg-color: #080c14;
+            --primary: #8b5cf6;
+            --secondary: #06b6d4;
+            --text: #f3f4f6;
+            --text-muted: #9ca3af;
+            --card-bg: rgba(30, 41, 59, 0.5);
+            --glow-purple: 0 0 30px rgba(139, 92, 246, 0.4);
+            --glow-cyan: 0 0 30px rgba(6, 182, 212, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        /* Ambient Glow Backgrounds */
+        .ambient-glow-1 {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(0,0,0,0) 70%);
+            top: -100px;
+            left: -100px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .ambient-glow-2 {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, rgba(0,0,0,0) 70%);
+            bottom: -100px;
+            right: -100px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Player Wrapper */
+        .video-player {
+            width: 100%;
+            max-width: 1024px;
+            aspect-ratio: 16/9;
+            background-color: #0b0f19;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), var(--glow-purple);
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        /* Slide Control Bar */
+        .progress-container {
+            position: absolute;
+            top: 15px;
+            left: 5%;
+            width: 90%;
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .progress-bar-wrapper {
+            flex: 1;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.1s linear;
+        }
+
+        /* Slides */
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
+            padding: 40px 60px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .slide-content {
+            width: 55%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .slide-badge {
+            align-self: flex-start;
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid var(--primary);
+            color: #c084fc;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: var(--glow-purple);
+        }
+
+        .slide-content h2 {
+            font-size: 2.5rem;
+            font-weight: 850;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #c084fc 0%, #22d3ee 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .slide-content p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Visual side of slide */
+        .slide-visual {
+            width: 40%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Custom Visual Elements per Slide */
+        /* Slide 1 Visual */
+        .glowing-globe {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+            position: relative;
+            animation: pulse-soft 3s infinite alternate;
+            box-shadow: var(--glow-purple);
+        }
+
+        .glowing-globe::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border: 2px dashed var(--secondary);
+            border-radius: 50%;
+            animation: rotate 20s linear infinite;
+        }
+
+        .main-icon-large {
+            font-size: 5rem;
+            color: #ffffff;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            filter: drop-shadow(0 0 20px var(--secondary));
+        }
+
+        /* Slide 2 Visual: E-Dönüşüm Grid */
+        .e-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 100%;
+        }
+
+        .e-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .e-card i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .e-card span {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        /* Slide 3 Visual: Marketplace Logos Sync */
+        .market-sync {
+            width: 200px;
+            height: 200px;
+            position: relative;
+        }
+
+        .market-center {
+            width: 70px;
+            height: 70px;
+            background: var(--card-bg);
+            border: 2px solid var(--secondary);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            box-shadow: var(--glow-cyan);
+        }
+
+        .market-center i {
+            font-size: 1.8rem;
+            color: var(--secondary);
+        }
+
+        .logo-bubble {
+            width: 45px;
+            height: 45px;
+            background: #ffffff;
+            border-radius: 50%;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: float 4s infinite ease-in-out;
+        }
+
+        .logo-bubble img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .bubble-1 { top: 10px; left: 10px; animation-delay: 0s; }
+        .bubble-2 { top: 10px; right: 10px; animation-delay: 1s; }
+        .bubble-3 { bottom: 10px; left: 10px; animation-delay: 2s; }
+        .bubble-4 { bottom: 10px; right: 10px; animation-delay: 3s; }
+
+        /* Slide 4 Visual: AI Brain */
+        .ai-brain-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ai-brain-container i {
+            font-size: 8rem;
+            color: var(--primary);
+            filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.6));
+            animation: pulse-soft 2s infinite alternate;
+        }
+
+        /* Slide 5 Visual: Final Logo & ETBIS */
+        .final-badge-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .final-logo {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .final-logo span {
+            color: var(--secondary);
+        }
+
+        .etbis-badge {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            color: #34d399;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Controller Overlay */
+        .player-controls {
+            margin-top: 25px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .control-btn {
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
+            border: none;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px rgba(139, 92, 246, 0.5);
+        }
+
+        .control-btn.secondary-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: none;
+        }
+
+        .control-btn.secondary-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: none;
+        }
+
+        /* Animations */
+        @keyframes pulse-soft {
+            0% { transform: scale(0.98); opacity: 0.85; }
+            100% { transform: scale(1.02); opacity: 1; }
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Mobile Alert */
+        .mobile-alert {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+            z-index: 9999;
+            padding: 30px;
+            text-align: center;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-alert { display: flex; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow-1"></div>
+    <div class="ambient-glow-2"></div>
+
+    <!-- Mobile Device Warning -->
+    <div class="mobile-alert">
+        <i class="fas fa-desktop" style="font-size: 3rem; color: var(--primary); margin-bottom: 20px;"></i>
+        <h2>Lütfen Bilgisayardan Açın</h2>
+        <p style="color: var(--text-muted); margin-top: 10px;">Sunum ve video seslendirme simülasyonu geniş ekranlar için optimize edilmiştir.</p>
+    </div>
+
+    <!-- Video Player Simulator -->
+    <div class="video-player">
+        <!-- Story progress bars -->
+        <div class="progress-container" id="progressBarContainer">
+            <div class="progress-bar-wrapper"><div class="progress-bar-fill" id="fill-0"></div></div>
+            <div class="progress-bar-wrapper"><div class="progress-bar-fill" id="fill-1"></div></div>
+            <div class="progress-bar-wrapper"><div class="progress-bar-fill" id="fill-2"></div></div>
+            <div class="progress-bar-wrapper"><div class="progress-bar-fill" id="fill-3"></div></div>
+            <div class="progress-bar-wrapper"><div class="progress-bar-fill" id="fill-4"></div></div>
+        </div>
+
+        <!-- Slide 1: Giriş -->
+        <div class="slide active" id="slide-0">
+            <div class="slide-content">
+                <span class="slide-badge">✓ Dijital Çözüm Ortağınız</span>
+                <h2>Dijital Dünyada <span class="gradient-text">Sınırları Kaldırın</span></h2>
+                <p>E-Dönüşüm ürünlerinden pazaryeri entegrasyonlarına, ERP hizmetlerinden yapay zeka destekli kurumsal iş çözümlerine kadar işletmenizin tüm teknolojik altyapısını tek bir çatı altında birleştiriyoruz.</p>
+            </div>
+            <div class="slide-visual">
+                <div class="glowing-globe"></div>
+                <i class="fas fa-microchip main-icon-large"></i>
+            </div>
+        </div>
+
+        <!-- Slide 2: E-Dönüşüm -->
+        <div class="slide" id="slide-1">
+            <div class="slide-content">
+                <span class="slide-badge">Yasal e-Uyum Çözümleri</span>
+                <h2>Hızlı ve Güvenli <span class="gradient-text">e-Dönüşüm</span></h2>
+                <p>E-Fatura, E-Arşiv, E-İmza, KEP ve Mali Mühür başvurularınızı dakikalar içinde tamamlıyoruz. Kağıtsız ofis konforuna geçerek operasyonel hızınızı maksimuma çıkarın.</p>
+            </div>
+            <div class="slide-visual">
+                <div class="e-grid">
+                    <div class="e-card"><i class="fas fa-file-invoice"></i><span>E-Fatura</span></div>
+                    <div class="e-card"><i class="fas fa-pen-fancy"></i><span>E-İmza</span></div>
+                    <div class="e-card"><i class="fas fa-shield-halved"></i><span>Mali Mühür</span></div>
+                    <div class="e-card"><i class="fas fa-envelope-open-text"></i><span>KEP</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Pazaryeri -->
+        <div class="slide" id="slide-2">
+            <div class="slide-content">
+                <span class="slide-badge">Çoklu Kanal Satış Gücü</span>
+                <h2>Gelişmiş <span class="gradient-text">Pazaryeri Entegrasyonu</span></h2>
+                <p>Trendyol, Hepsiburada, Amazon, N11 ve diğer tüm popüler pazaryerlerindeki sipariş, stok ve fiyatlarınızı tek bir panelden yönetin. Çift satışları engelleyin, stok hatasını sıfıra indirin.</p>
+            </div>
+            <div class="slide-visual">
+                <div class="market-sync">
+                    <div class="market-center"><i class="fas fa-sync-alt fa-spin"></i></div>
+                    <div class="logo-bubble bubble-1"><img src="images/marketplaces/trendyol.png" alt="Trendyol"></div>
+                    <div class="logo-bubble bubble-2"><img src="images/marketplaces/hepsiburada.webp" alt="Hepsiburada"></div>
+                    <div class="logo-bubble bubble-3"><img src="images/marketplaces/amazon.svg" alt="Amazon"></div>
+                    <div class="logo-bubble bubble-4"><img src="images/marketplaces/n11.jpg" alt="N11"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: AI Çözümler -->
+        <div class="slide" id="slide-3">
+            <div class="slide-content">
+                <span class="slide-badge">Yapay Zeka Teknolojisi</span>
+                <h2>Yapay Zeka Destekli <span class="gradient-text">İş Çözümleri</span></h2>
+                <p>İşletmenizi sadece dijitalleştirmiyoruz, aynı zamanda akıllandırıyoruz. Akıllı stok tahminleri, otomatik veri analizleri ve yapay zeka entegrasyonlarımızla verimliliğinizi %40'a kadar artırın.</p>
+            </div>
+            <div class="slide-visual">
+                <div class="ai-brain-container">
+                    <i class="fas fa-brain"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Kapanış -->
+        <div class="slide" id="slide-4">
+            <div class="slide-content">
+                <span class="slide-badge">Hemen Bugün Başlayın</span>
+                <h2>Geleceğe <span class="gradient-text">Adım Atın</span></h2>
+                <p>Güvenli altyapımız, 7/24 teknik desteğimiz ve kurumsal çözümlerimizle işinizi büyütmeye odaklanın. Kurumsal IT ve e-Dönüşümde doğru adres.</p>
+            </div>
+            <div class="slide-visual">
+                <div class="final-badge-wrap">
+                    <div class="final-logo">Kurumsal<span>Tedarikçi</span></div>
+                    <div class="etbis-badge"><i class="fas fa-shield-halved"></i> ETBİS KAYITLI GÜVENLİ SİTE</div>
+                    <div style="font-size: 1.1rem; font-weight: bold; color: var(--secondary);">www.tedarikci.org.tr</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="player-controls">
+        <button class="control-btn" id="playBtn"><i class="fas fa-play"></i> Tanıtım Videosunu Başlat</button>
+        <button class="control-btn secondary-btn" id="soundBtn"><i class="fas fa-volume-up"></i> Seslendirici Açık</button>
+    </div>
+
+    <script>
+        const slideTexts = [
+            "İşletmenizi geleceğe taşımak, dijital dünyada sınırları kaldırmak ister misiniz? Kurumsal Tedarikçi, dijital dönüşüm yolculuğunuzda en güvenilir çözüm ortağınız.",
+            "E-Fatura, E-İmza, Mali Mühür ve KEP süreçlerinizi hızlıca aktif ediyor, yasal süreçlerinizi sıfır hata ve kağıtsız ofis konforuyla buluşturuyoruz.",
+            "Tüm popüler pazaryerlerindeki siparişlerinizi, stoklarınızı ve fiyatlarınızı tek bir panelden yönetin. Hataları sıfırlayın, satışlarınızı katlayın.",
+            "Yapay zeka destekli analiz araçlarımızla sadece dijitalleşmeyin; stoklarınızı akıllıca yönetin ve geleceğe yönelik doğru finansal kararlar alın.",
+            "Siz işinizi büyütmeye odaklanın, teknolojik altyapınızı biz yönetelim. Hemen bugün tedarikci nokta org nokta te re'yi ziyaret edin ve teklif alın."
+        ];
+
+        const audioFiles = [
+            "audio/ses1.mp3",
+            "audio/ses2.mp3",
+            "audio/ses3.mp3",
+            "audio/ses4.mp3",
+            "audio/ses5.mp3"
+        ];
+
+        let currentSlide = 0;
+        let isPlaying = false;
+        let isSoundEnabled = true;
+        let currentAudio = null;
+
+        const playBtn = document.getElementById('playBtn');
+        const soundBtn = document.getElementById('soundBtn');
+
+        function playAudioForSlide(index) {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+
+            if (!isSoundEnabled) {
+                // Ses kapalıysa 8 saniye sonra diğer slayta geç
+                setTimeout(nextSlide, 8000);
+                return;
+            }
+
+            currentAudio = new Audio(audioFiles[index]);
+            
+            // Slayt bitince diğerine geçiş
+            currentAudio.addEventListener('ended', () => {
+                setTimeout(nextSlide, 800); // 0.8 saniye bekle
+            });
+
+            // İlerleme çubuğunu sesin saniyesiyle senkronize et
+            currentAudio.addEventListener('timeupdate', () => {
+                if (!isPlaying) return;
+                const percent = (currentAudio.currentTime / currentAudio.duration) * 100;
+                const fillBar = document.getElementById(`fill-${index}`);
+                if (fillBar) fillBar.style.width = `${percent}%`;
+            });
+
+            if (isPlaying) {
+                currentAudio.play().catch(e => console.error("Ses çalınamadı:", e));
+            }
+        }
+
+        function showSlide(index) {
+            document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+            const currentElement = document.getElementById(`slide-${index}`);
+            if(currentElement) currentElement.classList.add('active');
+            
+            // Progress barları ayarla
+            for (let i = 0; i < 5; i++) {
+                const fill = document.getElementById(`fill-${i}`);
+                if (i < index) fill.style.width = '100%';
+                if (i >= index) fill.style.width = '0%';
+            }
+
+            playAudioForSlide(index);
+        }
+
+        function nextSlide() {
+            if (!isPlaying) return;
+            currentSlide++;
+            if (currentSlide >= 5) {
+                currentSlide = 0;
+                stopVideo();
+                return;
+            }
+            showSlide(currentSlide);
+        }
+
+        function startVideo() {
+            isPlaying = true;
+            playBtn.innerHTML = '<i class="fas fa-pause"></i> Sunumu Duraklat';
+            showSlide(currentSlide);
+        }
+
+        function pauseVideo() {
+            isPlaying = false;
+            playBtn.innerHTML = '<i class="fas fa-play"></i> Sunuma Devam Et';
+            if (currentAudio) currentAudio.pause();
+        }
+
+        function stopVideo() {
+            isPlaying = false;
+            currentSlide = 0;
+            playBtn.innerHTML = '<i class="fas fa-play"></i> Yeniden Başlat';
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+            document.querySelectorAll('.progress-bar-fill').forEach(fill => fill.style.width = '0%');
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                pauseVideo();
+            } else {
+                if (currentAudio && currentAudio.paused && currentSlide >= 0 && currentAudio.currentTime > 0) {
+                    isPlaying = true;
+                    playBtn.innerHTML = '<i class="fas fa-pause"></i> Sunumu Duraklat';
+                    currentAudio.play().catch(e => console.log(e));
+                } else {
+                    startVideo();
+                }
+            }
+        });
+
+        soundBtn.addEventListener('click', () => {
+            isSoundEnabled = !isSoundEnabled;
+            if (isSoundEnabled) {
+                soundBtn.innerHTML = '<i class="fas fa-volume-up"></i> Ses Açık';
+                soundBtn.style.opacity = '1';
+                if (isPlaying) {
+                    playAudioForSlide(currentSlide);
+                }
+            } else {
+                soundBtn.innerHTML = '<i class="fas fa-volume-mute"></i> Ses Kapalı';
+                soundBtn.style.opacity = '0.6';
+                if (currentAudio) currentAudio.pause();
+            }
+        });
+    </script>
+</body>
+</html>

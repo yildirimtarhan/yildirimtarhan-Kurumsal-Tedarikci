@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kurumsal Tedarikçi - Tanıtım Videosu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1e40af;
+      --bg: #0f172a;
+      --text: #f8fafc;
+      --accent: #38bdf8;
+    }
+    
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Animated background */
+    .bg-animation {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle at top right, #1e3a8a, transparent 50%),
+                  radial-gradient(circle at bottom left, #0ea5e9, transparent 50%);
+      opacity: 0.4;
+      animation: pulse 10s infinite alternate;
+      z-index: 0;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.3; }
+      100% { transform: scale(1.1); opacity: 0.6; }
+    }
+
+    .container {
+      position: relative;
+      z-index: 10;
+      width: 90%;
+      max-width: 1000px;
+      text-align: center;
+      padding: 3rem;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .logo {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 2rem;
+      background: linear-gradient(to right, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 1s ease;
+    }
+
+    .slide-text {
+      font-size: 2.5rem;
+      line-height: 1.4;
+      font-weight: 300;
+      min-height: 150px;
+      opacity: 0;
+      transform: scale(0.95);
+      transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .slide-text.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .slide-text strong {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    #start-btn {
+      padding: 1rem 2.5rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 2rem;
+      box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.4);
+    }
+
+    #start-btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.5);
+    }
+
+    .progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 6px;
+      background: linear-gradient(to right, #38bdf8, #2563eb);
+      width: 0%;
+      transition: width 0.1s linear;
+      z-index: 20;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Graphic overlays for different slides */
+    .graphic {
+      margin-top: 3rem;
+      height: 200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    .graphic.active {
+      opacity: 1;
+    }
+
+    .dashboard-mockup {
+      width: 80%;
+      height: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      display: flex;
+      padding: 1rem;
+      gap: 1rem;
+    }
+
+    .sidebar { width: 20%; background: rgba(255,255,255,0.05); border-radius: 8px; }
+    .content { flex: 1; display: flex; flex-direction: column; gap: 1rem; }
+    .header { height: 20%; background: rgba(255,255,255,0.05); border-radius: 8px; }
+    .charts { flex: 1; display: flex; gap: 1rem; }
+    .chart { flex: 1; background: rgba(255,255,255,0.05); border-radius: 8px; }
+
+  </style>
+</head>
+<body>
+
+  <div class="bg-animation"></div>
+  <div class="progress-bar" id="progress"></div>
+
+  <div class="container" id="main-container">
+    <div class="logo" id="logo">Kurumsal Tedarikçi</div>
+    
+    <div id="intro">
+      <h1 style="font-weight: 300; margin-bottom: 2rem;">Kurumsal Tanıtım Videosu</h1>
+      <p style="color: #94a3b8; margin-bottom: 3rem;">Sesinizin ve projenizin otomatik senkronize edildiği deneyimi başlatın.</p>
+      <button id="start-btn">▶ Videoyu Başlat</button>
+    </div>
+
+    <div id="slides" class="hidden">
+      <div class="slide-text" id="slide-text"></div>
+      
+      <div class="graphic" id="graphic">
+        <div class="dashboard-mockup">
+          <div class="sidebar"></div>
+          <div class="content">
+            <div class="header"></div>
+            <div class="charts">
+              <div class="chart"></div>
+              <div class="chart"></div>
+              <div class="chart"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const slidesData = [
+      {
+        text: "İşletmenizi geleceğe taşımak, dijital dünyada sınırları kaldırmak ister misiniz? <strong>Kurumsal Tedarikçi</strong>, dijital dönüşüm yolculuğunuzda en güvenilir çözüm ortağınız.",
+        audio: "audio/ses1.mp3"
+      },
+      {
+        text: "<strong>E-Fatura, E-İmza, Mali Mühür ve KEP</strong> süreçlerinizi hızlıca aktif ediyor, yasal süreçlerinizi sıfır hata ve kağıtsız ofis konforuyla buluşturuyoruz.",
+        audio: "audio/ses2.mp3"
+      },
+      {
+        text: "Tüm popüler pazaryerlerindeki siparişlerinizi, stoklarınızı ve fiyatlarınızı <strong>tek bir panelden yönetin</strong>. Hataları sıfırlayın, satışlarınızı katlayın.",
+        audio: "audio/ses3.mp3"
+      },
+      {
+        text: "<strong>Yapay zeka destekli</strong> analiz araçlarımızla sadece dijitalleşmeyin; stoklarınızı akıllıca yönetin ve geleceğe yönelik doğru kararlar alın.",
+        audio: "audio/ses4.mp3"
+      },
+      {
+        text: "Siz işinizi büyütmeye odaklanın, teknolojik altyapınızı biz yönetelim. <strong>Hemen bugün tedarikci.org.tr'yi ziyaret edin</strong> ve teklif alın.",
+        audio: "audio/ses5.mp3"
+      }
+    ];
+
+    let currentSlide = 0;
+    let currentAudio = null;
+    let progressInterval;
+
+    const startBtn = document.getElementById('start-btn');
+    const intro = document.getElementById('intro');
+    const slides = document.getElementById('slides');
+    const slideText = document.getElementById('slide-text');
+    const logo = document.getElementById('logo');
+    const graphic = document.getElementById('graphic');
+    const progressBar = document.getElementById('progress');
+
+    startBtn.addEventListener('click', () => {
+      intro.classList.add('hidden');
+      slides.classList.remove('hidden');
+      logo.style.opacity = 1;
+      logo.style.transform = 'translateY(0)';
+      
+      playSlide(0);
+    });
+
+    function playSlide(index) {
+      if (index >= slidesData.length) {
+        // End of presentation
+        slideText.innerHTML = "<strong>Dijital Geleceğiniz Burada Başlıyor.</strong><br><br><span style='font-size:1.5rem'>www.tedarikci.org.tr</span>";
+        slideText.classList.add('active');
+        graphic.classList.add('hidden');
+        progressBar.style.width = '100%';
+        return;
+      }
+
+      const data = slidesData[index];
+      
+      // Animate text out, then in
+      slideText.classList.remove('active');
+      graphic.classList.remove('active');
+      
+      setTimeout(() => {
+        slideText.innerHTML = data.text;
+        slideText.classList.add('active');
+        graphic.classList.add('active');
+        
+        currentAudio = new Audio(data.audio);
+        
+        currentAudio.addEventListener('timeupdate', () => {
+           const percent = (currentAudio.currentTime / currentAudio.duration) * 100;
+           // calculate total progress based on slide index and current audio progress
+           const slidePercent = 100 / slidesData.length;
+           const totalPercent = (index * slidePercent) + (percent / slidesData.length);
+           progressBar.style.width = totalPercent + '%';
+        });
+
+        currentAudio.addEventListener('ended', () => {
+          setTimeout(() => playSlide(index + 1), 1000); // 1 second pause between slides
+        });
+        
+        currentAudio.play().catch(e => console.error("Audio playback failed:", e));
+      }, 500);
+    }
+  </script>
+</body>
+</html>
