@@ -89,246 +89,487 @@
 <body class="home">
 
 <!-- ===== TANITIM INTRO OVERLAY ===== -->
-<div id="intro-overlay" style="
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 99999;
-    background: #080c14; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; overflow: hidden;
-    transition: opacity 1s ease, visibility 1s ease;
-">
-    <!-- Ambient arka plan parlamaları -->
-    <div style="position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(139,92,246,0.2) 0%,transparent 70%);top:-100px;left:-100px;pointer-events:none;"></div>
-    <div style="position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(6,182,212,0.15) 0%,transparent 70%);bottom:-100px;right:-100px;pointer-events:none;"></div>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap');
 
-    <!-- Progress barları -->
-    <div id="intro-progress" style="position:absolute;top:20px;left:5%;width:90%;display:flex;gap:8px;z-index:10;">
-        <div style="flex:1;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;overflow:hidden;"><div class="intro-fill" id="ifill-0" style="height:100%;width:0%;background:linear-gradient(90deg,#8b5cf6,#06b6d4);transition:width 0.1s linear;"></div></div>
-        <div style="flex:1;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;overflow:hidden;"><div class="intro-fill" id="ifill-1" style="height:100%;width:0%;background:linear-gradient(90deg,#8b5cf6,#06b6d4);transition:width 0.1s linear;"></div></div>
-        <div style="flex:1;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;overflow:hidden;"><div class="intro-fill" id="ifill-2" style="height:100%;width:0%;background:linear-gradient(90deg,#8b5cf6,#06b6d4);transition:width 0.1s linear;"></div></div>
-        <div style="flex:1;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;overflow:hidden;"><div class="intro-fill" id="ifill-3" style="height:100%;width:0%;background:linear-gradient(90deg,#8b5cf6,#06b6d4);transition:width 0.1s linear;"></div></div>
-        <div style="flex:1;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;overflow:hidden;"><div class="intro-fill" id="ifill-4" style="height:100%;width:0%;background:linear-gradient(90deg,#8b5cf6,#06b6d4);transition:width 0.1s linear;"></div></div>
-    </div>
+#intro-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 99999;
+    background: rgba(8, 12, 20, 0.95);
+    backdrop-filter: blur(8px);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+    padding: 20px;
+    font-family: 'Outfit', sans-serif;
+    --primary: #8b5cf6;
+    --secondary: #06b6d4;
+    --text: #f3f4f6;
+    --text-muted: #9ca3af;
+    --card-bg: rgba(30, 41, 59, 0.5);
+    --glow-purple: 0 0 30px rgba(139, 92, 246, 0.4);
+    --glow-cyan: 0 0 30px rgba(6, 182, 212, 0.4);
+}
 
-    <!-- Geç butonu -->
-    <button onclick="closeIntro()" style="
-        position:absolute;top:18px;right:24px;z-index:20;
-        background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);
-        color:#fff;padding:8px 20px;border-radius:20px;cursor:pointer;
-        font-size:0.9rem;font-family:'Inter',sans-serif;
-        transition:background 0.2s;
-    " onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
-        Geç <i class="fas fa-forward" style="margin-left:4px;font-size:0.75rem;"></i>
-    </button>
+#intro-overlay * {
+    box-sizing: border-box;
+}
 
-    <!-- Logo -->
-    <div style="position:absolute;top:14px;left:24px;z-index:20;font-family:'Inter',sans-serif;font-weight:800;font-size:1.3rem;color:#fff;">
-        Kurumsal<span style="color:#06b6d4;">Tedarikçi</span>
-    </div>
+#intro-overlay .ambient-glow-1 {
+    position: absolute; width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(0,0,0,0) 70%);
+    top: -100px; left: -100px; pointer-events: none; z-index: 1;
+}
 
-    <!-- Slayt alanı -->
-    <div style="width:90%;max-width:900px;text-align:center;padding:20px;position:relative;z-index:5;">
+#intro-overlay .ambient-glow-2 {
+    position: absolute; width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, rgba(0,0,0,0) 70%);
+    bottom: -100px; right: -100px; pointer-events: none; z-index: 1;
+}
 
-        <!-- Slide 1 -->
-        <div class="intro-slide" id="islide-0" style="transition:opacity 0.8s ease,transform 0.8s ease;">
-            <div style="display:inline-block;background:rgba(139,92,246,0.15);border:1px solid #8b5cf6;color:#c084fc;padding:6px 14px;border-radius:20px;font-size:0.8rem;font-weight:700;letter-spacing:1px;margin-bottom:20px;text-transform:uppercase;">✓ Dijital Çözüm Ortağınız</div>
-            <h2 style="font-size:clamp(1.8rem,4vw,3rem);font-weight:800;color:#fff;line-height:1.2;margin-bottom:16px;font-family:'Inter',sans-serif;">Dijital Dünyada <span style="background:linear-gradient(135deg,#c084fc,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Sınırları Kaldırın</span></h2>
-            <p style="font-size:1.1rem;color:#94a3b8;line-height:1.7;max-width:650px;margin:0 auto;">E-Dönüşüm ürünlerinden pazaryeri entegrasyonlarına, ERP hizmetlerinden yapay zeka destekli kurumsal iş çözümlerine kadar işletmenizin tüm teknolojik altyapısını tek bir çatı altında birleştiriyoruz.</p>
+#intro-overlay .video-player {
+    width: 100%;
+    max-width: 1024px;
+    aspect-ratio: 16/9;
+    background-color: #0b0f19;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), var(--glow-purple);
+    position: relative;
+    overflow: hidden;
+    z-index: 10;
+}
+
+#intro-overlay .progress-container {
+    position: absolute; top: 15px; left: 5%; width: 90%;
+    display: flex; gap: 8px; z-index: 100;
+}
+
+#intro-overlay .progress-bar-wrapper {
+    flex: 1; height: 4px; background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 2px; overflow: hidden;
+}
+
+#intro-overlay .progress-bar-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    transition: width 0.1s linear;
+}
+
+#intro-overlay .slide {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; opacity: 0; visibility: hidden;
+    transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
+    padding: 40px 60px; align-items: center; justify-content: space-between;
+}
+
+#intro-overlay .slide.active {
+    opacity: 1; visibility: visible;
+}
+
+#intro-overlay .slide-content {
+    width: 55%; display: flex; flex-direction: column; justify-content: center;
+}
+
+#intro-overlay .slide-badge {
+    align-self: flex-start;
+    background: rgba(139, 92, 246, 0.15);
+    border: 1px solid var(--primary);
+    color: #c084fc; padding: 6px 12px; border-radius: 20px;
+    font-size: 0.85rem; font-weight: 600; margin-bottom: 20px;
+    text-transform: uppercase; letter-spacing: 1px;
+    box-shadow: var(--glow-purple);
+}
+
+#intro-overlay .slide-content h2 {
+    font-size: clamp(2rem, 3vw, 2.5rem); font-weight: 850; line-height: 1.2;
+    margin-bottom: 20px; color: var(--text);
+}
+
+#intro-overlay .gradient-text {
+    background: linear-gradient(135deg, #c084fc 0%, #22d3ee 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+#intro-overlay .slide-content p {
+    font-size: 1.1rem; color: var(--text-muted); line-height: 1.6;
+}
+
+#intro-overlay .slide-visual {
+    width: 40%; height: 100%; display: flex; align-items: center;
+    justify-content: center; position: relative;
+}
+
+#intro-overlay .glowing-globe {
+    width: 180px; height: 180px; border-radius: 50%;
+    background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+    position: relative; animation: intro-pulse-soft 3s infinite alternate;
+    box-shadow: var(--glow-purple);
+}
+
+#intro-overlay .glowing-globe::after {
+    content: ''; position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px;
+    border: 2px dashed var(--secondary); border-radius: 50%;
+    animation: intro-rotate 20s linear infinite;
+}
+
+#intro-overlay .main-icon-large {
+    font-size: 5rem; color: #ffffff; position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    filter: drop-shadow(0 0 20px var(--secondary));
+}
+
+#intro-overlay .e-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%;
+}
+
+#intro-overlay .e-card {
+    background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px; padding: 20px; text-align: center;
+    transition: all 0.3s ease; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+#intro-overlay .e-card i {
+    font-size: 2rem; margin-bottom: 10px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+#intro-overlay .e-card span {
+    display: block; font-size: 0.9rem; font-weight: 700; color: #fff;
+}
+
+#intro-overlay .market-sync {
+    width: 200px; height: 200px; position: relative;
+}
+
+#intro-overlay .market-center {
+    width: 70px; height: 70px; background: var(--card-bg);
+    border: 2px solid var(--secondary); border-radius: 50%;
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 5; box-shadow: var(--glow-cyan);
+}
+
+#intro-overlay .market-center i {
+    font-size: 1.8rem; color: var(--secondary);
+}
+
+#intro-overlay .logo-bubble {
+    width: 45px; height: 45px; background: #ffffff; border-radius: 50%;
+    position: absolute; display: flex; align-items: center; justify-content: center;
+    padding: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    animation: intro-float 4s infinite ease-in-out;
+}
+
+#intro-overlay .logo-bubble img { width: 100%; height: 100%; object-fit: contain; }
+#intro-overlay .bubble-1 { top: 10px; left: 10px; animation-delay: 0s; }
+#intro-overlay .bubble-2 { top: 10px; right: 10px; animation-delay: 1s; }
+#intro-overlay .bubble-3 { bottom: 10px; left: 10px; animation-delay: 2s; }
+#intro-overlay .bubble-4 { bottom: 10px; right: 10px; animation-delay: 3s; }
+
+#intro-overlay .ai-brain-container {
+    position: relative; width: 100%; height: 100%; display: flex;
+    align-items: center; justify-content: center;
+}
+
+#intro-overlay .ai-brain-container i {
+    font-size: 8rem; color: var(--primary);
+    filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.6));
+    animation: intro-pulse-soft 2s infinite alternate;
+}
+
+#intro-overlay .final-badge-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 15px;
+}
+
+#intro-overlay .final-logo {
+    font-size: 2.2rem; font-weight: 800; color: #ffffff;
+}
+
+#intro-overlay .final-logo span { color: var(--secondary); }
+
+#intro-overlay .etbis-badge {
+    background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #34d399;
+    padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+}
+
+#intro-overlay .player-controls {
+    margin-top: 30px; display: flex; gap: 25px; align-items: center; justify-content: center;
+    z-index: 100;
+}
+
+#intro-overlay .control-btn {
+    background: linear-gradient(135deg, var(--primary), #7c3aed);
+    border: none; color: #ffffff; padding: 12px 24px; border-radius: 30px;
+    font-size: 1rem; font-weight: 700; cursor: pointer; display: flex;
+    align-items: center; gap: 8px; box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+    transition: all 0.3s ease; font-family: 'Outfit', sans-serif;
+}
+
+#intro-overlay .control-btn:hover {
+    transform: translateY(-2px); box-shadow: 0 15px 25px rgba(139, 92, 246, 0.5);
+}
+
+#intro-overlay .control-btn.secondary-btn {
+    background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: none;
+}
+
+#intro-overlay .control-btn.secondary-btn:hover {
+    background: rgba(255, 255, 255, 0.15); box-shadow: none;
+}
+
+@keyframes intro-pulse-soft {
+    0% { transform: scale(0.98); opacity: 0.85; }
+    100% { transform: scale(1.02); opacity: 1; }
+}
+@keyframes intro-rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+@keyframes intro-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@media (max-width: 768px) {
+    #intro-overlay .slide { flex-direction: column; padding: 30px 20px; text-align: center; }
+    #intro-overlay .slide-content { width: 100%; align-items: center; }
+    #intro-overlay .slide-visual { width: 100%; height: 200px; margin-top: 20px; }
+    #intro-overlay .e-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    #intro-overlay .e-card { padding: 10px; }
+    #intro-overlay .e-card i { font-size: 1.5rem; }
+    #intro-overlay .glowing-globe { width: 120px; height: 120px; }
+    #intro-overlay .main-icon-large { font-size: 3rem; }
+    #intro-overlay .market-sync { width: 140px; height: 140px; }
+    #intro-overlay .market-center { width: 50px; height: 50px; }
+    #intro-overlay .market-center i { font-size: 1.2rem; }
+    #intro-overlay .logo-bubble { width: 35px; height: 35px; }
+    #intro-overlay .ai-brain-container i { font-size: 5rem; }
+    #intro-overlay .final-logo { font-size: 1.5rem; }
+    #intro-overlay .player-controls { flex-direction: column; width: 100%; max-width: 300px; }
+    #intro-overlay .control-btn { width: 100%; justify-content: center; }
+}
+
+/* Kapat butonu - Sağ üstte dışarıda veya player içinde sağ üstte */
+#intro-overlay .close-overlay-btn {
+    position: absolute; top: 15px; right: 15px;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    color: #fff; padding: 6px 14px; border-radius: 20px;
+    font-size: 0.85rem; font-weight: 600; cursor: pointer; z-index: 1000;
+    transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+}
+#intro-overlay .close-overlay-btn:hover { background: rgba(255,255,255,0.2); }
+</style>
+
+<div id="intro-overlay">
+    <div class="ambient-glow-1"></div>
+    <div class="ambient-glow-2"></div>
+
+    <div class="video-player">
+        <button class="close-overlay-btn" onclick="closeIntroOverlay()">
+            Geç <i class="fas fa-forward"></i>
+        </button>
+
+        <div class="progress-container">
+            <div class="progress-bar-wrapper"><div class="progress-bar-fill" id="fill-0"></div></div>
+            <div class="progress-bar-wrapper"><div class="progress-bar-fill" id="fill-1"></div></div>
+            <div class="progress-bar-wrapper"><div class="progress-bar-fill" id="fill-2"></div></div>
+            <div class="progress-bar-wrapper"><div class="progress-bar-fill" id="fill-3"></div></div>
+            <div class="progress-bar-wrapper"><div class="progress-bar-fill" id="fill-4"></div></div>
         </div>
 
-        <!-- Slide 2 -->
-        <div class="intro-slide" id="islide-1" style="display:none;transition:opacity 0.8s ease,transform 0.8s ease;">
-            <div style="display:inline-block;background:rgba(6,182,212,0.15);border:1px solid #06b6d4;color:#22d3ee;padding:6px 14px;border-radius:20px;font-size:0.8rem;font-weight:700;letter-spacing:1px;margin-bottom:20px;text-transform:uppercase;">Yasal e-Uyum Çözümleri</div>
-            <h2 style="font-size:clamp(1.8rem,4vw,3rem);font-weight:800;color:#fff;line-height:1.2;margin-bottom:16px;font-family:'Inter',sans-serif;">Hızlı ve Güvenli <span style="background:linear-gradient(135deg,#c084fc,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">e-Dönüşüm</span></h2>
-            <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:24px;">
-                <div style="background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px 24px;text-align:center;min-width:100px;"><i class="fas fa-file-invoice" style="font-size:2rem;background:linear-gradient(135deg,#8b5cf6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;"></i><div style="color:#fff;font-weight:700;margin-top:8px;font-size:0.9rem;">E-Fatura</div></div>
-                <div style="background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px 24px;text-align:center;min-width:100px;"><i class="fas fa-pen-fancy" style="font-size:2rem;background:linear-gradient(135deg,#8b5cf6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;"></i><div style="color:#fff;font-weight:700;margin-top:8px;font-size:0.9rem;">E-İmza</div></div>
-                <div style="background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px 24px;text-align:center;min-width:100px;"><i class="fas fa-shield-halved" style="font-size:2rem;background:linear-gradient(135deg,#8b5cf6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;"></i><div style="color:#fff;font-weight:700;margin-top:8px;font-size:0.9rem;">Mali Mühür</div></div>
-                <div style="background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px 24px;text-align:center;min-width:100px;"><i class="fas fa-envelope-open-text" style="font-size:2rem;background:linear-gradient(135deg,#8b5cf6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;"></i><div style="color:#fff;font-weight:700;margin-top:8px;font-size:0.9rem;">KEP</div></div>
+        <!-- Slide 1: Giriş -->
+        <div class="slide active" id="slide-0">
+            <div class="slide-content">
+                <span class="slide-badge">✓ Dijital Çözüm Ortağınız</span>
+                <h2>Dijital Dünyada <span class="gradient-text">Sınırları Kaldırın</span></h2>
+                <p>E-Dönüşüm ürünlerinden pazaryeri entegrasyonlarına, ERP hizmetlerinden yapay zeka destekli kurumsal iş çözümlerine kadar işletmenizin tüm teknolojik altyapısını tek bir çatı altında birleştiriyoruz.</p>
+            </div>
+            <div class="slide-visual">
+                <div class="glowing-globe"></div>
+                <i class="fas fa-microchip main-icon-large"></i>
             </div>
         </div>
 
-        <!-- Slide 3 -->
-        <div class="intro-slide" id="islide-2" style="display:none;transition:opacity 0.8s ease,transform 0.8s ease;">
-            <div style="display:inline-block;background:rgba(139,92,246,0.15);border:1px solid #8b5cf6;color:#c084fc;padding:6px 14px;border-radius:20px;font-size:0.8rem;font-weight:700;letter-spacing:1px;margin-bottom:20px;text-transform:uppercase;">Çoklu Kanal Satış Gücü</div>
-            <h2 style="font-size:clamp(1.8rem,4vw,3rem);font-weight:800;color:#fff;line-height:1.2;margin-bottom:16px;font-family:'Inter',sans-serif;">Gelişmiş <span style="background:linear-gradient(135deg,#c084fc,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Pazaryeri Entegrasyonu</span></h2>
-            <p style="font-size:1.1rem;color:#94a3b8;line-height:1.7;max-width:650px;margin:0 auto;">Trendyol, Hepsiburada, Amazon, N11 ve tüm pazaryerlerindeki sipariş, stok ve fiyatlarınızı <strong style="color:#fff;">tek bir panelden</strong> yönetin. Hataları sıfırlayın, satışlarınızı katlayın.</p>
+        <!-- Slide 2: E-Dönüşüm -->
+        <div class="slide" id="slide-1">
+            <div class="slide-content">
+                <span class="slide-badge">Yasal e-Uyum Çözümleri</span>
+                <h2>Hızlı ve Güvenli <span class="gradient-text">e-Dönüşüm</span></h2>
+                <p>E-Fatura, E-Arşiv, E-İmza, KEP ve Mali Mühür başvurularınızı dakikalar içinde tamamlıyoruz. Kağıtsız ofis konforuna geçerek operasyonel hızınızı maksimuma çıkarın.</p>
+            </div>
+            <div class="slide-visual">
+                <div class="e-grid">
+                    <div class="e-card"><i class="fas fa-file-invoice"></i><span>E-Fatura</span></div>
+                    <div class="e-card"><i class="fas fa-pen-fancy"></i><span>E-İmza</span></div>
+                    <div class="e-card"><i class="fas fa-shield-halved"></i><span>Mali Mühür</span></div>
+                    <div class="e-card"><i class="fas fa-envelope-open-text"></i><span>KEP</span></div>
+                </div>
+            </div>
         </div>
 
-        <!-- Slide 4 -->
-        <div class="intro-slide" id="islide-3" style="display:none;transition:opacity 0.8s ease,transform 0.8s ease;">
-            <div style="display:inline-block;background:rgba(6,182,212,0.15);border:1px solid #06b6d4;color:#22d3ee;padding:6px 14px;border-radius:20px;font-size:0.8rem;font-weight:700;letter-spacing:1px;margin-bottom:20px;text-transform:uppercase;">Yapay Zeka Teknolojisi</div>
-            <h2 style="font-size:clamp(1.8rem,4vw,3rem);font-weight:800;color:#fff;line-height:1.2;margin-bottom:16px;font-family:'Inter',sans-serif;">Yapay Zeka Destekli <span style="background:linear-gradient(135deg,#c084fc,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">İş Çözümleri</span></h2>
-            <p style="font-size:1.1rem;color:#94a3b8;line-height:1.7;max-width:650px;margin:0 auto;">İşletmenizi sadece dijitalleştirmiyoruz, aynı zamanda <strong style="color:#fff;">akıllandırıyoruz</strong>. Akıllı stok tahminleri, otomatik veri analizleri ve yapay zeka entegrasyonlarımızla verimliliğinizi artırın.</p>
+        <!-- Slide 3: Pazaryeri -->
+        <div class="slide" id="slide-2">
+            <div class="slide-content">
+                <span class="slide-badge">Çoklu Kanal Satış Gücü</span>
+                <h2>Gelişmiş <span class="gradient-text">Pazaryeri Entegrasyonu</span></h2>
+                <p>Trendyol, Hepsiburada, Amazon, N11 ve diğer tüm popüler pazaryerlerindeki sipariş, stok ve fiyatlarınızı tek bir panelden yönetin. Çift satışları engelleyin, stok hatasını sıfıra indirin.</p>
+            </div>
+            <div class="slide-visual">
+                <div class="market-sync">
+                    <div class="market-center"><i class="fas fa-sync-alt fa-spin"></i></div>
+                    <div class="logo-bubble bubble-1"><img src="images/marketplaces/trendyol.png" alt="Trendyol"></div>
+                    <div class="logo-bubble bubble-2"><img src="images/marketplaces/hepsiburada.webp" alt="Hepsiburada"></div>
+                    <div class="logo-bubble bubble-3"><img src="images/marketplaces/amazon.svg" alt="Amazon"></div>
+                    <div class="logo-bubble bubble-4"><img src="images/marketplaces/n11.jpg" alt="N11"></div>
+                </div>
+            </div>
         </div>
 
-        <!-- Slide 5 -->
-        <div class="intro-slide" id="islide-4" style="display:none;transition:opacity 0.8s ease,transform 0.8s ease;">
-            <div style="display:inline-block;background:rgba(16,185,129,0.15);border:1px solid #10b981;color:#34d399;padding:6px 14px;border-radius:20px;font-size:0.8rem;font-weight:700;letter-spacing:1px;margin-bottom:20px;text-transform:uppercase;">Hemen Bugün Başlayın</div>
-            <h2 style="font-size:clamp(1.8rem,4vw,3rem);font-weight:800;color:#fff;line-height:1.2;margin-bottom:16px;font-family:'Inter',sans-serif;">Geleceğe <span style="background:linear-gradient(135deg,#c084fc,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Adım Atın</span></h2>
-            <p style="font-size:1.1rem;color:#94a3b8;line-height:1.7;max-width:650px;margin:0 auto;">Siz işinizi büyütmeye odaklanın, teknolojik altyapınızı biz yönetelim. Güvenli altyapımız, 7/24 teknik desteğimiz ve kurumsal çözümlerimizle doğru adrestesiniz.</p>
-            <div style="margin-top:24px;font-size:1.3rem;font-weight:800;color:#06b6d4;letter-spacing:1px;">www.tedarikci.org.tr</div>
+        <!-- Slide 4: AI Çözümler -->
+        <div class="slide" id="slide-3">
+            <div class="slide-content">
+                <span class="slide-badge">Yapay Zeka Teknolojisi</span>
+                <h2>Yapay Zeka Destekli <span class="gradient-text">İş Çözümleri</span></h2>
+                <p>İşletmenizi sadece dijitalleştirmiyoruz, aynı zamanda akıllandırıyoruz. Akıllı stok tahminleri, otomatik veri analizleri ve yapay zeka entegrasyonlarımızla verimliliğinizi artırın.</p>
+            </div>
+            <div class="slide-visual">
+                <div class="ai-brain-container">
+                    <i class="fas fa-brain"></i>
+                </div>
+            </div>
         </div>
+
+        <!-- Slide 5: Kapanış -->
+        <div class="slide" id="slide-4">
+            <div class="slide-content">
+                <span class="slide-badge">Hemen Bugün Başlayın</span>
+                <h2>Geleceğe <span class="gradient-text">Adım Atın</span></h2>
+                <p>Güvenli altyapımız, 7/24 teknik desteğimiz ve kurumsal çözümlerimizle işinizi büyütmeye odaklanın. Kurumsal IT ve e-Dönüşümde doğru adres.</p>
+            </div>
+            <div class="slide-visual">
+                <div class="final-badge-wrap">
+                    <div class="final-logo">Kurumsal<span>Tedarikçi</span></div>
+                    <div class="etbis-badge"><i class="fas fa-shield-halved"></i> ETBİS KAYITLI</div>
+                    <div style="font-size: 1.1rem; font-weight: bold; color: var(--secondary);">www.tedarikci.org.tr</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="player-controls">
+        <button class="control-btn" id="introPlayBtn"><i class="fas fa-play"></i> Tanıtımı Başlat</button>
+        <button class="control-btn secondary-btn" onclick="closeIntroOverlay()"><i class="fas fa-times"></i> Siteye Geç</button>
     </div>
 </div>
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-#intro-overlay .intro-slide { position:absolute; width:90%; max-width:900px; left:50%; transform:translateX(-50%); }
-#intro-overlay .intro-slide:first-child { position:relative; left:auto; transform:none; width:100%; }
-
-/* Mobil düzenlemeler */
-@media (max-width: 768px) {
-    #intro-overlay {
-        padding: 0 16px;
-        justify-content: center;
-    }
-    #intro-overlay h2 {
-        font-size: 1.6rem !important;
-        margin-bottom: 12px !important;
-    }
-    #intro-overlay p {
-        font-size: 0.95rem !important;
-        line-height: 1.6 !important;
-    }
-    #intro-overlay .intro-slide {
-        width: 100% !important;
-        padding: 0 8px !important;
-    }
-    #intro-overlay .intro-slide:first-child {
-        width: 100% !important;
-    }
-    /* E-dönüşüm kartları mobilde 2x2 kompakt */
-    #islide-1 > div[style*="flex"] {
-        gap: 10px !important;
-    }
-    #islide-1 > div[style*="flex"] > div {
-        padding: 14px 16px !important;
-        min-width: 80px !important;
-    }
-    #islide-1 > div[style*="flex"] > div i {
-        font-size: 1.5rem !important;
-    }
-    #islide-1 > div[style*="flex"] > div div {
-        font-size: 0.8rem !important;
-    }
-    /* Geç butonu mobilde daha büyük - parmak dostu */
-    #intro-overlay button[onclick="closeIntro()"] {
-        top: 12px !important;
-        right: 12px !important;
-        padding: 10px 18px !important;
-        font-size: 0.85rem !important;
-    }
-    /* Logo mobilde küçük */
-    #intro-overlay > div[style*="top:14px"] {
-        font-size: 1rem !important;
-        top: 12px !important;
-        left: 12px !important;
-    }
-    /* Progress barlar mobilde daha kalın - görünür olsun */
-    #intro-progress > div {
-        height: 5px !important;
-    }
-    /* www adresi */
-    #islide-4 > div[style*="1.3rem"] {
-        font-size: 1.1rem !important;
-    }
-    /* Başlat butonu varsa tam genişlikte olsun */
-    #startIntroBtn {
-        width: 85% !important;
-        font-size: 0.95rem !important;
-    }
-    /* Ambient glow'ları mobilde küçült */
-    #intro-overlay > div:nth-child(1)[style*="600px"],
-    #intro-overlay > div:nth-child(2)[style*="600px"] {
-        width: 300px !important;
-        height: 300px !important;
-    }
-}
-
-/* Küçük telefonlar */
-@media (max-width: 400px) {
-    #intro-overlay h2 {
-        font-size: 1.35rem !important;
-    }
-    #intro-overlay p {
-        font-size: 0.88rem !important;
-    }
-}
-</style>
-
 <script>
 (function() {
-    // Sadece bu oturumda 1 kez göster
     if (sessionStorage.getItem('introShown')) {
-        document.getElementById('intro-overlay').style.display = 'none';
+        const overlay = document.getElementById('intro-overlay');
+        if(overlay) overlay.style.display = 'none';
         return;
     }
 
     const audioFiles = ['audio/ses1.mp3','audio/ses2.mp3','audio/ses3.mp3','audio/ses4.mp3','audio/ses5.mp3'];
     let currentSlide = 0;
+    let isPlaying = false;
     let currentAudio = null;
-    let started = false;
+    const playBtn = document.getElementById('introPlayBtn');
+
+    function playAudioForSlide(index) {
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+        }
+
+        currentAudio = new Audio(audioFiles[index]);
+        
+        currentAudio.addEventListener('ended', () => {
+            setTimeout(nextSlide, 800);
+        });
+
+        currentAudio.addEventListener('timeupdate', () => {
+            if (!isPlaying) return;
+            const percent = (currentAudio.currentTime / currentAudio.duration) * 100;
+            const fillBar = document.getElementById(`fill-${index}`);
+            if (fillBar) fillBar.style.width = `${percent}%`;
+        });
+
+        if (isPlaying) {
+            currentAudio.play().catch(e => {
+                isPlaying = false;
+                if(playBtn) playBtn.innerHTML = '<i class="fas fa-play"></i> Tanıtımı Başlat';
+            });
+        }
+    }
 
     function showSlide(index) {
-        // Tüm slaytları gizle
-        document.querySelectorAll('.intro-slide').forEach((s, i) => {
-            s.style.display = 'none';
-            s.style.opacity = '0';
-            // Progress barları doldur/sıfırla
-            const fill = document.getElementById('ifill-' + i);
-            if (fill) fill.style.width = (i < index ? '100%' : '0%');
-        });
+        document.querySelectorAll('#intro-overlay .slide').forEach(s => s.classList.remove('active'));
+        const currentElement = document.getElementById(`slide-${index}`);
+        if(currentElement) currentElement.classList.add('active');
+        
+        for (let i = 0; i < 5; i++) {
+            const fill = document.getElementById(`fill-${i}`);
+            if(fill) {
+                if (i < index) fill.style.width = '100%';
+                if (i >= index) fill.style.width = '0%';
+            }
+        }
+        playAudioForSlide(index);
+    }
 
-        // Aktif slaytı göster
-        const active = document.getElementById('islide-' + index);
-        if (!active) { closeIntro(); return; }
-        active.style.display = 'block';
-        setTimeout(() => { active.style.opacity = '1'; }, 50);
+    function nextSlide() {
+        if (!isPlaying) return;
+        currentSlide++;
+        if (currentSlide >= 5) {
+            closeIntroOverlay();
+            return;
+        }
+        showSlide(currentSlide);
+    }
 
-        // Sesi çal
-        if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
-        currentAudio = new Audio(audioFiles[index]);
+    window.closeIntroOverlay = function() {
+        sessionStorage.setItem('introShown', '1');
+        isPlaying = false;
+        if (currentAudio) currentAudio.pause();
+        const overlay = document.getElementById('intro-overlay');
+        if(overlay) {
+            overlay.style.opacity = '0';
+            overlay.style.visibility = 'hidden';
+            setTimeout(() => { overlay.style.display = 'none'; }, 800);
+        }
+    };
 
-        currentAudio.addEventListener('timeupdate', function() {
-            const pct = (this.currentTime / this.duration) * 100;
-            const fill = document.getElementById('ifill-' + index);
-            if (fill) fill.style.width = pct + '%';
-        });
-
-        currentAudio.addEventListener('ended', function() {
-            setTimeout(function() {
-                currentSlide++;
-                if (currentSlide >= audioFiles.length) { closeIntro(); }
-                else { showSlide(currentSlide); }
-            }, 600);
-        });
-
-        currentAudio.play().catch(function() {
-            // Autoplay engellendiyse tıklama bekle
-            if (!started) {
-                var btn = document.createElement('button');
-                btn.textContent = '▶ Tanıtımı Başlat';
-                btn.style.cssText = 'position:absolute;bottom:40px;left:50%;transform:translateX(-50%);padding:14px 32px;background:linear-gradient(135deg,#8b5cf6,#06b6d4);border:none;color:#fff;border-radius:30px;font-size:1rem;font-weight:700;cursor:pointer;z-index:30;font-family:Inter,sans-serif;';
-                btn.id = 'startIntroBtn';
-                btn.onclick = function() { this.remove(); started = true; currentAudio.play(); };
-                document.getElementById('intro-overlay').appendChild(btn);
+    if(playBtn) {
+        playBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                isPlaying = false;
+                playBtn.innerHTML = '<i class="fas fa-play"></i> Tanıtıma Devam Et';
+                if (currentAudio) currentAudio.pause();
+            } else {
+                isPlaying = true;
+                playBtn.innerHTML = '<i class="fas fa-pause"></i> Tanıtımı Duraklat';
+                if (currentAudio && currentAudio.currentTime > 0) {
+                    currentAudio.play().catch(e => console.log(e));
+                } else {
+                    showSlide(currentSlide);
+                }
             }
         });
     }
 
-    window.closeIntro = function() {
-        sessionStorage.setItem('introShown', '1');
-        if (currentAudio) { currentAudio.pause(); }
-        const overlay = document.getElementById('intro-overlay');
-        overlay.style.opacity = '0';
-        overlay.style.visibility = 'hidden';
-        setTimeout(() => { overlay.style.display = 'none'; }, 1000);
-    };
-
-    // Başlat
+    // İlk slaytı hazırla
     showSlide(0);
 })();
 </script>
 <!-- ===== /TANITIM INTRO OVERLAY ===== -->
+
+
 
 <nav class="navbar">
     <a class="logo" href="index.html">Kurumsal<span>Tedarikçi</span></a>
