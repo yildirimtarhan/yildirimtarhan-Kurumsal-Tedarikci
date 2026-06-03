@@ -259,22 +259,83 @@
 }
 
 @media (max-width: 768px) {
-    #intro-overlay .slide { flex-direction: column; padding: 30px 20px; text-align: center; }
-    #intro-overlay .slide-content { width: 100%; align-items: center; }
-    #intro-overlay .slide-visual { width: 100%; height: 200px; margin-top: 20px; }
-    #intro-overlay .e-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-    #intro-overlay .e-card { padding: 10px; }
-    #intro-overlay .e-card i { font-size: 1.5rem; }
-    #intro-overlay .glowing-globe { width: 120px; height: 120px; }
-    #intro-overlay .main-icon-large { font-size: 3rem; }
-    #intro-overlay .market-sync { width: 140px; height: 140px; }
-    #intro-overlay .market-center { width: 50px; height: 50px; }
-    #intro-overlay .market-center i { font-size: 1.2rem; }
-    #intro-overlay .logo-bubble { width: 35px; height: 35px; }
-    #intro-overlay .ai-brain-container i { font-size: 5rem; }
-    #intro-overlay .final-logo { font-size: 1.5rem; }
-    #intro-overlay .player-controls { flex-direction: column; width: 100%; max-width: 300px; gap: 15px; }
-    #intro-overlay .control-btn { width: 100%; justify-content: center; }
+    /* Video kutusu: aspect-ratio kaldır, tam yükseklik ver */
+    #intro-overlay .video-player {
+        aspect-ratio: unset !important;
+        height: auto;
+        min-height: 55vh;
+        max-height: 65vh;
+        border-radius: 12px;
+        overflow-y: auto;
+    }
+
+    /* Slide: dikey yığın, padding küçült */
+    #intro-overlay .slide {
+        flex-direction: column;
+        padding: 50px 18px 18px;
+        text-align: center;
+        align-items: flex-start;
+        justify-content: flex-start;
+        overflow-y: auto;
+        height: auto;
+        min-height: 55vh;
+    }
+
+    /* Yazı alanı tam genişlik */
+    #intro-overlay .slide-content {
+        width: 100%;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    /* Başlık boyutu küçült */
+    #intro-overlay .slide-content h2 {
+        font-size: 1.6rem !important;
+        margin-bottom: 12px;
+        line-height: 1.25;
+    }
+
+    /* Paragraf boyutu küçült */
+    #intro-overlay .slide-content p {
+        font-size: 0.9rem !important;
+        line-height: 1.5;
+    }
+
+    /* Badge küçült */
+    #intro-overlay .slide-badge {
+        font-size: 0.7rem;
+        padding: 5px 10px;
+        margin-bottom: 12px;
+    }
+
+    /* Görseli tamamen gizle — yer açsın */
+    #intro-overlay .slide-visual {
+        display: none !important;
+    }
+
+    /* İlerleme çubukları */
+    #intro-overlay .progress-container {
+        top: 10px;
+        left: 3%;
+        width: 94%;
+    }
+
+    /* Butonlar alt alta, tam genişlik */
+    #intro-overlay .player-controls {
+        flex-direction: column;
+        width: 100%;
+        max-width: 100%;
+        gap: 12px;
+        margin-top: 20px;
+        padding: 0 10px;
+    }
+    #intro-overlay .control-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 20px;
+        font-size: 1rem;
+        border-radius: 14px;
+    }
 }
 
 /* Kapat butonu - Sağ üstte dışarıda veya player içinde sağ üstte */
