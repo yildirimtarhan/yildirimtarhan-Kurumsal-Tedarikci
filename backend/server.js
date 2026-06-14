@@ -214,6 +214,7 @@ const marketingRoutes = require('./routes/marketing');
 const voiceRoutes = require('./routes/voice');
 const aiAgentRoutes = require('./routes/aiAgent');
 const publicInfoRoutes = require('./routes/publicInfo');
+const externalVoiceApiRoutes = require('./routes/externalVoiceApi');
 
 // Route Kullanımları
 app.use("/api/auth", authRoutes);
@@ -238,6 +239,7 @@ app.use('/api/marketing', marketingRoutes);
 app.use('/api/voice', voiceRoutes);
 app.use('/api/ai-agent', aiAgentRoutes);
 app.use('/api/public', publicInfoRoutes);
+app.use('/api/external', externalVoiceApiRoutes);
 
 
 /* ======================================================

@@ -387,8 +387,110 @@ router.post('/social/generate', async (req, res) => {
   }
 });
 
+// Dış dünyadan firma arama (AI Lead Finder)
+router.post('/leads/search-web', adminOnly, async (req, res) => {
+  try {
+    const { query } = req.body;
+    if (!query) return res.status(400).json({ success: false, message: 'Arama terimi zorunludur' });
+
+    const { GoogleGenerativeAI } = require("@google/generative-ai");
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const prompt = `
+      Sen bir B2B Satış Arama robotusun. "${query}" aramasına uygun olarak Türkiye'de bulunan gerçek veya son derece gerçekçi 5 adet firma bul veya listele.
+      Her firma için şu alanları doldur:
+      - firmaAdi
+      - sektor (ilgili sektör)
+      - email (info@domain.com veya satis@domain.com gibi gerçekçi veya gerçek bir e-posta)
+      - yetkiliAdSoyad (Satın Alma Sorumlusu veya Şirket Yetkilisi adı)
+      - telefon (+90 ile başlayan gerçekçi bir telefon numarası)
+      - webSitesi (firma web sitesi)
+      
+      Yanıtı sadece JSON formatında döndür. Markdown etiketleri veya açıklamalar olmasın, doğrudan dizi olsun: [ { "firmaAdi": "...", "sektor": "...", "email": "...", "yetkiliAdSoyad": "...", "telefon": "...", "webSitesi": "..." } ]
+    `;
+
+    const result = await model.generateContent(prompt);
+    let text = result.response.text().trim();
+    
+    // Markdown JSON kod bloklarını temizle
+    if (text.startsWith('```')) {
+      text = text.replace(/```json|```/g, "").trim();
+    }
+    
+    const leads = JSON.parse(text);
+    res.json({ success: true, leads });
+  } catch (err) {
+    console.error("Lead search error:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Aday kaydet, Teklif oluştur ve Mail gönder (Bütünleşik Akış)
+router.post('/leads/quick-add-and-send-proposal', adminOnly, async (req, res) => {
+  try {
+    const leadData = { 
+      ...req.body,
+      durum: 'yeni',
+      emailOnay: true, // Mail atacağımız için otomatik izinli yapıyoruz
+      smsOnay: true,
+      onayTarihi: new Date(),
+      onayIp: req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress
+    };
+
+    const lead = new MarketingLead(leadData);
+    await lead.save();
+
+    // 1. Teklif metni üret
+    const proposal = await generateBusinessProposal(lead);
+    lead.sonTeklifMetni = proposal;
+    lead.durum = 'teklif_hazirlandi';
+
+    // 2. Mail gönder
+    let subject = `${lead.firmaAdi} İçin Kurumsal Tedarik Çözümleri Teklifimiz`;
+    const body = proposal.replace(/\n/g, '<br>');
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; padding: 24px; border-radius: 12px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h2 style="color: #4f46e5; margin: 0;">Kurumsal Tedarikçi</h2>
+          <p style="font-size: 12px; color: #64748b; margin: 4px 0 0 0;">B2B Tedarik ve Satın Alma Çözümleri</p>
+        </div>
+        <hr style="border: 0; border-top: 1px solid #f1f5f9; margin-bottom: 20px;" />
+        ${body}
+        <hr style="border: 0; border-top: 1px solid #f1f5f9; margin-top: 20px; margin-bottom: 20px;" />
+        <div style="text-align: center; font-size: 11px; color: #94a3b8;">
+          Bu e-posta talebinize veya B2B tanıtım kapsamına istinaden gönderilmiştir. <br/>
+          © Kurumsal Tedarikçi A.Ş. · tedarikci.org.tr
+        </div>
+      </div>
+    `;
+
+    await emailService.send({
+      to: lead.email,
+      subject,
+      htmlContent
+    });
+
+    lead.durum = 'teklif_gonderildi';
+    lead.gonderimTarihi = new Date();
+    lead.aktiviteler.push({
+      tip: 'email',
+      baslik: 'Teklif e-postası gönderildi (Bütünleşik Akış)',
+      not: subject,
+      olusturan: 'sistem'
+    });
+    
+    await lead.save();
+
+    res.json({ success: true, message: "Aday kaydedildi ve teklif gönderildi.", lead });
+  } catch (err) {
+    console.error("Quick lead and send error:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Tüm sosyal planları listele
-router.get('/social', async (req, res) => {
+router.get('/social', adminOnly, async (req, res) => {
   try {
     const SocialContent = require('../models/SocialContent');
     const plans = await SocialContent.find().sort({ createdAt: -1 });

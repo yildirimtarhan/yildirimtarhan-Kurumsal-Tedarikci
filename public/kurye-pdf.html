@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motor Kuryelere Özel Teklif</title>
+    <style>
+        :root {
+            --primary-blue: #0F4C81;
+            --secondary-blue: #1E3A5F;
+            --light-gray: #F4F7F6;
+            --medium-gray: #E0E5EC;
+            --dark-gray: #4A4A4A;
+            --accent-orange: #F26419;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #525659;
+            color: var(--dark-gray);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .page {
+            background: var(--white);
+            width: 210mm;
+            min-height: 297mm;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .section-title {
+            color: var(--primary-blue);
+            font-size: 2rem;
+            border-bottom: 3px solid var(--primary-blue);
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+            display: inline-block;
+        }
+
+        .content-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .pricing-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .pricing-table th {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            padding: 15px;
+            text-align: left;
+            font-size: 1.2rem;
+        }
+
+        .pricing-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--medium-gray);
+            font-size: 1.1rem;
+        }
+
+        .pricing-table tr:nth-child(even) {
+            background-color: var(--light-gray);
+        }
+
+        .pricing-table .highlight {
+            color: var(--accent-orange);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .back-cover {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background-color: var(--primary-blue);
+            color: var(--white);
+            padding: 60px;
+        }
+
+        .contact-info {
+            font-size: 1.3rem;
+            line-height: 2;
+        }
+
+        .qr-placeholder {
+            width: 150px;
+            height: 150px;
+            background: var(--white);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--primary-blue);
+            font-weight: bold;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        @media print {
+            body {
+                background-color: var(--white);
+                padding: 0;
+                margin: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .page {
+                width: 210mm;
+                height: 297mm;
+                min-height: auto;
+                margin: 0;
+                padding: 50px;
+                box-shadow: none;
+                page-break-after: always;
+                border: none;
+                page-break-inside: avoid;
+            }
+            @page {
+                size: A4;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Fiyatlandırma Sayfası -->
+    <div class="page">
+        <!-- Logo Eklemesi (İsteğe Bağlı ama güzel durur) -->
+        <div style="text-align:center; margin-bottom: 30px;">
+            <img src="kurumsal-tedarikci-logo.jpeg" alt="Kurumsal Tedarikçi" style="width: 200px;">
+        </div>
+
+        <h2 class="section-title">E-Dönüşüm Kampanyası</h2>
+        <p class="content-text">Motor Kuryelere özel hazırlanmış e-imza ve e-fatura kampanya fiyatlarımız:</p>
+
+        <table class="pricing-table">
+            <thead>
+                <tr>
+                    <th>Hizmet Adı</th>
+                    <th>Liste Fiyatı</th>
+                    <th>Kuryeye Özel</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>3 Yıllık E-İmza</strong> <br> <small>(Kurulum ve Aktivasyon Dahil)</small></td>
+                    <td><del>4.560 TL</del></td>
+                    <td class="highlight">2.800 TL + KDV</td>
+                </tr>
+                <tr>
+                    <td><strong>E-Fatura & E-Arşiv 100 Kontör Paketi</strong></td>
+                    <td><del>199 TL</del></td>
+                    <td class="highlight">99 TL + KDV</td>
+                </tr>
+                <tr>
+                    <td><strong>E-Fatura & E-Arşiv 250 Kontör Paketi</strong></td>
+                    <td><del>399 TL</del></td>
+                    <td class="highlight">199 TL + KDV</td>
+                </tr>
+                <tr>
+                    <td><strong>E-Fatura & E-Arşiv 500 Kontör Paketi</strong></td>
+                    <td><del>790 TL</del></td>
+                    <td class="highlight">390 TL + KDV</td>
+                </tr>
+                <tr>
+                    <td><strong>E-Fatura & E-Arşiv 1.000 Kontör Paketi</strong> <br> <small>(Eğitim ve Kurulum Dahil)</small></td>
+                    <td><del>1.480 TL</del></td>
+                    <td class="highlight">750 TL + KDV</td>
+                </tr>
+                <tr>
+                    <td><strong>E-Fatura & E-Arşiv 3.000 Kontör Paketi</strong></td>
+                    <td><del>3.680 TL</del></td>
+                    <td class="highlight">2.250 TL + KDV</td>
+                </tr>
+                <tr>
+                    <td><strong>E-Fatura & E-Arşiv 5.000 Kontör Paketi</strong></td>
+                    <td><del>4.780 TL</del></td>
+                    <td class="highlight">3.750 TL + KDV</td>
+                </tr>
+                <tr>
+                    <td><strong>E-Fatura & E-Arşiv 10.000 Kontör Paketi</strong></td>
+                    <td><del>8.200 TL</del></td>
+                    <td class="highlight">7.500 TL + KDV</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <p class="content-text" style="margin-top:30px;">
+            <em>* E-İmzalar e-Devlet, UYAP, EKAP ve tüm resmi kurum portallarında %100 geçerlidir.</em><br>
+            <em>* Kurulum işlemleri uzman ekibimiz tarafından uzak bağlantı ile aynı gün tamamlanır.</em><br>
+            <em>* Fatura kesme işlemleri için entegratör portalı (panel) kullanımı tamamen ücretsizdir.</em><br>
+            <em>* Tüm süreçlerinizde uzman ekibimiz tarafından 7/24 kesintisiz teknik destek hizmeti sağlanmaktadır.</em>
+        </p>
+    </div>
+
+    <!-- Arka Kapak -->
+    <div class="page back-cover">
+        <div>
+            <h1 style="font-size: 3rem; margin-bottom: 20px;">Dijital Dönüşümde Güvenilir İş Ortağınız</h1>
+            <p style="font-size: 1.5rem; opacity: 0.9;">Hemen iletişime geçin, e-fatura sürecinizi saniyeler içinde başlatalım.</p>
+        </div>
+        
+        <div style="display:flex; justify-content: space-between; align-items:flex-end;">
+            <div class="contact-info">
+                <strong>Web:</strong> www.tedarikci.org.tr<br>
+                <strong>E-Posta:</strong> bilgi@tedarikci.org.tr<br>
+                <strong>Tel:</strong> 0505 911 27 49 &nbsp;|&nbsp; <strong>Sabit:</strong> 0266 225 52 54<br>
+                <strong>Adres:</strong> Hacı Yusuf Mah. Ortaokul Cad. Eser Sok. No:4/10<br>Bandırma / Balıkesir
+            </div>
+            <div class="qr-placeholder" style="background: none;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.tedarikci.org.tr" alt="QR Kod" style="border-radius: 10px; border: 5px solid var(--white);">
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

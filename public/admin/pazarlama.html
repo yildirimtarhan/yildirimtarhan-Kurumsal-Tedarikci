@@ -33,7 +33,7 @@
         </div>
         <nav class="mt-8 px-4 space-y-2">
             <a href="index.html" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl transition-all">
-                <i class="fas fa-chart-line w-5"></i> Dashboard
+                <i class="fas fa-chart-line w-5"></i> <span class="menu-text">Dashboard</span>
             </a>
             <a href="cari-yonetim.html" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl transition-all">
                 <i class="fas fa-users w-5"></i> Cari Hesaplar
@@ -67,6 +67,7 @@
         <!-- Tabs -->
         <div class="flex gap-4 mb-8 border-b border-slate-200">
             <button onclick="switchTab('leads')" id="tab-leads" class="px-6 py-3 font-bold text-indigo-600 border-b-2 border-indigo-600 transition-all">Müşteri Yönetimi</button>
+            <button onclick="switchTab('lead-finder')" id="tab-lead-finder" class="px-6 py-3 font-bold text-slate-500 hover:text-indigo-600 transition-all">İnternetten Yeni Müşteri Bul (AI)</button>
             <button onclick="switchTab('social')" id="tab-social" class="px-6 py-3 font-bold text-slate-500 hover:text-indigo-600 transition-all">Video & Sosyal Medya Stüdyosu</button>
         </div>
 
@@ -124,6 +125,30 @@
                     </thead>
                     <tbody id="leadsTableBody" class="divide-y divide-slate-100"></tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Section: AI Lead Finder (İnternetten Yeni Müşteri Bul) -->
+        <div id="section-lead-finder" class="hidden animate-in fade-in duration-300">
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm mb-8">
+                <h3 class="font-bold text-slate-900 mb-2 flex items-center gap-2">
+                    <i class="fas fa-search text-indigo-500"></i> İnternetten Müşteri Bulucu
+                </h3>
+                <p class="text-slate-500 text-sm mb-6">Yapay zeka ile internet üzerinde arama yapıp yeni potansiyel B2B müşteriler bulun. Onlara teklif gönderin ve aramaya hazırlanın.</p>
+                <div class="flex gap-3">
+                    <input type="text" id="leadFinderQuery" placeholder="Örn: İstanbul Moto Kurye Firmaları, Şişli Temizlik Şirketleri..." class="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 outline-none">
+                    <button onclick="searchWebLeads()" class="ai-gradient text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-indigo-500/30 flex items-center gap-2 hover:opacity-95 transition-all">
+                        <i class="fas fa-sparkles"></i> Adayları Bul
+                    </button>
+                </div>
+            </div>
+
+            <div id="leadFinderResults" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Search results will load here -->
+                <div class="md:col-span-2 lg:col-span-3 text-center py-20 text-slate-400 bg-white rounded-2xl border border-dashed border-slate-200">
+                    <i class="fas fa-search-dollar text-4xl mb-4 text-slate-300"></i>
+                    <p>Yukarıdaki arama çubuğunu kullanarak potansiyel müşterileri bulun.</p>
+                </div>
             </div>
         </div>
 
@@ -453,16 +478,133 @@
         });
 
         function switchTab(tab) {
-            const tabs = ['leads', 'social'];
+            const tabs = ['leads', 'social', 'lead-finder'];
             tabs.forEach(t => {
-                document.getElementById(`section-${t}`).classList.add('hidden');
-                document.getElementById(`tab-${t}`).classList.remove('text-indigo-600', 'border-b-2', 'border-indigo-600');
-                document.getElementById(`tab-${t}`).classList.add('text-slate-500');
+                const sec = document.getElementById(`section-${t}`);
+                const tb = document.getElementById(`tab-${t}`);
+                if (sec) sec.classList.add('hidden');
+                if (tb) {
+                    tb.classList.remove('text-indigo-600', 'border-b-2', 'border-indigo-600');
+                    tb.classList.add('text-slate-500');
+                }
             });
             
-            document.getElementById(`section-${tab}`).classList.remove('hidden');
-            document.getElementById(`tab-${tab}`).classList.remove('text-slate-500');
-            document.getElementById(`tab-${tab}`).classList.add('text-indigo-600', 'border-b-2', 'border-indigo-600');
+            const targetSec = document.getElementById(`section-${tab}`);
+            const targetTb = document.getElementById(`tab-${tab}`);
+            if (targetSec) targetSec.classList.remove('hidden');
+            if (targetTb) {
+                targetTb.classList.remove('text-slate-500');
+                targetTb.classList.add('text-indigo-600', 'border-b-2', 'border-indigo-600');
+            }
+        }
+
+        async function searchWebLeads() {
+            const query = document.getElementById('leadFinderQuery').value.trim();
+            if (!query) return alert('Lütfen bir arama terimi girin.');
+
+            const resultsContainer = document.getElementById('leadFinderResults');
+            resultsContainer.innerHTML = `
+                <div class="md:col-span-2 lg:col-span-3 text-center py-20 bg-white rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center gap-4">
+                    <div class="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                    <p class="text-indigo-600 font-medium animate-pulse">Yapay zeka interneti tarayarak adayları buluyor...</p>
+                </div>
+            `;
+
+            try {
+                const res = await fetch(`${API_URL}/marketing/leads/search-web`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ query })
+                });
+                const data = await res.json();
+                if (data.success && data.leads.length > 0) {
+                    renderFinderResults(data.leads);
+                } else {
+                    resultsContainer.innerHTML = `
+                        <div class="md:col-span-2 lg:col-span-3 text-center py-20 text-slate-400 bg-white rounded-2xl border border-slate-200">
+                            <i class="fas fa-exclamation-circle text-4xl mb-4 text-amber-500"></i>
+                            <p>Arama terimiyle eşleşen uygun aday bulunamadı.</p>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                resultsContainer.innerHTML = `
+                    <div class="md:col-span-2 lg:col-span-3 text-center py-20 text-rose-500 bg-white rounded-2xl border border-slate-200">
+                        <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+                        <p>Hata oluştu: ${err.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        let tempFinderLeads = [];
+
+        function renderFinderResults(leads) {
+            tempFinderLeads = leads;
+            const container = document.getElementById('leadFinderResults');
+            container.innerHTML = leads.map((lead, idx) => `
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between ai-card animate-in fade-in zoom-in duration-200">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-[10px] font-bold rounded-lg uppercase tracking-wider">${esc(lead.sektor)}</span>
+                            <span class="text-xs text-slate-400 font-semibold flex items-center gap-1">
+                                <i class="fas fa-globe"></i> ${esc(lead.webSitesi || '—')}
+                            </span>
+                        </div>
+                        <h4 class="font-bold text-lg text-slate-900 mb-2">${esc(lead.firmaAdi)}</h4>
+                        <div class="space-y-2 text-sm text-slate-600 mb-6">
+                            <div class="flex items-center gap-2"><i class="fas fa-user text-xs text-slate-400"></i> ${esc(lead.yetkiliAdSoyad || 'Yönetici')}</div>
+                            <div class="flex items-center gap-2"><i class="fas fa-envelope text-xs text-slate-400"></i> ${esc(lead.email)}</div>
+                            <div class="flex items-center gap-2"><i class="fas fa-phone text-xs text-slate-400"></i> ${esc(lead.telefon)}</div>
+                        </div>
+                    </div>
+                    <button onclick="quickAddAndSendProposal(${idx})" class="w-full ai-gradient text-white py-3 rounded-xl font-bold shadow-lg shadow-indigo-500/20 hover:opacity-95 transition-all flex items-center justify-center gap-2">
+                        <i class="fas fa-paper-plane"></i> Teklif Gönder & CRM'e Ekle
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function quickAddAndSendProposal(idx) {
+            const lead = tempFinderLeads[idx];
+            if (!lead) return;
+
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Teklif Gönderiliyor...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_URL}/marketing/leads/quick-add-and-send-proposal`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(lead)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Harika! Müşteri adayı başarıyla CRM sistemine eklendi ve B2B fiyat teklifi e-postası gönderildi.');
+                    
+                    // CRM listesini güncelle
+                    await fetchLeads();
+                    await fetchLeadSummary();
+                    
+                    // Detay modalını açıp doğrudan sesli akıllı arama yapmasına izin ver!
+                    openLeadDetail(data.lead._id);
+                } else {
+                    alert('Hata: ' + data.message);
+                }
+            } catch (err) {
+                alert('İşlem hatası: ' + err.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
 
         async function generateSocialContent() {

@@ -8,6 +8,10 @@ const MessageSchema = new mongoose.Schema({
 
 const AICallSessionSchema = new mongoose.Schema({
   leadId: { type: mongoose.Schema.Types.ObjectId, ref: 'MarketingLead' },
+  externalProjectId: { type: mongoose.Schema.Types.ObjectId, ref: 'ExternalProject' },
+  customPrompt: { type: String },
+  initialGreeting: { type: String },
+  webhookUrl: { type: String },
   callSid: { type: String, required: true, unique: true },
   from: { type: String },
   to: { type: String },

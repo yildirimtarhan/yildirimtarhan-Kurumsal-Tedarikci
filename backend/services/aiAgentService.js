@@ -45,7 +45,7 @@ class AIAgentService {
       parts: [{ text: m.text }]
     }));
 
-    const systemPrompt = this.getSystemPrompt(session.leadId);
+    const systemPrompt = session.customPrompt ? session.customPrompt : this.getSystemPrompt(session.leadId);
     
     // Gemini 1.5 prompt yapısı
     const chat = this.model.startChat({
@@ -97,7 +97,7 @@ class AIAgentService {
       session.status = 'completed';
       await session.save();
 
-      // 2. MarketingLead Güncelle
+      // 2. MarketingLead Güncelle veya Webhook Tetikle
       if (session.leadId) {
         const lead = session.leadId;
         lead.aiNotlari = (lead.aiNotlari ? lead.aiNotlari + "\n" : "") + 
@@ -130,6 +130,27 @@ class AIAgentService {
         const lastMsg = session.transcript[session.transcript.length - 1]?.text || "";
         if (summaryData.sendFollowUp || lastMsg.includes("[SEND_EMAIL]")) {
            await this.sendFollowUpEmail(session, lead);
+        }
+      } else if (session.externalProjectId && session.webhookUrl) {
+        // Dış Proje için Webhook tetikleme
+        try {
+          const axios = require('axios');
+          const webhookPayload = {
+            sessionId: session._id,
+            callSid: session.callSid,
+            to: session.to,
+            duration: session.duration,
+            recordingUrl: session.recordingUrl,
+            summary: session.summary,
+            notes: session.notes,
+            transcript: session.transcript,
+            analysis: summaryData
+          };
+          console.log(`🔗 Webhook tetikleniyor: ${session.webhookUrl}`);
+          await axios.post(session.webhookUrl, webhookPayload, { timeout: 5000 });
+          console.log(`🔗 Webhook başarıyla gönderildi: ${session.webhookUrl}`);
+        } catch (webhookErr) {
+          console.error(`🔗 Webhook gönderme hatası (${session.webhookUrl}):`, webhookErr.message);
         }
       }
     } catch (err) {
